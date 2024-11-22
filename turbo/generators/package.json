@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@repo/config-typescript": "workspace:*"
+  },
+  "type": "commonjs"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "turbo-25",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "start-services": "cd apps/supabase && npx supabase start --ignore-health-check && cd ../.. && docker compose up -d",
+    "stop-services": "docker compose down && cd apps/supabase && npx supabase stop",
+    "dev": "pnpm run start-services && pnpm run generate-types && turbo dev",
+    "dev:api": "turbo dev --filter=api",
+    "dev:fe-web": "turbo dev --filter=fe-web",
+    "generate-types": "cd apps/supabase && npx supabase gen types --lang=typescript --local > ../../packages/db/src/database.types.ts",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
+    "prepare": "husky",
+    "test": "vitest run",
+    "pre-commit": "lint-staged",
+    "type-check": "tsc --noEmit",
+    "setup": "node initial-setup.js"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "vitest related --run"
+    ],
+    "*.{json,yml,yaml,md}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.0.0",
+    "turbo": "^2.2.3",
+    "typescript": "5.5.4"
+  },
+  "packageManager": "pnpm@8.15.6",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "inquirer": "^12.0.1"
+  }
+}

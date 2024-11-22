@@ -1,0 +1,11 @@
+{
+  "devDependencies": {
+    "prettier": "^3.0.0"
+  },
+  "exports": {
+    ".": "./prettier.config.js"
+  },
+  "name": "@repo/config-prettier",
+  "private": true,
+  "version": "0.0.0"
+}

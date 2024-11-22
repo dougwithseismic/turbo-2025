@@ -1,0 +1,52 @@
+version: "3"
+services:
+  directus:
+    image: directus/directus
+    container_name: directus
+    ports:
+      - 8055:8055
+    volumes:
+      - ./uploads:/directus/uploads
+      - ./database:/directus/database
+      - ./extensions:/directus/extensions
+    environment:
+      SECRET: "${DIRECTUS_SECRET}"
+      ADMIN_EMAIL: "doug@withseismic.com"
+      ADMIN_PASSWORD: "${DIRECTUS_ADMIN_PASSWORD}"
+      DB_CLIENT: "pg"
+      DB_HOST: "directus-db"
+      DB_PORT: "5432"
+      DB_DATABASE: "directus"
+      DB_USER: "${DIRECTUS_DB_USER}"
+      DB_PASSWORD: "${DIRECTUS_DB_PASSWORD}"
+      WEBSOCKETS_ENABLED: "true"
+      STORAGE_LOCATIONS: "s3"
+      STORAGE_S3_DRIVER: "s3"
+      STORAGE_S3_KEY: "${STORAGE_S3_KEY}"
+      STORAGE_S3_SECRET: "${STORAGE_S3_SECRET}"
+      STORAGE_S3_BUCKET: "${STORAGE_S3_BUCKET}"
+      STORAGE_S3_REGION: "local"
+      STORAGE_S3_ENDPOINT: "http://storage:9000"
+      STORAGE_S3_ACL: "public-read"
+      STORAGE_S3_FORCE_PATH_STYLE: "true"
+    depends_on:
+      directus-db:
+        condition: service_healthy
+    networks:
+      - seismic-network
+
+  directus-db:
+    image: postgres:15
+    volumes:
+      - ./data/database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: "${DIRECTUS_DB_USER}"
+      POSTGRES_PASSWORD: "${DIRECTUS_DB_PASSWORD}"
+      POSTGRES_DB: "directus"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DIRECTUS_DB_USER} -d directus"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - seismic-network
