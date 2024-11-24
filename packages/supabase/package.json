@@ -5,8 +5,8 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
     "@repo/config-typescript": "workspace:*",
-    "@repo/eslint-config": "workspace:*",
     "@types/node": "^20.17.6",
     "typescript": "latest"
   },
