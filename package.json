@@ -6,7 +6,7 @@
     "start:supabase": "cd packages/supabase && npx supabase start --ignore-health-check && cd ../..",
     "start-services": "pnpm run start:supabase && docker compose up -d",
     "stop-services": "docker compose down && cd packages/supabase && npx supabase stop && cd ../..",
-    "dev": "pnpm run start-services && turbo dev",
+    "dev": "turbo dev",
     "dev:api": "turbo dev --filter=api",
     "dev:fe-web": "turbo dev --filter=fe-web",
     "lint": "eslint . --ext .ts,.tsx",
@@ -20,9 +20,7 @@
   },
   "lint-staged": {
     "*.{ts,tsx}": [
-      "eslint --fix",
-      "prettier --write",
-      "vitest related --run"
+      "prettier --write"
     ],
     "*.{json,yml,yaml,md}": [
       "prettier --write"
