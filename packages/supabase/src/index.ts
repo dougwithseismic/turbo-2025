@@ -13,7 +13,6 @@ const env = createEnv({
 })
 
 let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
-
 /**
  * Supabase client singleton instance.
  * The client is lazily initialized when first accessed through getSupabaseClient().

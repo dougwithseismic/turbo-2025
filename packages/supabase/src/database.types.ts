@@ -85,7 +85,7 @@ export type Database = {
           name: string
           primary_address_id: string | null
           primary_contact_id: string | null
-          size: Database["public"]["Enums"]["company_size"] | null
+          size: Database['public']['Enums']['company_size'] | null
           updated_at: string | null
           website_url: string | null
           year_founded: number | null
@@ -101,7 +101,7 @@ export type Database = {
           name: string
           primary_address_id?: string | null
           primary_contact_id?: string | null
-          size?: Database["public"]["Enums"]["company_size"] | null
+          size?: Database['public']['Enums']['company_size'] | null
           updated_at?: string | null
           website_url?: string | null
           year_founded?: number | null
@@ -117,25 +117,25 @@ export type Database = {
           name?: string
           primary_address_id?: string | null
           primary_contact_id?: string | null
-          size?: Database["public"]["Enums"]["company_size"] | null
+          size?: Database['public']['Enums']['company_size'] | null
           updated_at?: string | null
           website_url?: string | null
           year_founded?: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "companies_primary_address_id_fkey"
-            columns: ["primary_address_id"]
+            foreignKeyName: 'companies_primary_address_id_fkey'
+            columns: ['primary_address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "companies_primary_contact_id_fkey"
-            columns: ["primary_contact_id"]
+            foreignKeyName: 'companies_primary_contact_id_fkey'
+            columns: ['primary_contact_id']
             isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -217,18 +217,18 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "events_address_id_fkey"
-            columns: ["address_id"]
+            foreignKeyName: 'events_address_id_fkey'
+            columns: ['address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "events_organizer_id_fkey"
-            columns: ["organizer_id"]
+            foreignKeyName: 'events_organizer_id_fkey'
+            columns: ['organizer_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -244,13 +244,13 @@ export type Database = {
           expires_at: string
           id: string
           is_remote_friendly: boolean | null
-          job_type: Database["public"]["Enums"]["job_type"]
+          job_type: Database['public']['Enums']['job_type']
           languages_required: string[] | null
           poster_id: string
           requirements: string[] | null
           salary_range_max: number | null
           salary_range_min: number | null
-          status: Database["public"]["Enums"]["post_status"] | null
+          status: Database['public']['Enums']['post_status'] | null
           title: string
           updated_at: string | null
           work_location_address_id: string | null
@@ -266,13 +266,13 @@ export type Database = {
           expires_at: string
           id?: string
           is_remote_friendly?: boolean | null
-          job_type: Database["public"]["Enums"]["job_type"]
+          job_type: Database['public']['Enums']['job_type']
           languages_required?: string[] | null
           poster_id: string
           requirements?: string[] | null
           salary_range_max?: number | null
           salary_range_min?: number | null
-          status?: Database["public"]["Enums"]["post_status"] | null
+          status?: Database['public']['Enums']['post_status'] | null
           title: string
           updated_at?: string | null
           work_location_address_id?: string | null
@@ -288,45 +288,45 @@ export type Database = {
           expires_at?: string
           id?: string
           is_remote_friendly?: boolean | null
-          job_type?: Database["public"]["Enums"]["job_type"]
+          job_type?: Database['public']['Enums']['job_type']
           languages_required?: string[] | null
           poster_id?: string
           requirements?: string[] | null
           salary_range_max?: number | null
           salary_range_min?: number | null
-          status?: Database["public"]["Enums"]["post_status"] | null
+          status?: Database['public']['Enums']['post_status'] | null
           title?: string
           updated_at?: string | null
           work_location_address_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "job_listings_company_id_fkey"
-            columns: ["company_id"]
+            foreignKeyName: 'job_listings_company_id_fkey'
+            columns: ['company_id']
             isOneToOne: false
-            referencedRelation: "companies"
-            referencedColumns: ["id"]
+            referencedRelation: 'companies'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "job_listings_contact_id_fkey"
-            columns: ["contact_id"]
+            foreignKeyName: 'job_listings_contact_id_fkey'
+            columns: ['contact_id']
             isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "job_listings_poster_id_fkey"
-            columns: ["poster_id"]
+            foreignKeyName: 'job_listings_poster_id_fkey'
+            columns: ['poster_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "job_listings_work_location_address_id_fkey"
-            columns: ["work_location_address_id"]
+            foreignKeyName: 'job_listings_work_location_address_id_fkey'
+            columns: ['work_location_address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -360,25 +360,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "service_reviews_reviewer_id_fkey"
-            columns: ["reviewer_id"]
+            foreignKeyName: 'service_reviews_reviewer_id_fkey'
+            columns: ['reviewer_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "service_reviews_service_id_fkey"
-            columns: ["service_id"]
+            foreignKeyName: 'service_reviews_service_id_fkey'
+            columns: ['service_id']
             isOneToOne: false
-            referencedRelation: "services"
-            referencedColumns: ["id"]
+            referencedRelation: 'services'
+            referencedColumns: ['id']
           },
         ]
       }
       services: {
         Row: {
           address_id: string | null
-          category: Database["public"]["Enums"]["service_category"]
+          category: Database['public']['Enums']['service_category']
           contact_id: string | null
           created_at: string | null
           description: string
@@ -392,7 +392,7 @@ export type Database = {
         }
         Insert: {
           address_id?: string | null
-          category: Database["public"]["Enums"]["service_category"]
+          category: Database['public']['Enums']['service_category']
           contact_id?: string | null
           created_at?: string | null
           description: string
@@ -406,7 +406,7 @@ export type Database = {
         }
         Update: {
           address_id?: string | null
-          category?: Database["public"]["Enums"]["service_category"]
+          category?: Database['public']['Enums']['service_category']
           contact_id?: string | null
           created_at?: string | null
           description?: string
@@ -420,25 +420,25 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "services_address_id_fkey"
-            columns: ["address_id"]
+            foreignKeyName: 'services_address_id_fkey'
+            columns: ['address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "services_contact_id_fkey"
-            columns: ["contact_id"]
+            foreignKeyName: 'services_contact_id_fkey'
+            columns: ['contact_id']
             isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "services_provider_id_fkey"
-            columns: ["provider_id"]
+            foreignKeyName: 'services_provider_id_fkey'
+            columns: ['provider_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -473,7 +473,7 @@ export type Database = {
           created_at: string | null
           featured: boolean | null
           id: string
-          status: Database["public"]["Enums"]["post_status"] | null
+          status: Database['public']['Enums']['post_status'] | null
           title: string
           updated_at: string | null
         }
@@ -483,7 +483,7 @@ export type Database = {
           created_at?: string | null
           featured?: boolean | null
           id?: string
-          status?: Database["public"]["Enums"]["post_status"] | null
+          status?: Database['public']['Enums']['post_status'] | null
           title: string
           updated_at?: string | null
         }
@@ -493,17 +493,17 @@ export type Database = {
           created_at?: string | null
           featured?: boolean | null
           id?: string
-          status?: Database["public"]["Enums"]["post_status"] | null
+          status?: Database['public']['Enums']['post_status'] | null
           title?: string
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "success_stories_author_id_fkey"
-            columns: ["author_id"]
+            foreignKeyName: 'success_stories_author_id_fkey'
+            columns: ['author_id']
             isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
+            referencedRelation: 'users'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -523,7 +523,7 @@ export type Database = {
           phone: string | null
           primary_address_id: string | null
           primary_contact_id: string | null
-          role: Database["public"]["Enums"]["user_role"] | null
+          role: Database['public']['Enums']['user_role'] | null
           shipping_address_id: string | null
           updated_at: string | null
         }
@@ -542,7 +542,7 @@ export type Database = {
           phone?: string | null
           primary_address_id?: string | null
           primary_contact_id?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
+          role?: Database['public']['Enums']['user_role'] | null
           shipping_address_id?: string | null
           updated_at?: string | null
         }
@@ -561,45 +561,45 @@ export type Database = {
           phone?: string | null
           primary_address_id?: string | null
           primary_contact_id?: string | null
-          role?: Database["public"]["Enums"]["user_role"] | null
+          role?: Database['public']['Enums']['user_role'] | null
           shipping_address_id?: string | null
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "users_billing_address_id_fkey"
-            columns: ["billing_address_id"]
+            foreignKeyName: 'users_billing_address_id_fkey'
+            columns: ['billing_address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "users_billing_contact_id_fkey"
-            columns: ["billing_contact_id"]
+            foreignKeyName: 'users_billing_contact_id_fkey'
+            columns: ['billing_contact_id']
             isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "users_primary_address_id_fkey"
-            columns: ["primary_address_id"]
+            foreignKeyName: 'users_primary_address_id_fkey'
+            columns: ['primary_address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "users_primary_contact_id_fkey"
-            columns: ["primary_contact_id"]
+            foreignKeyName: 'users_primary_contact_id_fkey'
+            columns: ['primary_contact_id']
             isOneToOne: false
-            referencedRelation: "contacts"
-            referencedColumns: ["id"]
+            referencedRelation: 'contacts'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "users_shipping_address_id_fkey"
-            columns: ["shipping_address_id"]
+            foreignKeyName: 'users_shipping_address_id_fkey'
+            columns: ['shipping_address_id']
             isOneToOne: false
-            referencedRelation: "addresses"
-            referencedColumns: ["id"]
+            referencedRelation: 'addresses'
+            referencedColumns: ['id']
           },
         ]
       }
@@ -690,7 +690,7 @@ export type Database = {
       }
       _st_bestsrid: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -805,7 +805,7 @@ export type Database = {
       }
       _st_pointoutside: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -840,7 +840,7 @@ export type Database = {
       }
       addauth: {
         Args: {
-          "": string
+          '': string
         }
         Returns: boolean
       }
@@ -884,94 +884,94 @@ export type Database = {
       box:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
       box2d:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
       box2d_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box2d_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box2df_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box2df_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box3d:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
       box3d_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box3d_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       box3dtobox: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       bytea:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
@@ -1040,110 +1040,110 @@ export type Database = {
       geography:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
       geography_analyze: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       geography_gist_compress: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geography_gist_decompress: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geography_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geography_send: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       geography_spgist_compress_nd: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geography_typmod_in: {
         Args: {
-          "": unknown[]
+          '': unknown[]
         }
         Returns: number
       }
       geography_typmod_out: {
         Args: {
-          "": number
+          '': number
         }
         Returns: unknown
       }
       geometry:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
@@ -1156,7 +1156,7 @@ export type Database = {
       }
       geometry_analyze: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
@@ -1225,31 +1225,31 @@ export type Database = {
       }
       geometry_gist_compress_2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_gist_compress_nd: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_gist_decompress_2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_gist_decompress_nd: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_gist_sortsupport_2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: undefined
       }
@@ -1262,13 +1262,13 @@ export type Database = {
       }
       geometry_hash: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       geometry_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1295,7 +1295,7 @@ export type Database = {
       }
       geometry_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1343,7 +1343,7 @@ export type Database = {
       }
       geometry_recv: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1370,43 +1370,43 @@ export type Database = {
       }
       geometry_send: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       geometry_sortsupport: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: undefined
       }
       geometry_spgist_compress_2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_spgist_compress_3d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_spgist_compress_nd: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       geometry_typmod_in: {
         Args: {
-          "": unknown[]
+          '': unknown[]
         }
         Returns: number
       }
       geometry_typmod_out: {
         Args: {
-          "": number
+          '': number
         }
         Returns: unknown
       }
@@ -1420,31 +1420,31 @@ export type Database = {
       geometrytype:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
       geomfromewkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       geomfromewkt: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       get_proj4_from_srid: {
         Args: {
-          "": number
+          '': number
         }
         Returns: string
       }
@@ -1454,25 +1454,25 @@ export type Database = {
       }
       gidx_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       gidx_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       json: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: Json
       }
       jsonb: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: Json
       }
@@ -1482,85 +1482,85 @@ export type Database = {
       }
       path: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       pgis_asflatgeobuf_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       pgis_asgeobuf_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       pgis_asmvt_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       pgis_asmvt_serialfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       pgis_geometry_clusterintersecting_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown[]
       }
       pgis_geometry_clusterwithin_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown[]
       }
       pgis_geometry_collect_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       pgis_geometry_makeline_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       pgis_geometry_polygonize_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       pgis_geometry_union_parallel_finalfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       pgis_geometry_union_parallel_serialfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       point: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       polygon: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1580,7 +1580,7 @@ export type Database = {
           }
       postgis_addbbox: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1610,7 +1610,7 @@ export type Database = {
       }
       postgis_dropbbox: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1624,7 +1624,7 @@ export type Database = {
       }
       postgis_geos_noop: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1634,19 +1634,19 @@ export type Database = {
       }
       postgis_getbbox: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       postgis_hasbbox: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       postgis_index_supportfn: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1680,7 +1680,7 @@ export type Database = {
       }
       postgis_noop: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1714,19 +1714,19 @@ export type Database = {
       }
       postgis_typmod_dims: {
         Args: {
-          "": number
+          '': number
         }
         Returns: number
       }
       postgis_typmod_srid: {
         Args: {
-          "": number
+          '': number
         }
         Returns: number
       }
       postgis_typmod_type: {
         Args: {
-          "": number
+          '': number
         }
         Returns: string
       }
@@ -1740,13 +1740,13 @@ export type Database = {
       }
       spheroid_in: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       spheroid_out: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -1773,7 +1773,7 @@ export type Database = {
       }
       st_3dlength: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -1800,7 +1800,7 @@ export type Database = {
       }
       st_3dperimeter: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -1838,13 +1838,13 @@ export type Database = {
       st_area:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: number
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: number
           }
@@ -1857,20 +1857,20 @@ export type Database = {
           }
       st_area2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_asbinary:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
@@ -1883,33 +1883,33 @@ export type Database = {
       }
       st_asewkb: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       st_asewkt:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
       st_asgeojson:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
@@ -1941,7 +1941,7 @@ export type Database = {
       st_asgml:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
@@ -1987,14 +1987,14 @@ export type Database = {
           }
       st_ashexewkb: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       st_askml:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
@@ -2041,7 +2041,7 @@ export type Database = {
       st_assvg:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
@@ -2064,19 +2064,19 @@ export type Database = {
       st_astext:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
@@ -2129,7 +2129,7 @@ export type Database = {
           }
       st_boundary: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2159,26 +2159,26 @@ export type Database = {
           }
       st_buildarea: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_centroid:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
       st_cleangeometry: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2198,14 +2198,14 @@ export type Database = {
       }
       st_clusterintersecting: {
         Args: {
-          "": unknown[]
+          '': unknown[]
         }
         Returns: unknown[]
       }
       st_collect:
         | {
             Args: {
-              "": unknown[]
+              '': unknown[]
             }
             Returns: unknown
           }
@@ -2218,13 +2218,13 @@ export type Database = {
           }
       st_collectionextract: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_collectionhomogenize: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2252,7 +2252,7 @@ export type Database = {
       }
       st_convexhull: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2326,7 +2326,7 @@ export type Database = {
       }
       st_dimension: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -2378,27 +2378,27 @@ export type Database = {
       }
       st_dump: {
         Args: {
-          "": unknown
+          '': unknown
         }
-        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+        Returns: Database['public']['CompositeTypes']['geometry_dump'][]
       }
       st_dumppoints: {
         Args: {
-          "": unknown
+          '': unknown
         }
-        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+        Returns: Database['public']['CompositeTypes']['geometry_dump'][]
       }
       st_dumprings: {
         Args: {
-          "": unknown
+          '': unknown
         }
-        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+        Returns: Database['public']['CompositeTypes']['geometry_dump'][]
       }
       st_dumpsegments: {
         Args: {
-          "": unknown
+          '': unknown
         }
-        Returns: Database["public"]["CompositeTypes"]["geometry_dump"][]
+        Returns: Database['public']['CompositeTypes']['geometry_dump'][]
       }
       st_dwithin: {
         Args: {
@@ -2411,13 +2411,13 @@ export type Database = {
       }
       st_endpoint: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_envelope: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2458,19 +2458,19 @@ export type Database = {
           }
       st_exteriorring: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_flipcoordinates: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_force2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2505,37 +2505,37 @@ export type Database = {
       }
       st_forcecollection: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_forcecurve: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_forcepolygonccw: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_forcepolygoncw: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_forcerhr: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_forcesfs: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -2557,19 +2557,19 @@ export type Database = {
           }
       st_geogfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geogfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geographyfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2590,13 +2590,13 @@ export type Database = {
           }
       st_geomcollfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomcollfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2611,56 +2611,56 @@ export type Database = {
       }
       st_geometryfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geometrytype: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       st_geomfromewkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomfromewkt: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomfromgeojson:
         | {
             Args: {
-              "": Json
+              '': Json
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": Json
+              '': Json
             }
             Returns: unknown
           }
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: unknown
           }
       st_geomfromgml: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomfromkml: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2672,25 +2672,25 @@ export type Database = {
       }
       st_geomfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomfromtwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_geomfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_gmltosql: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2755,49 +2755,49 @@ export type Database = {
           }
       st_isclosed: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_iscollection: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_isempty: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_ispolygonccw: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_ispolygoncw: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_isring: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_issimple: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_isvalid: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
@@ -2806,30 +2806,30 @@ export type Database = {
           geom: unknown
           flags?: number
         }
-        Returns: Database["public"]["CompositeTypes"]["valid_detail"]
+        Returns: Database['public']['CompositeTypes']['valid_detail']
       }
       st_isvalidreason: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       st_isvalidtrajectory: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: boolean
       }
       st_length:
         | {
             Args: {
-              "": string
+              '': string
             }
             Returns: number
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: number
           }
@@ -2842,7 +2842,7 @@ export type Database = {
           }
       st_length2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -2869,19 +2869,19 @@ export type Database = {
       }
       st_linefrommultipoint: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_linefromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_linefromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2894,13 +2894,13 @@ export type Database = {
       }
       st_linemerge: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_linestringfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -2944,7 +2944,7 @@ export type Database = {
       }
       st_m: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -2958,7 +2958,7 @@ export type Database = {
       st_makeline:
         | {
             Args: {
-              "": unknown[]
+              '': unknown[]
             }
             Returns: unknown
           }
@@ -2971,14 +2971,14 @@ export type Database = {
           }
       st_makepolygon: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_makevalid:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: unknown
           }
@@ -2998,13 +2998,13 @@ export type Database = {
       }
       st_maximuminscribedcircle: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: Record<string, unknown>
       }
       st_memsize: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -3017,103 +3017,103 @@ export type Database = {
       }
       st_minimumboundingradius: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: Record<string, unknown>
       }
       st_minimumclearance: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_minimumclearanceline: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_mlinefromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_mlinefromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_mpointfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_mpointfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_mpolyfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_mpolyfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multi: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_multilinefromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multilinestringfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multipointfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multipointfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multipolyfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_multipolygonfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_ndims: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -3131,43 +3131,43 @@ export type Database = {
       }
       st_npoints: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_nrings: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_numgeometries: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_numinteriorring: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_numinteriorrings: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_numpatches: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_numpoints: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
@@ -3188,7 +3188,7 @@ export type Database = {
       }
       st_orientedenvelope: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -3202,7 +3202,7 @@ export type Database = {
       st_perimeter:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: number
           }
@@ -3215,19 +3215,19 @@ export type Database = {
           }
       st_perimeter2d: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_pointfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_pointfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -3242,13 +3242,13 @@ export type Database = {
       }
       st_pointonsurface: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
       st_points: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -3273,31 +3273,31 @@ export type Database = {
       }
       st_polyfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_polyfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_polygonfromtext: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_polygonfromwkb: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
       st_polygonize: {
         Args: {
-          "": unknown[]
+          '': unknown[]
         }
         Returns: unknown
       }
@@ -3342,7 +3342,7 @@ export type Database = {
       }
       st_reverse: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -3377,7 +3377,7 @@ export type Database = {
       }
       st_shiftlongitude: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -3434,7 +3434,7 @@ export type Database = {
           }
       st_startpoint: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: unknown
       }
@@ -3449,13 +3449,13 @@ export type Database = {
       st_summary:
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
         | {
             Args: {
-              "": unknown
+              '': unknown
             }
             Returns: string
           }
@@ -3531,7 +3531,7 @@ export type Database = {
       st_union:
         | {
             Args: {
-              "": unknown[]
+              '': unknown[]
             }
             Returns: unknown
           }
@@ -3581,7 +3581,7 @@ export type Database = {
       }
       st_wkttosql: {
         Args: {
-          "": string
+          '': string
         }
         Returns: unknown
       }
@@ -3595,73 +3595,73 @@ export type Database = {
       }
       st_x: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_xmax: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_xmin: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_y: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_ymax: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_ymin: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_z: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_zmax: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_zmflag: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       st_zmin: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: number
       }
       text: {
         Args: {
-          "": unknown
+          '': unknown
         }
         Returns: string
       }
       unlockrows: {
         Args: {
-          "": string
+          '': string
         }
         Returns: number
       }
@@ -3678,23 +3678,23 @@ export type Database = {
     }
     Enums: {
       company_size:
-        | "1-10"
-        | "11-50"
-        | "51-200"
-        | "201-500"
-        | "501-1000"
-        | "1000+"
-      job_type: "full_time" | "part_time" | "contract" | "internship" | "remote"
-      post_status: "draft" | "published" | "archived"
+        | '1-10'
+        | '11-50'
+        | '51-200'
+        | '201-500'
+        | '501-1000'
+        | '1000+'
+      job_type: 'full_time' | 'part_time' | 'contract' | 'internship' | 'remote'
+      post_status: 'draft' | 'published' | 'archived'
       service_category:
-        | "medical"
-        | "legal"
-        | "translation"
-        | "relocation"
-        | "real_estate"
-        | "language_school"
-        | "other"
-      user_role: "user" | "service_provider" | "admin" | "moderator"
+        | 'medical'
+        | 'legal'
+        | 'translation'
+        | 'relocation'
+        | 'real_estate'
+        | 'language_school'
+        | 'other'
+      user_role: 'user' | 'service_provider' | 'admin' | 'moderator'
     }
     CompositeTypes: {
       geometry_dump: {
@@ -3710,27 +3710,27 @@ export type Database = {
   }
 }
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type PublicSchema = Database[Extract<keyof Database, 'public'>]
 
 export type Tables<
   PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
+    | keyof (PublicSchema['Tables'] & PublicSchema['Views'])
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+    ? keyof (Database[PublicTableNameOrOptions['schema']]['Tables'] &
+        Database[PublicTableNameOrOptions['schema']]['Views'])
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+  ? (Database[PublicTableNameOrOptions['schema']]['Tables'] &
+      Database[PublicTableNameOrOptions['schema']]['Views'])[TableName] extends {
       Row: infer R
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof (PublicSchema['Tables'] &
+        PublicSchema['Views'])
+    ? (PublicSchema['Tables'] &
+        PublicSchema['Views'])[PublicTableNameOrOptions] extends {
         Row: infer R
       }
       ? R
@@ -3739,19 +3739,19 @@ export type Tables<
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+    | keyof PublicSchema['Tables']
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Insert: infer I
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
+    ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
         Insert: infer I
       }
       ? I
@@ -3760,19 +3760,19 @@ export type TablesInsert<
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
+    | keyof PublicSchema['Tables']
     | { schema: keyof Database },
   TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+    ? keyof Database[PublicTableNameOrOptions['schema']]['Tables']
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+  ? Database[PublicTableNameOrOptions['schema']]['Tables'][TableName] extends {
       Update: infer U
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : PublicTableNameOrOptions extends keyof PublicSchema['Tables']
+    ? PublicSchema['Tables'][PublicTableNameOrOptions] extends {
         Update: infer U
       }
       ? U
@@ -3781,29 +3781,28 @@ export type TablesUpdate<
 
 export type Enums<
   PublicEnumNameOrOptions extends
-    | keyof PublicSchema["Enums"]
+    | keyof PublicSchema['Enums']
     | { schema: keyof Database },
   EnumName extends PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof Database[PublicEnumNameOrOptions['schema']]['Enums']
     : never = never,
 > = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+  ? Database[PublicEnumNameOrOptions['schema']]['Enums'][EnumName]
+  : PublicEnumNameOrOptions extends keyof PublicSchema['Enums']
+    ? PublicSchema['Enums'][PublicEnumNameOrOptions]
     : never
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
-    | keyof PublicSchema["CompositeTypes"]
+    | keyof PublicSchema['CompositeTypes']
     | { schema: keyof Database },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof Database
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes']
     : never = never,
 > = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
-  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
-    ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+  ? Database[PublicCompositeTypeNameOrOptions['schema']]['CompositeTypes'][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof PublicSchema['CompositeTypes']
+    ? PublicSchema['CompositeTypes'][PublicCompositeTypeNameOrOptions]
     : never
-

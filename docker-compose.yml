@@ -1,34 +1,7 @@
-name: seismic
+name: turbo-25
 
-services:
-  directus:
-    extends:
-      file: apps/directus/docker-compose.yml
-      service: directus
-
-  directus-db:
-    extends:
-      file: apps/directus/docker-compose.yml
-      service: directus-db
-    networks:
-      - seismic-network
-  # prometheus:
-  #   extends:
-  #     file: apps/prometheus/docker-compose.yml
-  #     service: prometheus
-
-  # grafana:
-  #   extends:
-  #     file: apps/grafana/docker-compose.yml
-  #     service: grafana
+# Add services here
 
 networks:
-  seismic-network:
+  dwf-network:
     driver: bridge
-  monitoring:
-    name: monitoring
-    driver: bridge
-
-# volumes:
-#   prometheus_data:
-#   grafana_data:
