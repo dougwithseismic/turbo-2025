@@ -16,10 +16,9 @@
     "lint": {
       "dependsOn": ["^lint"]
     },
-    "sonar": {
-      "dependsOn": ["test", "build"],
-      "outputs": []
+    "setup": {
+      "dependsOn": ["^setup"]
     }
   },
-  "ui": "tui"
+  "ui": "stream"
 }

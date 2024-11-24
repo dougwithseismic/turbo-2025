@@ -195,6 +195,7 @@ const executeInitialSetup = async ({ rootDir, foldersToScan }) => {
 
     console.log('\n🔨 Next steps:')
     console.log(
+      '   [MAKE SURE DOCKER IS RUNNING] - It is required for Supabase to work',
       '   1. Run "pnpm turbo generate" to create a new app or package',
     )
   } catch (err) {
