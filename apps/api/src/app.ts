@@ -7,7 +7,9 @@ import { logger } from './config/logger'
 import { initializeSentry } from './config/sentry'
 import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
-import { testRouter } from './routes/test'
+import { scenarioRouter } from './routes/scenario'
+import { puppeteerService } from './services/puppeteer-service'
+import { getLinkedInMessages } from './examples/linkedin-messages'
 
 // Initialize Sentry
 initializeSentry()
@@ -22,7 +24,7 @@ app.use(requestLogger)
 
 // Routes
 app.use('/health', healthRouter)
-app.use('/api/test', testRouter)
+app.use('/api/scenario', scenarioRouter)
 
 // Error handling middleware
 app.use(
@@ -42,6 +44,16 @@ app.use(
 
 const PORT = config.PORT
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   logger.info(`🚀 :: Server is running on port ${PORT}`)
 })
+
+// Cleanup on shutdown
+const cleanup = async () => {
+  await puppeteerService.cleanup()
+  server.close()
+  process.exit(0)
+}
+
+process.on('SIGTERM', cleanup)
+process.on('SIGINT', cleanup)

@@ -193,9 +193,26 @@ const executeInitialSetup = async ({ rootDir, foldersToScan }) => {
       console.log(`${emoji} ${action}`)
     })
 
+    const isDockerRunning = async () => {
+      try {
+        const { execSync } = require('child_process')
+        execSync('docker info', { stdio: 'ignore' })
+        return true
+      } catch {
+        return false
+      }
+    }
+
+    const dockerStatus = await isDockerRunning()
+    if (!dockerStatus) {
+      console.log(
+        '\n⚠️  Docker is not running! Please start Docker Engine and rerun to set up Supabase.',
+      )
+      process.exit(1)
+    }
+
     console.log('\n🔨 Next steps:')
     console.log(
-      '   [MAKE SURE DOCKER IS RUNNING] - It is required for Supabase to work',
       '   1. Run "pnpm turbo generate" to create a new app or package',
     )
   } catch (err) {
