@@ -14,13 +14,12 @@ export const auth = cache(async () => {
     } = await supabase.auth.getUser()
 
     if (error) {
-      console.error('Error:', error.message)
-      return null
+      throw error
     }
 
     return user
   } catch (error) {
-    console.error('Error:', error)
+    console.error('Auth error:', error)
     return null
   }
 })
@@ -59,6 +58,23 @@ export async function signInWithPassword(email: string, password: string) {
  * Sign up with email and password
  */
 export async function signUpWithPassword(email: string, password: string) {
+  // Validate password strength
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters')
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    throw new Error('Password must contain at least one uppercase letter')
+  }
+
+  if (!/[a-z]/.test(password)) {
+    throw new Error('Password must contain at least one lowercase letter')
+  }
+
+  if (!/[0-9]/.test(password)) {
+    throw new Error('Password must contain at least one number')
+  }
+
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -111,6 +127,23 @@ export async function resetPassword(email: string) {
  * Update password
  */
 export async function updatePassword(password: string) {
+  // Validate password strength
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters')
+  }
+
+  if (!/[A-Z]/.test(password)) {
+    throw new Error('Password must contain at least one uppercase letter')
+  }
+
+  if (!/[a-z]/.test(password)) {
+    throw new Error('Password must contain at least one lowercase letter')
+  }
+
+  if (!/[0-9]/.test(password)) {
+    throw new Error('Password must contain at least one number')
+  }
+
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase.auth.updateUser({
     password,
@@ -139,8 +172,7 @@ export async function getProfile() {
     .single()
 
   if (error) {
-    console.error('Error:', error.message)
-    return null
+    throw error
   }
 
   return profile

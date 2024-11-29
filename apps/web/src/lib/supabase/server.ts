@@ -1,3 +1,4 @@
+'use server'
 import { clientConfig } from '@/config/app-config'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'

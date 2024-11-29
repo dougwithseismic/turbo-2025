@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
+type LoadingState = 'idle' | 'progress' | 'complete' | 'error'
+
 interface AuthContextType {
   user: User | null
   isLoading: boolean
+  loadingState: LoadingState
   isAuthenticated: boolean
   signIn: (email: string, password: string) => Promise<void>
   signUp: (email: string, password: string) => Promise<void>
@@ -34,6 +37,7 @@ interface AuthProviderProps {
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [loadingState, setLoadingState] = useState<LoadingState>('idle')
   const router = useRouter()
 
   useEffect(() => {
@@ -52,15 +56,17 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const signIn = async (email: string, password: string) => {
     try {
       console.log('🔑 Attempting sign in:', { email })
-      setIsLoading(true)
+      setLoadingState('progress')
       const { error } = await supabaseClient.auth.signInWithPassword({
         email,
         password,
       })
       if (error) {
         console.error('❌ Sign in error:', error)
+        setLoadingState('error')
         throw error
       }
+      setLoadingState('complete')
       console.log('✅ Sign in successful, redirecting to dashboard')
       router.push('/dashboard')
     } catch (error) {
@@ -74,7 +80,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const signUp = async (email: string, password: string) => {
     try {
-      setIsLoading(true)
+      setLoadingState('progress')
       const { error } = await supabaseClient.auth.signUp({
         email,
         password,
@@ -82,7 +88,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           emailRedirectTo: `${window.location.origin}/auth/callback`,
         },
       })
-      if (error) throw error
+      if (error) {
+        setLoadingState('error')
+        throw error
+      }
+      setLoadingState('complete')
       router.push('/dashboard')
     } catch (error) {
       console.error('Sign up failed:', error)
@@ -97,9 +107,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     destinationUrl = '/login',
   }: { redirect?: boolean; destinationUrl?: string } = {}) => {
     try {
-      setIsLoading(true)
+      setLoadingState('progress')
       const { error } = await supabaseClient.auth.signOut()
-      if (error) throw error
+      if (error) {
+        setLoadingState('error')
+        throw error
+      }
+      setLoadingState('complete')
       if (redirect) router.push(destinationUrl)
     } catch (error) {
       console.error('Sign out failed:', error)
@@ -112,6 +126,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const value = {
     user,
     isLoading,
+    loadingState,
     isAuthenticated: !!user,
     signIn,
     signUp,
