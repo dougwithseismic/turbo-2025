@@ -20,14 +20,19 @@ let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
  * `npx supabase gen types --lang=typescript --local > database.types.ts`
  * @see https://supabase.com/docs/guides/api/rest/generating-types
  */
-const getSupabaseClient = () => {
+const createSupabaseClient = ({
+  supabaseUrl = env.SUPABASE_URL,
+  supabaseAnonKey = env.SUPABASE_ANON_KEY,
+}: {
+  supabaseUrl?: string
+  supabaseAnonKey?: string
+}) => {
+  console.log('getSupabaseClient', env.SUPABASE_URL, env.SUPABASE_ANON_KEY)
   if (!supabaseInstance) {
-    supabaseInstance = createClient<Database>(
-      env.SUPABASE_URL,
-      env.SUPABASE_ANON_KEY,
-    )
+    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey)
   }
   return supabaseInstance
 }
 
-export const supabase = getSupabaseClient()
+export { createSupabaseClient }
+export type { Database }

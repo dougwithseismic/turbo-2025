@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@repo/stripe": "workspace:*",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-core": "^0.11.1",
     "zod": "^3.22.4"

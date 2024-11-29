@@ -31,7 +31,7 @@
     "dev": "tsc --watch",
     "typecheck": "tsc --noEmit"
   },
-  "type": "commonjs",
+  "type": "module",
   "types": "./dist/index.d.ts",
   "version": "0.0.0"
 }

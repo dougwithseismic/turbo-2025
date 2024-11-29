@@ -34,102 +34,184 @@ export type Database = {
   }
   public: {
     Tables: {
-      addresses: {
+      customers: {
         Row: {
-          address_line1: string
-          address_line2: string | null
-          city: string
-          country: string
-          created_at: string | null
           id: string
-          location: unknown | null
-          postal_code: string
-          state: string | null
-          updated_at: string | null
+          stripe_customer_id: string | null
         }
         Insert: {
-          address_line1: string
-          address_line2?: string | null
-          city: string
-          country: string
-          created_at?: string | null
-          id?: string
-          location?: unknown | null
-          postal_code: string
-          state?: string | null
-          updated_at?: string | null
+          id: string
+          stripe_customer_id?: string | null
         }
         Update: {
-          address_line1?: string
-          address_line2?: string | null
-          city?: string
-          country?: string
-          created_at?: string | null
           id?: string
-          location?: unknown | null
-          postal_code?: string
-          state?: string | null
-          updated_at?: string | null
+          stripe_customer_id?: string | null
         }
         Relationships: []
       }
-      contacts: {
+      prices: {
         Row: {
-          created_at: string | null
-          email: string
+          active: boolean | null
+          currency: string | null
+          description: string | null
           id: string
-          name: string
-          phone: string
-          updated_at: string | null
+          interval: Database['public']['Enums']['pricing_plan_interval'] | null
+          interval_count: number | null
+          metadata: Json | null
+          product_id: string | null
+          trial_period_days: number | null
+          type: Database['public']['Enums']['pricing_type'] | null
+          unit_amount: number | null
         }
         Insert: {
-          created_at?: string | null
-          email: string
-          id?: string
-          name: string
-          phone: string
-          updated_at?: string | null
+          active?: boolean | null
+          currency?: string | null
+          description?: string | null
+          id: string
+          interval?: Database['public']['Enums']['pricing_plan_interval'] | null
+          interval_count?: number | null
+          metadata?: Json | null
+          product_id?: string | null
+          trial_period_days?: number | null
+          type?: Database['public']['Enums']['pricing_type'] | null
+          unit_amount?: number | null
         }
         Update: {
-          created_at?: string | null
-          email?: string
+          active?: boolean | null
+          currency?: string | null
+          description?: string | null
           id?: string
-          name?: string
-          phone?: string
-          updated_at?: string | null
+          interval?: Database['public']['Enums']['pricing_plan_interval'] | null
+          interval_count?: number | null
+          metadata?: Json | null
+          product_id?: string | null
+          trial_period_days?: number | null
+          type?: Database['public']['Enums']['pricing_type'] | null
+          unit_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'prices_product_id_fkey'
+            columns: ['product_id']
+            isOneToOne: false
+            referencedRelation: 'products'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      products: {
+        Row: {
+          active: boolean | null
+          description: string | null
+          id: string
+          image: string | null
+          metadata: Json | null
+          name: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          description?: string | null
+          id: string
+          image?: string | null
+          metadata?: Json | null
+          name?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          description?: string | null
+          id?: string
+          image?: string | null
+          metadata?: Json | null
+          name?: string | null
         }
         Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          cancel_at: string | null
+          cancel_at_period_end: boolean | null
+          canceled_at: string | null
+          created: string
+          current_period_end: string
+          current_period_start: string
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          price_id: string | null
+          quantity: number | null
+          status: Database['public']['Enums']['subscription_status'] | null
+          trial_end: string | null
+          trial_start: string | null
+          user_id: string
+        }
+        Insert: {
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created?: string
+          current_period_end?: string
+          current_period_start?: string
+          ended_at?: string | null
+          id: string
+          metadata?: Json | null
+          price_id?: string | null
+          quantity?: number | null
+          status?: Database['public']['Enums']['subscription_status'] | null
+          trial_end?: string | null
+          trial_start?: string | null
+          user_id: string
+        }
+        Update: {
+          cancel_at?: string | null
+          cancel_at_period_end?: boolean | null
+          canceled_at?: string | null
+          created?: string
+          current_period_end?: string
+          current_period_start?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          price_id?: string | null
+          quantity?: number | null
+          status?: Database['public']['Enums']['subscription_status'] | null
+          trial_end?: string | null
+          trial_start?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'subscriptions_price_id_fkey'
+            columns: ['price_id']
+            isOneToOne: false
+            referencedRelation: 'prices'
+            referencedColumns: ['id']
+          },
+        ]
       }
       users: {
         Row: {
-          auth_id: string
-          created_at: string | null
-          email: string
-          full_name: string
+          avatar_url: string | null
+          billing_address: Json | null
+          email: string | null
+          full_name: string | null
           id: string
-          phone: string | null
-          role: Database['public']['Enums']['user_role'] | null
-          updated_at: string | null
+          payment_method: Json | null
         }
         Insert: {
-          auth_id: string
-          created_at?: string | null
-          email: string
-          full_name: string
-          id?: string
-          phone?: string | null
-          role?: Database['public']['Enums']['user_role'] | null
-          updated_at?: string | null
+          avatar_url?: string | null
+          billing_address?: Json | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          payment_method?: Json | null
         }
         Update: {
-          auth_id?: string
-          created_at?: string | null
-          email?: string
-          full_name?: string
+          avatar_url?: string | null
+          billing_address?: Json | null
+          email?: string | null
+          full_name?: string | null
           id?: string
-          phone?: string | null
-          role?: Database['public']['Enums']['user_role'] | null
-          updated_at?: string | null
+          payment_method?: Json | null
         }
         Relationships: []
       }
@@ -141,9 +223,17 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      address_type: 'primary' | 'billing' | 'shipping'
-      contact_type: 'primary' | 'emergency' | 'billing'
-      user_role: 'user' | 'admin'
+      pricing_plan_interval: 'day' | 'week' | 'month' | 'year'
+      pricing_type: 'one_time' | 'recurring'
+      subscription_status:
+        | 'trialing'
+        | 'active'
+        | 'canceled'
+        | 'incomplete'
+        | 'incomplete_expired'
+        | 'past_due'
+        | 'unpaid'
+        | 'paused'
     }
     CompositeTypes: {
       [_ in never]: never

@@ -7,9 +7,7 @@ import { logger } from './config/logger'
 import { initializeSentry } from './config/sentry'
 import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
-import { scenarioRouter } from './routes/scenario'
-import { puppeteerService } from './services/puppeteer-service'
-import { getLinkedInMessages } from './examples/linkedin-messages'
+import { webhookRouter } from './routes/webhook'
 
 // Initialize Sentry
 initializeSentry()
@@ -24,7 +22,7 @@ app.use(requestLogger)
 
 // Routes
 app.use('/health', healthRouter)
-app.use('/api/scenario', scenarioRouter)
+app.use('/api/webhook', webhookRouter)
 
 // Error handling middleware
 app.use(
@@ -50,7 +48,6 @@ const server = app.listen(PORT, () => {
 
 // Cleanup on shutdown
 const cleanup = async () => {
-  await puppeteerService.cleanup()
   server.close()
   process.exit(0)
 }

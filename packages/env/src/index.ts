@@ -23,8 +23,18 @@ export const env = createEnv({
     STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
     STRIPE_PRICE_ID: z.string().min(1).optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
+  },
+  clientPrefix: 'NEXT_PUBLIC_',
+  client: {
+    NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
+  onInvalidAccess(variable) {
+    console.error(`🚨 :: Invalid access to ${variable}`)
+    throw new Error(`🚨 :: Invalid access to ${variable}`)
+  },
 })
 export type Env = typeof env

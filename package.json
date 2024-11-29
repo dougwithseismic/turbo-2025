@@ -8,7 +8,7 @@
     "stop-services": "docker compose down && cd packages/supabase && npx supabase stop && cd ../..",
     "dev": "turbo dev",
     "dev:api": "turbo dev --filter=api",
-    "dev:fe-web": "turbo dev --filter=fe-web",
+    "dev:web": "turbo dev --filter=web",
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",

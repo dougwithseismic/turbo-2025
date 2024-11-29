@@ -1,6 +1,21 @@
 name: turbo-25
 
-# Add services here
+services:
+  payloadcms-postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: payloadcms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - payloadcms-postgres-data:/var/lib/postgresql/data
+    networks:
+      - dwf-network
+
+volumes:
+  payloadcms-postgres-data:
 
 networks:
   dwf-network:
