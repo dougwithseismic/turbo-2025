@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getErrorConfig } from '@/lib/errors'
+import { Metadata } from 'next'
 
 export default function ResetPassword() {
   const { resetPassword, loadingState } = useAuth()

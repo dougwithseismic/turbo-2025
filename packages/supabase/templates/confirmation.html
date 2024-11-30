@@ -37,6 +37,13 @@
     p {
       margin: 24px 0;
     }
+    .token {
+      font-family: monospace;
+      background: #f3f4f6;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -44,6 +51,8 @@
     <h1>Confirm Your Email</h1>
     <p>Thanks for signing up! Click the button below to confirm your email address.</p>
     <a href="{{ .ConfirmationURL }}" class="button">Confirm Email</a>
+    <p>Or copy this confirmation token:</p>
+    <div class="token">{{ .Token }}</div>
     <p>If you didn't create an account, you can safely ignore this email.</p>
   </div>
 </body>

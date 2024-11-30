@@ -1,6 +1,14 @@
-import Link from 'next/link'
-import { ResetPasswordForm } from './components/reset-password-form'
-import { handleResetPassword } from './actions'
+import { Metadata } from 'next'
+import { ResetPasswordForm } from '@/features/auth/components/reset-password-form'
+
+export const metadata: Metadata = {
+  title: 'Reset Password | Your App Name',
+  description: 'Reset your password by entering your email address.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 export default function ResetPasswordPage() {
   return (
@@ -15,16 +23,7 @@ export default function ResetPasswordPage() {
           </p>
         </div>
 
-        <ResetPasswordForm onSubmit={handleResetPassword} />
-
-        <div className="text-center text-sm">
-          <Link
-            href="/login"
-            className="text-muted-foreground hover:text-primary underline underline-offset-4"
-          >
-            Back to login
-          </Link>
-        </div>
+        <ResetPasswordForm />
       </div>
     </div>
   )

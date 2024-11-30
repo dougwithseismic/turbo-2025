@@ -10,6 +10,17 @@ import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Activity, CreditCard, Users } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Dashboard | Your App Name',
+  description:
+    'View your analytics, revenue metrics, and active users at a glance.',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
 
 const Page = async () => {
   const user = await auth()

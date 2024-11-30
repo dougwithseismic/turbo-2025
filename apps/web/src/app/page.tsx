@@ -1,5 +1,24 @@
 import Image from 'next/image'
 import { SiteHeader } from '@/components/site-header'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Home | Your App Name',
+  description:
+    'Welcome to Your App Name - Get started building your next great project with Next.js.',
+  openGraph: {
+    title: 'Home | Your App Name',
+    description:
+      'Welcome to Your App Name - Get started building your next great project with Next.js.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    title: 'Home | Your App Name',
+    description:
+      'Welcome to Your App Name - Get started building your next great project with Next.js.',
+  },
+}
 
 export default function Home() {
   return (

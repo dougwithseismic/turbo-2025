@@ -43,7 +43,7 @@
   <div class="container">
     <h1>Your Magic Link</h1>
     <p>Click the button below to sign in to your account. This link will expire in 1 hour.</p>
-    <a href="{{ .ConfirmationURL }}" class="button">Sign In</a>
+    <a href="{{ .SiteURL }}/auth/verify-otp?token={{ .Token }}&type=magiclink&email={{ .Email }}" class="button">Sign In</a>
     <p>If you didn't request this link, you can safely ignore this email.</p>
   </div>
 </body>
