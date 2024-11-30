@@ -44,7 +44,8 @@ export const executeSignUp = async ({
   password,
 }: AuthFormData): Promise<AuthResponseWithSession> => {
   try {
-    const redirectUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/auth/callback?next=/dashboard`
+    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/dashboard`
+    console.log('redirectUrl', redirectUrl)
     const { data: authData, error: supabaseError } =
       await supabaseClient.auth.signUp({
         email,
@@ -135,7 +136,7 @@ export const executeResetPasswordRequest = async ({
   email: string
 }): Promise<AuthResponse> => {
   try {
-    const redirectUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/auth/callback?next=/account/update-password`
+    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/account/update-password`
     const { error: supabaseError } =
       await supabaseClient.auth.resetPasswordForEmail(email, {
         redirectTo: redirectUrl,

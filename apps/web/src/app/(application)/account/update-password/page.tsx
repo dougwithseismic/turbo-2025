@@ -1,29 +1,19 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { getErrorConfig } from '@/lib/errors'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
 export default function UpdatePassword() {
-  const { updatePassword, loadingState } = useAuth()
+  const { updatePassword, loadingState, user } = useAuth()
   const [error, setError] = useState<Error | null>(null)
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const code = searchParams.get('code')
+  const [showPasswords, setShowPasswords] = useState(false)
   const isLoading = loadingState === 'progress'
-
-  useEffect(() => {
-    // If no code is present and we're not in the middle of updating,
-    // redirect to reset-password page
-    if (!code && !isLoading) {
-      router.push('/reset-password')
-    }
-  }, [code, isLoading, router])
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -51,10 +41,6 @@ export default function UpdatePassword() {
     }
   }
 
-  if (!code) {
-    return null // Prevent flash of content before redirect
-  }
-
   return (
     <div className="container relative flex h-[100vh] flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -77,25 +63,58 @@ export default function UpdatePassword() {
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            name="email"
+            autoComplete="username"
+            value={user?.email ?? ''}
+            className="hidden"
+            readOnly
+          />
           <div className="space-y-2">
             <Label htmlFor="password">New Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              required
-              placeholder="Enter your new password"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                name="password"
+                type={showPasswords ? 'text' : 'password'}
+                required
+                placeholder="Enter your new password"
+                autoComplete="new-password"
+                className="pr-10"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                onClick={() => setShowPasswords(!showPasswords)}
+                disabled={isLoading}
+              >
+                {showPasswords ? (
+                  <EyeOffIcon className="h-4 w-4 text-muted-foreground" />
+                ) : (
+                  <EyeIcon className="h-4 w-4 text-muted-foreground" />
+                )}
+                <span className="sr-only">
+                  {showPasswords ? 'Hide passwords' : 'Show passwords'}
+                </span>
+              </Button>
+            </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="confirmPassword">Confirm Password</Label>
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              type="password"
-              required
-              placeholder="Confirm your new password"
-            />
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type={showPasswords ? 'text' : 'password'}
+                required
+                placeholder="Confirm your new password"
+                autoComplete="new-password"
+                className="pr-10"
+              />
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Updating...' : 'Update Password'}
