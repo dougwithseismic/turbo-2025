@@ -2,7 +2,7 @@ import { clientConfig } from '@/config/app-config'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-export async function updateSession(request: NextRequest) {
+export const updateSession = async ({ request }: { request: NextRequest }) => {
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -12,10 +12,10 @@ export async function updateSession(request: NextRequest) {
     clientConfig.SUPABASE.ANON_KEY!,
     {
       cookies: {
-        getAll() {
+        getAll: () => {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet) {
+        setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value),
           )

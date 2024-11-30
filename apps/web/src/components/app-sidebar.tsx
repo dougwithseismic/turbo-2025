@@ -25,6 +25,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from '@/components/ui/sidebar'
+import toast from 'react-hot-toast'
 
 // This is sample data.
 const data = {

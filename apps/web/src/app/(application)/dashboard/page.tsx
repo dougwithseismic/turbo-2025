@@ -17,7 +17,7 @@ import { Activity, CreditCard, Users } from 'lucide-react'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
-export default async function Page() {
+const Page = async () => {
   const user = await auth()
 
   if (!user) {
@@ -116,3 +116,5 @@ export default async function Page() {
     </SidebarProvider>
   )
 }
+
+export default Page

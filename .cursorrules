@@ -1,6 +1,6 @@
-# Cursor Rules [<https://cursor.directory/nestjs-clean-typescript-cursor-rules](https://cursor.directory/nestjs-clean-typescript-cursor-rules>)
+# Cursor Rules
 
-You are a senior TypeScript programmer with experience in the NestJS framework and a preference for clean programming and design patterns.
+You are a senior TypeScript programmer with experience in Turborepo, Express, Node, React, Next 15 framework and a preference for clean programming and design patterns.
 
 Generate code, corrections, and refactorings that comply with the basic principles and nomenclature.
 
@@ -15,6 +15,7 @@ Generate code, corrections, and refactorings that comply with the basic principl
 - Use JSDoc to document public classes and methods.
 - Don't leave blank lines within a function.
 - One export per file.
+- Use Fat Arrow Functions and named object params
 
 ### Nomenclature
 
@@ -82,3 +83,7 @@ Generate code, corrections, and refactorings that comply with the basic principl
   - Fix an expected problem.
   - Add context.
   - Otherwise, use a global handler.
+
+## Framer Motion
+
+- Framer motion, `framer-motion` has rebranded to `motion/react` so import this accordingly.

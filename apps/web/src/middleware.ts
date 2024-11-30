@@ -1,8 +1,26 @@
-import { type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from '@/lib/supabase/middleware'
+import { checkDatabaseConnection } from '@/lib/supabase/health-check'
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  // Skip health check for maintenance page and static assets
+  if (
+    request.nextUrl.pathname === '/maintenance' ||
+    request.nextUrl.pathname.startsWith('/_next') ||
+    request.nextUrl.pathname.startsWith('/favicon.ico')
+  ) {
+    return await updateSession({ request })
+  }
+
+  // Check database connection
+  const isDatabaseHealthy = await checkDatabaseConnection()
+
+  if (!isDatabaseHealthy) {
+    const maintenanceUrl = new URL('/maintenance', request.url)
+    return NextResponse.redirect(maintenanceUrl)
+  }
+
+  return await updateSession({ request })
 }
 
 export const config = {

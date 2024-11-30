@@ -27,7 +27,7 @@ export const auth = cache(async () => {
 /**
  * Middleware to protect routes
  */
-export async function protectedRoute() {
+export const protectedRoute = async () => {
   const user = await auth()
 
   if (!user) {
@@ -40,7 +40,7 @@ export async function protectedRoute() {
 /**
  * Sign in with email and password
  */
-export async function signInWithPassword(email: string, password: string) {
+export const signInWithPassword = async (email: string, password: string) => {
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
@@ -57,7 +57,7 @@ export async function signInWithPassword(email: string, password: string) {
 /**
  * Sign up with email and password
  */
-export async function signUpWithPassword(email: string, password: string) {
+export const signUpWithPassword = async (email: string, password: string) => {
   // Validate password strength
   if (password.length < 8) {
     throw new Error('Password must be at least 8 characters')
@@ -94,11 +94,11 @@ export async function signUpWithPassword(email: string, password: string) {
 /**
  * Sign out
  */
-export async function signOut({
+export const signOut = async ({
   destinationUrl = '/login',
 }: {
   destinationUrl?: string
-}) {
+}) => {
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase.auth.signOut()
 
@@ -112,7 +112,7 @@ export async function signOut({
 /**
  * Reset password
  */
-export async function resetPassword(email: string) {
+export const resetPassword = async (email: string) => {
   const supabase = await createSupabaseServerClient()
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
@@ -126,7 +126,7 @@ export async function resetPassword(email: string) {
 /**
  * Update password
  */
-export async function updatePassword(password: string) {
+export const updatePassword = async (password: string) => {
   // Validate password strength
   if (password.length < 8) {
     throw new Error('Password must be at least 8 characters')
@@ -157,7 +157,7 @@ export async function updatePassword(password: string) {
 /**
  * Get user profile
  */
-export async function getProfile() {
+export const getProfile = async () => {
   const supabase = await createSupabaseServerClient()
   const user = await auth()
 
@@ -181,13 +181,13 @@ export async function getProfile() {
 /**
  * Update user profile
  */
-export async function updateProfile({
+export const updateProfile = async ({
   full_name,
   phone,
 }: {
   full_name?: string
   phone?: string
-}) {
+}) => {
   const supabase = await createSupabaseServerClient()
   const user = await auth()
 
