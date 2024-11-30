@@ -25,7 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar'
-import { useAuth } from '@/providers/auth-provider'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Skeleton } from './ui/skeleton'
 import { useRouter } from 'next/navigation'
 

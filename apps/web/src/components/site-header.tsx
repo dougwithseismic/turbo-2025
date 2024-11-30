@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { useAuth } from '@/providers/auth-provider'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 
 export function SiteHeader() {
   const { isAuthenticated, signOut } = useAuth()

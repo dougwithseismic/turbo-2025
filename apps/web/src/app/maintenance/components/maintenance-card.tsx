@@ -58,7 +58,7 @@ export function MaintenanceCard() {
   }
 
   return (
-    <Card className="w-full max-w-md space-y-6 p-8 text-center shadow-lg transition-all hover:shadow-xl">
+    <Card className="w-full max-w-md space-y-6 p-8 text-center shadow-sm transition-all hover:shadow-md">
       <AnimatePresence mode="wait">
         {state === 'restored' ? (
           <motion.div key="restored" {...fadeInUp} className="space-y-6">

@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 }
 export default function MaintenancePage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50 p-4">
+    <main className="flex min-h-screen items-center justify-center p-4">
       <MaintenanceCard />
     </main>
   )

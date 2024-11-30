@@ -1,11 +1,40 @@
 'use client'
 
 import { AuthForm } from '@/components/auth/auth-form'
-import { useAuth } from '@/providers/auth-provider'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
+import { useState } from 'react'
+import { getErrorConfig } from '@/lib/errors'
 
 export default function RegisterPage() {
   const { signUp, isLoading } = useAuth()
+  const [error, setError] = useState<Error | null>(null)
+
+  const handleSignUp = async ({
+    email,
+    password,
+  }: {
+    email: string
+    password: string
+  }): Promise<{ error: Error | null }> => {
+    try {
+      const result = await signUp({ email, password })
+      console.log('result', result)
+      if (result.error) {
+        console.error('Failed to create account:', result.error)
+        setError(result.error)
+      }
+      return result
+    } catch (err) {
+      console.error('Failed to create account:', err)
+      const error =
+        err instanceof Error ? err : new Error('Failed to create account')
+      setError(error)
+      return { error }
+    }
+  }
 
   return (
     <div className="container relative flex h-[100vh] flex-col items-center justify-center">
@@ -19,7 +48,33 @@ export default function RegisterPage() {
           </p>
         </div>
 
-        <AuthForm type="register" onSubmit={signUp} isLoading={isLoading} />
+        {error &&
+          (() => {
+            const errorConfig = getErrorConfig(error)
+            return (
+              <Alert variant={errorConfig.variant}>
+                <AlertDescription>
+                  {errorConfig.message}
+                  {errorConfig.action && (
+                    <div className="mt-2">
+                      <Link
+                        href={errorConfig.action.href}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        {errorConfig.action.text}
+                      </Link>
+                    </div>
+                  )}
+                </AlertDescription>
+              </Alert>
+            )
+          })()}
+
+        <AuthForm
+          type="register"
+          onSubmit={handleSignUp}
+          isLoading={isLoading}
+        />
 
         <div className="text-center text-sm">
           <Link

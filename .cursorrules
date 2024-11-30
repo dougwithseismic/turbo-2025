@@ -86,4 +86,4 @@ Generate code, corrections, and refactorings that comply with the basic principl
 
 ## Framer Motion
 
-- Framer motion, `framer-motion` has rebranded to `motion/react` so import this accordingly.
+- Framer motion, the react animation library `framer-motion` has rebranded to `motion/react` so import this accordingly.
