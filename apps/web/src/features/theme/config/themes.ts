@@ -42,6 +42,22 @@ export const themes: ThemeConfig[] = [
     themeColor: 'white',
     cssClass: 'pastel',
   },
+  {
+    name: 'Nordic',
+    id: 'nordic',
+    icon: Palette,
+    colorScheme: 'light',
+    themeColor: 'white',
+    cssClass: 'nordic',
+  },
+  {
+    name: 'Greek',
+    id: 'greek',
+    icon: Palette,
+    colorScheme: 'light',
+    themeColor: 'white',
+    cssClass: 'greek',
+  },
 ] as const
 
 export type ThemeId = (typeof themes)[number]['id']

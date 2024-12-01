@@ -2,6 +2,8 @@
 @import '../features/theme/themes/dark.css';
 @import '../features/theme/themes/coffee.css';
 @import '../features/theme/themes/pastel.css';
+@import '../features/theme/themes/nordic.css';
+@import '../features/theme/themes/greek.css';
 
 @tailwind base;
 @tailwind components;

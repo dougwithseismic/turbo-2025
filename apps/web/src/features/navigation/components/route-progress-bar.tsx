@@ -52,7 +52,7 @@ export const RouteProgressBar = (): JSX.Element => {
       ref={progressRef}
       style={{
         background:
-          'linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
+          'linear-gradient(90deg, var(--chart-1) 0%, var(--chart-2) 50%, var(--chart-3) 100%)',
         transform: 'scaleX(0)',
         height: '4px',
       }}

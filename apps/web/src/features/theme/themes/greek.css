@@ -1,0 +1,34 @@
+  .greek {
+    --background: hsl(170 20% 8%);
+    --foreground: hsl(160 10% 98%);
+    --card: hsl(170 20% 8%);
+    --card-foreground: hsl(160 10% 98%);
+    --popover: hsl(170 20% 8%);
+    --popover-foreground: hsl(160 10% 98%);
+    --primary: hsl(153 96% 35%);
+    --primary-foreground: hsl(0 0% 100%);
+    --secondary: hsl(170 15% 15%);
+    --secondary-foreground: hsl(160 10% 98%);
+    --muted: hsl(170 15% 15%);
+    --muted-foreground: hsl(160 10% 65%);
+    --accent: hsl(153 96% 35%);
+    --accent-foreground: hsl(0 0% 100%);
+    --destructive: hsl(0 62.8% 30.6%);
+    --destructive-foreground: hsl(160 10% 98%);
+    --border: hsl(170 15% 15%);
+    --input: hsl(170 15% 15%);
+    --ring: hsl(153 96% 35%);
+    --chart-1: hsl(153 96% 35%);
+    --chart-2: hsl(160 85% 35%);
+    --chart-3: hsl(140 80% 40%);
+    --chart-4: hsl(170 75% 45%);
+    --chart-5: hsl(130 70% 40%);
+    --sidebar-background: hsl(170 20% 10%);
+    --sidebar-foreground: hsl(160 10% 75%);
+    --sidebar-primary: hsl(153 96% 35%);
+    --sidebar-primary-foreground: hsl(0 0% 100%);
+    --sidebar-accent: hsl(170 15% 15%);
+    --sidebar-accent-foreground: hsl(160 10% 95%);
+    --sidebar-border: hsl(170 15% 15%);
+    --sidebar-ring: hsl(153 96% 35%);
+  }
