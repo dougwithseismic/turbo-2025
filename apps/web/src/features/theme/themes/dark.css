@@ -32,4 +32,6 @@
     --sidebar-accent-foreground: hsl(260 10% 95%);
     --sidebar-border: hsl(260 15% 15%);
     --sidebar-ring: hsl(260 91% 60%);
+
+    --radius: 0.1rem;
   }

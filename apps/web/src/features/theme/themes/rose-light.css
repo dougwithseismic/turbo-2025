@@ -1,0 +1,37 @@
+.rose-light {
+  --background: hsl(351 2% 95%);
+  --foreground: hsl(0, 0%, 13%);
+  --card: hsl(0, 33%, 96%);
+  --card-foreground: hsl(351 2% 10%);
+  --popover: hsl(351 2% 95%);
+  --popover-foreground: hsl(351 95% 0%);
+  --primary: hsl(351 75% 57%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(351, 36%, 88%);
+  --secondary-foreground: hsl(0 0% 0%);
+  --muted: hsl(313 10% 85%);
+  --muted-foreground: hsl(351 2% 35%);
+  --accent: hsl(313 10% 80%);
+  --accent-foreground: hsl(351 2% 10%);
+  --destructive: hsl(0 50% 30%);
+  --destructive-foreground: hsl(351 2% 90%);
+  --border: hsl(350, 65%, 77%);
+  --input: hsl(351 20% 18%);
+  --ring: hsl(351 75% 57%);
+  --chart-1: hsl(351 75% 57%);
+  --chart-2: hsl(371 70% 55%);
+  --chart-3: hsl(331 65% 60%);
+  --chart-4: hsl(361 60% 65%);
+  --chart-5: hsl(341 55% 60%);
+  --sidebar-background: hsl(0, 0%, 93%);
+  --sidebar-foreground: hsl(351 2% 25%);
+  --sidebar-primary: hsl(351 75% 57%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(352, 50%, 91%);
+  --sidebar-accent-foreground: hsl(351 2% 5%);
+  --sidebar-border: hsl(350, 65%, 77%);
+  --sidebar-ring: hsl(351 75% 57%);
+  
+  /* Sizings */
+  --radius: 1rem;
+}

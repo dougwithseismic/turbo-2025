@@ -6,6 +6,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
 import { AuthForm } from '../forms/auth-form'
 import { getErrorConfig } from '@/lib/errors'
+import { motion } from 'motion/react'
+import { container, item } from '../animations/form-animations'
 
 export const RegisterForm = () => {
   const { signUp, isLoading } = useAuth()
@@ -35,48 +37,60 @@ export const RegisterForm = () => {
   }
 
   return (
-    <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-      <div className="flex flex-col space-y-2 text-center">
-        <h1 className="text-2xl font-semibold tracking-tight">
+    <motion.div
+      variants={container}
+      initial="hidden"
+      animate="show"
+      className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]"
+    >
+      <motion.div
+        variants={item}
+        className="flex flex-col space-y-2 text-center"
+      >
+        <motion.h1 className="text-2xl font-semibold tracking-tight">
           Create an account
-        </h1>
-        <p className="text-sm text-muted-foreground">
+        </motion.h1>
+        <motion.p className="text-sm text-muted-foreground">
           Enter your email below to create your account
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
 
-      {error &&
-        (() => {
-          const errorConfig = getErrorConfig(error)
-          return (
-            <Alert variant={errorConfig.variant}>
-              <AlertDescription>
-                {errorConfig.message}
-                {errorConfig.action && (
-                  <div className="mt-2">
-                    <Link
-                      href={errorConfig.action.href}
-                      className="font-medium text-primary hover:underline"
-                    >
-                      {errorConfig.action.text}
-                    </Link>
-                  </div>
-                )}
-              </AlertDescription>
-            </Alert>
-          )
-        })()}
+      {error && (
+        <motion.div variants={item}>
+          <Alert variant={getErrorConfig(error).variant}>
+            <AlertDescription>
+              {getErrorConfig(error).message}
+              {getErrorConfig(error).action && (
+                <div className="mt-2">
+                  <Link
+                    href={getErrorConfig(error).action!.href}
+                    className="font-medium text-primary hover:underline"
+                  >
+                    {getErrorConfig(error).action!.text}
+                  </Link>
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        </motion.div>
+      )}
 
-      <AuthForm type="register" onSubmit={handleSignUp} isLoading={isLoading} />
+      <motion.div variants={item}>
+        <AuthForm
+          type="register"
+          onSubmit={handleSignUp}
+          isLoading={isLoading}
+        />
+      </motion.div>
 
-      <div className="text-center text-sm">
+      <motion.div variants={item} className="text-center text-sm">
         <Link
           href="/login"
           className="text-muted-foreground hover:text-primary underline underline-offset-4"
         >
           Already have an account? Sign In
         </Link>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   )
 }

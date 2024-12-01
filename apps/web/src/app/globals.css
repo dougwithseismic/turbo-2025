@@ -4,6 +4,9 @@
 @import '../features/theme/themes/pastel.css';
 @import '../features/theme/themes/nordic.css';
 @import '../features/theme/themes/greek.css';
+@import '../features/theme/themes/purple.css';
+@import '../features/theme/themes/rose-light.css';
+@import '../features/theme/themes/rose-dark.css';
 
 @tailwind base;
 @tailwind components;
@@ -11,7 +14,7 @@
 
 
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Geist', Arial, Helvetica, sans-serif;
 }
 
 

@@ -41,10 +41,10 @@ export const ThemeSelector = () => {
             .map((themeConfig) => {
               const Icon = themeConfig.icon
               return (
-                <Label
+                <div
                   key={themeConfig.id}
-                  htmlFor={themeConfig.id}
-                  className={`aspect-square flex flex-col items-center justify-center gap-3 rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
+                  onClick={() => setTheme(themeConfig.id)}
+                  className={`aspect-square select-none h-full w-full flex flex-col items-center justify-center gap-3 rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all duration-200 [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
                   style={{
                     backgroundColor: 'var(--background)',
                     color: 'var(--foreground)',
@@ -56,20 +56,20 @@ export const ThemeSelector = () => {
                     className="sr-only"
                   />
                   <Icon
-                    className="h-6 w-6"
+                    className="h-6 w-6 transition-colors duration-200"
                     style={{
                       color: 'var(--primary)',
                     }}
                   />
                   <span
-                    className="text-sm font-medium"
+                    className="text-sm font-medium transition-colors duration-200"
                     style={{
                       color: 'var(--sidebar-foreground)',
                     }}
                   >
                     {themeConfig.name}
                   </span>
-                </Label>
+                </div>
               )
             })}
         </RadioGroup>

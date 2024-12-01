@@ -1,0 +1,35 @@
+.rose-dark {
+  --background: hsl(351 10% 5%);
+  --foreground: hsl(351 2% 90%);
+  --card: hsl(0, 9%, 10%);
+  --card-foreground: hsl(351 2% 90%);
+  --popover: hsl(351 10% 5%);
+  --popover-foreground: hsl(351 2% 90%);
+  --primary: hsl(351 75% 57%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(351 10% 10%);
+  --secondary-foreground: hsl(0 0% 100%);
+  --muted: hsl(313 10% 15%);
+  --muted-foreground: hsl(351 2% 60%);
+  --accent: hsl(313 10% 15%);
+  --accent-foreground: hsl(351 2% 90%);
+  --destructive: hsl(0 50% 30%);
+  --destructive-foreground: hsl(351 2% 90%);
+  --border: hsl(353, 13%, 13%);
+  --input: hsl(351 20% 18%);
+  --ring: hsl(351 75% 57%);
+  --chart-1: hsl(351 75% 57%);
+  --chart-2: hsl(371 70% 55%);
+  --chart-3: hsl(331 65% 60%);
+  --chart-4: hsl(361 60% 65%);
+  --chart-5: hsl(341 55% 60%);
+  --sidebar-background: hsl(351 10% 7%);
+  --sidebar-foreground: hsl(351 2% 75%);
+  --sidebar-primary: hsl(351 75% 57%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(351 10% 10%);
+  --sidebar-accent-foreground: hsl(351 2% 95%);
+  --sidebar-border: hsl(351 20% 18%);
+  --sidebar-ring: hsl(351 75% 57%);
+  --radius: 0.5rem;
+}

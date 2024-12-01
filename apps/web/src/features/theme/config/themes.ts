@@ -1,4 +1,11 @@
-import { type LucideIcon, Sun, Moon, Coffee, Palette } from 'lucide-react'
+import {
+  type LucideIcon,
+  Sun,
+  Moon,
+  Coffee,
+  Palette,
+  Flower,
+} from 'lucide-react'
 
 export interface ThemeConfig {
   name: string
@@ -57,6 +64,30 @@ export const themes: ThemeConfig[] = [
     colorScheme: 'dark',
     themeColor: 'dark',
     cssClass: 'greek',
+  },
+  {
+    name: 'Purple',
+    id: 'purple',
+    icon: Palette,
+    colorScheme: 'dark',
+    themeColor: 'dark',
+    cssClass: 'purple',
+  },
+  {
+    name: 'Rose.Light',
+    id: 'rose-light',
+    icon: Flower,
+    colorScheme: 'light',
+    themeColor: 'white',
+    cssClass: 'rose-light',
+  },
+  {
+    name: 'Rose.Dark',
+    id: 'rose-dark',
+    icon: Flower,
+    colorScheme: 'dark',
+    themeColor: 'dark',
+    cssClass: 'rose-dark',
   },
 ] as const
 

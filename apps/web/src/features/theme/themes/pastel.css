@@ -31,4 +31,7 @@
     --sidebar-accent-foreground: hsl(280 15% 25%);
     --sidebar-border: hsl(280 20% 85%);
     --sidebar-ring: hsl(320 45% 75%);
+      /* Sizings */
+  --radius: 1rem;
+
   }

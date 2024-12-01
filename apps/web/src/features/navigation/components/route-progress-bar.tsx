@@ -4,12 +4,8 @@ import { animate } from 'motion/react'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
-const SPRING_CONFIG = {
-  type: 'spring',
-  stiffness: 300,
-  damping: 30,
-  restDelta: 0.001,
-} as const
+const PROGRESS_DURATION = 0.3
+const FADE_DURATION = 0.3
 
 export const RouteProgressBar = (): JSX.Element => {
   const pathname = usePathname()
@@ -26,7 +22,10 @@ export const RouteProgressBar = (): JSX.Element => {
         opacity: [1, 1],
         scaleX: [0, 1],
       },
-      SPRING_CONFIG,
+      {
+        duration: PROGRESS_DURATION,
+        ease: [0.43, 0.13, 0.23, 0.96], // Custom easing curve for smoother motion
+      },
     )
 
     controls.then(() => {
@@ -36,8 +35,8 @@ export const RouteProgressBar = (): JSX.Element => {
           opacity: 0,
         },
         {
-          duration: 0.15,
-          ease: 'easeOut',
+          duration: FADE_DURATION,
+          ease: [0.4, 0, 0.2, 1], // Smooth ease out for fade
         },
       )
     })
