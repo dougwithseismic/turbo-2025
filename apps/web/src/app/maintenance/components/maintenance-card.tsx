@@ -66,10 +66,10 @@ export function MaintenanceCard() {
               <CheckCircle2 className="h-full w-full text-green-500" />
             </div>
             <div className="space-y-4">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
                 Service Restored!
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 Redirecting you to the dashboard in {redirectCountdown}{' '}
                 seconds...
               </p>
@@ -77,37 +77,20 @@ export function MaintenanceCard() {
           </motion.div>
         ) : (
           <motion.div key="maintenance" {...fadeInUp} className="space-y-6">
-            <div className="relative mx-auto h-24 w-24">
-              <Settings2
-                className="absolute inset-0 h-full w-full animate-spin text-blue-500 opacity-20"
-                aria-hidden="true"
-              />
-              <Settings2
-                className="absolute inset-0 h-full w-full animate-spin text-blue-500 opacity-40"
-                style={{ animationDelay: '0.2s' }}
-                aria-hidden="true"
-              />
-              <Settings2
-                className="absolute inset-0 h-full w-full animate-spin text-blue-500"
-                style={{ animationDelay: '0.4s' }}
-                aria-hidden="true"
-              />
-            </div>
-
             <div className="space-y-4">
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900">
+              <h1 className="text-3xl font-bold tracking-tight text-foreground">
                 Scheduled Maintenance
               </h1>
-              <p className="text-gray-600">
+              <p className="text-muted-foreground">
                 We're currently performing system upgrades to improve your
                 experience. Our team is working diligently to complete the
                 maintenance as quickly as possible.
               </p>
             </div>
 
-            <div className="space-y-4 rounded-lg bg-blue-50 p-4">
-              <h2 className="font-semibold text-blue-900">What to expect:</h2>
-              <ul className="text-sm text-blue-700" role="list">
+            <div className="space-y-4 rounded-lg bg-secondary/50 p-4">
+              <h2 className="font-semibold text-foreground">What to expect:</h2>
+              <ul className="text-sm text-muted-foreground" role="list">
                 <li>• Estimated downtime: 15-30 minutes</li>
                 <li>• All your data is safe and secure</li>
                 <li>• Service will automatically resume</li>
@@ -122,7 +105,7 @@ export function MaintenanceCard() {
             <Button
               onClick={checkHealth}
               disabled={state === 'checking'}
-              className="group inline-flex items-center gap-2 bg-blue-500 hover:bg-blue-600 disabled:opacity-50"
+              className="group inline-flex items-center gap-2"
               aria-live="polite"
             >
               <RefreshCcw
@@ -136,11 +119,11 @@ export function MaintenanceCard() {
               {getStatusMessage()}
             </Button>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-muted-foreground">
               If the issue persists, please contact our support team at{' '}
               <a
                 href="mailto:support@example.com"
-                className="text-blue-500 hover:underline"
+                className="text-primary hover:underline"
                 aria-label="Email support at support@example.com"
               >
                 support@example.com
