@@ -31,26 +31,47 @@ export const ThemeSelector = () => {
         <RadioGroup
           value={theme}
           onValueChange={setTheme}
-          className="grid grid-cols-3 gap-4"
+          className="grid grid-cols-6 gap-4"
         >
-          {themes.map((themeConfig) => {
-            const Icon = themeConfig.icon
-            return (
-              <Label
-                key={themeConfig.id}
-                htmlFor={themeConfig.id}
-                className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary"
-              >
-                <RadioGroupItem
-                  value={themeConfig.id}
-                  id={themeConfig.id}
-                  className="sr-only"
-                />
-                <Icon className="mb-3 h-6 w-6" />
-                <span className="text-sm font-medium">{themeConfig.name}</span>
-              </Label>
-            )
-          })}
+          {[...themes]
+            .sort((a, b) => {
+              if (a.colorScheme === b.colorScheme) return 0
+              return a.colorScheme === 'dark' ? -1 : 1
+            })
+            .map((themeConfig) => {
+              const Icon = themeConfig.icon
+              return (
+                <Label
+                  key={themeConfig.id}
+                  htmlFor={themeConfig.id}
+                  className={`aspect-square flex flex-col items-center justify-center gap-3 rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
+                  style={{
+                    backgroundColor: 'var(--background)',
+                    color: 'var(--foreground)',
+                  }}
+                >
+                  <RadioGroupItem
+                    value={themeConfig.id}
+                    id={themeConfig.id}
+                    className="sr-only"
+                  />
+                  <Icon
+                    className="h-6 w-6"
+                    style={{
+                      color: 'var(--primary)',
+                    }}
+                  />
+                  <span
+                    className="text-sm font-medium"
+                    style={{
+                      color: 'var(--sidebar-foreground)',
+                    }}
+                  >
+                    {themeConfig.name}
+                  </span>
+                </Label>
+              )
+            })}
         </RadioGroup>
       </CardContent>
     </Card>

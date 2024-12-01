@@ -11,6 +11,12 @@ export default function AuthLayout({
       <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r dark:bg-muted/10 lg:flex">
           <div className="absolute inset-0 bg-zinc-900 dark:bg-zinc-950" />
+          <div
+            className="absolute inset-0 opacity-[0.05]"
+            style={{
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='15' y='35' font-size='24' fill='white'%3E+%3C/text%3E%3C/svg%3E")`,
+            }}
+          />
           <div className="relative z-20 flex items-center text-lg font-medium">
             <svg
               xmlns="http://www.w3.org/2000/svg"

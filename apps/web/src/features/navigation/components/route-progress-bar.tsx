@@ -20,13 +20,11 @@ export const RouteProgressBar = (): JSX.Element => {
     if (!element) return
 
     // Reset the progress bar
-
     const controls = animate(
       element,
       {
         opacity: [1, 1],
         scaleX: [0, 1],
-        transformOrigin: 'left',
       },
       SPRING_CONFIG,
     )
@@ -55,6 +53,7 @@ export const RouteProgressBar = (): JSX.Element => {
           'linear-gradient(90deg, var(--chart-1) 0%, var(--chart-2) 50%, var(--chart-3) 100%)',
         transform: 'scaleX(0)',
         height: '4px',
+        transformOrigin: 'left',
       }}
       className="fixed top-0 z-20 w-full"
     />

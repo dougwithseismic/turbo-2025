@@ -54,8 +54,8 @@ export const themes: ThemeConfig[] = [
     name: 'Greek',
     id: 'greek',
     icon: Palette,
-    colorScheme: 'light',
-    themeColor: 'white',
+    colorScheme: 'dark',
+    themeColor: 'dark',
     cssClass: 'greek',
   },
 ] as const
