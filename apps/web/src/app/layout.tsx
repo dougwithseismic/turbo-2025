@@ -1,7 +1,22 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
 import { AuthProvider } from '@/features/auth/providers/auth-provider'
+import { ThemeProvider } from '@/features/theme/providers/theme-provider'
+import { RouteProgressBar } from '@/features/navigation/components/route-progress-bar'
+
+import { themes } from '@/features/theme/config/themes'
+
+export const viewport: Viewport = {
+  themeColor: [
+    ...themes.map((theme) => ({
+      media: `(prefers-color-scheme: ${theme.id})`,
+      color: theme.themeColor,
+    })),
+  ],
+}
+
+console.log('viewport', viewport)
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -25,11 +40,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <ThemeProvider>
+          <AuthProvider>
+            <RouteProgressBar />
+            {children}
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )

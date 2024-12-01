@@ -1,4 +1,6 @@
 /** @type {import("prettier").Config} */
-module.exports = {
-  ...require('@repo/config-prettier'),
+import sharedConfig from '@repo/config-prettier'
+
+export default {
+  ...sharedConfig,
 }

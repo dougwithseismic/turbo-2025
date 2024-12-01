@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
-import { AuthForm } from '@/components/auth/auth-form'
+import { AuthForm } from '../forms/auth-form'
 import { getErrorConfig } from '@/lib/errors'
 
 export const RegisterForm = () => {

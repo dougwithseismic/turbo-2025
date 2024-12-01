@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <div className="container relative flex h-[100vh] flex-col items-center justify-center">
+    <div className="container relative flex h-[100vh] flex-col items-center justify-center dark:bg-background">
       <LoginForm />
     </div>
   )

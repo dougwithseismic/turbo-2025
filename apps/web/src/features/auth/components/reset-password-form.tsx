@@ -137,6 +137,9 @@ export const ResetPasswordForm = () => {
           'Send reset link'
         )}
       </Button>
+      <Button asChild variant="ghost">
+        <Link href="/login">Back to login</Link>
+      </Button>
     </motion.form>
   )
 }
