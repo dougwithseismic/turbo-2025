@@ -15,7 +15,7 @@
     "test": "vitest run",
     "pre-commit": "lint-staged",
     "type-check": "tsc --noEmit",
-    "setup": "node initial-setup.js && turbo setup"
+    "setup": "node packages/scripts/initial-setup.cjs"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
