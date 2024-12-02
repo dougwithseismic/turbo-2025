@@ -1,7 +1,7 @@
 'use client'
 
+import { ChevronsUpDown, LucideIcon, Plus } from 'lucide-react'
 import * as React from 'react'
-import { ChevronsUpDown, Plus } from 'lucide-react'
 
 import {
   DropdownMenu,
@@ -19,15 +19,32 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar'
 
-export function TeamSwitcher({
-  teams,
-}: {
+type TeamSwitcherProps = {
   teams: {
     name: string
-    logo: React.ElementType
+    logo: LucideIcon
     plan: string
+    isSelected?: boolean
   }[]
-}) {
+  selectedTeam?: {
+    name: string
+    logo: LucideIcon
+    plan: string
+    isSelected?: boolean
+  }
+  onTeamSelect?: (team: {
+    name: string
+    logo: LucideIcon
+    plan: string
+    isSelected?: boolean
+  }) => void
+}
+
+export const TeamSwitcher = ({
+  teams,
+  selectedTeam,
+  onTeamSelect,
+}: TeamSwitcherProps) => {
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
 

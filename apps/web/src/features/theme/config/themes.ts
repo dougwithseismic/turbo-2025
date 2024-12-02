@@ -89,6 +89,14 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'rose-dark',
   },
+  {
+    name: 'Contra',
+    id: 'contra',
+    icon: Palette,
+    colorScheme: 'light',
+    themeColor: 'light',
+    cssClass: 'contra',
+  },
 ] as const
 
 export type ThemeId = (typeof themes)[number]['id']

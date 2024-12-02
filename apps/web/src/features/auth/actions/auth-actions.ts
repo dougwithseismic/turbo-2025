@@ -100,11 +100,44 @@ export const executeSignOut = async (): Promise<AuthResponse> => {
 }
 
 export const executeUpdatePassword = async ({
+  currentPassword,
   password,
 }: {
+  currentPassword?: string
   password: string
 }): Promise<AuthResponse> => {
   try {
+    if (currentPassword) {
+      // Get current user's email
+      const {
+        data: { user },
+      } = await supabaseClient.auth.getUser()
+      if (!user?.email) {
+        const authError = new AuthError({
+          message: 'Unable to verify current password: user email not found',
+          code: 'user_not_found',
+        })
+        toast.error(authError.message)
+        return { data: null, error: authError }
+      }
+
+      // Verify current password
+      const { error: signInError } =
+        await supabaseClient.auth.signInWithPassword({
+          email: user.email,
+          password: currentPassword,
+        })
+
+      if (signInError) {
+        const authError = new AuthError({
+          message: 'Current password is incorrect',
+          code: 'invalid_credentials',
+        })
+        toast.error(authError.message)
+        return { data: null, error: authError }
+      }
+    }
+
     const { error: supabaseError } = await supabaseClient.auth.updateUser({
       password,
     })
@@ -162,3 +195,125 @@ export const executeResetPasswordRequest = async ({
     return { data: null, error: authError }
   }
 }
+
+export const executeResendVerificationEmail = async ({
+  email,
+}: {
+  email: string
+}): Promise<AuthResponse> => {
+  try {
+    const redirectUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/dashboard`
+    const { error: supabaseError } = await supabaseClient.auth.resend({
+      type: 'signup',
+      email,
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    })
+    if (supabaseError) {
+      const authError = new AuthError({
+        message: supabaseError.message,
+        code: supabaseError.code as AuthErrorCode,
+      })
+      toast.error(authError.message)
+      return { data: null, error: authError }
+    }
+    toast.success('Verification email resent. Please check your inbox.')
+    return { data: null, error: null }
+  } catch (err) {
+    const authError = new AuthError({
+      message: 'Failed to resend verification email',
+      code: 'server_error',
+    })
+    toast.error(authError.message)
+    return { data: null, error: authError }
+  }
+}
+
+export const executeUpdateEmail = async ({
+  email,
+}: {
+  email: string
+}): Promise<AuthResponse> => {
+  try {
+    const { error: supabaseError } = await supabaseClient.auth.updateUser({
+      email,
+    })
+    if (supabaseError) {
+      const authError = new AuthError({
+        message: supabaseError.message,
+        code: supabaseError.code as AuthErrorCode,
+      })
+      toast.error(authError.message)
+      return { data: null, error: authError }
+    }
+    toast.success('Please check your email to confirm the change')
+    return { data: null, error: null }
+  } catch (err) {
+    const authError = new AuthError({
+      message: 'Failed to update email',
+      code: 'server_error',
+    })
+    toast.error(authError.message)
+    return { data: null, error: authError }
+  }
+}
+
+export const executeGetSession = async (): Promise<AuthResponseWithSession> => {
+  try {
+    const {
+      data: { session },
+      error: supabaseError,
+    } = await supabaseClient.auth.getSession()
+    if (supabaseError) {
+      const authError = new AuthError({
+        message: supabaseError.message,
+        code: supabaseError.code as AuthErrorCode,
+      })
+      return { data: { user: null, session: null }, error: authError }
+    }
+    return {
+      data: {
+        user: session?.user ?? null,
+        session: session ?? null,
+      },
+      error: null,
+    }
+  } catch (err) {
+    const authError = new AuthError({
+      message: 'Failed to get session',
+      code: 'server_error',
+    })
+    return { data: { user: null, session: null }, error: authError }
+  }
+}
+
+export const executeRefreshSession =
+  async (): Promise<AuthResponseWithSession> => {
+    try {
+      const {
+        data: { session },
+        error: supabaseError,
+      } = await supabaseClient.auth.refreshSession()
+      if (supabaseError) {
+        const authError = new AuthError({
+          message: supabaseError.message,
+          code: supabaseError.code as AuthErrorCode,
+        })
+        return { data: { user: null, session: null }, error: authError }
+      }
+      return {
+        data: {
+          user: session?.user ?? null,
+          session: session ?? null,
+        },
+        error: null,
+      }
+    } catch (err) {
+      const authError = new AuthError({
+        message: 'Failed to refresh session',
+        code: 'server_error',
+      })
+      return { data: { user: null, session: null }, error: authError }
+    }
+  }

@@ -1,38 +1,35 @@
-  .greek {
-    --background: hsl(170 20% 8%);
-    --foreground: hsl(160 10% 98%);
-    --card: hsl(170 20% 8%);
-    --card-foreground: hsl(160 10% 98%);
-    --popover: hsl(170 20% 8%);
-    --popover-foreground: hsl(160 10% 98%);
-    --primary: hsl(153 96% 35%);
-    --primary-foreground: hsl(0 0% 100%);
-    --secondary: hsl(170 15% 15%);
-    --secondary-foreground: hsl(160 10% 98%);
-    --muted: hsl(170 15% 15%);
-    --muted-foreground: hsl(160 10% 65%);
-    --accent: hsl(153 96% 35%);
-    --accent-foreground: hsl(0 0% 100%);
-    --destructive: hsl(0 62.8% 30.6%);
-    --destructive-foreground: hsl(160 10% 98%);
-    --border: hsl(170 15% 15%);
-    --input: hsl(170 15% 15%);
-    --ring: hsl(153 96% 35%);
-    --chart-1: hsl(153 96% 35%);
-    --chart-2: hsl(160 85% 35%);
-    --chart-3: hsl(140 80% 40%);
-    --chart-4: hsl(170 75% 45%);
-    --chart-5: hsl(130 70% 40%);
-    --sidebar-background: hsl(170 20% 10%);
-    --sidebar-foreground: hsl(160 10% 75%);
-    --sidebar-primary: hsl(153 96% 35%);
-    --sidebar-primary-foreground: hsl(0 0% 100%);
-    --sidebar-accent: hsl(170 15% 15%);
-    --sidebar-accent-foreground: hsl(160 10% 95%);
-    --sidebar-border: hsl(170 15% 15%);
-    --sidebar-ring: hsl(153 96% 35%);
-
-      /* Sizings */
-  --radius: .25rem;
-
-  }
+.greek {
+  --background: hsl(0 0% 7%);
+  --foreground: hsl(0 0% 98%);
+  --card: hsl(0 0% 9%);
+  --card-foreground: hsl(0 0% 98%);
+  --popover: hsl(0 0% 9%);
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: hsl(153 96% 35%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 14%);
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: hsl(0 0% 14%);
+  --muted-foreground: hsl(0 0% 49%);
+  --accent: hsl(156 69% 53%);
+  --accent-foreground: hsl(0 0% 100%);
+  --destructive: hsl(0 0% 13%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: hsl(0 0% 14%);
+  --input: hsl(0 0% 14%);
+  --ring: hsl(156 69% 53%);
+  --chart-1: hsl(156 69% 53%);
+  --chart-2: hsl(153 96% 35%);
+  --chart-3: hsl(156 69% 53%);
+  --chart-4: hsl(153 96% 35%);
+  --chart-5: hsl(156 69% 53%);
+  --sidebar-background: hsl(0 0% 9%);
+  --sidebar-foreground: hsl(0 0% 71%);
+  --sidebar-primary: hsl(156 69% 53%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(0 0% 14%);
+  --sidebar-accent-foreground: hsl(0 0% 98%);
+  --sidebar-border: hsl(0 0% 14%);
+  --sidebar-ring: hsl(156 69% 53%);
+  --radius: 0.25rem;
+}

@@ -118,13 +118,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }
 
   const updatePassword = async ({
+    currentPassword,
     password,
   }: {
+    currentPassword?: string
     password: string
   }): Promise<AuthResponse> => {
     setLoadingState('progress')
     try {
-      const response = await executeUpdatePassword({ password })
+      const response = await executeUpdatePassword({
+        currentPassword,
+        password,
+      })
       if (!response.error) {
         setLoadingState('complete')
         router.push('/dashboard')

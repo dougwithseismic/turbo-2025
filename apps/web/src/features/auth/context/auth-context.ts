@@ -19,7 +19,10 @@ export interface AuthContextType {
     destinationUrl?: string
   }) => Promise<AuthResponse>
   resetPassword: (data: { email: string }) => Promise<AuthResponse>
-  updatePassword: (data: { password: string }) => Promise<AuthResponse>
+  updatePassword: (data: {
+    currentPassword?: string
+    password: string
+  }) => Promise<AuthResponse>
 }
 
 export const AuthContext = createContext<AuthContextType>({

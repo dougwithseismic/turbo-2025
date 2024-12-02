@@ -10,7 +10,7 @@ import { getErrorConfig } from '@/lib/errors'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import { motion } from 'motion/react'
 
-export const UpdatePasswordForm = () => {
+export const RecoverPasswordForm = () => {
   const { updatePassword, loadingState, user } = useAuth()
   const [error, setError] = useState<Error | null>(null)
   const [showPasswords, setShowPasswords] = useState(false)
@@ -21,7 +21,6 @@ export const UpdatePasswordForm = () => {
     setError(null)
 
     const formData = new FormData(event.currentTarget)
-    const currentPassword = formData.get('currentPassword') as string
     const password = formData.get('password') as string
     const confirmPassword = formData.get('confirmPassword') as string
 
@@ -31,14 +30,14 @@ export const UpdatePasswordForm = () => {
     }
 
     try {
-      const result = await updatePassword({ currentPassword, password })
+      const result = await updatePassword({ password })
       if (result.error) {
         setError(result.error)
       }
     } catch (err) {
-      console.error('Failed to update password:', err)
+      console.error('Failed to recover password:', err)
       setError(
-        err instanceof Error ? err : new Error('Failed to update password'),
+        err instanceof Error ? err : new Error('Failed to recover password'),
       )
     }
   }
@@ -47,10 +46,10 @@ export const UpdatePasswordForm = () => {
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
       <div className="flex flex-col space-y-2 text-center">
         <h1 className="text-2xl font-semibold tracking-tight">
-          Update Password
+          Recover Password
         </h1>
         <p className="text-sm text-muted-foreground">
-          Enter your current password and choose a new one
+          Enter your new password below
         </p>
       </div>
 
@@ -78,15 +77,15 @@ export const UpdatePasswordForm = () => {
           readOnly
         />
         <div className="space-y-2">
-          <Label htmlFor="currentPassword">Current Password</Label>
+          <Label htmlFor="password">New Password</Label>
           <div className="relative">
             <Input
-              id="currentPassword"
-              name="currentPassword"
+              id="password"
+              name="password"
               type={showPasswords ? 'text' : 'password'}
               required
-              placeholder="Enter your current password"
-              autoComplete="current-password"
+              placeholder="Enter your new password"
+              autoComplete="new-password"
               className="pr-10"
             />
             <Button
@@ -109,21 +108,7 @@ export const UpdatePasswordForm = () => {
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="password">New Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              name="password"
-              type={showPasswords ? 'text' : 'password'}
-              required
-              placeholder="Enter your new password"
-              autoComplete="new-password"
-              className="pr-10"
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirmPassword">Confirm New Password</Label>
+          <Label htmlFor="confirmPassword">Confirm Password</Label>
           <div className="relative">
             <Input
               id="confirmPassword"
@@ -137,7 +122,7 @@ export const UpdatePasswordForm = () => {
           </div>
         </div>
         <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? 'Updating...' : 'Update Password'}
+          {isLoading ? 'Recovering...' : 'Recover Password'}
         </Button>
       </motion.form>
     </div>
