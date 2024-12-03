@@ -25,20 +25,13 @@ app.use('/health', healthRouter)
 app.use('/api/webhook', webhookRouter)
 
 // Error handling middleware
-app.use(
-  (
-    err: Error,
-    _req: express.Request,
-    res: express.Response,
-    _next: express.NextFunction,
-  ) => {
-    logger.error('Unhandled error', { error: err.stack })
-    res.status(500).json({
-      error: 'Internal server error',
-      message: process.env.NODE_ENV === 'development' ? err.message : undefined,
-    })
-  },
-)
+app.use((err: Error, _req: express.Request, res: express.Response) => {
+  logger.error('Unhandled error', { error: err.stack })
+  res.status(500).json({
+    error: 'Internal server error',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+  })
+})
 
 const PORT = config.PORT
 

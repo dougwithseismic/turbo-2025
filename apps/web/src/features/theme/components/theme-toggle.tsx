@@ -13,14 +13,20 @@ export const ThemeToggle = () => {
     setMounted(true)
   }, [])
 
+  if (themes.length === 0) return null
+
   const cycleTheme = () => {
     const currentIndex = themes.findIndex((t) => t.id === theme)
     const nextIndex = (currentIndex + 1) % themes.length
+    if (!themes[nextIndex]) return
+
     setTheme(themes[nextIndex].id)
   }
 
   const currentTheme = themes.find((t) => t.id === theme)
-  const Icon = currentTheme?.icon || themes[0].icon
+  if (!currentTheme) return null
+
+  const Icon = currentTheme.icon
 
   if (!mounted) {
     return null

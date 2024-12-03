@@ -8,7 +8,7 @@
     "dev": "turbo dev",
     "dev:api": "turbo dev --filter=api",
     "dev:web": "turbo dev --filter=web",
-    "lint": "eslint . --ext .ts,.tsx",
+    "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
     "prepare": "husky",
@@ -21,23 +21,27 @@
     "*.{ts,tsx}": [
       "prettier --write"
     ]
-
   },
   "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-typescript": "workspace:*",
+    "@eslint/eslintrc": "^3.2.0",
+    "@eslint/js": "^9.16.0",
     "@types/node": "^20.11.24",
+    "commander": "^12.0.0",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
     "prettier": "^3.0.0",
+    "tsx": "^4.7.0",
     "turbo": "^2.2.3",
-    "typescript": "5.5.4",
-    "commander": "^12.0.0",
-    "tsx": "^4.7.0"
+    "typescript": "5.5.4"
   },
   "packageManager": "pnpm@8.15.6",
   "engines": {
     "node": ">=18"
   },
   "dependencies": {
+    "eslint": "^9.16.0",
     "inquirer": "^12.0.1"
   },
   "type": "module"

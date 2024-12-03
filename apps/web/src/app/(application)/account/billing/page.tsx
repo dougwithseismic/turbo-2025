@@ -14,14 +14,17 @@ export const metadata: Metadata = {
 }
 
 interface BillingPageProps {
-  searchParams: {
+  searchParams: Promise<{
     success?: string
     canceled?: string
-  }
+  }>
 }
 
-export default async function BillingPage({ searchParams }: BillingPageProps) {
+export default async function BillingPage({
+  searchParams: searchParamsPromise,
+}: BillingPageProps) {
   const user = await auth()
+  const searchParams = await searchParamsPromise
 
   if (!user) {
     redirect('/login')

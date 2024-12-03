@@ -35,7 +35,7 @@ const checkDockerRunning = async (): Promise<boolean> => {
   try {
     await execAsync('docker info')
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }
@@ -47,7 +47,7 @@ const showSupabaseStatus = async (): Promise<void> => {
     )
     console.log(colors.cyan('\nSupabase Status:'))
     console.log(stdout)
-  } catch (error) {
+  } catch {
     console.log(colors.yellow('\nCould not fetch Supabase status'))
   }
 }
@@ -155,7 +155,14 @@ class ServiceManager {
         }
       }
 
+      if (!service.start.length) {
+        throw new ServiceError(`No start command defined for ${service.name}`)
+      }
+
       const [command, ...args] = service.start
+      if (!command) {
+        throw new ServiceError(`No start command defined for ${service.name}`)
+      }
       await this.executeCommand({ command, args })
 
       if (service.healthCheck) {
@@ -196,7 +203,14 @@ class ServiceManager {
   private async stopService(service: ServiceConfig): Promise<void> {
     console.log(colors.yellow(`Stopping ${service.name}...`))
     try {
+      if (!service.stop.length) {
+        throw new ServiceError(`No stop command defined for ${service.name}`)
+      }
+
       const [command, ...args] = service.stop
+      if (!command) {
+        throw new ServiceError(`No stop command defined for ${service.name}`)
+      }
       await this.executeCommand({ command, args })
       console.log(colors.green(`✓ ${service.name} stopped`))
     } catch (error) {

@@ -1,6 +1,5 @@
 'use client'
 
-import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useTheme } from '@/features/theme/hooks/use-theme'
 import { Palette } from 'lucide-react'

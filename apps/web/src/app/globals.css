@@ -9,7 +9,7 @@
 @import '../features/theme/themes/rose-dark.css';
 @import '../features/theme/themes/contra.css';
 @import '../features/theme/themes/cursor.css';
-
+@import '../features/theme/themes/parsera.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

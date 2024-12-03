@@ -106,6 +106,14 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'cursor',
   },
+  {
+    name: 'Parsera',
+    id: 'parsera',
+    icon: Palette,
+    colorScheme: 'dark',
+    themeColor: 'dark',
+    cssClass: 'parsera',
+  },
 ] as const
 
 export type ThemeId = (typeof themes)[number]['id']
