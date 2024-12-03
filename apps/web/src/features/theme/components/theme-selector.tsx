@@ -40,8 +40,8 @@ export const ThemeSelector = () => {
                   onClick={() => setTheme(themeConfig.id)}
                   className={`aspect-square select-none h-full w-full flex flex-col items-center justify-center gap-3 rounded-sm border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all duration-200 [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
                   style={{
-                    backgroundColor: 'var(--background)',
-                    color: 'var(--foreground)',
+                    backgroundColor: 'hsl(var(--background))',
+                    color: 'hsl(var(--foreground))',
                   }}
                 >
                   <RadioGroupItem
@@ -52,13 +52,13 @@ export const ThemeSelector = () => {
                   <Icon
                     className="h-6 w-6 transition-colors duration-200"
                     style={{
-                      color: 'var(--primary)',
+                      color: 'hsl(var(--primary))',
                     }}
                   />
                   <span
                     className="text-sm font-medium transition-colors duration-200"
                     style={{
-                      color: 'var(--sidebar-foreground)',
+                      color: 'hsl(var(--sidebar-foreground))',
                     }}
                   >
                     {themeConfig.name}

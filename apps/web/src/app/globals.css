@@ -10,16 +10,14 @@
 @import '../features/theme/themes/contra.css';
 @import '../features/theme/themes/cursor.css';
 @import '../features/theme/themes/parsera.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 body {
   font-family: 'Geist', Arial, Helvetica, sans-serif;
 }
-
-
 
 @layer base {
   * {
@@ -27,5 +25,27 @@ body {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .card-bg-subtle {
+    @apply bg-gradient-to-br from-red-500 to-red-500/30;
+  }
+  
+  .card-bg-accent {
+    @apply bg-gradient-to-br from-background to-accent;
+  }
+
+  .card-bg-primary {
+    @apply bg-gradient-to-br from-background to-primary;
+  }
+
+  .card-bg-secondary {
+    @apply bg-gradient-to-br from-background to-secondary;
+  }
+
+  .card-bg-muted {
+    @apply bg-gradient-to-br from-background to-muted;
   }
 }

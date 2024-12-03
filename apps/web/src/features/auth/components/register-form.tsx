@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import Link from 'next/link'
 import { AuthForm } from '../forms/auth-form'
 import { getErrorConfig } from '@/lib/errors'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 import { container, item } from '../animations/form-animations'
 
 export const RegisterForm = () => {

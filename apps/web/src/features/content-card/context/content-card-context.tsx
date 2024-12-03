@@ -24,7 +24,7 @@ export const useContentCard = () => {
   return context
 }
 
-interface ContentCardProviderProps {
+export interface ContentCardProviderProps {
   children: ReactNode
   initialSearchQuery?: string
 }
@@ -45,7 +45,7 @@ export const ContentCardProvider = ({
     if (!searchQuery) return items
     return Array.from(items.values()).filter((item) => {
       const searchLower = searchQuery.toLowerCase()
-      return Object.entries(item).some(([key, value]) => {
+      return Object.entries(item).some(([, value]) => {
         if (typeof value === 'string') {
           return value.toLowerCase().includes(searchLower)
         }

@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import type { AuthFormProps, FormState } from './types'
 import { useSecurityState, MAX_ATTEMPTS, LOCKOUT_TIME } from '../utils/security'
@@ -13,6 +13,7 @@ import {
   getShakeAnimation,
   getReducedShakeAnimation,
 } from '../animations/form-animations'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export function AuthForm({
   type,
@@ -28,6 +29,7 @@ export function AuthForm({
     showPassword: false,
     error: null,
     shake: false,
+    acceptedTerms: false,
   })
 
   const remainingAttempts = MAX_ATTEMPTS - security.attempts
@@ -48,6 +50,15 @@ export function AuthForm({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
+
+    if (type === 'register' && !formState.acceptedTerms) {
+      setFormState((prev) => ({
+        ...prev,
+        error: 'You must accept the terms and conditions',
+      }))
+      triggerShake()
+      return
+    }
 
     if (security.lockoutTimer > 0) {
       setFormState((prev) => ({
@@ -112,7 +123,7 @@ export function AuthForm({
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: prefersReducedMotion ? 'auto' : 0 }}
           >
-            <Alert variant="destructive">
+            <Alert variant="destructive" className="bg-secondary-foreground">
               <AlertDescription>{formState.error}</AlertDescription>
             </Alert>
           </motion.div>
@@ -188,6 +199,24 @@ export function AuthForm({
           </motion.div>
         </div>
       </div>
+
+      {type === 'register' && (
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="terms"
+            checked={formState.acceptedTerms}
+            onCheckedChange={(checked) =>
+              setFormState((prev) => ({ ...prev, acceptedTerms: !!checked }))
+            }
+          />
+          <Label
+            htmlFor="terms"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          >
+            I accept the terms and conditions
+          </Label>
+        </div>
+      )}
 
       <AnimatePresence mode="wait">
         {security.attempts > 0 && security.attempts < MAX_ATTEMPTS && (

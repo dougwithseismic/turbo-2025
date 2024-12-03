@@ -24,7 +24,11 @@ export const AccountSettings = () => {
       <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
         <ContentCard.Search placeholder="Search account settings..." />
 
-        <ContentCard title="Account Information" id="account-information">
+        <ContentCard
+          title="Account Information"
+          id="account-information"
+          className="shadow-md"
+        >
           <ContentCard.Header>
             <Button variant="ghost" size="sm">
               <PencilLine className="h-4 w-4" />

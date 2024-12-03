@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 import {
   Children,
   isValidElement,
@@ -53,7 +53,7 @@ const contentCardVariants = cva('', {
         '[&>[data-card-content]]:py-8 [&>[data-card-header]]:py-8 [&>[data-card-footer]]:py-8',
     },
     variant: {
-      base: 'bg-card text-card-foreground',
+      base: 'bg-gradient-to-b from-primary/[1%] to-primary/[2%] text-card-foreground',
       ghost: 'border-none shadow-none bg-transparent',
       outline: 'bg-transparent',
     },
@@ -100,7 +100,7 @@ export const ContentCard = ({
   const { header, footer, content } = useMemo(() => {
     let header: ReactNode | null = null
     let footer: ReactNode | null = null
-    let content: ReactNode[] = []
+    const content: ReactNode[] = []
 
     Children.forEach(children, (child, index) => {
       if (!child) return
@@ -133,8 +133,10 @@ export const ContentCard = ({
   }, [children, id])
 
   useEffect(() => {
-    id && registerItem(id, { id, label: title, description, parentId: null })
-  }, [id])
+    if (id) {
+      registerItem(id, { id, label: title, description, parentId: null })
+    }
+  }, []) // Empty dependency array since we only want to register once on mount
 
   // Don't render anything until the context is ready
   if (!isReady) {

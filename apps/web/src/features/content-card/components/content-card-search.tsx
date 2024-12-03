@@ -5,7 +5,7 @@ import { Search } from 'lucide-react'
 import { useContentCard } from '../context/content-card-context'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { cn } from '@/lib/utils'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 import { itemVariants } from '../animations/content-card-animations'
 
 const contentCardSearchVariants = cva('relative flex items-center', {
@@ -27,7 +27,7 @@ const contentCardSearchVariants = cva('relative flex items-center', {
   },
 })
 
-interface ContentCardSearchProps
+export interface ContentCardSearchProps
   extends VariantProps<typeof contentCardSearchVariants> {
   placeholder?: string
   className?: string

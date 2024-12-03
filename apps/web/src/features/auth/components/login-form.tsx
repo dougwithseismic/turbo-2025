@@ -1,18 +1,16 @@
 'use client'
 
-import { useState } from 'react'
-import { useAuth } from '@/features/auth/hooks/use-auth'
-import Link from 'next/link'
-import { AuthForm } from '../forms/auth-form'
-import { useRouter } from 'next/navigation'
-import { motion } from 'motion/react'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
+import { useState } from 'react'
 import { container, item } from '../animations/form-animations'
+import { AuthForm } from '../forms/auth-form'
 import type { AuthSubmitParams, AuthSubmitResult } from '../forms/types'
 
 export function LoginForm() {
   const { signIn, isLoading } = useAuth()
-  const router = useRouter()
   const [isLockedOut, setIsLockedOut] = useState(false)
 
   const handleSignIn = async ({

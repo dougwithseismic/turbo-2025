@@ -19,3 +19,8 @@ export const ContentCard = Object.assign(ContentCardRoot, {
 
 export type { ContentCardProps } from './content-card'
 export type { ContentCardItemProps } from './content-card-item'
+export type { ContentCardEmptyStateProps } from './content-card-empty-state'
+export type { ContentCardFooterProps } from './content-card-footer'
+export type { ContentCardHeaderProps } from './content-card-header'
+export type { ContentCardProviderProps } from '../context/content-card-context'
+export type { ContentCardSearchProps } from './content-card-search'

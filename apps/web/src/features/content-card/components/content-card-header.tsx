@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-interface ContentCardHeaderProps {
+export interface ContentCardHeaderProps {
   children: ReactNode
 }
 

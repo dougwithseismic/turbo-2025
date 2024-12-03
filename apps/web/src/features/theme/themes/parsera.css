@@ -1,47 +1,47 @@
 .parsera {
-  --background: hsl(0 0% 4%);
-  --foreground: hsl(0 0% 100%);
+  --background: 0 0% 4%;
+  --foreground: 0 0% 100%;
   
-  --card: hsl(24 11% 8%);
-  --card-foreground: hsl(60 0% 98%);
+  --card: 24 11% 8%;
+  --card-foreground: 60 0% 98%;
   
-  --popover: hsl(24 11% 8%);
-  --popover-foreground: hsl(60 0% 98%);
+  --popover: 24 11% 8%;
+  --popover-foreground: 60 0% 98%;
   
-  --primary: hsl(45 100% 50%);
-  --primary-foreground: hsl(0 0% 100%);
+  --primary: 45 100% 50%;
+  --primary-foreground: 0 0% 100%;
   
-  --secondary: hsl(220 27% 20%);
-  --secondary-foreground: hsl(210 20% 98%);
+  --secondary: 220 27% 20%;
+  --secondary-foreground: 210 20% 98%;
   
-  --muted: hsl(25 9% 35%);
-  --muted-foreground: hsl(220 9% 70%);
+  --muted: 25 9% 35%;
+  --muted-foreground: 220 9% 70%;
   
-  --accent: hsl(45 100% 50%);
-  --accent-foreground: hsl(0 0% 100%);
+  --accent: 45 100% 50%;
+  --accent-foreground: 0 0% 100%;
   
-  --destructive: hsl(350 100% 97%);
-  --destructive-foreground: hsl(0 0% 0%);
+  --destructive: 350 100% 97%;
+  --destructive-foreground: 0 0% 0%;
   
-  --border: hsl(24 11% 15%);
-  --input: hsl(24 11% 15%);
-  --ring: hsl(45 100% 50%);
+  --border: 24 11% 15%;
+  --input: 24 11% 15%;
+  --ring: 45 100% 50%;
   
-  --chart-1: hsl(45 100% 50%);
-  --chart-2: hsl(45 100% 55%);
-  --chart-3: hsl(45 100% 60%);
-  --chart-4: hsl(45 100% 65%);
-  --chart-5: hsl(45 100% 70%);
+  --chart-1: 45 100% 50%;
+  --chart-2: 45 100% 55%;
+  --chart-3: 45 100% 60%;
+  --chart-4: 45 100% 65%;
+  --chart-5: 45 100% 70%;
   
   /* Sidebar specific colors */
-  --sidebar-background: hsl(24 11% 8%);
-  --sidebar-foreground: hsl(220 9% 70%);
-  --sidebar-primary: hsl(45 100% 50%);
-  --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(220 27% 20%);
-  --sidebar-accent-foreground: hsl(210 20% 98%);
-  --sidebar-border: hsl(24 11% 15%);
-  --sidebar-ring: hsl(45 100% 50%);
+  --sidebar-background: 24 11% 8%;
+  --sidebar-foreground: 220 9% 70%;
+  --sidebar-primary: 45 100% 50%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 220 27% 20%;
+  --sidebar-accent-foreground: 210 20% 98%;
+  --sidebar-border: 24 11% 15%;
+  --sidebar-ring: 45 100% 50%;
   
   --radius: 0.25rem;
 }

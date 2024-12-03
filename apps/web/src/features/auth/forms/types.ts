@@ -28,4 +28,5 @@ export interface FormState {
   showPassword: boolean
   error: string | null
   shake: boolean
+  acceptedTerms: boolean
 }

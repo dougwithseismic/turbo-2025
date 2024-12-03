@@ -1,9 +1,9 @@
 import { cn } from '@/lib/utils'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 import { itemVariants } from '../animations/content-card-animations'
 import { useContentCard } from '../context/content-card-context'
 
-interface ContentCardEmptyStateProps {
+export interface ContentCardEmptyStateProps {
   title?: string
   description?: string
   icon?: React.ReactNode
