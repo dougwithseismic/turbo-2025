@@ -1,9 +1,8 @@
+import { AuthProvider } from '@/features/auth/providers/auth-provider'
+import { ThemeProvider } from '@/features/theme/providers/theme-provider'
 import type { Metadata, Viewport } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-import { AuthProvider } from '@/features/auth/providers/auth-provider'
-import { ThemeProvider } from '@/features/theme/providers/theme-provider'
-import { RouteProgressBar } from '@/features/navigation/components/route-progress-bar'
 
 import { themes } from '@/features/theme/config/themes'
 
@@ -15,8 +14,6 @@ export const viewport: Viewport = {
     })),
   ],
 }
-
-console.log('viewport', viewport)
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',

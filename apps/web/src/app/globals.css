@@ -8,6 +8,7 @@
 @import '../features/theme/themes/rose-light.css';
 @import '../features/theme/themes/rose-dark.css';
 @import '../features/theme/themes/contra.css';
+@import '../features/theme/themes/cursor.css';
 
 @tailwind base;
 @tailwind components;

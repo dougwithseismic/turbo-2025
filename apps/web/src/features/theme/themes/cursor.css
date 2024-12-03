@@ -1,0 +1,47 @@
+.cursor {
+  --background: hsl(220 13% 7%);
+  --foreground: hsl(219 14% 98%);
+  
+  --card: hsl(222 14% 9%);
+  --card-foreground: hsl(219 14% 98%);
+  
+  --popover: hsl(222 14% 9%);
+  --popover-foreground: hsl(219 14% 98%);
+  
+  --primary: hsl(220 96% 55%);
+  --primary-foreground: hsl(0 0% 100%);
+  
+  --secondary: hsl(223 14% 14%);
+  --secondary-foreground: hsl(220 23% 98%);
+  
+  --muted: hsl(223 14% 14%);
+  --muted-foreground: hsl(220 11% 49%);
+  
+  --accent: hsl(220 69% 53%);
+  --accent-foreground: hsl(0 0% 100%);
+  
+  --destructive: hsl(223 14% 13%);
+  --destructive-foreground: hsl(220 23% 98%);
+  
+  --border: hsl(222 14% 14%);
+  --input: hsl(222 14% 14%);
+  --ring: hsl(220 69% 53%);
+  
+  --chart-1: hsl(220 69% 53%);
+  --chart-2: hsl(220 96% 55%);
+  --chart-3: hsl(220 69% 53%);
+  --chart-4: hsl(220 96% 55%);
+  --chart-5: hsl(220 69% 53%);
+  
+  /* Sidebar specific colors */
+  --sidebar-background: hsl(222 14% 9%);
+  --sidebar-foreground: hsl(220 11% 71%);
+  --sidebar-primary: hsl(220 69% 53%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(223 14% 14%);
+  --sidebar-accent-foreground: hsl(220 23% 98%);
+  --sidebar-border: hsl(222 14% 14%);
+  --sidebar-ring: hsl(220 69% 53%);
+  
+  --radius: 0.25rem;
+}

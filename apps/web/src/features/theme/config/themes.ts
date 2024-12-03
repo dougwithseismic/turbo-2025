@@ -5,6 +5,7 @@ import {
   Coffee,
   Palette,
   Flower,
+  Mouse,
 } from 'lucide-react'
 
 export interface ThemeConfig {
@@ -96,6 +97,14 @@ export const themes: ThemeConfig[] = [
     colorScheme: 'light',
     themeColor: 'light',
     cssClass: 'contra',
+  },
+  {
+    name: 'Cursor',
+    id: 'cursor',
+    icon: Mouse,
+    colorScheme: 'dark',
+    themeColor: 'dark',
+    cssClass: 'cursor',
   },
 ] as const
 

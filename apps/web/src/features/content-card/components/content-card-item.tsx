@@ -1,5 +1,5 @@
 import { cva, type VariantProps } from 'class-variance-authority'
-import { type ReactNode, useEffect } from 'react'
+import { type ReactNode, useEffect, useRef } from 'react'
 import { cn } from '@/lib/utils'
 import { motion } from 'motion/react'
 import { itemVariants } from '../animations/content-card-animations'
@@ -66,7 +66,8 @@ export const ContentCardItem = ({
 }: ContentCardItemProps) => {
   const { filteredItems, registerItem } = useContentCard()
 
-  const doesMatchItems = filteredItems.some((item) => item.id === id)
+  const doesMatchItems =
+    !filteredItems.length || filteredItems.some((item) => item.id === id)
 
   useEffect(() => {
     if (id) {
@@ -74,7 +75,7 @@ export const ContentCardItem = ({
     }
   }, [id])
 
-  if (!doesMatchItems) {
+  if (filteredItems.length > 0 && !doesMatchItems) {
     return null
   }
 

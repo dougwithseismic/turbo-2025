@@ -1,22 +1,18 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
-
-interface ContentCardItem {
-  label: string
-  description?: string
-  children?: ReactNode
-  action?: ReactNode
-  [key: string]: any
-}
-
-interface ContentCardContextValue {
-  searchQuery: string
-  setSearchQuery: (value: string) => void
-  shouldShowItem: (item: ContentCardItem) => boolean
-  filterFn?: (item: ContentCardItem) => boolean
-  setFilterFn: (fn: ((item: ContentCardItem) => boolean) | undefined) => void
-}
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  type ReactNode,
+} from 'react'
+import type {
+  ContentCardContextValue,
+  ContentCardItem,
+} from '../types/content-card-types'
 
 const ContentCardContext = createContext<ContentCardContextValue | null>(null)
 
@@ -31,50 +27,62 @@ export const useContentCard = () => {
 interface ContentCardProviderProps {
   children: ReactNode
   initialSearchQuery?: string
-  initialFilterFn?: (item: ContentCardItem) => boolean
 }
 
 export const ContentCardProvider = ({
   children,
   initialSearchQuery = '',
-  initialFilterFn,
 }: ContentCardProviderProps) => {
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery)
-  const [filterFn, setFilterFn] = useState<
-    ((item: ContentCardItem) => boolean) | undefined
-  >(initialFilterFn)
+  const [items, setItems] = useState<Map<string, ContentCardItem>>(new Map())
+  const isReady = useRef(false)
 
-  const shouldShowItem = (item: ContentCardItem) => {
-    if (!item) return false
+  useEffect(() => {
+    isReady.current = true
+  }, [])
 
-    // First apply custom filter if exists
-    if (filterFn && !filterFn(item)) {
-      return false
-    }
+  const filteredItems = useMemo(() => {
+    if (!searchQuery) return items
+    return Array.from(items.values()).filter((item) => {
+      const searchLower = searchQuery.toLowerCase()
+      return Object.entries(item).some(([key, value]) => {
+        if (typeof value === 'string') {
+          return value.toLowerCase().includes(searchLower)
+        }
+        return false
+      })
+    })
+  }, [items, searchQuery])
 
-    // Then apply search filter if query exists
-    if (!searchQuery) return true
-    const searchLower = searchQuery.toLowerCase()
+  const registerItem = (key: string, item: ContentCardItem) => {
+    setItems((prevItems) => {
+      const newItems = new Map(prevItems)
+      newItems.set(key, item)
+      return newItems
+    })
+  }
 
-    return (
-      (item.label?.toLowerCase().includes(searchLower) ?? false) ||
-      (item.description?.toLowerCase().includes(searchLower) ?? false)
-    )
+  const unregisterItem = (key: string) => {
+    setItems((prevItems) => {
+      const newItems = new Map(prevItems)
+      newItems.delete(key)
+      return newItems
+    })
   }
 
   return (
     <ContentCardContext.Provider
       value={{
+        isReady: isReady.current,
         searchQuery,
         setSearchQuery,
-        shouldShowItem,
-        filterFn,
-        setFilterFn,
+        items,
+        registerItem,
+        unregisterItem,
+        filteredItems: Array.from(filteredItems.values()),
       }}
     >
       {children}
     </ContentCardContext.Provider>
   )
 }
-
-export type { ContentCardItem }

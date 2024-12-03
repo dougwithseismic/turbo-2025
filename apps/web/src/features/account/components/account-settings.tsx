@@ -2,12 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { ThemeSelector } from '@/features/theme/components/theme-selector'
-import {
-  ContentCard,
-  ContentCardProvider,
-  ContentSearch,
-  ContentItem,
-} from '@/features/content-card'
+import { ContentCard, ContentCardProvider } from '@/features/content-card'
 import {
   CreditCard,
   Globe,
@@ -25,9 +20,9 @@ export const AccountSettings = () => {
   return (
     <ContentCardProvider>
       <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
-        <ContentSearch placeholder="Search account settings..." />
+        <ContentCard.Search placeholder="Search account settings..." />
 
-        <ContentCard title="Account Information">
+        <ContentCard title="Account Information" id="account-information">
           <ContentCard.Header>
             <Button variant="ghost" size="sm">
               <PencilLine className="h-4 w-4" />
@@ -36,7 +31,8 @@ export const AccountSettings = () => {
           </ContentCard.Header>
 
           <ContentCard.Body>
-            <ContentItem
+            <ContentCard.Item
+              id="email"
               label="Email"
               action={
                 <Button variant="ghost" size="icon">
@@ -45,9 +41,10 @@ export const AccountSettings = () => {
               }
             >
               {user?.email}
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="password"
               label="Password"
               description="Update your password securely"
               action={
@@ -59,7 +56,8 @@ export const AccountSettings = () => {
               }
             />
 
-            <ContentItem
+            <ContentCard.Item
+              id="birthdate"
               label="Birthdate"
               action={
                 <Button variant="ghost" size="icon">
@@ -68,9 +66,10 @@ export const AccountSettings = () => {
               }
             >
               MM/YYYY/DD
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="calendar-link"
               label="Calendar Link"
               description="Share your calendar link to seamlessly set up a call"
               action={
@@ -80,7 +79,7 @@ export const AccountSettings = () => {
               }
             >
               https://cal.com/username/vip
-            </ContentItem>
+            </ContentCard.Item>
           </ContentCard.Body>
 
           <ContentCard.Footer>
@@ -96,20 +95,22 @@ export const AccountSettings = () => {
           </ContentCard.Footer>
         </ContentCard>
 
-        <ContentCard title="Theme">
+        <ContentCard title="Theme" id="theme">
           <ContentCard.Body>
-            <ContentItem label="Theme Settings">
+            <ContentCard.Item id="theme-selector">
               <ThemeSelector />
-            </ContentItem>
+            </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
 
         <ContentCard
           title="Personal Information"
           description="This information will appear on all future invoices"
+          id="personal-information"
         >
           <ContentCard.Body>
-            <ContentItem
+            <ContentCard.Item
+              id="address"
               label="Your address"
               description="For compliance and tax purposes"
               action={
@@ -119,7 +120,8 @@ export const AccountSettings = () => {
               }
             />
 
-            <ContentItem
+            <ContentCard.Item
+              id="legal-entity"
               label="Legal entity name"
               description="This will appear on invoices and contracts"
               action={
@@ -129,7 +131,8 @@ export const AccountSettings = () => {
               }
             />
 
-            <ContentItem
+            <ContentCard.Item
+              id="phone"
               label="Your phone number"
               action={
                 <Button variant="ghost" size="icon">
@@ -138,9 +141,10 @@ export const AccountSettings = () => {
               }
             >
               X(XXX) XXX - XXXX
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="tax"
               label="Tax Information"
               description="Tax type (e.g. VAT, HST etc.) and ID/account number"
               action={
@@ -155,9 +159,11 @@ export const AccountSettings = () => {
         <ContentCard
           title="Subscription & Billing"
           description="Manage your subscription and billing information"
+          id="subscription-billing"
         >
           <ContentCard.Body>
-            <ContentItem
+            <ContentCard.Item
+              id="current-plan"
               label="Current Plan"
               description="Next billing date: March 1, 2024"
               action={
@@ -170,9 +176,10 @@ export const AccountSettings = () => {
                 <Package className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm">Pro Plan ($29/month)</p>
               </div>
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="payment-method"
               label="Payment Method"
               action={
                 <Button variant="ghost" size="icon">
@@ -185,9 +192,10 @@ export const AccountSettings = () => {
                 <p className="text-sm">•••• 4242</p>
               </div>
               <p className="text-sm text-muted-foreground">Expires 12/2025</p>
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="billing-history"
               label="Billing History"
               description="View and download past invoices"
               action={
@@ -199,9 +207,10 @@ export const AccountSettings = () => {
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard title="Domains">
+        <ContentCard title="Domains" id="domains">
           <ContentCard.Body>
-            <ContentItem
+            <ContentCard.Item
+              id="profile-domain"
               label="Profile Domain"
               action={
                 <Button variant="ghost" size="icon">
@@ -213,9 +222,10 @@ export const AccountSettings = () => {
                 <Globe className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm">username.domain.com</p>
               </div>
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="default-portfolio-domain"
               label="Default Portfolio Domain"
               action={
                 <Button variant="ghost" size="icon">
@@ -227,9 +237,10 @@ export const AccountSettings = () => {
                 <Globe className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm">portfolio.domain.com</p>
               </div>
-            </ContentItem>
+            </ContentCard.Item>
 
-            <ContentItem
+            <ContentCard.Item
+              id="custom-portfolio-domain"
               label="Custom Portfolio Domain"
               action={
                 <Button variant="ghost" size="icon">
@@ -241,9 +252,10 @@ export const AccountSettings = () => {
                 <Globe className="h-4 w-4 text-muted-foreground" />
                 <p className="text-sm">custom.domain.com</p>
               </div>
-            </ContentItem>
+            </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
+        <ContentCard.EmptyState />
       </div>
     </ContentCardProvider>
   )

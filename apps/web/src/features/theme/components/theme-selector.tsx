@@ -1,12 +1,5 @@
 'use client'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { useTheme } from '@/features/theme/hooks/use-theme'
@@ -17,17 +10,19 @@ export const ThemeSelector = () => {
   const { theme, setTheme } = useTheme()
 
   return (
-    <Card>
-      <CardHeader>
+    <div>
+      <div className="mb-6">
         <div className="flex items-center gap-2">
           <Palette className="h-5 w-5" />
-          <CardTitle>Appearance</CardTitle>
+          <h3 className="font-semibold leading-none tracking-tight">
+            Appearance
+          </h3>
         </div>
-        <CardDescription>
+        <p className="text-sm text-muted-foreground mt-1.5">
           Customize how the app looks on your device
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div>
         <RadioGroup
           value={theme}
           onValueChange={setTheme}
@@ -44,7 +39,7 @@ export const ThemeSelector = () => {
                 <div
                   key={themeConfig.id}
                   onClick={() => setTheme(themeConfig.id)}
-                  className={`aspect-square select-none h-full w-full flex flex-col items-center justify-center gap-3 rounded-md border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all duration-200 [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
+                  className={`aspect-square select-none h-full w-full flex flex-col items-center justify-center gap-3 rounded-sm border-2 border-muted p-4 hover:bg-accent hover:text-accent-foreground hover:border-primary transition-all duration-200 [&:has([data-state=checked])]:border-primary ${themeConfig.id}`}
                   style={{
                     backgroundColor: 'var(--background)',
                     color: 'var(--foreground)',
@@ -73,7 +68,7 @@ export const ThemeSelector = () => {
               )
             })}
         </RadioGroup>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   )
 }

@@ -1,9 +1,8 @@
-export { ContentCard } from './components/content-card'
-export { ContentSearch } from './components/content-search'
-export { ContentItem } from './components/content-item'
+export { ContentCard } from './components'
 export {
-  ContentCardProvider,
   useContentCard,
+  ContentCardProvider,
 } from './context/content-card-context'
-export type { ContentCardItem } from './context/content-card-context'
-export type { ContentItemProps } from './components/content-item'
+export type { ContentCardItem } from './types/content-card-types'
+export type { ContentCardProps } from './components/content-card'
+export type { ContentCardItemProps } from './components/content-card-item'
