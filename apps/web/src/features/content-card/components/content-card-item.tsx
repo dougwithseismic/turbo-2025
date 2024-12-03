@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
-import { type ReactNode, useEffect, useRef } from 'react'
+import { type ReactNode, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { motion } from 'motion/react'
+import { motion, AnimatePresence } from 'motion/react'
 import { itemVariants } from '../animations/content-card-animations'
 import { useContentCard } from '../context/content-card-context'
 
@@ -64,7 +64,7 @@ export const ContentCardItem = ({
   contentWidth,
   parentId,
 }: ContentCardItemProps) => {
-  const { filteredItems, registerItem } = useContentCard()
+  const { filteredItems, registerItem, isReady } = useContentCard()
 
   const doesMatchItems =
     !filteredItems.length || filteredItems.some((item) => item.id === id)
@@ -75,31 +75,38 @@ export const ContentCardItem = ({
     }
   }, [id])
 
-  if (filteredItems.length > 0 && !doesMatchItems) {
+  if (!isReady) {
     return null
   }
 
   return (
-    <motion.div
-      variants={itemVariants}
-      className={cn(
-        contentCardItemVariants({
-          layout,
-          spacing,
-          size,
-          contentWidth,
-        }),
-        className,
+    <AnimatePresence mode="popLayout">
+      {(!filteredItems.length || doesMatchItems) && (
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="show"
+          exit="hidden"
+          className={cn(
+            contentCardItemVariants({
+              layout,
+              spacing,
+              size,
+              contentWidth,
+            }),
+            className,
+          )}
+        >
+          <div className={cn('space-y-1', contentClassName)}>
+            <div className="font-medium">{label}</div>
+            {description && (
+              <p className="text-sm text-muted-foreground">{description}</p>
+            )}
+            {children}
+          </div>
+          {action && <div className="flex-shrink-0">{action}</div>}
+        </motion.div>
       )}
-    >
-      <div className={cn('space-y-1', contentClassName)}>
-        <div className="font-medium">{label}</div>
-        {description && (
-          <p className="text-sm text-muted-foreground">{description}</p>
-        )}
-        {children}
-      </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
-    </motion.div>
+    </AnimatePresence>
   )
 }

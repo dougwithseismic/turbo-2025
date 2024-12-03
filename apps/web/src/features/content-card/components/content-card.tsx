@@ -91,7 +91,7 @@ export const ContentCard = ({
   className,
   id,
 }: ContentCardProps) => {
-  const { filteredItems, registerItem } = useContentCard()
+  const { filteredItems, registerItem, isReady } = useContentCard()
 
   const hasMatchingItems = filteredItems.some(
     (item) => item.id === id || item.parentId === id,
@@ -136,11 +136,17 @@ export const ContentCard = ({
     id && registerItem(id, { id, label: title, description, parentId: null })
   }, [id])
 
-  const showEmptyState = !hasMatchingItems && filteredItems.length > 0
-
-  if (!hasMatchingItems || filteredItems.length === 0) {
+  // Don't render anything until the context is ready
+  if (!isReady) {
     return null
   }
+
+  // After ready, check if we should show this card
+  if (!hasMatchingItems && filteredItems.length > 0) {
+    return null
+  }
+
+  const showEmptyState = !hasMatchingItems && filteredItems.length > 0
 
   return (
     <Card

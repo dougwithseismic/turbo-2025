@@ -18,7 +18,7 @@ export const ContentCardEmptyState = ({
 }: ContentCardEmptyStateProps) => {
   const { filteredItems, isReady } = useContentCard()
 
-  if (!isReady && filteredItems.length === 0) {
+  if (!isReady || filteredItems.length > 0) {
     return null
   }
 
