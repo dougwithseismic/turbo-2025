@@ -4,7 +4,7 @@ import { useSearchParams } from 'next/navigation'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import { motion } from 'motion/react'
+import { motion } from 'framer-motion'
 
 export default function AuthErrorPage() {
   const searchParams = useSearchParams()

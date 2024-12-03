@@ -5,6 +5,7 @@ import localFont from 'next/font/local'
 import './globals.css'
 
 import { themes } from '@/features/theme/config/themes'
+import { Toaster } from 'react-hot-toast'
 
 export const viewport: Viewport = {
   themeColor: [
@@ -42,7 +43,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <AuthProvider>{children}</AuthProvider>
+          <AuthProvider>
+            <Toaster position="bottom-right" />
+            {children}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

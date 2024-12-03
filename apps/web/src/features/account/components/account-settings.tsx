@@ -1,18 +1,20 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { ThemeSelector } from '@/features/theme/components/theme-selector'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { ContentCard, ContentCardProvider } from '@/features/content-card'
+import { DetailItem } from '@/features/detail-item'
+import { ThemeSelector } from '@/features/theme/components/theme-selector'
 import {
   CreditCard,
   Globe,
   Lock,
+  Mail,
   Package,
   PencilLine,
   Save,
 } from 'lucide-react'
 import Link from 'next/link'
-import { useAuth } from '@/features/auth/hooks/use-auth'
 
 export const AccountSettings = () => {
   const { user } = useAuth()
@@ -31,54 +33,70 @@ export const AccountSettings = () => {
           </ContentCard.Header>
 
           <ContentCard.Body>
-            <ContentCard.Item
-              id="email"
-              label="Email"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              {user?.email}
+            <ContentCard.Item id="email" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Email</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">{user?.email}</span>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href="/account/update-email">
+                      <PencilLine className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="password"
-              label="Password"
-              description="Update your password securely"
-              action={
-                <Button variant="ghost" size="icon" asChild>
-                  <Link href="/account/update-password">
-                    <Lock className="h-4 w-4" />
-                  </Link>
-                </Button>
-              }
-            />
-
-            <ContentCard.Item
-              id="birthdate"
-              label="Birthdate"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              MM/YYYY/DD
+            <ContentCard.Item id="password" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Password</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Lock className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">••••••••</span>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link href="/account/update-password">
+                      <PencilLine className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="calendar-link"
-              label="Calendar Link"
-              description="Share your calendar link to seamlessly set up a call"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              https://cal.com/username/vip
+            <ContentCard.Item id="birthdate" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Birthdate</DetailItem.Label>
+                <DetailItem.Content>
+                  <span className="text-sm">MM/YYYY/DD</span>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
+            </ContentCard.Item>
+
+            <ContentCard.Item id="calendar-link" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Calendar Link</DetailItem.Label>
+                <DetailItem.Content>
+                  <span className="text-sm">https://cal.com/username/vip</span>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
           </ContentCard.Body>
 
@@ -109,153 +127,139 @@ export const AccountSettings = () => {
           id="personal-information"
         >
           <ContentCard.Body>
-            <ContentCard.Item
-              id="address"
-              label="Your address"
-              description="For compliance and tax purposes"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            />
-
-            <ContentCard.Item
-              id="legal-entity"
-              label="Legal entity name"
-              description="This will appear on invoices and contracts"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            />
-
-            <ContentCard.Item
-              id="phone"
-              label="Your phone number"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              X(XXX) XXX - XXXX
+            <ContentCard.Item id="address">
+              <DetailItem>
+                <DetailItem.Label>Your address</DetailItem.Label>
+                <DetailItem.Content>
+                  <span className="text-sm">Enter your address</span>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="tax"
-              label="Tax Information"
-              description="Tax type (e.g. VAT, HST etc.) and ID/account number"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            />
+            <ContentCard.Item id="legal-entity">
+              <DetailItem>
+                <DetailItem.Label>Legal Entity</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm">Individual</span>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
+            </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard
-          title="Subscription & Billing"
-          description="Manage your subscription and billing information"
-          id="subscription-billing"
-        >
+        <ContentCard title="Billing" id="billing">
           <ContentCard.Body>
-            <ContentCard.Item
-              id="current-plan"
-              label="Current Plan"
-              description="Next billing date: March 1, 2024"
-              action={
-                <Button variant="outline" asChild>
-                  <Link href="/account/billing">Manage Subscription</Link>
-                </Button>
-              }
-            >
-              <div className="flex items-center gap-2">
-                <Package className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">Pro Plan ($29/month)</p>
-              </div>
+            <ContentCard.Item id="payment-method" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Payment Method</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex flex-col gap-1">
+                    <div className="flex items-center gap-2">
+                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                      <p className="text-sm">•••• 4242</p>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Expires 12/2025
+                    </p>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="payment-method"
-              label="Payment Method"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              <div className="flex items-center gap-2">
-                <CreditCard className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">•••• 4242</p>
-              </div>
-              <p className="text-sm text-muted-foreground">Expires 12/2025</p>
+            <ContentCard.Item id="billing-history">
+              <DetailItem>
+                <DetailItem.Label>Billing History</DetailItem.Label>
+                <DetailItem.Content>
+                  <span className="text-sm">View your billing history</span>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="outline" asChild>
+                    <Link href="/account/billing/history">View History</Link>
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
-
-            <ContentCard.Item
-              id="billing-history"
-              label="Billing History"
-              description="View and download past invoices"
-              action={
-                <Button variant="outline" asChild>
-                  <Link href="/account/billing/history">View History</Link>
-                </Button>
-              }
-            />
           </ContentCard.Body>
         </ContentCard>
 
         <ContentCard title="Domains" id="domains">
           <ContentCard.Body>
-            <ContentCard.Item
-              id="profile-domain"
-              label="Profile Domain"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
-            >
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">username.domain.com</p>
-              </div>
+            <ContentCard.Item id="profile-domain" contentClassName="w-full">
+              <DetailItem>
+                <DetailItem.Label>Profile Domain</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm">username.domain.com</p>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
             <ContentCard.Item
               id="default-portfolio-domain"
-              label="Default Portfolio Domain"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
+              contentClassName="w-full"
             >
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">portfolio.domain.com</p>
-              </div>
+              <DetailItem>
+                <DetailItem.Label>Default Portfolio Domain</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm">portfolio.domain.com</p>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
 
             <ContentCard.Item
               id="custom-portfolio-domain"
-              label="Custom Portfolio Domain"
-              action={
-                <Button variant="ghost" size="icon">
-                  <PencilLine className="h-4 w-4" />
-                </Button>
-              }
+              contentClassName="w-full"
             >
-              <div className="flex items-center gap-2">
-                <Globe className="h-4 w-4 text-muted-foreground" />
-                <p className="text-sm">custom.domain.com</p>
-              </div>
+              <DetailItem>
+                <DetailItem.Label>Custom Portfolio Domain</DetailItem.Label>
+                <DetailItem.Content>
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4 text-muted-foreground" />
+                    <p className="text-sm">custom.domain.com</p>
+                  </div>
+                </DetailItem.Content>
+                <DetailItem.Action>
+                  <Button variant="ghost" size="icon">
+                    <PencilLine className="h-4 w-4" />
+                  </Button>
+                </DetailItem.Action>
+              </DetailItem>
             </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
-        <ContentCard.EmptyState />
       </div>
     </ContentCardProvider>
   )

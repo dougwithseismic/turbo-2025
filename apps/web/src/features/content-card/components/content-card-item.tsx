@@ -1,7 +1,7 @@
 import { cva, type VariantProps } from 'class-variance-authority'
 import { type ReactNode, useEffect } from 'react'
 import { cn } from '@/lib/utils'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { itemVariants } from '../animations/content-card-animations'
 import { useContentCard } from '../context/content-card-context'
 
@@ -97,7 +97,7 @@ export const ContentCardItem = ({
             className,
           )}
         >
-          <div className={cn('space-y-1', contentClassName)}>
+          <div className={cn('space-y-1 w-full', contentClassName)}>
             <div className="font-medium">{label}</div>
             {description && (
               <p className="text-sm text-muted-foreground">{description}</p>
