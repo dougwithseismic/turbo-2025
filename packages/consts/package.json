@@ -1,0 +1,12 @@
+{
+  "author": "Doug Silkstone <doug@withseismic.com>",
+  "description": "Shared constants for the repo",
+  "keywords": [],
+  "license": "ISC",
+  "main": "src/index.ts",
+  "name": "@repo/consts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.0.0"
+}

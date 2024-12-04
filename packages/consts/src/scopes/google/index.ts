@@ -99,3 +99,5 @@ export const GOOGLE_SCOPES = {
   YOUTUBE_ANALYTICS_READONLY:
     'https://www.googleapis.com/auth/yt-analytics.readonly',
 } as const
+
+export type GoogleScope = keyof typeof GOOGLE_SCOPES

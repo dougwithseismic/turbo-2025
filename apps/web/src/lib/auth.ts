@@ -1,6 +1,7 @@
 import { cache } from 'react'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from './supabase/server'
+import { GoogleScope } from '../../../../packages/consts/src/scopes/google/index'
 
 /**
  * Get the current authenticated user session
@@ -345,12 +346,12 @@ export const updateProfile = async ({
 export const signInWithGoogle = async ({
   scopes = [],
 }: {
-  scopes?: string[]
+  scopes?: GoogleScope[]
 } = {}) => {
   const supabase = await createSupabaseServerClient()
 
   // Default scopes that are always included
-  const defaultScopes = ['email', 'profile']
+  const defaultScopes: GoogleScope[] = ['EMAIL', 'PROFILE']
 
   // Combine default and custom scopes, removing duplicates
   const finalScopes = [...new Set([...defaultScopes, ...scopes])].join(' ')
