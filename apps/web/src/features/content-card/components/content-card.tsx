@@ -1,26 +1,20 @@
 'use client'
 
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import { cva, type VariantProps } from 'class-variance-authority'
 import { motion } from 'framer-motion'
+import { Search } from 'lucide-react'
 import {
   Children,
+  cloneElement,
   isValidElement,
+  type ReactElement,
   type ReactNode,
   useEffect,
   useMemo,
-  cloneElement,
-  type ReactElement,
 } from 'react'
 import {
   containerVariants,
@@ -28,11 +22,10 @@ import {
 } from '../animations/content-card-animations'
 import { useContentCard } from '../context/content-card-context'
 import type { ContentCardItem } from '../types/content-card-types'
+import { ContentCardBody, type ContentCardBodyProps } from './content-card-body'
 import { ContentCardEmptyState } from './content-card-empty-state'
 import { ContentCardFooter } from './content-card-footer'
-import { ContentCardBody, type ContentCardBodyProps } from './content-card-body'
 import { ContentCardHeader } from './content-card-header'
-import { Search } from 'lucide-react'
 
 const contentCardVariants = cva('', {
   variants: {
@@ -67,7 +60,6 @@ const contentCardVariants = cva('', {
 
 export interface ContentCardProps
   extends VariantProps<typeof contentCardVariants> {
-  title: string
   description?: string
   children: ReactNode
   itemFilter?: (item: ContentCardItem) => boolean
@@ -82,7 +74,6 @@ type ContentCardComponent =
   | typeof ContentCardBody
 
 export const ContentCard = ({
-  title,
   description,
   children,
   size,
@@ -134,8 +125,9 @@ export const ContentCard = ({
 
   useEffect(() => {
     if (id) {
-      registerItem(id, { id, label: title, description, parentId: null })
+      registerItem(id, { id, label: id, description, parentId: null })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []) // Empty dependency array since we only want to register once on mount
 
   // Don't render anything until the context is ready
@@ -153,26 +145,33 @@ export const ContentCard = ({
   return (
     <Card
       className={cn(contentCardVariants({ size, spacing, variant }), className)}
+      role="region"
+      aria-labelledby={id ? `${id}-header` : undefined}
     >
       <motion.div variants={containerVariants} initial="hidden" animate="show">
-        <CardHeader data-card-header className="px-6 py-6">
+        <CardHeader
+          data-card-header
+          className="px-6 py-6"
+          id={id ? `${id}-header` : undefined}
+        >
           <motion.div
             variants={itemVariants}
             className="flex items-center justify-between"
           >
-            <div className="flex flex-col gap-2">
-              <CardTitle>{title}</CardTitle>
-              {description && <CardDescription>{description}</CardDescription>}
-            </div>
             {header && (
-              <div className="ml-4 flex-shrink-0">
+              <div className="w-full">
                 <Slot>{header}</Slot>
               </div>
             )}
           </motion.div>
         </CardHeader>
         <Separator className="w-full" />
-        <CardContent data-card-content className="py-6">
+        <CardContent
+          data-card-content
+          className="py-6"
+          role="list"
+          aria-label={description || 'Content card items'}
+        >
           <motion.div variants={itemVariants} className="flex flex-col gap-4">
             {showEmptyState ? (
               <ContentCardEmptyState

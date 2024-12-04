@@ -71,7 +71,10 @@ const DetailItemLabel = createSlottedComponent(
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
     const Comp = asChild ? Slot : 'span'
     return (
-      <Comp className={cn('text-sm text-muted-foreground', className)}>
+      <Comp
+        className={cn('text-sm text-muted-foreground', className)}
+        role="term"
+      >
         {children}
       </Comp>
     )
@@ -102,7 +105,10 @@ const DetailItemContent = createSlottedComponent(
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
     const Comp = asChild ? Slot : 'div'
     return (
-      <Comp className={cn('flex items-center gap-2', className)}>
+      <Comp
+        className={cn('flex items-center gap-2', className)}
+        role="definition"
+      >
         {children}
       </Comp>
     )
@@ -136,7 +142,11 @@ const DetailItemAction = createSlottedComponent(
   'action',
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
     const Comp = asChild ? Slot : 'div'
-    return <Comp className={cn(className)}>{children}</Comp>
+    return (
+      <Comp className={cn(className)} role="group" aria-label="Item actions">
+        {children}
+      </Comp>
+    )
   },
 )
 
@@ -212,14 +222,30 @@ const DetailItem = Object.assign(
     })
 
     return (
-      <Comp className={cn('flex flex-col gap-1 w-full', className)}>
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center justify-between gap-2">
+      <Comp
+        className={cn('flex flex-col gap-1 w-full', className)}
+        role="term"
+        aria-label="Detail item"
+      >
+        <div className="flex flex-col gap-1" role="group">
+          <div className="flex items-center justify-between gap-2" role="group">
             {slots.label}
           </div>
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col gap-2">{slots.content}</div>
-            <div className="flex items-center gap-2">{slots.action}</div>
+          <div className="flex items-center justify-between gap-2" role="group">
+            <div
+              className="flex flex-col gap-2"
+              role="group"
+              aria-label="Content group"
+            >
+              {slots.content}
+            </div>
+            <div
+              className="flex items-center gap-2"
+              role="group"
+              aria-label="Actions group"
+            >
+              {slots.action}
+            </div>
           </div>
         </div>
       </Comp>

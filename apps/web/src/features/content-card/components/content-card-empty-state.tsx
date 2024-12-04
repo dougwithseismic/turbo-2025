@@ -29,8 +29,14 @@ export const ContentCardEmptyState = ({
         'flex flex-col items-center justify-center py-12 text-center',
         className,
       )}
+      role="status"
+      aria-live="polite"
     >
-      {icon && <div className="mb-4 text-muted-foreground">{icon}</div>}
+      {icon && (
+        <div className="mb-4 text-muted-foreground" aria-hidden="true">
+          {icon}
+        </div>
+      )}
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{description}</p>
     </motion.div>

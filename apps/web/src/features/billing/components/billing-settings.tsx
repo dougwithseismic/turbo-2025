@@ -8,6 +8,8 @@ import Link from 'next/link'
 import { SubscriptionManager } from './subscription-manager'
 import toast from 'react-hot-toast'
 import { useEffect, useRef } from 'react'
+import { CardTitle, CardDescription } from '@/components/ui/card'
+import { ContentCardSearch } from '@/features/content-card/components/content-card-search'
 
 interface BillingSettingsProps {
   searchParams: {
@@ -31,9 +33,16 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
   return (
     <ContentCardProvider>
       <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
-        <ContentCard.Search placeholder="Search billing settings..." />
+        <ContentCardSearch placeholder="Search billing settings..." />
 
-        <ContentCard title="Current Plan" id="current-plan">
+        <ContentCard id="current-plan">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Current Plan</CardTitle>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="pro-plan" contentClassName="w-full">
               <DetailItem>
@@ -100,11 +109,17 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard
-          title="Available Plans"
-          description="Choose the plan that best fits your needs"
-          id="available-plans"
-        >
+        <ContentCard id="available-plans">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Available Plans</CardTitle>
+                <CardDescription>
+                  Choose the plan that best fits your needs
+                </CardDescription>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <SubscriptionManager />
           </ContentCard.Body>

@@ -5,7 +5,6 @@ import { ContentCardFooter } from './content-card-footer'
 import { ContentCardHeader } from './content-card-header'
 import { ContentCardItem } from './content-card-item'
 import { ContentCardProvider } from '../context/content-card-context'
-import { ContentCardSearch } from './content-card-search'
 
 export const ContentCard = Object.assign(ContentCardRoot, {
   Provider: ContentCardProvider,
@@ -13,7 +12,6 @@ export const ContentCard = Object.assign(ContentCardRoot, {
   Body: ContentCardBody,
   Footer: ContentCardFooter,
   Item: ContentCardItem,
-  Search: ContentCardSearch,
   EmptyState: ContentCardEmptyState,
 })
 

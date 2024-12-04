@@ -73,6 +73,7 @@ export const ContentCardItem = ({
     if (id) {
       registerItem(id, { id, label, description, parentId })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id])
 
   if (!isReady) {
@@ -96,15 +97,32 @@ export const ContentCardItem = ({
             }),
             className,
           )}
+          role="listitem"
+          aria-label={label}
         >
           <div className={cn('space-y-1 w-full', contentClassName)}>
-            <div className="font-medium">{label}</div>
+            <div className="font-medium" role="heading" aria-level={3}>
+              {label}
+            </div>
             {description && (
-              <p className="text-sm text-muted-foreground">{description}</p>
+              <p
+                className="text-sm text-muted-foreground"
+                id={`${id}-description`}
+              >
+                {description}
+              </p>
             )}
             {children}
           </div>
-          {action && <div className="flex-shrink-0">{action}</div>}
+          {action && (
+            <div
+              className="flex-shrink-0"
+              role="group"
+              aria-label="Item actions"
+            >
+              {action}
+            </div>
+          )}
         </motion.div>
       )}
     </AnimatePresence>

@@ -83,7 +83,3 @@ Generate code, corrections, and refactorings that comply with the basic principl
   - Fix an expected problem.
   - Add context.
   - Otherwise, use a global handler.
-
-## Framer Motion
-
-- Framer motion, the react animation library `framer-motion` has rebranded to `motion/react` so import this accordingly.

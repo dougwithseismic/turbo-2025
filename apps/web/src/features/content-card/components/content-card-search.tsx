@@ -41,7 +41,8 @@ export const ContentCardSearch = ({
   size,
   iconPosition = 'left',
 }: ContentCardSearchProps) => {
-  const { searchQuery, setSearchQuery } = useContentCard()
+  const { searchQuery, setSearchQuery, filteredItems } = useContentCard()
+  console.log(filteredItems)
 
   return (
     <motion.div
@@ -50,15 +51,25 @@ export const ContentCardSearch = ({
         contentCardSearchVariants({ size, iconPosition }),
         className,
       )}
+      role="search"
     >
       {iconPosition !== 'none' && (
-        <Search className="absolute h-4 w-4 text-muted-foreground" />
+        <Search
+          className="absolute h-4 w-4 text-muted-foreground"
+          aria-hidden="true"
+        />
       )}
       <Input
         placeholder={placeholder}
-        className={inputClassName}
+        className={cn(
+          inputClassName,
+          filteredItems.length === 0 &&
+            'border-destructive ring-1 ring-destructive focus-visible:ring-destructive',
+        )}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
+        aria-label="Search content"
+        type="search"
       />
     </motion.div>
   )

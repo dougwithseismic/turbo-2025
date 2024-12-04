@@ -1,8 +1,10 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { CardDescription, CardTitle } from '@/components/ui/card'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { ContentCard, ContentCardProvider } from '@/features/content-card'
+import { ContentCardSearch } from '@/features/content-card/components/content-card-search'
 import { DetailItem } from '@/features/detail-item'
 import { ThemeSelector } from '@/features/theme/components/theme-selector'
 import {
@@ -22,18 +24,22 @@ export const AccountSettings = () => {
   return (
     <ContentCardProvider>
       <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
-        <ContentCard.Search placeholder="Search account settings..." />
+        <ContentCardSearch placeholder="Search account settings..." />
 
-        <ContentCard
-          title="Account Information"
-          id="account-information"
-          className="shadow-md"
-        >
+        <ContentCard id="account-information" className="shadow-md w-full">
           <ContentCard.Header>
-            <Button variant="ghost" size="sm">
-              <PencilLine className="h-4 w-4" />
-              <span className="ml-2">Edit All</span>
-            </Button>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Account Information</CardTitle>
+                <CardDescription>
+                  Manage your account information
+                </CardDescription>
+              </div>
+              <Button variant="ghost" size="sm">
+                <PencilLine className="h-4 w-4" />
+                <span className="ml-2">Edit All</span>
+              </Button>
+            </div>
           </ContentCard.Header>
 
           <ContentCard.Body>
@@ -117,7 +123,14 @@ export const AccountSettings = () => {
           </ContentCard.Footer>
         </ContentCard>
 
-        <ContentCard title="Theme" id="theme">
+        <ContentCard id="theme">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Theme</CardTitle>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="theme-selector">
               <ThemeSelector />
@@ -125,11 +138,17 @@ export const AccountSettings = () => {
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard
-          title="Personal Information"
-          description="This information will appear on all future invoices"
-          id="personal-information"
-        >
+        <ContentCard id="personal-information">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Personal Information</CardTitle>
+                <CardDescription>
+                  This information will appear on all future invoices
+                </CardDescription>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="address">
               <DetailItem>
@@ -164,7 +183,14 @@ export const AccountSettings = () => {
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard title="Billing" id="billing">
+        <ContentCard id="billing">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Billing</CardTitle>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="payment-method" contentClassName="w-full">
               <DetailItem>
@@ -204,7 +230,14 @@ export const AccountSettings = () => {
           </ContentCard.Body>
         </ContentCard>
 
-        <ContentCard title="Domains" id="domains">
+        <ContentCard id="domains">
+          <ContentCard.Header>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex flex-col gap-2">
+                <CardTitle>Domains</CardTitle>
+              </div>
+            </div>
+          </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="profile-domain" contentClassName="w-full">
               <DetailItem>
