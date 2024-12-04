@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { CardDescription, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { ContentCard, ContentCardProvider } from '@/features/content-card'
 import { ContentCardSearch } from '@/features/content-card/components/content-card-search'
@@ -44,21 +45,30 @@ export const AccountSettings = () => {
 
           <ContentCard.Body>
             <ContentCard.Item id="email" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Email</DetailItem.Label>
-                <DetailItem.Content>
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm">{user?.email}</span>
-                  </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Link href="/account/update-email">
-                      <PencilLine className="h-4 w-4" />
-                    </Link>
-                  </Button>
-                </DetailItem.Action>
+              <DetailItem<'IDLE' | 'EDITING' | 'CONFIRM' | 'LOADING' | 'ERROR'>
+                initialStatus="IDLE"
+                onToggle={(status) => (status === 'IDLE' ? 'EDITING' : 'IDLE')}
+              >
+                {({ status, toggleEdit }) => (
+                  <>
+                    <DetailItem.Label>Email</DetailItem.Label>
+                    <DetailItem.Content>
+                      {status === 'LOADING' ? (
+                        <Skeleton className="h-4 w-full" />
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm">{user?.email}</span>
+                        </div>
+                      )}
+                    </DetailItem.Content>
+                    <DetailItem.Action>
+                      <Button variant="ghost" size="icon" onClick={toggleEdit}>
+                        <PencilLine className="h-4 w-4" />
+                      </Button>
+                    </DetailItem.Action>
+                  </>
+                )}
               </DetailItem>
             </ContentCard.Item>
 

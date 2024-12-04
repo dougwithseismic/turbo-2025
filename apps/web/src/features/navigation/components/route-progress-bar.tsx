@@ -46,10 +46,11 @@ export const RouteProgressBar = (): JSX.Element => {
 
   return (
     <div
+      id="route-progress-bar"
       ref={progressRef}
       style={{
         background:
-          'linear-gradient(90deg, var(--chart-1) 0%, var(--chart-2) 50%, var(--chart-3) 100%)',
+          'linear-gradient(90deg, hsl(var(--chart-1)) 0%, hsl(var(--chart-2)) 50%, hsl(var(--chart-3)) 100%)',
         transform: 'scaleX(0)',
         height: '4px',
         transformOrigin: 'left',

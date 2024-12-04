@@ -2,70 +2,112 @@
 
 import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
-import React from 'react'
-import { createSlottedComponent, useSlots } from '@/features/slots'
+import React, { useState, Children, isValidElement, Fragment } from 'react'
+import { createSlottedComponent } from '@/features/slots'
 
 /**
- * The available slots in the DetailItem component.
+ * Default status type for DetailItem if none is provided
+ * @typedef {'IDLE' | 'ACTIVE' | 'LOADING'} DefaultDetailItemStatus
+ */
+type DefaultDetailItemStatus = 'IDLE' | 'ACTIVE' | 'LOADING' // The default statuses for DetailItem
+
+/**
+ * The available slots in the DetailItem component
  * @typedef {'label' | 'content' | 'action'} DetailItemSlots
  */
 type DetailItemSlots = 'label' | 'content' | 'action'
 
-/**
- * Props shared by all DetailItem subcomponents
- * @interface DetailItemSubComponentProps
- */
 interface DetailItemSubComponentProps {
-  /** The content to render within the subcomponent */
   children: React.ReactNode
-  /** Whether to merge the props onto the child component instead of a DOM element */
   asChild?: boolean
-  /** Optional CSS classes to apply to the component */
   className?: string
 }
 
 /**
- * The composition interface for the DetailItem component and its subcomponents
- * @interface DetailItemComposition
- * @example
- * ```tsx
- * <DetailItem>
- *   <DetailItem.Label>Status</DetailItem.Label>
- *   <DetailItem.Content>Active</DetailItem.Content>
- *   <DetailItem.Action>
- *     <Button>Edit</Button>
- *   </DetailItem.Action>
- * </DetailItem>
- * ```
+ * The state object passed to the render prop function
+ * @interface DetailItemState
  */
+interface DetailItemState<TStatus> {
+  /** Current status of the DetailItem */
+  status: TStatus
+  /** Function to toggle between default states */
+  toggleEdit: () => void
+  /** Function to manually set the status */
+  setStatus: (status: TStatus) => void
+}
+
+/**
+ * Props for using DetailItem with render props pattern
+ * @interface DetailItemRenderProps
+ */
+interface DetailItemRenderProps<TStatus> {
+  /** Render prop function that receives the DetailItemState */
+  children: (state: DetailItemState<TStatus>) => React.ReactNode
+  /** Whether to merge props onto child component instead of a DOM element */
+  asChild?: boolean
+  /** Optional CSS classes */
+  className?: string
+  /** Initial status of the DetailItem */
+  initialStatus?: TStatus
+  /** Function to handle status toggle. If not provided, defaults to IDLE <-> ACTIVE */
+  onToggle?: (currentStatus: TStatus) => TStatus
+}
+
+/**
+ * Props for using DetailItem with standard children
+ * @interface DetailItemStandardProps
+ */
+interface DetailItemStandardProps {
+  /** React children */
+  children: React.ReactNode
+  /** Whether to merge props onto child component instead of a DOM element */
+  asChild?: boolean
+  /** Optional CSS classes */
+  className?: string
+  /** Initial status of the DetailItem */
+  initialStatus?: DefaultDetailItemStatus
+}
+
+type DetailItemProps<TStatus> =
+  | DetailItemRenderProps<TStatus>
+  | DetailItemStandardProps
+
 interface DetailItemComposition {
-  ({ children, asChild, className }: DetailItemProps): JSX.Element
+  <TStatus = DefaultDetailItemStatus>(
+    props: DetailItemProps<TStatus>,
+  ): JSX.Element
   Label: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
   Content: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
   Action: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
 }
 
-interface DetailItemProps {
-  children: React.ReactNode
-  asChild?: boolean
-  className?: string
+function findSlotComponents(children: React.ReactNode) {
+  const slots: Record<DetailItemSlots, React.ReactNode> = {
+    label: null,
+    content: null,
+    action: null,
+  }
+
+  const processNode = (node: React.ReactNode) => {
+    if (!isValidElement(node)) return
+
+    // Check if this is one of our slot components
+    const type = node.type as { slot?: DetailItemSlots }
+    if (type?.slot) {
+      slots[type.slot as DetailItemSlots] = node
+      return
+    }
+
+    // If it's a fragment or div, process its children
+    if (type === Fragment || typeof type === 'string') {
+      Children.forEach(node.props.children, processNode)
+    }
+  }
+
+  Children.forEach(children, processNode)
+  return slots
 }
 
-/**
- * Label component for DetailItem. Renders in the label slot.
- * @example
- * ```tsx
- * <DetailItem.Label>Status</DetailItem.Label>
- *
- * // With custom styling
- * <DetailItem.Label className="text-lg">Status</DetailItem.Label>
- *
- * // Using asChild to compose with other components
- * <DetailItem.Label asChild>
- *   <Link href="/status">Status</Link>
- * </DetailItem.Label>
- * ```
- */
 const DetailItemLabel = createSlottedComponent(
   'label',
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
@@ -81,25 +123,6 @@ const DetailItemLabel = createSlottedComponent(
   },
 )
 
-/**
- * Content component for DetailItem. Renders in the content slot.
- * Supports multiple content elements that will be stacked vertically.
- * @example
- * ```tsx
- * // Single content
- * <DetailItem.Content>Active</DetailItem.Content>
- *
- * // Multiple content items
- * <DetailItem>
- *   <DetailItem.Label>User</DetailItem.Label>
- *   <DetailItem.Content>John Doe</DetailItem.Content>
- *   <DetailItem.Content>john@example.com</DetailItem.Content>
- * </DetailItem>
- *
- * // With custom styling
- * <DetailItem.Content className="text-green-500">Active</DetailItem.Content>
- * ```
- */
 const DetailItemContent = createSlottedComponent(
   'content',
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
@@ -115,29 +138,6 @@ const DetailItemContent = createSlottedComponent(
   },
 )
 
-/**
- * Action component for DetailItem. Renders in the action slot.
- * Supports multiple actions that will be aligned horizontally.
- * @example
- * ```tsx
- * // Single action
- * <DetailItem.Action>
- *   <Button>Edit</Button>
- * </DetailItem.Action>
- *
- * // Multiple actions
- * <DetailItem>
- *   <DetailItem.Label>Document</DetailItem.Label>
- *   <DetailItem.Content>report.pdf</DetailItem.Content>
- *   <DetailItem.Action>
- *     <Button variant="outline">Edit</Button>
- *   </DetailItem.Action>
- *   <DetailItem.Action>
- *     <Button variant="destructive">Delete</Button>
- *   </DetailItem.Action>
- * </DetailItem>
- * ```
- */
 const DetailItemAction = createSlottedComponent(
   'action',
   ({ children, asChild, className }: DetailItemSubComponentProps) => {
@@ -150,76 +150,252 @@ const DetailItemAction = createSlottedComponent(
   },
 )
 
+function isRenderProps<TStatus>(
+  props: DetailItemProps<TStatus>,
+): props is DetailItemRenderProps<TStatus> {
+  return (
+    typeof (props as DetailItemRenderProps<TStatus>).children === 'function'
+  )
+}
+
 /**
- * DetailItem is a compound component that uses the slots pattern to create a structured layout
- * for displaying labeled content with optional actions.
- *
- * It uses the `@/features/slots` module to handle the slot management, allowing for:
- * - Type-safe slot definitions
- * - Multiple elements per slot
- * - Flexible composition
+ * DetailItem is a compound component for displaying labeled content with optional actions.
+ * It supports both standard children and render props patterns, with built-in state management.
  *
  * @example
- * Basic usage:
+ * Basic usage - static content:
  * ```tsx
  * <DetailItem>
- *   <DetailItem.Label>Status</DetailItem.Label>
- *   <DetailItem.Content>Active</DetailItem.Content>
+ *   <DetailItem.Label>Username</DetailItem.Label>
+ *   <DetailItem.Content>johndoe</DetailItem.Content>
+ * </DetailItem>
+ * ```
+ *
+ * @example
+ * Basic usage - with action:
+ * ```tsx
+ * <DetailItem>
+ *   <DetailItem.Label>Password</DetailItem.Label>
+ *   <DetailItem.Content>********</DetailItem.Content>
  *   <DetailItem.Action>
- *     <Button>Edit</Button>
+ *     <Button variant="ghost" size="icon">
+ *       <PencilLine className="h-4 w-4" />
+ *     </Button>
  *   </DetailItem.Action>
  * </DetailItem>
  * ```
  *
- * Multiple content and actions:
+ * @example
+ * Using render props for basic state management:
  * ```tsx
  * <DetailItem>
- *   <DetailItem.Label>User Profile</DetailItem.Label>
- *   <DetailItem.Content>John Doe</DetailItem.Content>
- *   <DetailItem.Content>john@example.com</DetailItem.Content>
- *   <DetailItem.Action>
- *     <Button variant="outline">Edit</Button>
- *   </DetailItem.Action>
- *   <DetailItem.Action>
- *     <Button variant="destructive">Delete</Button>
- *   </DetailItem.Action>
+ *   {({ status, toggleEdit }) => (
+ *     <>
+ *       <DetailItem.Label>Bio</DetailItem.Label>
+ *       <DetailItem.Content>
+ *         {status === 'IDLE' ? (
+ *           <p>I love coding!</p>
+ *         ) : (
+ *           <textarea defaultValue="I love coding!" />
+ *         )}
+ *       </DetailItem.Content>
+ *       <DetailItem.Action>
+ *         <Button onClick={toggleEdit}>
+ *           {status === 'IDLE' ? 'Edit' : 'Cancel'}
+ *         </Button>
+ *       </DetailItem.Action>
+ *     </>
+ *   )}
  * </DetailItem>
  * ```
  *
- * With custom styling:
+ * @example
+ * Using loading state:
+ * ```tsx
+ * <DetailItem>
+ *   {({ status, toggleEdit, setStatus }) => (
+ *     <>
+ *       <DetailItem.Label>Profile Picture</DetailItem.Label>
+ *       <DetailItem.Content>
+ *         {status === 'LOADING' ? (
+ *           <Skeleton className="h-12 w-12 rounded-full" />
+ *         ) : (
+ *           <Avatar src={user.avatar} />
+ *         )}
+ *       </DetailItem.Content>
+ *       <DetailItem.Action>
+ *         <Button
+ *           onClick={async () => {
+ *             setStatus('LOADING')
+ *             await updateAvatar()
+ *             setStatus('IDLE')
+ *           }}
+ *         >
+ *           Upload
+ *         </Button>
+ *       </DetailItem.Action>
+ *     </>
+ *   )}
+ * </DetailItem>
+ * ```
+ *
+ * @example
+ * With custom styling and asChild:
  * ```tsx
  * <DetailItem className="bg-muted p-4 rounded-lg">
  *   <DetailItem.Label className="text-lg font-bold">
- *     Premium Plan
+ *     Account Type
  *   </DetailItem.Label>
  *   <DetailItem.Content className="text-green-500">
- *     Active
+ *     Premium
  *   </DetailItem.Content>
- *   <DetailItem.Action>
- *     <Button>Manage</Button>
+ *   <DetailItem.Action asChild>
+ *     <Link href="/upgrade">Upgrade</Link>
  *   </DetailItem.Action>
  * </DetailItem>
  * ```
  *
- * Using asChild for composition:
+ * @example
+ * Using custom status types - Basic:
  * ```tsx
- * <DetailItem>
- *   <DetailItem.Label asChild>
- *     <Link href="/settings">Account Settings</Link>
- *   </DetailItem.Label>
- *   <DetailItem.Content>
- *     Configure your account preferences
- *   </DetailItem.Content>
+ * type VerificationStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'FAILED'
+ *
+ * <DetailItem<VerificationStatus> initialStatus="UNVERIFIED">
+ *   {({ status, setStatus }) => (
+ *     <>
+ *       <DetailItem.Label>Email Verification</DetailItem.Label>
+ *       <DetailItem.Content>
+ *         {status === 'UNVERIFIED' && 'Please verify your email'}
+ *         {status === 'PENDING' && <Spinner />}
+ *         {status === 'VERIFIED' && 'Email verified!'}
+ *         {status === 'FAILED' && 'Verification failed'}
+ *       </DetailItem.Content>
+ *       <DetailItem.Action>
+ *         <Button
+ *           onClick={async () => {
+ *             setStatus('PENDING')
+ *             try {
+ *               await verifyEmail()
+ *               setStatus('VERIFIED')
+ *             } catch {
+ *               setStatus('FAILED')
+ *             }
+ *           }}
+ *           disabled={status === 'PENDING'}
+ *         >
+ *           Verify
+ *         </Button>
+ *       </DetailItem.Action>
+ *     </>
+ *   )}
+ * </DetailItem>
+ * ```
+ *
+ * @example
+ * Using custom status types - Advanced with custom toggle:
+ * ```tsx
+ * type EditableStatus =
+ *   | { type: 'viewing' }
+ *   | { type: 'editing', originalValue: string }
+ *   | { type: 'saving', newValue: string }
+ *   | { type: 'error', message: string }
+ *
+ * <DetailItem<EditableStatus>
+ *   initialStatus={{ type: 'viewing' }}
+ *   onToggle={(status) => {
+ *     if (status.type === 'viewing') {
+ *       return { type: 'editing', originalValue: currentValue }
+ *     }
+ *     if (status.type === 'editing') {
+ *       return { type: 'viewing' }
+ *     }
+ *     return status
+ *   }}
+ * >
+ *   {({ status, toggleEdit, setStatus }) => (
+ *     <>
+ *       <DetailItem.Label>Display Name</DetailItem.Label>
+ *       <DetailItem.Content>
+ *         {status.type === 'viewing' && <span>{user.name}</span>}
+ *         {status.type === 'editing' && (
+ *           <Input
+ *             defaultValue={status.originalValue}
+ *             onKeyDown={e => {
+ *               if (e.key === 'Escape') toggleEdit()
+ *             }}
+ *             onBlur={async (e) => {
+ *               const newValue = e.target.value
+ *               setStatus({ type: 'saving', newValue })
+ *               try {
+ *                 await updateName(newValue)
+ *                 setStatus({ type: 'viewing' })
+ *               } catch (err) {
+ *                 setStatus({
+ *                   type: 'error',
+ *                   message: err.message
+ *                 })
+ *               }
+ *             }}
+ *           />
+ *         )}
+ *         {status.type === 'saving' && (
+ *           <div className="flex gap-2 items-center">
+ *             <Spinner />
+ *             <span>Saving {status.newValue}...</span>
+ *           </div>
+ *         )}
+ *         {status.type === 'error' && (
+ *           <div className="text-destructive">
+ *             Error: {status.message}
+ *           </div>
+ *         )}
+ *       </DetailItem.Content>
+ *       <DetailItem.Action>
+ *         {(status.type === 'viewing' || status.type === 'editing') && (
+ *           <Button
+ *             variant="ghost"
+ *             size="icon"
+ *             onClick={toggleEdit}
+ *           >
+ *             <PencilLine className="h-4 w-4" />
+ *           </Button>
+ *         )}
+ *       </DetailItem.Action>
+ *     </>
+ *   )}
  * </DetailItem>
  * ```
  */
 const DetailItem = Object.assign(
-  ({ children, asChild, className }: DetailItemProps) => {
+  <TStatus = DefaultDetailItemStatus,>(props: DetailItemProps<TStatus>) => {
+    const { asChild, className } = props
     const Comp = asChild ? Slot : 'div'
-    const slots = useSlots<DetailItemSlots>({
-      children,
-      slots: ['label', 'content', 'action'],
-    })
+
+    const defaultToggle = (status: TStatus) => {
+      if (status === 'IDLE') return 'ACTIVE' as TStatus
+      if (status === 'ACTIVE') return 'IDLE' as TStatus
+      return status
+    }
+
+    const initialStatus =
+      (props as DetailItemRenderProps<TStatus>).initialStatus ||
+      ('IDLE' as TStatus)
+    const onToggle =
+      (props as DetailItemRenderProps<TStatus>).onToggle || defaultToggle
+
+    const [status, setStatus] = useState<TStatus>(initialStatus)
+
+    const state: DetailItemState<TStatus> = {
+      status,
+      toggleEdit: () => setStatus(onToggle(status)),
+      setStatus,
+    }
+
+    const renderedChildren = isRenderProps(props)
+      ? props.children(state)
+      : props.children
+
+    const slots = findSlotComponents(renderedChildren)
 
     return (
       <Comp
@@ -239,13 +415,15 @@ const DetailItem = Object.assign(
             >
               {slots.content}
             </div>
-            <div
-              className="flex items-center gap-2"
-              role="group"
-              aria-label="Actions group"
-            >
-              {slots.action}
-            </div>
+            {slots.action && (
+              <div
+                className="flex items-center gap-2"
+                role="group"
+                aria-label="Actions group"
+              >
+                {slots.action}
+              </div>
+            )}
           </div>
         </div>
       </Comp>
@@ -259,4 +437,8 @@ const DetailItem = Object.assign(
 ) as DetailItemComposition
 
 export { DetailItem }
-export type { DetailItemSlots }
+export type {
+  DetailItemSlots,
+  DefaultDetailItemStatus as DetailItemStatus,
+  DetailItemState,
+}

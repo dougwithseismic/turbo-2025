@@ -132,7 +132,7 @@ const data = {
       items: [
         {
           title: 'General',
-          url: '#',
+          url: '/account',
         },
         {
           title: 'Team',
@@ -140,7 +140,7 @@ const data = {
         },
         {
           title: 'Billing',
-          url: '#',
+          url: '/account/billing',
         },
         {
           title: 'Limits',
@@ -169,7 +169,9 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const [selectedTeam, setSelectedTeam] = React.useState<Team>(data.teams[0])
+  const [selectedTeam, setSelectedTeam] = React.useState<Team>(
+    data.teams[0] as Team,
+  )
 
   const handleTeamSelect = React.useCallback((team: Team) => {
     setSelectedTeam(team)
