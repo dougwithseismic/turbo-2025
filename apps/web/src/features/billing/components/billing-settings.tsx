@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { ContentCard, ContentCardProvider } from '@/components/content-card';
-import { EditField } from '@/components/detail-item';
+import { ActionField } from '@/components/action-field';
 import { CreditCard, Package, Receipt } from 'lucide-react';
 import Link from 'next/link';
 import { SubscriptionManager } from './subscription-manager';
@@ -45,9 +45,9 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
           </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="pro-plan" contentClassName="w-full">
-              <EditField>
-                <EditField.Label>Pro Plan</EditField.Label>
-                <EditField.Content>
+              <ActionField>
+                <ActionField.Label>Pro Plan</ActionField.Label>
+                <ActionField.Content>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <Package className="h-4 w-4 text-muted-foreground" />
@@ -57,19 +57,19 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
                       Next billing date: March 1, 2024
                     </p>
                   </div>
-                </EditField.Content>
-                <EditField.Action>
+                </ActionField.Content>
+                <ActionField.Action>
                   <Button variant="outline" asChild>
                     <Link href="/account/billing/manage">Manage Plan</Link>
                   </Button>
-                </EditField.Action>
-              </EditField>
+                </ActionField.Action>
+              </ActionField>
             </ContentCard.Item>
 
             <ContentCard.Item id="payment-method" contentClassName="w-full">
-              <EditField>
-                <EditField.Label>Payment Method</EditField.Label>
-                <EditField.Content>
+              <ActionField>
+                <ActionField.Label>Payment Method</ActionField.Label>
+                <ActionField.Content>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -79,32 +79,32 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
                       Expires 12/2025
                     </p>
                   </div>
-                </EditField.Content>
-                <EditField.Action>
+                </ActionField.Content>
+                <ActionField.Action>
                   <Button variant="outline" size="sm">
                     Update
                   </Button>
-                </EditField.Action>
-              </EditField>
+                </ActionField.Action>
+              </ActionField>
             </ContentCard.Item>
 
             <ContentCard.Item id="billing-history" contentClassName="w-full">
-              <EditField>
-                <EditField.Label>Billing History</EditField.Label>
-                <EditField.Content>
+              <ActionField>
+                <ActionField.Label>Billing History</ActionField.Label>
+                <ActionField.Content>
                   <span className="text-sm">
                     View and download past invoices
                   </span>
-                </EditField.Content>
-                <EditField.Action>
+                </ActionField.Content>
+                <ActionField.Action>
                   <Button variant="outline" size="sm" asChild>
                     <Link href="/account/billing/history">
                       <Receipt className="mr-2 h-4 w-4" />
                       View History
                     </Link>
                   </Button>
-                </EditField.Action>
-              </EditField>
+                </ActionField.Action>
+              </ActionField>
             </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>

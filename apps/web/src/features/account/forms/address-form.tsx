@@ -4,11 +4,66 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
+import {
+  motion,
+  AnimatePresence,
+  useReducedMotion,
+  HTMLMotionProps,
+} from 'framer-motion';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 import {
   getShakeAnimation,
   getReducedShakeAnimation,
 } from '@/features/auth/animations/form-animations';
+
+const addressFormVariants = cva('grid gap-8 dark:text-foreground', {
+  variants: {
+    size: {
+      default: 'w-full',
+      sm: 'max-w-sm',
+      md: 'max-w-md',
+      lg: 'max-w-lg',
+    },
+    spacing: {
+      default: 'gap-8',
+      compact: 'gap-4',
+      loose: 'gap-12',
+    },
+  },
+  defaultVariants: {
+    size: 'default',
+    spacing: 'default',
+  },
+});
+
+const inputVariants = cva(
+  'transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input',
+  {
+    variants: {
+      state: {
+        default: '',
+        error: 'border-destructive',
+        success: 'border-success',
+      },
+    },
+    defaultVariants: {
+      state: 'default',
+    },
+  },
+);
+
+const buttonWrapperVariants = cva('', {
+  variants: {
+    fullWidth: {
+      true: 'w-full',
+      false: 'w-auto',
+    },
+  },
+  defaultVariants: {
+    fullWidth: true,
+  },
+});
 
 interface AddressFormData {
   street: string;
@@ -18,17 +73,18 @@ interface AddressFormData {
   country: string;
 }
 
-interface AddressFormProps {
-  initialData?: AddressFormData;
-  onSubmit: ({
-    address,
-  }: {
-    address: AddressFormData;
-  }) => Promise<{ error: Error | null }>;
-  isLoading?: boolean;
-  isReadOnly?: boolean;
-  showButton?: boolean;
-}
+type AddressFormProps = Omit<HTMLMotionProps<'form'>, 'onSubmit'> &
+  VariantProps<typeof addressFormVariants> & {
+    initialData?: AddressFormData;
+    onSubmit: ({
+      address,
+    }: {
+      address: AddressFormData;
+    }) => Promise<{ error: Error | null }>;
+    isLoading?: boolean;
+    isReadOnly?: boolean;
+    showButton?: boolean;
+  };
 
 interface FormState extends AddressFormData {
   error: string | null;
@@ -41,6 +97,10 @@ export const AddressForm = ({
   isLoading,
   isReadOnly = false,
   showButton = true,
+  className,
+  size,
+  spacing,
+  ...props
 }: AddressFormProps): JSX.Element => {
   const prefersReducedMotion = useReducedMotion();
   const [formState, setFormState] = useState<FormState>({
@@ -96,11 +156,17 @@ export const AddressForm = ({
     ? getReducedShakeAnimation()
     : getShakeAnimation(4);
 
+  const inputClassName = cn(
+    inputVariants({ state: formState.error ? 'error' : 'default' }),
+  );
+  const buttonWrapperClassName = cn(buttonWrapperVariants({ fullWidth: true }));
+
   return (
     <motion.form
+      {...props}
       animate={formState.shake ? shakeAnimation.shake : { opacity: 1, y: 0 }}
       onSubmit={handleSubmit}
-      className="grid gap-8 dark:text-foreground"
+      className={cn(addressFormVariants({ size, spacing }), className)}
     >
       <AnimatePresence mode="wait">
         {formState.error && (
@@ -126,10 +192,11 @@ export const AddressForm = ({
               placeholder="123 Main St"
               type="text"
               required
+              tabIndex={1}
               value={formState.street}
               onChange={handleInputChange}
               disabled={isLoading || isReadOnly}
-              className="transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input"
+              className={inputClassName}
             />
           </motion.div>
         </div>
@@ -143,10 +210,11 @@ export const AddressForm = ({
                 placeholder="City"
                 type="text"
                 required
+                tabIndex={2}
                 value={formState.city}
                 onChange={handleInputChange}
                 disabled={isLoading || isReadOnly}
-                className="transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input"
+                className={inputClassName}
               />
             </motion.div>
           </div>
@@ -159,10 +227,11 @@ export const AddressForm = ({
                 placeholder="State"
                 type="text"
                 required
+                tabIndex={3}
                 value={formState.state}
                 onChange={handleInputChange}
                 disabled={isLoading || isReadOnly}
-                className="transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input"
+                className={inputClassName}
               />
             </motion.div>
           </div>
@@ -177,10 +246,11 @@ export const AddressForm = ({
                 placeholder="Postal Code"
                 type="text"
                 required
+                tabIndex={4}
                 value={formState.postalCode}
                 onChange={handleInputChange}
                 disabled={isLoading || isReadOnly}
-                className="transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input"
+                className={inputClassName}
               />
             </motion.div>
           </div>
@@ -193,10 +263,11 @@ export const AddressForm = ({
                 placeholder="Country"
                 type="text"
                 required
+                tabIndex={5}
                 value={formState.country}
                 onChange={handleInputChange}
                 disabled={isLoading || isReadOnly}
-                className="transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input"
+                className={inputClassName}
               />
             </motion.div>
           </div>
@@ -204,7 +275,10 @@ export const AddressForm = ({
       </div>
 
       {!isReadOnly && showButton && (
-        <motion.div whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}>
+        <motion.div
+          whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}
+          className={buttonWrapperClassName}
+        >
           <Button
             type="submit"
             disabled={isLoading}

@@ -1,30 +1,30 @@
 .parsera {
-  --background: 0 0% 4%;
-  --foreground: 0 0% 100%;
+  --background: 222 14% 7%;
+  --foreground: 220 23% 98%;
   
-  --card: 24 11% 8%;
-  --card-foreground: 60 0% 98%;
+  --card: 222 14% 10%;
+  --card-foreground: 220 23% 98%;
   
-  --popover: 24 11% 8%;
-  --popover-foreground: 60 0% 98%;
+  --popover: 222 14% 9%;
+  --popover-foreground: 219 14% 98%;
   
   --primary: 45 100% 50%;
   --primary-foreground: 0 0% 100%;
   
-  --secondary: 220 27% 20%;
-  --secondary-foreground: 210 20% 98%;
+  --secondary: 223 14% 14%;
+  --secondary-foreground: 220 23% 98%;
   
-  --muted: 25 9% 35%;
-  --muted-foreground: 220 9% 70%;
+  --muted: 223 14% 14%;
+  --muted-foreground: 220 11% 49%;
   
   --accent: 45 100% 50%;
   --accent-foreground: 0 0% 100%;
   
-  --destructive: 350 100% 97%;
-  --destructive-foreground: 0 0% 0%;
+  --destructive: 223 14% 13%;
+  --destructive-foreground: 220 23% 98%;
   
-  --border: 24 11% 15%;
-  --input: 24 11% 15%;
+  --border: 222 14% 14%;
+  --input: 222 14% 14%;
   --ring: 45 100% 50%;
   
   --chart-1: 45 100% 50%;
@@ -34,13 +34,13 @@
   --chart-5: 45 100% 70%;
   
   /* Sidebar specific colors */
-  --sidebar-background: 24 11% 8%;
-  --sidebar-foreground: 220 9% 70%;
+  --sidebar-background: 222 14% 9%;
+  --sidebar-foreground: 220 11% 71%;
   --sidebar-primary: 45 100% 50%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 220 27% 20%;
-  --sidebar-accent-foreground: 210 20% 98%;
-  --sidebar-border: 24 11% 15%;
+  --sidebar-accent: 223 14% 14%;
+  --sidebar-accent-foreground: 220 23% 98%;
+  --sidebar-border: 222 14% 14%;
   --sidebar-ring: 45 100% 50%;
   
   --radius: 0.25rem;
