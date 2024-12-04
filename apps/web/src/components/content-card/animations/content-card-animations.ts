@@ -3,6 +3,9 @@ import type { Variants } from 'motion/react';
 export const containerVariants: Variants = {
   hidden: {
     opacity: 0,
+    transition: {
+      staggerChildren: 0.1,
+    },
   },
   show: {
     opacity: 1,

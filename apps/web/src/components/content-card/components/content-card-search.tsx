@@ -47,6 +47,8 @@ export const ContentCardSearch = ({
   return (
     <motion.div
       variants={itemVariants}
+      initial="hidden"
+      animate="show"
       className={cn(
         contentCardSearchVariants({ size, iconPosition }),
         className,
@@ -64,7 +66,7 @@ export const ContentCardSearch = ({
         className={cn(
           inputClassName,
           filteredItems.length === 0 &&
-            'border-destructive ring-1 ring-destructive focus-visible:ring-destructive',
+            'border-red-600 ring-1 ring-red-600 focus-visible:ring-red-600',
         )}
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}

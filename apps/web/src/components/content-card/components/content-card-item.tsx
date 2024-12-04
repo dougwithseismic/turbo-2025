@@ -64,7 +64,7 @@ export const ContentCardItem = ({
   contentWidth,
   parentId,
 }: ContentCardItemProps) => {
-  const { filteredItems, registerItem, isReady } = useContentCard();
+  const { filteredItems, registerItem } = useContentCard();
 
   const doesMatchItems =
     !filteredItems.length || filteredItems.some((item) => item.id === id);
@@ -75,10 +75,6 @@ export const ContentCardItem = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
-
-  if (!isReady) {
-    return null;
-  }
 
   return (
     <AnimatePresence mode="popLayout">

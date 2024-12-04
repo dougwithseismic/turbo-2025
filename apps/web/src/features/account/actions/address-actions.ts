@@ -18,6 +18,9 @@ export const executeUpdateAddress = async ({
 }): Promise<AddressResponse> => {
   console.log('executeUpdateAddress', address);
 
+  const randomDelay = Math.floor(Math.random() * 2000) + 500;
+  await new Promise((resolve) => setTimeout(resolve, randomDelay));
+
   // placeholder
   return { data: address, error: null };
 };
@@ -30,6 +33,10 @@ export const executeGetAddress = async (): Promise<AddressResponse> => {
     postalCode: '94105',
     country: 'United States',
   };
+
+  const randomDelay = Math.floor(Math.random() * 1500) + 300;
+  await new Promise((resolve) => setTimeout(resolve, randomDelay));
+
   console.log('executeGetAddress', mockAddress);
   return { data: mockAddress, error: null };
 };

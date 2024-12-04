@@ -165,7 +165,6 @@ export const ContentCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array since we only want to register once on mount
 
-  // Don't render anything until the context is ready
   if (!isReady) {
     return null;
   }
@@ -175,7 +174,7 @@ export const ContentCard = ({
     return null;
   }
 
-  const showEmptyState = !hasMatchingItems && filteredItems.length > 0;
+  const showEmptyState = !hasMatchingItems || filteredItems.length === 0;
 
   return (
     <Card

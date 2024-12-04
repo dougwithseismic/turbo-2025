@@ -1,8 +1,8 @@
-import { Metadata } from 'next'
-import { AccountSettings } from '@/features/account/components/account-settings'
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { PageHeader } from '@/features/page-layout/components/page-header'
+import { Metadata } from 'next';
+import { AccountSettings } from '@/features/account/components/account-settings/account-settings';
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { PageHeader } from '@/features/page-layout/components/page-header';
 
 export const metadata: Metadata = {
   title: 'Account Settings',
@@ -11,13 +11,13 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 const Page = async () => {
-  const user = await auth()
+  const user = await auth();
 
   if (!user) {
-    redirect('/login')
+    redirect('/login');
   }
 
   return (
@@ -35,7 +35,7 @@ const Page = async () => {
         <AccountSettings />
       </div>
     </>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;
