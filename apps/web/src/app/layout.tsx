@@ -6,7 +6,6 @@ import './globals.css'
 
 import { themes } from '@/features/theme/config/themes'
 import { Toaster } from 'react-hot-toast'
-import { RouteProgressBar } from '@/features/navigation/components/route-progress-bar'
 
 export const viewport: Viewport = {
   themeColor: [

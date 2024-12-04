@@ -112,6 +112,18 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_GOOGLE_SECRET)"
+# Additional configuration for Google OAuth
+additional_redirect_urls = [
+    "http://localhost:3000/auth/callback",
+    "http://localhost:3000/dashboard"
+]
+# Default scopes that will be requested
+default_scopes = ["email", "profile"]
+
 [auth.email]
 # Allow/disallow new user signups via email to your project.
 enable_signup = true

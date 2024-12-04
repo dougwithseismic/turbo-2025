@@ -325,17 +325,36 @@ export const updateProfile = async ({
  * @example
  * ```ts
  * try {
+ *   // Basic sign in
  *   const { user, session } = await signInWithGoogle()
+ *
+ *   // Sign in with custom scopes
+ *   const { user, session } = await signInWithGoogle({
+ *     scopes: ['https://www.googleapis.com/auth/webmasters.readonly']
+ *   })
  *   console.log('Signed in user:', user)
  * } catch (error) {
  *   console.error('Failed to sign in with Google:', error)
  * }
  * ```
+ * @param {Object} params - The sign-in parameters
+ * @param {string[]} [params.scopes] - Additional OAuth scopes to request
  * @returns {Promise<{ user: User | null; session: Session | null }>} The authentication data
  * @throws {Error} If the Google sign-in fails
  */
-export const signInWithGoogle = async () => {
+export const signInWithGoogle = async ({
+  scopes = [],
+}: {
+  scopes?: string[]
+} = {}) => {
   const supabase = await createSupabaseServerClient()
+
+  // Default scopes that are always included
+  const defaultScopes = ['email', 'profile']
+
+  // Combine default and custom scopes, removing duplicates
+  const finalScopes = [...new Set([...defaultScopes, ...scopes])].join(' ')
+
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
@@ -343,6 +362,7 @@ export const signInWithGoogle = async () => {
       queryParams: {
         access_type: 'offline',
         prompt: 'consent',
+        scope: finalScopes,
       },
     },
   })
