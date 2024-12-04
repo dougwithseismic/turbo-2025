@@ -7,7 +7,6 @@ export default {
   singleQuote: true,
   trailingComma: 'all',
   bracketSpacing: true,
-  semi: false,
   arrowParens: 'always',
   proseWrap: 'preserve',
   endOfLine: 'lf',

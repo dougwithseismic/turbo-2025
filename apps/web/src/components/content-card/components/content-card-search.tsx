@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { Input } from '@/components/ui/input'
-import { Search } from 'lucide-react'
-import { useContentCard } from '../context/content-card-context'
-import { cva, type VariantProps } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
-import { itemVariants } from '../animations/content-card-animations'
+import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
+import { useContentCard } from '../context/content-card-context';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { itemVariants } from '../animations/content-card-animations';
 
 const contentCardSearchVariants = cva('relative flex items-center', {
   variants: {
@@ -25,13 +25,13 @@ const contentCardSearchVariants = cva('relative flex items-center', {
     size: 'default',
     iconPosition: 'left',
   },
-})
+});
 
 export interface ContentCardSearchProps
   extends VariantProps<typeof contentCardSearchVariants> {
-  placeholder?: string
-  className?: string
-  inputClassName?: string
+  placeholder?: string;
+  className?: string;
+  inputClassName?: string;
 }
 
 export const ContentCardSearch = ({
@@ -41,8 +41,8 @@ export const ContentCardSearch = ({
   size,
   iconPosition = 'left',
 }: ContentCardSearchProps) => {
-  const { searchQuery, setSearchQuery, filteredItems } = useContentCard()
-  console.log(filteredItems)
+  const { searchQuery, setSearchQuery, filteredItems } = useContentCard();
+  console.log(filteredItems);
 
   return (
     <motion.div
@@ -72,5 +72,5 @@ export const ContentCardSearch = ({
         type="search"
       />
     </motion.div>
-  )
-}
+  );
+};

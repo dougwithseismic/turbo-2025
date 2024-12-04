@@ -3,9 +3,10 @@
     "prettier": "^3.0.0"
   },
   "exports": {
-    ".": "./prettier.config.js"
+    ".": "./prettier.config.mjs"
   },
   "name": "@repo/config-prettier",
   "private": true,
+  "type": "module",
   "version": "0.0.0"
 }

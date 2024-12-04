@@ -1,13 +1,13 @@
-import { cn } from '@/lib/utils'
-import { motion } from 'framer-motion'
-import { itemVariants } from '../animations/content-card-animations'
-import { useContentCard } from '../context/content-card-context'
+import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
+import { itemVariants } from '../animations/content-card-animations';
+import { useContentCard } from '../context/content-card-context';
 
 export interface ContentCardEmptyStateProps {
-  title?: string
-  description?: string
-  icon?: React.ReactNode
-  className?: string
+  title?: string;
+  description?: string;
+  icon?: React.ReactNode;
+  className?: string;
 }
 
 export const ContentCardEmptyState = ({
@@ -16,10 +16,10 @@ export const ContentCardEmptyState = ({
   icon,
   className,
 }: ContentCardEmptyStateProps) => {
-  const { filteredItems, isReady } = useContentCard()
+  const { filteredItems, isReady } = useContentCard();
 
   if (!isReady || filteredItems.length > 0) {
-    return null
+    return null;
   }
 
   return (
@@ -40,5 +40,5 @@ export const ContentCardEmptyState = ({
       <h3 className="font-semibold">{title}</h3>
       <p className="mt-2 text-sm text-muted-foreground">{description}</p>
     </motion.div>
-  )
-}
+  );
+};

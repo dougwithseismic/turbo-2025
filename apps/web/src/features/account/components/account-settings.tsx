@@ -1,33 +1,40 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
-import { CardDescription, CardTitle } from '@/components/ui/card'
-import { Skeleton } from '@/components/ui/skeleton'
-import { useAuth } from '@/features/auth/hooks/use-auth'
-import { ContentCard, ContentCardProvider } from '@/features/content-card'
-import { ContentCardSearch } from '@/features/content-card/components/content-card-search'
-import { DetailItem } from '@/features/detail-item'
-import { ThemeSelector } from '@/features/theme/components/theme-selector'
+import { Button } from '@/components/ui/button';
+import { CardDescription, CardTitle } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import { ContentCard, ContentCardProvider } from '@/components/content-card';
+import { ContentCardSearch } from '@/components/content-card/components/content-card-search';
+import { EditField } from '@/components/detail-item';
+import { ThemeSelector } from '@/features/theme/components/theme-selector';
+import { motion } from 'framer-motion';
 import {
+  Check,
+  CheckCircle2,
   CreditCard,
   Globe,
+  Loader2,
   Lock,
   Mail,
   Package,
   PencilLine,
   Save,
-} from 'lucide-react'
-import Link from 'next/link'
+  X,
+} from 'lucide-react';
+import Link from 'next/link';
+import toast from 'react-hot-toast';
+import { AddressForm } from '../forms/address-form';
 
 export const AccountSettings = () => {
-  const { user } = useAuth()
+  const { user } = useAuth();
 
   return (
     <ContentCardProvider>
       <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
         <ContentCardSearch placeholder="Search account settings..." />
 
-        <ContentCard id="account-information" className="shadow-md w-full">
+        <ContentCard id="account-information">
           <ContentCard.Header>
             <div className="flex items-center justify-between w-full">
               <div className="flex flex-col gap-2">
@@ -44,15 +51,15 @@ export const AccountSettings = () => {
           </ContentCard.Header>
 
           <ContentCard.Body>
-            <ContentCard.Item id="email" contentClassName="w-full">
-              <DetailItem<'IDLE' | 'EDITING' | 'CONFIRM' | 'LOADING' | 'ERROR'>
+            <ContentCard.Item id="email">
+              <EditField<'IDLE' | 'EDITING' | 'CONFIRM' | 'LOADING' | 'ERROR'>
                 initialStatus="IDLE"
                 onToggle={(status) => (status === 'IDLE' ? 'EDITING' : 'IDLE')}
               >
                 {({ status, toggleEdit }) => (
                   <>
-                    <DetailItem.Label>Email</DetailItem.Label>
-                    <DetailItem.Content>
+                    <EditField.Label>Email</EditField.Label>
+                    <EditField.Content>
                       {status === 'LOADING' ? (
                         <Skeleton className="h-4 w-full" />
                       ) : (
@@ -61,62 +68,62 @@ export const AccountSettings = () => {
                           <span className="text-sm">{user?.email}</span>
                         </div>
                       )}
-                    </DetailItem.Content>
-                    <DetailItem.Action>
+                    </EditField.Content>
+                    <EditField.Action>
                       <Button variant="ghost" size="icon" onClick={toggleEdit}>
                         <PencilLine className="h-4 w-4" />
                       </Button>
-                    </DetailItem.Action>
+                    </EditField.Action>
                   </>
                 )}
-              </DetailItem>
+              </EditField>
             </ContentCard.Item>
 
-            <ContentCard.Item id="password" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Password</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="password">
+              <EditField>
+                <EditField.Label>Password</EditField.Label>
+                <EditField.Content>
                   <div className="flex items-center gap-2">
                     <Lock className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">••••••••</span>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon" asChild>
                     <Link href="/account/update-password">
                       <PencilLine className="h-4 w-4" />
                     </Link>
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
 
-            <ContentCard.Item id="birthdate" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Birthdate</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="birthdate">
+              <EditField>
+                <EditField.Label>Birthdate</EditField.Label>
+                <EditField.Content>
                   <span className="text-sm">MM/YYYY/DD</span>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
 
-            <ContentCard.Item id="calendar-link" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Calendar Link</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="calendar-link">
+              <EditField>
+                <EditField.Label>Calendar Link</EditField.Label>
+                <EditField.Content>
                   <span className="text-sm">https://cal.com/username/vip</span>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
           </ContentCard.Body>
 
@@ -161,34 +168,151 @@ export const AccountSettings = () => {
           </ContentCard.Header>
           <ContentCard.Body>
             <ContentCard.Item id="address">
-              <DetailItem>
-                <DetailItem.Label>Your address</DetailItem.Label>
-                <DetailItem.Content>
-                  <span className="text-sm">Enter your address</span>
-                </DetailItem.Content>
-                <DetailItem.Action>
-                  <Button variant="ghost" size="icon">
-                    <PencilLine className="h-4 w-4" />
-                  </Button>
-                </DetailItem.Action>
-              </DetailItem>
+              <EditField<'IDLE' | 'ACTIVE' | 'LOADING' | 'SUCCESS' | 'ERROR'>>
+                {({ status, toggleEdit, setStatus }) => (
+                  <>
+                    <EditField.Label>Your address</EditField.Label>
+                    <EditField.Content>
+                      <div className="my-2">
+                        <AddressForm
+                          showButton={false}
+                          isReadOnly={status !== 'ACTIVE'}
+                          initialData={{
+                            street: '123 Main Street',
+                            city: '',
+                            state: '',
+                            postalCode: '',
+                            country: '',
+                          }}
+                          onSubmit={() => Promise.resolve({ error: null })}
+                          isLoading={status === 'LOADING'}
+                        />
+                      </div>
+                    </EditField.Content>
+                    <EditField.Action>
+                      <div className="flex gap-2">
+                        {status === 'ACTIVE' && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => setStatus('IDLE')}
+                          >
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 500,
+                                damping: 25,
+                              }}
+                            >
+                              <X className="h-4 w-4" />
+                            </motion.div>
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="group"
+                          onClick={() => {
+                            const DISMISS_DELAY = 1000;
+                            if (status === 'IDLE') {
+                              toggleEdit();
+                            }
+                            if (status === 'ACTIVE') {
+                              setStatus('LOADING');
+                              setTimeout(() => {
+                                setStatus('SUCCESS');
+                                toast.success('Address updated', {
+                                  duration: DISMISS_DELAY + 133,
+                                });
+                                setTimeout(() => {
+                                  setStatus('IDLE');
+                                }, DISMISS_DELAY);
+                              }, DISMISS_DELAY);
+                            }
+                          }}
+                        >
+                          {status === 'IDLE' && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 500,
+                                damping: 25,
+                              }}
+                            >
+                              <PencilLine className="h-4 w-4" />
+                            </motion.div>
+                          )}
+                          {status === 'ACTIVE' && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 500,
+                                damping: 25,
+                              }}
+                            >
+                              <Check className="h-4 w-4" />
+                            </motion.div>
+                          )}
+                          {status === 'SUCCESS' && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1.4, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 500,
+                                damping: 25,
+                              }}
+                            >
+                              <CheckCircle2 className="h-4 w-4 text-primary group-hover:text-foreground" />
+                            </motion.div>
+                          )}
+                          {status === 'LOADING' && (
+                            <motion.div
+                              initial={{ scale: 0, opacity: 0 }}
+                              animate={{ scale: 1, opacity: 1 }}
+                              exit={{ scale: 0, opacity: 0 }}
+                              transition={{
+                                type: 'spring',
+                                stiffness: 500,
+                                damping: 25,
+                              }}
+                            >
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            </motion.div>
+                          )}
+                        </Button>
+                      </div>
+                    </EditField.Action>
+                  </>
+                )}
+              </EditField>
             </ContentCard.Item>
 
             <ContentCard.Item id="legal-entity">
-              <DetailItem>
-                <DetailItem.Label>Legal Entity</DetailItem.Label>
-                <DetailItem.Content>
+              <EditField>
+                <EditField.Label>Legal Entity</EditField.Label>
+                <EditField.Content>
                   <div className="flex items-center gap-2">
                     <Package className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">Individual</span>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
@@ -202,10 +326,10 @@ export const AccountSettings = () => {
             </div>
           </ContentCard.Header>
           <ContentCard.Body>
-            <ContentCard.Item id="payment-method" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Payment Method</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="payment-method">
+              <EditField>
+                <EditField.Label>Payment Method</EditField.Label>
+                <EditField.Content>
                   <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
                       <CreditCard className="h-4 w-4 text-muted-foreground" />
@@ -215,27 +339,27 @@ export const AccountSettings = () => {
                       Expires 12/2025
                     </p>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
 
             <ContentCard.Item id="billing-history">
-              <DetailItem>
-                <DetailItem.Label>Billing History</DetailItem.Label>
-                <DetailItem.Content>
+              <EditField>
+                <EditField.Label>Billing History</EditField.Label>
+                <EditField.Content>
                   <span className="text-sm">View your billing history</span>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="outline" asChild>
                     <Link href="/account/billing/history">View History</Link>
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
@@ -249,65 +373,59 @@ export const AccountSettings = () => {
             </div>
           </ContentCard.Header>
           <ContentCard.Body>
-            <ContentCard.Item id="profile-domain" contentClassName="w-full">
-              <DetailItem>
-                <DetailItem.Label>Profile Domain</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="profile-domain">
+              <EditField>
+                <EditField.Label>Profile Domain</EditField.Label>
+                <EditField.Content>
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm">username.domain.com</p>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="default-portfolio-domain"
-              contentClassName="w-full"
-            >
-              <DetailItem>
-                <DetailItem.Label>Default Portfolio Domain</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="default-portfolio-domain">
+              <EditField>
+                <EditField.Label>Default Portfolio Domain</EditField.Label>
+                <EditField.Content>
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm">portfolio.domain.com</p>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
 
-            <ContentCard.Item
-              id="custom-portfolio-domain"
-              contentClassName="w-full"
-            >
-              <DetailItem>
-                <DetailItem.Label>Custom Portfolio Domain</DetailItem.Label>
-                <DetailItem.Content>
+            <ContentCard.Item id="custom-portfolio-domain">
+              <EditField>
+                <EditField.Label>Custom Portfolio Domain</EditField.Label>
+                <EditField.Content>
                   <div className="flex items-center gap-2">
                     <Globe className="h-4 w-4 text-muted-foreground" />
                     <p className="text-sm">custom.domain.com</p>
                   </div>
-                </DetailItem.Content>
-                <DetailItem.Action>
+                </EditField.Content>
+                <EditField.Action>
                   <Button variant="ghost" size="icon">
                     <PencilLine className="h-4 w-4" />
                   </Button>
-                </DetailItem.Action>
-              </DetailItem>
+                </EditField.Action>
+              </EditField>
             </ContentCard.Item>
           </ContentCard.Body>
         </ContentCard>
       </div>
     </ContentCardProvider>
-  )
-}
+  );
+};

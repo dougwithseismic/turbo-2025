@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   AudioWaveform,
@@ -12,28 +12,28 @@ import {
   Settings2,
   SquareTerminal,
   LucideIcon,
-} from 'lucide-react'
-import * as React from 'react'
+} from 'lucide-react';
+import * as React from 'react';
 
-import { NavMain } from '@/components/nav-main'
-import { NavProjects } from '@/components/nav-projects'
-import { NavUser } from '@/components/nav-user'
-import { TeamSwitcher } from '@/components/team-switcher'
+import { NavMain } from '@/components/nav-main';
+import { NavProjects } from '@/components/nav-projects';
+import { NavUser } from '@/components/nav-user';
+import { TeamSwitcher } from '@/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from '@/components/ui/sidebar'
+} from '@/components/ui/sidebar';
 
 // Add type for team
 type Team = {
-  name: string
-  logo: LucideIcon
-  plan: string
-  isSelected?: boolean
-}
+  name: string;
+  logo: LucideIcon;
+  plan: string;
+  isSelected?: boolean;
+};
 
 // This is sample data.
 const data = {
@@ -62,6 +62,7 @@ const data = {
       isSelected: false,
     },
   ],
+
   navMain: [
     {
       title: 'Playground',
@@ -166,16 +167,16 @@ const data = {
       icon: Map,
     },
   ],
-}
+};
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const [selectedTeam, setSelectedTeam] = React.useState<Team>(
     data.teams[0] as Team,
-  )
+  );
 
   const handleTeamSelect = React.useCallback((team: Team) => {
-    setSelectedTeam(team)
-  }, [])
+    setSelectedTeam(team);
+  }, []);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -195,5 +196,5 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

@@ -191,12 +191,12 @@ function isSlottedComponent<T extends string>(
 
 ## Example Implementation
 
-See the `DetailItem` component in the codebase for a complete example of slots implementation:
+See the `EditField` component in the codebase for a complete example of slots implementation:
 
 ```typescript
-type DetailItemSlots = 'label' | 'content' | 'action'
+type EditFieldSlots = 'label' | 'content' | 'action'
 
-const DetailItem = ({ children, className }) => {
+const EditField = ({ children, className }) => {
   const slots = useSlots({
     children,
     slots: ['label', 'content', 'action']
@@ -211,7 +211,7 @@ const DetailItem = ({ children, className }) => {
   )
 }
 
-DetailItem.Label = createSlottedComponent('label', Label)
-DetailItem.Content = createSlottedComponent('content', Content)
-DetailItem.Action = createSlottedComponent('action', Action)
+EditField.Label = createSlottedComponent('label', Label)
+EditField.Content = createSlottedComponent('content', Content)
+EditField.Action = createSlottedComponent('action', Action)
 ```

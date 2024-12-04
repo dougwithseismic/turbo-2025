@@ -1,117 +1,117 @@
-'use client'
+'use client';
 
-import { cn } from '@/lib/utils'
-import { Slot } from '@radix-ui/react-slot'
-import React, { useState, Children, isValidElement, Fragment } from 'react'
-import { createSlottedComponent } from '@/features/slots'
-
-/**
- * Default status type for DetailItem if none is provided
- * @typedef {'IDLE' | 'ACTIVE' | 'LOADING'} DefaultDetailItemStatus
- */
-type DefaultDetailItemStatus = 'IDLE' | 'ACTIVE' | 'LOADING' // The default statuses for DetailItem
+import { cn } from '@/lib/utils';
+import { Slot } from '@radix-ui/react-slot';
+import React, { useState, Children, isValidElement, Fragment } from 'react';
+import { createSlottedComponent } from '@/features/slots';
 
 /**
- * The available slots in the DetailItem component
- * @typedef {'label' | 'content' | 'action'} DetailItemSlots
+ * Default status type for EditField if none is provided
+ * @typedef {'IDLE' | 'ACTIVE' | 'LOADING'} DefaultEditFieldStatus
  */
-type DetailItemSlots = 'label' | 'content' | 'action'
+type DefaultEditFieldStatus = 'IDLE' | 'ACTIVE' | 'LOADING'; // The default statuses for EditField
 
-interface DetailItemSubComponentProps {
-  children: React.ReactNode
-  asChild?: boolean
-  className?: string
+/**
+ * The available slots in the EditField component
+ * @typedef {'label' | 'content' | 'action'} EditFieldSlots
+ */
+type EditFieldSlots = 'label' | 'content' | 'action';
+
+interface EditFieldSubComponentProps {
+  children: React.ReactNode;
+  asChild?: boolean;
+  className?: string;
 }
 
 /**
  * The state object passed to the render prop function
- * @interface DetailItemState
+ * @interface EditFieldState
  */
-interface DetailItemState<TStatus> {
-  /** Current status of the DetailItem */
-  status: TStatus
+interface EditFieldState<TStatus> {
+  /** Current status of the EditField */
+  status: TStatus;
   /** Function to toggle between default states */
-  toggleEdit: () => void
+  toggleEdit: () => void;
   /** Function to manually set the status */
-  setStatus: (status: TStatus) => void
+  setStatus: (status: TStatus) => void;
 }
 
 /**
- * Props for using DetailItem with render props pattern
- * @interface DetailItemRenderProps
+ * Props for using EditField with render props pattern
+ * @interface EditFieldRenderProps
  */
-interface DetailItemRenderProps<TStatus> {
-  /** Render prop function that receives the DetailItemState */
-  children: (state: DetailItemState<TStatus>) => React.ReactNode
+interface EditFieldRenderProps<TStatus> {
+  /** Render prop function that receives the EditFieldState */
+  children: (state: EditFieldState<TStatus>) => React.ReactNode;
   /** Whether to merge props onto child component instead of a DOM element */
-  asChild?: boolean
+  asChild?: boolean;
   /** Optional CSS classes */
-  className?: string
-  /** Initial status of the DetailItem */
-  initialStatus?: TStatus
+  className?: string;
+  /** Initial status of the EditField */
+  initialStatus?: TStatus;
   /** Function to handle status toggle. If not provided, defaults to IDLE <-> ACTIVE */
-  onToggle?: (currentStatus: TStatus) => TStatus
+  onToggle?: (currentStatus: TStatus) => TStatus;
 }
 
 /**
- * Props for using DetailItem with standard children
- * @interface DetailItemStandardProps
+ * Props for using EditField with standard children
+ * @interface EditFieldStandardProps
  */
-interface DetailItemStandardProps {
+interface EditFieldStandardProps {
   /** React children */
-  children: React.ReactNode
+  children: React.ReactNode;
   /** Whether to merge props onto child component instead of a DOM element */
-  asChild?: boolean
+  asChild?: boolean;
   /** Optional CSS classes */
-  className?: string
-  /** Initial status of the DetailItem */
-  initialStatus?: DefaultDetailItemStatus
+  className?: string;
+  /** Initial status of the EditField */
+  initialStatus?: DefaultEditFieldStatus;
 }
 
-type DetailItemProps<TStatus> =
-  | DetailItemRenderProps<TStatus>
-  | DetailItemStandardProps
+type EditFieldProps<TStatus> =
+  | EditFieldRenderProps<TStatus>
+  | EditFieldStandardProps;
 
-interface DetailItemComposition {
-  <TStatus = DefaultDetailItemStatus>(
-    props: DetailItemProps<TStatus>,
-  ): JSX.Element
-  Label: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
-  Content: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
-  Action: React.FC<DetailItemSubComponentProps> & { slot: DetailItemSlots }
+interface EditFieldComposition {
+  <TStatus = DefaultEditFieldStatus>(
+    props: EditFieldProps<TStatus>,
+  ): JSX.Element;
+  Label: React.FC<EditFieldSubComponentProps> & { slot: EditFieldSlots };
+  Content: React.FC<EditFieldSubComponentProps> & { slot: EditFieldSlots };
+  Action: React.FC<EditFieldSubComponentProps> & { slot: EditFieldSlots };
 }
 
 function findSlotComponents(children: React.ReactNode) {
-  const slots: Record<DetailItemSlots, React.ReactNode> = {
+  const slots: Record<EditFieldSlots, React.ReactNode> = {
     label: null,
     content: null,
     action: null,
-  }
+  };
 
   const processNode = (node: React.ReactNode) => {
-    if (!isValidElement(node)) return
+    if (!isValidElement(node)) return;
 
     // Check if this is one of our slot components
-    const type = node.type as { slot?: DetailItemSlots }
+    const type = node.type as { slot?: EditFieldSlots };
     if (type?.slot) {
-      slots[type.slot as DetailItemSlots] = node
-      return
+      slots[type.slot as EditFieldSlots] = node;
+      return;
     }
 
     // If it's a fragment or div, process its children
     if (type === Fragment || typeof type === 'string') {
-      Children.forEach(node.props.children, processNode)
+      Children.forEach(node.props.children, processNode);
     }
-  }
+  };
 
-  Children.forEach(children, processNode)
-  return slots
+  Children.forEach(children, processNode);
+  return slots;
 }
 
-const DetailItemLabel = createSlottedComponent(
+const EditFieldLabel = createSlottedComponent(
   'label',
-  ({ children, asChild, className }: DetailItemSubComponentProps) => {
-    const Comp = asChild ? Slot : 'span'
+  ({ children, asChild, className }: EditFieldSubComponentProps) => {
+    const Comp = asChild ? Slot : 'span';
     return (
       <Comp
         className={cn('text-sm text-muted-foreground', className)}
@@ -119,14 +119,14 @@ const DetailItemLabel = createSlottedComponent(
       >
         {children}
       </Comp>
-    )
+    );
   },
-)
+);
 
-const DetailItemContent = createSlottedComponent(
+const EditFieldContent = createSlottedComponent(
   'content',
-  ({ children, asChild, className }: DetailItemSubComponentProps) => {
-    const Comp = asChild ? Slot : 'div'
+  ({ children, asChild, className }: EditFieldSubComponentProps) => {
+    const Comp = asChild ? Slot : 'div';
     return (
       <Comp
         className={cn('flex items-center gap-2', className)}
@@ -134,96 +134,96 @@ const DetailItemContent = createSlottedComponent(
       >
         {children}
       </Comp>
-    )
+    );
   },
-)
+);
 
-const DetailItemAction = createSlottedComponent(
+const EditFieldAction = createSlottedComponent(
   'action',
-  ({ children, asChild, className }: DetailItemSubComponentProps) => {
-    const Comp = asChild ? Slot : 'div'
+  ({ children, asChild, className }: EditFieldSubComponentProps) => {
+    const Comp = asChild ? Slot : 'div';
     return (
       <Comp className={cn(className)} role="group" aria-label="Item actions">
         {children}
       </Comp>
-    )
+    );
   },
-)
+);
 
 function isRenderProps<TStatus>(
-  props: DetailItemProps<TStatus>,
-): props is DetailItemRenderProps<TStatus> {
+  props: EditFieldProps<TStatus>,
+): props is EditFieldRenderProps<TStatus> {
   return (
-    typeof (props as DetailItemRenderProps<TStatus>).children === 'function'
-  )
+    typeof (props as EditFieldRenderProps<TStatus>).children === 'function'
+  );
 }
 
 /**
- * DetailItem is a compound component for displaying labeled content with optional actions.
+ * EditField is a compound component for displaying labeled content with optional actions.
  * It supports both standard children and render props patterns, with built-in state management.
  *
  * @example
  * Basic usage - static content:
  * ```tsx
- * <DetailItem>
- *   <DetailItem.Label>Username</DetailItem.Label>
- *   <DetailItem.Content>johndoe</DetailItem.Content>
- * </DetailItem>
+ * <EditField>
+ *   <EditField.Label>Username</EditField.Label>
+ *   <EditField.Content>johndoe</EditField.Content>
+ * </EditField>
  * ```
  *
  * @example
  * Basic usage - with action:
  * ```tsx
- * <DetailItem>
- *   <DetailItem.Label>Password</DetailItem.Label>
- *   <DetailItem.Content>********</DetailItem.Content>
- *   <DetailItem.Action>
+ * <EditField>
+ *   <EditField.Label>Password</EditField.Label>
+ *   <EditField.Content>********</EditField.Content>
+ *   <EditField.Action>
  *     <Button variant="ghost" size="icon">
  *       <PencilLine className="h-4 w-4" />
  *     </Button>
- *   </DetailItem.Action>
- * </DetailItem>
+ *   </EditField.Action>
+ * </EditField>
  * ```
  *
  * @example
  * Using render props for basic state management:
  * ```tsx
- * <DetailItem>
+ * <EditField>
  *   {({ status, toggleEdit }) => (
  *     <>
- *       <DetailItem.Label>Bio</DetailItem.Label>
- *       <DetailItem.Content>
+ *       <EditField.Label>Bio</EditField.Label>
+ *       <EditField.Content>
  *         {status === 'IDLE' ? (
  *           <p>I love coding!</p>
  *         ) : (
  *           <textarea defaultValue="I love coding!" />
  *         )}
- *       </DetailItem.Content>
- *       <DetailItem.Action>
+ *       </EditField.Content>
+ *       <EditField.Action>
  *         <Button onClick={toggleEdit}>
  *           {status === 'IDLE' ? 'Edit' : 'Cancel'}
  *         </Button>
- *       </DetailItem.Action>
+ *       </EditField.Action>
  *     </>
  *   )}
- * </DetailItem>
+ * </EditField>
  * ```
  *
  * @example
  * Using loading state:
  * ```tsx
- * <DetailItem>
+ * <EditField>
  *   {({ status, toggleEdit, setStatus }) => (
  *     <>
- *       <DetailItem.Label>Profile Picture</DetailItem.Label>
- *       <DetailItem.Content>
+ *       <EditField.Label>Profile Picture</EditField.Label>
+ *       <EditField.Content>
  *         {status === 'LOADING' ? (
  *           <Skeleton className="h-12 w-12 rounded-full" />
  *         ) : (
  *           <Avatar src={user.avatar} />
  *         )}
- *       </DetailItem.Content>
- *       <DetailItem.Action>
+ *       </EditField.Content>
+ *       <EditField.Action>
  *         <Button
  *           onClick={async () => {
  *             setStatus('LOADING')
@@ -233,26 +233,26 @@ function isRenderProps<TStatus>(
  *         >
  *           Upload
  *         </Button>
- *       </DetailItem.Action>
+ *       </EditField.Action>
  *     </>
  *   )}
- * </DetailItem>
+ * </EditField>
  * ```
  *
  * @example
  * With custom styling and asChild:
  * ```tsx
- * <DetailItem className="bg-muted p-4 rounded-lg">
- *   <DetailItem.Label className="text-lg font-bold">
+ * <EditField className="bg-muted p-4 rounded-lg">
+ *   <EditField.Label className="text-lg font-bold">
  *     Account Type
- *   </DetailItem.Label>
- *   <DetailItem.Content className="text-green-500">
+ *   </EditField.Label>
+ *   <EditField.Content className="text-green-500">
  *     Premium
- *   </DetailItem.Content>
- *   <DetailItem.Action asChild>
+ *   </EditField.Content>
+ *   <EditField.Action asChild>
  *     <Link href="/upgrade">Upgrade</Link>
- *   </DetailItem.Action>
- * </DetailItem>
+ *   </EditField.Action>
+ * </EditField>
  * ```
  *
  * @example
@@ -260,17 +260,17 @@ function isRenderProps<TStatus>(
  * ```tsx
  * type VerificationStatus = 'UNVERIFIED' | 'PENDING' | 'VERIFIED' | 'FAILED'
  *
- * <DetailItem<VerificationStatus> initialStatus="UNVERIFIED">
+ * <EditField<VerificationStatus> initialStatus="UNVERIFIED">
  *   {({ status, setStatus }) => (
  *     <>
- *       <DetailItem.Label>Email Verification</DetailItem.Label>
- *       <DetailItem.Content>
+ *       <EditField.Label>Email Verification</EditField.Label>
+ *       <EditField.Content>
  *         {status === 'UNVERIFIED' && 'Please verify your email'}
  *         {status === 'PENDING' && <Spinner />}
  *         {status === 'VERIFIED' && 'Email verified!'}
  *         {status === 'FAILED' && 'Verification failed'}
- *       </DetailItem.Content>
- *       <DetailItem.Action>
+ *       </EditField.Content>
+ *       <EditField.Action>
  *         <Button
  *           onClick={async () => {
  *             setStatus('PENDING')
@@ -285,10 +285,10 @@ function isRenderProps<TStatus>(
  *         >
  *           Verify
  *         </Button>
- *       </DetailItem.Action>
+ *       </EditField.Action>
  *     </>
  *   )}
- * </DetailItem>
+ * </EditField>
  * ```
  *
  * @example
@@ -300,7 +300,7 @@ function isRenderProps<TStatus>(
  *   | { type: 'saving', newValue: string }
  *   | { type: 'error', message: string }
  *
- * <DetailItem<EditableStatus>
+ * <EditField<EditableStatus>
  *   initialStatus={{ type: 'viewing' }}
  *   onToggle={(status) => {
  *     if (status.type === 'viewing') {
@@ -314,8 +314,8 @@ function isRenderProps<TStatus>(
  * >
  *   {({ status, toggleEdit, setStatus }) => (
  *     <>
- *       <DetailItem.Label>Display Name</DetailItem.Label>
- *       <DetailItem.Content>
+ *       <EditField.Label>Display Name</EditField.Label>
+ *       <EditField.Content>
  *         {status.type === 'viewing' && <span>{user.name}</span>}
  *         {status.type === 'editing' && (
  *           <Input
@@ -349,8 +349,8 @@ function isRenderProps<TStatus>(
  *             Error: {status.message}
  *           </div>
  *         )}
- *       </DetailItem.Content>
- *       <DetailItem.Action>
+ *       </EditField.Content>
+ *       <EditField.Action>
  *         {(status.type === 'viewing' || status.type === 'editing') && (
  *           <Button
  *             variant="ghost"
@@ -360,42 +360,42 @@ function isRenderProps<TStatus>(
  *             <PencilLine className="h-4 w-4" />
  *           </Button>
  *         )}
- *       </DetailItem.Action>
+ *       </EditField.Action>
  *     </>
  *   )}
- * </DetailItem>
+ * </EditField>
  * ```
  */
-const DetailItem = Object.assign(
-  <TStatus = DefaultDetailItemStatus,>(props: DetailItemProps<TStatus>) => {
-    const { asChild, className } = props
-    const Comp = asChild ? Slot : 'div'
+const EditField = Object.assign(
+  <TStatus = DefaultEditFieldStatus,>(props: EditFieldProps<TStatus>) => {
+    const { asChild, className } = props;
+    const Comp = asChild ? Slot : 'div';
 
     const defaultToggle = (status: TStatus) => {
-      if (status === 'IDLE') return 'ACTIVE' as TStatus
-      if (status === 'ACTIVE') return 'IDLE' as TStatus
-      return status
-    }
+      if (status === 'IDLE') return 'ACTIVE' as TStatus;
+      if (status === 'ACTIVE') return 'IDLE' as TStatus;
+      return status;
+    };
 
     const initialStatus =
-      (props as DetailItemRenderProps<TStatus>).initialStatus ||
-      ('IDLE' as TStatus)
+      (props as EditFieldRenderProps<TStatus>).initialStatus ||
+      ('IDLE' as TStatus);
     const onToggle =
-      (props as DetailItemRenderProps<TStatus>).onToggle || defaultToggle
+      (props as EditFieldRenderProps<TStatus>).onToggle || defaultToggle;
 
-    const [status, setStatus] = useState<TStatus>(initialStatus)
+    const [status, setStatus] = useState<TStatus>(initialStatus);
 
-    const state: DetailItemState<TStatus> = {
+    const state: EditFieldState<TStatus> = {
       status,
       toggleEdit: () => setStatus(onToggle(status)),
       setStatus,
-    }
+    };
 
     const renderedChildren = isRenderProps(props)
       ? props.children(state)
-      : props.children
+      : props.children;
 
-    const slots = findSlotComponents(renderedChildren)
+    const slots = findSlotComponents(renderedChildren);
 
     return (
       <Comp
@@ -407,7 +407,7 @@ const DetailItem = Object.assign(
           <div className="flex items-center justify-between gap-2" role="group">
             {slots.label}
           </div>
-          <div className="flex items-center justify-between gap-2" role="group">
+          <div className="flex items-start justify-between gap-2" role="group">
             <div
               className="flex flex-col gap-2"
               role="group"
@@ -427,18 +427,18 @@ const DetailItem = Object.assign(
           </div>
         </div>
       </Comp>
-    )
+    );
   },
   {
-    Label: DetailItemLabel,
-    Content: DetailItemContent,
-    Action: DetailItemAction,
+    Label: EditFieldLabel,
+    Content: EditFieldContent,
+    Action: EditFieldAction,
   },
-) as DetailItemComposition
+) as EditFieldComposition;
 
-export { DetailItem }
+export { EditField };
 export type {
-  DetailItemSlots,
-  DefaultDetailItemStatus as DetailItemStatus,
-  DetailItemState,
-}
+  EditFieldSlots,
+  DefaultEditFieldStatus as EditFieldStatus,
+  EditFieldState,
+};
