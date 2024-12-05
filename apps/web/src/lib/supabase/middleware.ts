@@ -1,11 +1,24 @@
-import { clientConfig } from '@/config/app-config'
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { clientConfig } from '@/config/app-config';
+import { createServerClient } from '@supabase/ssr';
+import { NextResponse, type NextRequest } from 'next/server';
 
 export const updateSession = async ({ request }: { request: NextRequest }) => {
+  // First check if we have the auth cookie
+  const hasAuthCookie = request.cookies.get('sb-access-token');
+  const isAuthRoute = ['/login', '/register', '/auth', '/'].some((path) =>
+    request.nextUrl.pathname.startsWith(path),
+  );
+
+  // If no auth cookie and not on auth route, redirect to login
+  if (!hasAuthCookie && !isAuthRoute) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/login';
+    return NextResponse.redirect(url);
+  }
+
   let supabaseResponse = NextResponse.next({
     request,
-  })
+  });
 
   const supabase = createServerClient(
     clientConfig.SUPABASE.URL!,
@@ -13,55 +26,36 @@ export const updateSession = async ({ request }: { request: NextRequest }) => {
     {
       cookies: {
         getAll: () => {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll: (cookiesToSet) => {
           cookiesToSet.forEach(({ name, value, options }) =>
             request.cookies.set(name, value),
-          )
+          );
           supabaseResponse = NextResponse.next({
             request,
-          })
+          });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
-          )
+          );
         },
       },
     },
-  )
+  );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
-  // issues with users being randomly logged out.
+  // Only verify the session if we have an auth cookie
+  if (hasAuthCookie) {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (
-    !user &&
-    !['/login', '/register', '/auth', '/'].some((path) =>
-      request.nextUrl.pathname.startsWith(path),
-    )
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    // If no user but we had a cookie, redirect to login (session expired)
+    if (!user && !isAuthRoute) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
+    }
   }
 
-  // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
-  // creating a new response object with NextResponse.next() make sure to:
-  // 1. Pass the request in it, like so:
-  //    const myNewResponse = NextResponse.next({ request })
-  // 2. Copy over the cookies, like so:
-  //    myNewResponse.cookies.setAll(supabaseResponse.cookies.getAll())
-  // 3. Change the myNewResponse object to fit your needs, but avoid changing
-  //    the cookies!
-  // 4. Finally:
-  //    return myNewResponse
-  // If this is not done, you may be causing the browser and server to go out
-  // of sync and terminate the user's session prematurely!
-
-  return supabaseResponse
-}
+  return supabaseResponse;
+};

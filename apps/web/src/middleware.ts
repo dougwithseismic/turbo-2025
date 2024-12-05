@@ -2,22 +2,13 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
-  // Skip health check for maintenance page and static assets
+  // Skip static assets
   if (
-    request.nextUrl.pathname === '/maintenance' ||
     request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/favicon.ico')
   ) {
-    return await updateSession({ request });
+    return;
   }
-
-  // // Check database connection
-  // const isDatabaseHealthy = await checkDatabaseConnection()
-
-  // if (!isDatabaseHealthy) {
-  //   const maintenanceUrl = new URL('/maintenance', request.url)
-  //   return NextResponse.redirect(maintenanceUrl)
-  // }
 
   return await updateSession({ request });
 }
