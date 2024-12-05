@@ -1,19 +1,10 @@
-export type ActivityType =
-  | 'created'
-  | 'edited'
-  | 'sent'
-  | 'commented'
-  | 'viewed'
-  | 'paid';
+import { ReactElement } from 'react';
 
 export type ActivityItem = {
   id: number;
-  type: ActivityType;
-  person: {
-    name: string;
-    imageUrl?: string;
-  };
-  comment?: string;
+  href: string;
+  label: string;
+  value: ReactElement;
   date: string;
   dateTime: string;
 };

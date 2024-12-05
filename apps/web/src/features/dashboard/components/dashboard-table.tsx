@@ -90,7 +90,7 @@ const columns: ColumnDef<Payment>[] = [
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-        className="text-right w-full"
+        className="text-right w-full hidden md:flex"
       >
         Amount
         <ArrowUpDown className="ml-2 h-4 w-4" />
@@ -102,7 +102,11 @@ const columns: ColumnDef<Payment>[] = [
         style: 'currency',
         currency: 'USD',
       }).format(amount);
-      return <div className="text-right font-medium">{formatted}</div>;
+      return (
+        <div className="text-right font-medium hidden md:block">
+          {formatted}
+        </div>
+      );
     },
   },
   {

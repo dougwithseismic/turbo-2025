@@ -1,17 +1,17 @@
 import { motion } from 'framer-motion';
-import { X, CheckCircle } from 'lucide-react';
+import { X } from 'lucide-react';
 import { cva } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 import { ActivityItemProps } from './types';
 import { itemVariants, itemContentVariants } from './animations';
+import Link from 'next/link';
 
 const activityItemVariants = cva(
-  'relative flex  gap-x-4 w-full group transition-opacity duration-200',
+  'relative flex gap-x-4 w-full group transition-opacity duration-200',
   {
     variants: {
       type: {
         default: '',
-        commented: '',
       },
     },
     defaultVariants: {
@@ -26,22 +26,6 @@ const activityContentVariants = cva(
     variants: {
       type: {
         default: '',
-        commented: '',
-      },
-    },
-    defaultVariants: {
-      type: 'default',
-    },
-  },
-);
-
-const activityTextVariants = cva(
-  'py-0.5 text-xs leading-5 text-muted-foreground',
-  {
-    variants: {
-      type: {
-        default: '',
-        commented: '',
       },
     },
     defaultVariants: {
@@ -51,57 +35,6 @@ const activityTextVariants = cva(
 );
 
 export const ActivityItem = ({ item, onDelete }: ActivityItemProps) => {
-  if (item.type === 'commented') {
-    return (
-      <motion.li
-        variants={itemVariants}
-        initial="hidden"
-        animate="show"
-        exit="exit"
-        layout
-        className={activityItemVariants({ type: 'commented' })}
-      >
-        <motion.img
-          variants={itemContentVariants}
-          src={item.person.imageUrl}
-          alt=""
-          className="relative size-6 flex-none rounded-full bg-muted/5"
-        />
-        <motion.div
-          variants={itemContentVariants}
-          layout
-          className={activityContentVariants({ type: 'commented' })}
-        >
-          <div className="flex justify-between gap-x-4">
-            <motion.div
-              variants={itemContentVariants}
-              className={activityTextVariants({ type: 'commented' })}
-            >
-              <span className="font-medium text-foreground">
-                {item.person.name}
-              </span>{' '}
-              commented
-            </motion.div>
-            <motion.time
-              variants={itemContentVariants}
-              dateTime={item.dateTime}
-              className="flex-none py-0.5 text-xs ml-auto leading-5 text-muted-foreground"
-            >
-              {item.date}
-            </motion.time>
-          </div>
-          <motion.p
-            variants={itemContentVariants}
-            className="text-sm leading-6 text-muted-foreground"
-          >
-            {item.comment}
-          </motion.p>
-        </motion.div>
-        <DeleteButton onDelete={() => onDelete(item.id)} />
-      </motion.li>
-    );
-  }
-
   return (
     <motion.li
       variants={itemVariants}
@@ -109,42 +42,33 @@ export const ActivityItem = ({ item, onDelete }: ActivityItemProps) => {
       animate="show"
       exit="exit"
       layout
-      className={activityItemVariants({ type: 'default' })}
+      className={activityItemVariants()}
     >
       <motion.div
         variants={itemContentVariants}
         layout
-        className="relative flex size-6 flex-none items-center justify-center"
+        className={activityContentVariants()}
       >
-        {item.type === 'paid' && (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 20,
-            }}
-          >
-            <CheckCircle className="size-6 text-primary" />
-          </motion.div>
-        )}
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center justify-between">
+            <Link
+              href={item.href}
+              className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
+            >
+              {item.label} →
+            </Link>
+            <motion.time
+              variants={itemContentVariants}
+              dateTime={item.dateTime}
+              className="flex-none text-xs leading-5 text-muted-foreground"
+            >
+              {item.date}
+            </motion.time>
+          </div>
+          <motion.div variants={itemContentVariants}>{item.value}</motion.div>
+        </div>
       </motion.div>
-      <motion.p
-        variants={itemContentVariants}
-        className={activityTextVariants({ type: 'default' })}
-      >
-        <span className="font-medium text-foreground">{item.person.name}</span>{' '}
-        {item.type} the invoice
-      </motion.p>
-      <motion.time
-        variants={itemContentVariants}
-        dateTime={item.dateTime}
-        className="flex-none py-0.5 text-xs leading-5 ml-auto text-muted-foreground"
-      >
-        {item.date}
-      </motion.time>
-      <DeleteButton onDelete={() => onDelete(item.id)} className="" />
+      <DeleteButton onDelete={() => onDelete(item.id)} />
     </motion.li>
   );
 };

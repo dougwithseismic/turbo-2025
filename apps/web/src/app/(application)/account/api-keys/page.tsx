@@ -17,6 +17,10 @@ const ApiKeysPage = () => {
       <PageHeader
         items={[
           {
+            label: 'Account',
+            href: '/account',
+          },
+          {
             label: 'API Keys',
             current: true,
           },

@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu } from 'lucide-react';
+import { Menu, Github } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -30,8 +30,6 @@ const navigation = [
 
 export default function Page() {
   const { user } = useAuth();
-
-  console.log('user', user);
 
   return (
     <div className="bg-background">
@@ -67,6 +65,15 @@ export default function Page() {
                           {item.name}
                         </a>
                       ))}
+                      <a
+                        href="https://github.com/dougwithseismic/turbo-2025"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-foreground hover:bg-muted"
+                      >
+                        <Github className="size-5 inline-block mr-2" />
+                        GitHub
+                      </a>
                     </div>
                     <div className="py-6">
                       {user ? (
@@ -98,6 +105,14 @@ export default function Page() {
                 </a>
               ),
             )}
+            <a
+              href="https://github.com/dougwithseismic/turbo-2025"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm font-semibold leading-6 text-foreground hover:text-foreground/80"
+            >
+              <Github className="size-5 inline-block" />
+            </a>
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
             {user ? (
@@ -120,7 +135,7 @@ export default function Page() {
         <SecondaryFeatures />
         <TestimonialsSection />
         <PricingSection />
-        <ArticleList /> #
+        <ArticleList />
         <CTASection />
       </main>
 
