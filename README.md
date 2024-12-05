@@ -1,10 +1,44 @@
+# Turbo 2025 - SAAS Starter
+
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-20.x-green)](https://nodejs.org)
+[![pnpm](https://img.shields.io/badge/pnpm-8.15-yellow)](https://pnpm.io/)
+[![Turborepo](https://img.shields.io/badge/Turborepo-latest-blueviolet)](https://turbo.build/)
+[![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
+
+🚀 [Live Demo](https://turbo-2025.vercel.app/login)
+
 # Turbo 25 CMS
 
 <http://127.0.0.1:54323/project/default>
 
 ## Overview
 
-Turbo 25 uses Directus as a headless CMS for managing article content, with a local Supabase instance for database storage and seeded tables.
+Turbo 2025 is a modern, full-stack SAAS starter kit built with cutting-edge technologies and best practices. It showcases the power of monorepo architecture using Turborepo, combined with the latest features from Next.js 15 and React Server Components.
+
+### Tech Stack Highlights
+
+- 🏗️ **Monorepo Structure**: Turborepo for efficient workspace management and build optimization
+- 🔥 **Next.js 15**: Leveraging App Router, Server Components, and Server Actions
+- 🎨 **Modern UI**: Tailwind CSS with a beautiful, responsive design system
+- 🗃️ **Database**: Supabase for real-time data, auth, and storage capabilities
+- ⚛️ **React Patterns**: Implementing advanced patterns like:
+  - Compound Components
+  - Custom Hooks
+  - Context + Reducers
+  - Render Props
+  - Higher-Order Components
+- 🔒 **Authentication**: Secure auth flow with role-based access control
+- 🎯 **Type Safety**: End-to-end type safety with TypeScript
+
+### Key Features
+
+- 🎨 Beautiful, responsive UI with dark mode support
+- 🚀 Optimized performance with static and dynamic rendering
+- 📱 Mobile-first design approach
+- 🔄 Real-time data synchronization
+- 🧪 Comprehensive test setup
+- 📦 Shared component library
 
 ## Project Setup
 
