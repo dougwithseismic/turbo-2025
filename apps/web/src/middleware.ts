@@ -1,6 +1,5 @@
-import { type NextRequest, NextResponse } from 'next/server'
-import { updateSession } from '@/lib/supabase/middleware'
-import { checkDatabaseConnection } from '@/lib/supabase/health-check'
+import { updateSession } from '@/lib/supabase/middleware';
+import { type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   // Skip health check for maintenance page and static assets
@@ -9,18 +8,18 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/_next') ||
     request.nextUrl.pathname.startsWith('/favicon.ico')
   ) {
-    return await updateSession({ request })
+    return await updateSession({ request });
   }
 
-  // Check database connection
-  const isDatabaseHealthy = await checkDatabaseConnection()
+  // // Check database connection
+  // const isDatabaseHealthy = await checkDatabaseConnection()
 
-  if (!isDatabaseHealthy) {
-    const maintenanceUrl = new URL('/maintenance', request.url)
-    return NextResponse.redirect(maintenanceUrl)
-  }
+  // if (!isDatabaseHealthy) {
+  //   const maintenanceUrl = new URL('/maintenance', request.url)
+  //   return NextResponse.redirect(maintenanceUrl)
+  // }
 
-  return await updateSession({ request })
+  return await updateSession({ request });
 }
 
 export const config = {
@@ -34,4 +33,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+};
