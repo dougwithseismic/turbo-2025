@@ -30,6 +30,7 @@ type UseDragToConfirmReturn = {
   arrowScale: MotionValue<number>;
   successScale: MotionValue<number>;
   handleDragEnd: () => Promise<void>;
+  reset: () => void;
 };
 
 export const useDragToConfirm = ({
@@ -124,6 +125,15 @@ export const useDragToConfirm = ({
     return () => unsubscribe();
   }, [dragProgress, iconPathLength, successPathLength]);
 
+  const reset = () => {
+    x.set(0);
+    controls.set({ x: 0 });
+    setShowSuccess(false);
+    setIsSubmitting(false);
+    iconPathLength.set(0);
+    successPathLength.set(0);
+  };
+
   const handleDragEnd = async () => {
     const dragValue = x.get();
     if (dragValue > dragThreshold * dragThresholdPercentage) {
@@ -150,13 +160,14 @@ export const useDragToConfirm = ({
         });
       } catch (err) {
         // On error, just spring back
-
         controls.start({
           x: 0,
           transition: { type: 'spring', stiffness: 400, damping: 40 },
         });
       } finally {
         setIsSubmitting(false);
+
+        reset();
       }
     } else {
       // Not dragged far enough, spring back
@@ -186,5 +197,6 @@ export const useDragToConfirm = ({
     arrowScale,
     successScale,
     handleDragEnd,
+    reset,
   };
 };

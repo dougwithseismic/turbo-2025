@@ -1,10 +1,11 @@
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { useAuth } from '@/features/auth/hooks/use-auth'
-import { auth } from '@/lib/auth'
-import { Copy } from 'lucide-react'
-import { Metadata } from 'next'
-import { redirect } from 'next/navigation'
+import { Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth';
+import { PageHeader } from '@/features/page-layout/components/page-header';
+import { DashboardStats } from '@/features/dashboard/components/dashboard-stats';
+import { DashboardTable } from '@/features/dashboard/components/dashboard-table';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { RecentActivity } from '@/features/dashboard/components/recent-activity';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -14,22 +15,46 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 const Page = async () => {
-  const user = await auth()
+  const user = await auth();
 
   if (!user?.email) {
-    redirect('/login')
+    redirect('/login');
   }
 
-  return (
-    <div className="flex-1 space-y-4 p-8 pt-6">
-      <h1 className="text-3xl font-semibold tracking-tight">
-        Welcome, {user.email} 👋
-      </h1>
-    </div>
-  )
-}
+  const breadcrumbItems = [
+    {
+      label: 'Dashboard',
+      href: '/dashboard',
+      current: true,
+    },
+  ];
 
-export default Page
+  return (
+    <div className="flex min-h-screen flex-col container mx-auto">
+      <PageHeader items={breadcrumbItems} />
+      <main className="flex-1 space-y-4 p-4 pt-6 sm:p-6 sm:pt-6 md:p-8">
+        <DashboardStats />
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
+          <Card className="col-span-12 lg:col-span-8">
+            <DashboardTable />
+          </Card>
+
+          <Card className="col-span-12 h-fit lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <RecentActivity />
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Page;

@@ -109,11 +109,14 @@ export const DragToConfirm = ({
     dragProgress,
     dragThreshold,
     handleDragEnd,
+    buttonRef,
     x,
   ]);
 
   return (
-    <div
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       ref={buttonRef}
       role="slider"
       aria-label={ariaLabel}
@@ -268,6 +271,6 @@ export const DragToConfirm = ({
           )}
         </AnimatePresence>
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
