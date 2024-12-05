@@ -1,25 +1,25 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { OtpInput } from '@/components/ui/otp-input'
-import { getErrorConfig } from '@/lib/errors'
-import { useOtpVerification } from '../hooks/use-otp-verification'
-import { getShakeAnimation } from '../utils/animations'
-import { MAX_ATTEMPTS } from '../utils/security'
+import { useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
+import Link from 'next/link';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { OtpInput } from '@/components/ui/otp-input';
+import { getErrorConfig } from '@/lib/errors';
+import { useOtpVerification } from '../hooks/use-otp-verification';
+import { getShakeAnimation } from '../utils/animations';
+import { MAX_ATTEMPTS } from '../utils/security';
 
 export const OtpVerificationForm = () => {
-  const prefersReducedMotion = useReducedMotion()
-  const [code, setCode] = useState<string>('')
-  const [shake, setShake] = useState(false)
+  const prefersReducedMotion = useReducedMotion();
+  const [code, setCode] = useState<string>('');
+  const [shake, setShake] = useState(false);
 
   const triggerShake = () => {
-    setShake(true)
-    setTimeout(() => setShake(false), 500)
-  }
+    setShake(true);
+    setTimeout(() => setShake(false), 500);
+  };
 
   const {
     error,
@@ -32,9 +32,9 @@ export const OtpVerificationForm = () => {
     handleVerifyCode,
   } = useOtpVerification({
     onShake: triggerShake,
-  })
+  });
 
-  const remainingAttempts = MAX_ATTEMPTS - attempts
+  const remainingAttempts = MAX_ATTEMPTS - attempts;
 
   return (
     <motion.div
@@ -67,7 +67,7 @@ export const OtpVerificationForm = () => {
 
         {error &&
           (() => {
-            const errorConfig = getErrorConfig(error)
+            const errorConfig = getErrorConfig(error);
             return (
               <Alert
                 variant={errorConfig.variant}
@@ -87,7 +87,7 @@ export const OtpVerificationForm = () => {
                   )}
                 </AlertDescription>
               </Alert>
-            )
+            );
           })()}
 
         {success && (
@@ -135,5 +135,5 @@ export const OtpVerificationForm = () => {
         </Button>
       </div>
     </motion.div>
-  )
-}
+  );
+};

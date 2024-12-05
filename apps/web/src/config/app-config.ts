@@ -1,8 +1,8 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
-import { name as packageName } from '../../package.json';
+import packageJson from '../../package.json';
 
-const appName = packageName || 'default-app-name';
+const appName = packageJson.name || 'default-app-name';
 
 export const env = createEnv({
   client: {

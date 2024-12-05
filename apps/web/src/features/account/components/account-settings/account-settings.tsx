@@ -101,8 +101,20 @@ export const AccountSettings = () => {
     }
   };
 
-  const handlePaymentMethodUpdate = async (token: string) => {
+  const handlePaymentMethodUpdate = async ({
+    cardholderName,
+    cardNumber,
+    expiryDate,
+    cvv,
+  }: {
+    cardholderName: string;
+    cardNumber: string;
+    expiryDate: string;
+    cvv: string;
+  }) => {
     try {
+      console.log('Updating payment method...');
+      const token = 'PLACEHOLDER';
       const result = await executeUpdatePaymentMethod({ token });
       if (result.error) {
         toast.error('Failed to update payment method');

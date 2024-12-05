@@ -1,5 +1,6 @@
-import { Metadata } from 'next'
-import { OtpVerificationForm } from '@/features/otp/components/otp-verification-form'
+import { Metadata } from 'next';
+import { OtpVerificationForm } from '@/features/otp/components/otp-verification-form';
+import { Suspense } from 'react';
 
 export const metadata: Metadata = {
   title: 'Verify Your Email | Your App Name',
@@ -9,12 +10,14 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 export default function VerifyRequestPage() {
   return (
     <div className="container relative flex h-[100vh] flex-col items-center justify-center">
-      <OtpVerificationForm />
+      <Suspense fallback={<div>Loading...</div>}>
+        <OtpVerificationForm />
+      </Suspense>
     </div>
-  )
+  );
 }

@@ -1,61 +1,61 @@
-'use client'
+'use client';
 
-import { useState, useEffect, useRef } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Settings2, RefreshCcw, CheckCircle2 } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { motion, AnimatePresence } from 'motion/react'
-import { useHealthCheck } from '../hooks/use-health-check'
-import { Metadata } from 'next'
+import { useState, useEffect, useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Settings2, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useHealthCheck } from '../hooks/use-health-check';
+import { Metadata } from 'next';
 
-const REDIRECT_COUNTDOWN_SECONDS = 3
+const REDIRECT_COUNTDOWN_SECONDS = 3;
 
 const fadeInUp = {
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
   exit: { opacity: 0, y: -20 },
-}
+};
 
 export function MaintenanceCard() {
-  const router = useRouter()
+  const router = useRouter();
   const [redirectCountdown, setRedirectCountdown] = useState(
     REDIRECT_COUNTDOWN_SECONDS,
-  )
-  const [shouldRedirect, setShouldRedirect] = useState(false)
-  const [healthStatus, checkHealth] = useHealthCheck()
-  const { state, checkCount, nextCheckIn } = healthStatus
+  );
+  const [shouldRedirect, setShouldRedirect] = useState(false);
+  const [healthStatus, checkHealth] = useHealthCheck();
+  const { state, checkCount, nextCheckIn } = healthStatus;
 
   // Handle countdown
   useEffect(() => {
-    if (state !== 'restored') return
+    if (state !== 'restored') return;
 
     const timer = setInterval(() => {
       setRedirectCountdown((prev) => {
         if (prev <= 1) {
-          clearInterval(timer)
-          setShouldRedirect(true)
-          return 0
+          clearInterval(timer);
+          setShouldRedirect(true);
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [state])
+    return () => clearInterval(timer);
+  }, [state]);
 
   // Handle redirect separately
   useEffect(() => {
     if (shouldRedirect) {
-      router.push('/dashboard')
+      router.push('/dashboard');
     }
-  }, [shouldRedirect, router])
+  }, [shouldRedirect, router]);
 
   const getStatusMessage = () => {
-    if (state === 'checking') return 'Checking...'
-    if (checkCount === 0) return 'Check Now'
-    return `Check Again (Attempt ${checkCount})`
-  }
+    if (state === 'checking') return 'Checking...';
+    if (checkCount === 0) return 'Check Now';
+    return `Check Again (Attempt ${checkCount})`;
+  };
 
   return (
     <Card className="w-full max-w-md space-y-6 p-8 text-center shadow-sm transition-all hover:shadow-md">
@@ -133,5 +133,5 @@ export function MaintenanceCard() {
         )}
       </AnimatePresence>
     </Card>
-  )
+  );
 }

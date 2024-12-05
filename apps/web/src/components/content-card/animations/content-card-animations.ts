@@ -1,4 +1,4 @@
-import type { Variants } from 'motion/react';
+import type { Variants } from 'framer-motion';
 
 export const containerVariants: Variants = {
   hidden: {

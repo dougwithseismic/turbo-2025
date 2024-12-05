@@ -1,27 +1,36 @@
-'use server'
+'use server';
 
-import { stripe } from '@repo/stripe'
-import { supabaseClient as supabase } from '@/lib/supabase/client'
-import { auth } from '@/lib/auth'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { stripe } from '@repo/stripe';
+import { supabaseClient as supabase } from '@/lib/supabase/client';
+import { auth } from '@/lib/auth';
+import { createSupabaseServerClient } from '@/lib/supabase/server';
+import type { Stripe } from 'stripe';
 
 type CheckoutResponse = {
-  errorRedirect?: string
-  sessionId?: string
-  url?: string
-}
+  errorRedirect?: string;
+  sessionId?: string;
+  url?: string;
+};
+
+type SubscriptionWithPrice = Stripe.Subscription & {
+  items: {
+    data: Array<{
+      price: Stripe.Price;
+    }>;
+  };
+};
 
 /**
  * Fetches the current user's subscription data
  */
-export const getCurrentSubscription = async (userId: string) => {
+export const getCurrentSubscription = async () => {
   try {
-    const user = await auth()
+    const user = await auth();
 
-    const serverClient = await createSupabaseServerClient()
+    const serverClient = await createSupabaseServerClient();
 
     if (!user) {
-      return null
+      return null;
     }
 
     // Since we're using the client library, RLS policies will be enforced
@@ -30,26 +39,31 @@ export const getCurrentSubscription = async (userId: string) => {
       .from('customers')
       .select('stripe_customer_id')
       .eq('id', user.id) // Using user.id ensures RLS policy is satisfied
-      .single()
+      .single();
 
     if (customerError || !customerData?.stripe_customer_id) {
       // It's okay if the customer does not exist, it just means they haven't purchased a subscription yet
-      console.info('Customer does not exist:', customerError)
-      return null
+      console.info('Customer does not exist:', customerError);
+      return null;
     }
 
     const subscriptions = await stripe.subscriptions.list({
       customer: customerData.stripe_customer_id,
       status: 'active',
       expand: ['data.items.data.price'],
-    })
+    });
 
     if (!subscriptions.data.length) {
-      return null
+      return null;
     }
 
-    const subscription = subscriptions.data[0]
-    const price = subscription.items.data[0].price
+    const subscription = subscriptions.data[0] as SubscriptionWithPrice;
+    const price = subscription.items.data[0]?.price;
+
+    if (!price) {
+      console.error('No price found for subscription');
+      return null;
+    }
 
     return {
       id: subscription.id,
@@ -59,127 +73,130 @@ export const getCurrentSubscription = async (userId: string) => {
       priceId: price.id,
       customerId: customerData.stripe_customer_id,
       planName: price.nickname || 'Pro Plan',
-    }
+    };
   } catch (error) {
-    console.error('Error in getCurrentSubscription:', error)
-    return null
+    console.error('Error in getCurrentSubscription:', error);
+    return null;
   }
-}
+};
+
+type PriceType = {
+  id: string;
+  type: 'recurring' | 'one_time';
+};
 
 /**
  * Creates a new checkout session for subscription management
  */
 export const createCheckoutSession = async ({
-  userId,
   price,
   redirectPath = '/dashboard',
 }: {
-  userId: string
-  price: any
-  redirectPath?: string
+  price: PriceType;
+  redirectPath?: string;
 }): Promise<CheckoutResponse> => {
   try {
+    const user = await auth();
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
     const { data: userData, error: userError } = await supabase
       .from('users')
       .select('email')
-      .eq('id', userId)
-      .single()
+      .eq('id', user.id)
+      .single();
 
     if (userError || !userData) {
-      throw new Error('User not found')
+      throw new Error('User not found');
     }
 
     const { data: customerData, error: customerError } = await supabase
       .from('customers')
       .select('stripe_customer_id')
-      .eq('id', userId)
-      .single()
+      .eq('id', user.id)
+      .single();
 
     if (customerError || !customerData?.stripe_customer_id) {
-      throw new Error('Customer not found')
+      throw new Error('Customer not found');
     }
 
-    const params = {
-      customer: customerData?.stripe_customer_id ?? undefined,
-      customer_email: userData.email ?? undefined,
-      billing_address_collection: 'auto' as const,
+    const params: Stripe.Checkout.SessionCreateParams = {
+      customer: customerData.stripe_customer_id,
+      customer_email: userData.email || undefined,
+      billing_address_collection: 'auto',
       line_items: [
         {
           price: price.id,
           quantity: 1,
         },
       ],
-      mode:
-        price.type === 'recurring'
-          ? ('subscription' as const)
-          : ('payment' as const),
+      mode: price.type === 'recurring' ? 'subscription' : 'payment',
       success_url: `${process.env.NEXT_PUBLIC_APP_URL}${redirectPath}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}${redirectPath}`,
       allow_promotion_codes: true,
-    }
+    };
 
-    const session = await stripe.checkout.sessions.create(params)
+    const session = await stripe.checkout.sessions.create(params);
 
-    return { url: session.url ?? undefined, sessionId: session.id ?? undefined }
+    return {
+      url: session.url ?? undefined,
+      sessionId: session.id ?? undefined,
+    };
   } catch (error) {
-    console.error('Error in createCheckoutSession:', error)
+    console.error('Error in createCheckoutSession:', error);
     if (error instanceof Error) {
       return {
         errorRedirect: `/error?message=${error.message}&redirect=${redirectPath}`,
-      }
+      };
     }
     return {
       errorRedirect: `/error?message=Unknown error&redirect=${redirectPath}`,
-    }
+    };
   }
-}
+};
 
 /**
  * Creates a new billing portal session for subscription management
  */
 export const createBillingPortalSession = async ({
-  userId,
   returnPath = '/dashboard',
 }: {
-  userId: string
-  returnPath?: string
+  returnPath?: string;
 }) => {
   try {
-    const { data: userData, error: userError } = await supabase
-      .from('users')
-      .select('stripe_customer_id')
-      .eq('id', userId)
-      .single()
+    const user = await auth();
 
-    if (userError || !userData) {
-      throw new Error('User not found')
+    if (!user) {
+      throw new Error('User not authenticated');
     }
 
     const { data: customerData, error: customerError } = await supabase
       .from('customers')
       .select('stripe_customer_id')
-      .eq('id', userId)
-      .single()
+      .eq('id', user.id)
+      .single();
 
     if (customerError || !customerData?.stripe_customer_id) {
-      throw new Error('Customer not found')
+      throw new Error('Customer not found');
     }
 
     const session = await stripe.billingPortal.sessions.create({
       customer: customerData.stripe_customer_id,
       return_url: `${process.env.NEXT_PUBLIC_APP_URL}${returnPath}`,
-    })
+    });
 
-    return { url: session.url }
+    return { url: session.url };
   } catch (error) {
-    console.error('Error in createBillingPortalSession:', error)
+    console.error('Error in createBillingPortalSession:', error);
     if (error instanceof Error) {
       return {
         errorRedirect: `/error?message=${error.message}&redirect=${returnPath}`,
-      }
+      };
     }
     return {
       errorRedirect: `/error?message=Unknown error&redirect=${returnPath}`,
-    }
+    };
   }
-}
+};
