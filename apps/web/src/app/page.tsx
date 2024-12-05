@@ -1,124 +1,114 @@
-import Image from 'next/image'
-import { SiteHeader } from '@/components/site-header'
-import { Metadata } from 'next'
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Home | Your App Name',
-  description:
-    'Welcome to Your App Name - Get started building your next great project with Next.js.',
-  openGraph: {
-    title: 'Home | Your App Name',
-    description:
-      'Welcome to Your App Name - Get started building your next great project with Next.js.',
-    type: 'website',
-  },
-  twitter: {
-    card: 'summary',
-    title: 'Home | Your App Name',
-    description:
-      'Welcome to Your App Name - Get started building your next great project with Next.js.',
-  },
-}
+import { Menu } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  HeroSection,
+  FeaturesGrid,
+  StatsSection,
+  TestimonialsSection,
+  MarketingFooter,
+  ArticleList,
+  NewsletterSignup,
+  ContactSection,
+  PricingSection,
+  LogoCloud,
+  SecondaryFeatures,
+  CTASection,
+  NavMenu,
+} from '@/features/home/components';
 
-export default function Home() {
+const navigation = [
+  { name: 'Product', href: '#product' },
+  { name: 'Features', href: '#features' },
+  { name: 'Pricing', href: '#pricing' },
+  { name: 'Resources', href: '#resources', hasMenu: true },
+];
+
+export default function Page() {
   return (
-    <>
-      <SiteHeader />
-      <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-        <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-          <Image
-            className="dark:invert"
-            src="/next.svg"
-            alt="Next.js logo"
-            width={180}
-            height={38}
-            priority
-          />
-          <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-            <li className="mb-2">
-              Get started by editing{' '}
-              <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-                src/app/page.tsx
-              </code>
-              .
-            </li>
-            <li>Save and see your changes instantly.</li>
-          </ol>
-
-          <div className="flex gap-4 items-center flex-col sm:flex-row">
-            <a
-              className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-              href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                className="dark:invert"
-                src="/vercel.svg"
-                alt="Vercel logomark"
-                width={20}
-                height={20}
+    <div className="bg-background">
+      <header className="absolute inset-x-0 top-0 z-50">
+        <nav className="flex items-center justify-between p-6 lg:px-8">
+          <div className="flex lg:flex-1">
+            <a href="#" className="-m-1.5 p-1.5">
+              <span className="sr-only">Your Company</span>
+              <img
+                alt=""
+                src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=500"
+                className="h-8 w-auto"
               />
-              Deploy now
-            </a>
-            <a
-              className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-              href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read our docs
             </a>
           </div>
-        </main>
-        <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/file.svg"
-              alt="File icon"
-              width={16}
-              height={16}
-            />
-            Learn
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/window.svg"
-              alt="Window icon"
-              width={16}
-              height={16}
-            />
-            Examples
-          </a>
-          <a
-            className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-            href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              aria-hidden
-              src="/globe.svg"
-              alt="Globe icon"
-              width={16}
-              height={16}
-            />
-            Go to nextjs.org →
-          </a>
-        </footer>
-      </div>
-    </>
-  )
+          <div className="flex lg:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="text-foreground">
+                  <Menu className="size-6" />
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right">
+                <div className="mt-6 flow-root">
+                  <div className="-my-6 divide-y divide-border">
+                    <div className="space-y-2 py-6">
+                      {navigation.map((item) => (
+                        <a
+                          key={item.name}
+                          href={item.href}
+                          className="-mx-3 block rounded-lg px-3 py-2 text-base font-semibold leading-7 text-foreground hover:bg-muted"
+                        >
+                          {item.name}
+                        </a>
+                      ))}
+                    </div>
+                    <div className="py-6">
+                      <Button asChild className="w-full" variant="secondary">
+                        <a href="#">Log in</a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
+          <div className="hidden lg:flex lg:gap-x-12">
+            {navigation.map((item) =>
+              item.hasMenu ? (
+                <NavMenu key={item.name} label={item.name} />
+              ) : (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-semibold leading-6 text-foreground hover:text-foreground/80"
+                >
+                  {item.name}
+                </a>
+              ),
+            )}
+          </div>
+          <div className="hidden lg:flex lg:flex-1 lg:justify-end">
+            <Button variant="ghost" asChild>
+              <a href="#">
+                Log in <span aria-hidden="true">→</span>
+              </a>
+            </Button>
+          </div>
+        </nav>
+      </header>
+
+      <main>
+        <HeroSection />
+        <LogoCloud />
+        <FeaturesGrid />
+        <SecondaryFeatures />
+        <TestimonialsSection />
+        <PricingSection />
+        <ArticleList /> #
+        <CTASection />
+      </main>
+
+      <MarketingFooter />
+    </div>
+  );
 }
