@@ -33,9 +33,9 @@ const Page = async () => {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col container mx-auto">
+    <div className="flex min-h-screen flex-col">
       <PageHeader items={breadcrumbItems} />
-      <main className="flex-1 space-y-4 p-4 pt-6 sm:p-6 sm:pt-6 md:p-8">
+      <main className="flex-1 space-y-4 p-4 pt-6 sm:p-6 sm:pt-6 md:p-8 container mx-auto">
         <DashboardStats />
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
