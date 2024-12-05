@@ -101,6 +101,7 @@ export interface ContentCardProps
   className?: string;
   // id is required for the content card search filter to work. It should be unique.
   id?: string;
+  headerPosition?: 'INSIDE' | 'OUTSIDE';
 }
 
 type ContentCardComponent =
@@ -116,6 +117,7 @@ export const ContentCard = ({
   variant,
   className,
   id,
+  headerPosition = 'INSIDE',
 }: ContentCardProps) => {
   const { filteredItems, registerItem, isReady } = useContentCard();
 
@@ -177,58 +179,82 @@ export const ContentCard = ({
   const showEmptyState = !hasMatchingItems || filteredItems.length === 0;
 
   return (
-    <Card
-      className={cn(contentCardVariants({ size, spacing, variant }), className)}
-      role="region"
-      aria-labelledby={id ? `${id}-header` : undefined}
-    >
-      <motion.div variants={containerVariants} initial="hidden" animate="show">
-        <CardHeader
-          data-card-header
-          className="px-6 py-6"
+    <div className="space-y-4">
+      {header && headerPosition === 'OUTSIDE' && (
+        <motion.div
+          variants={itemVariants}
+          initial="hidden"
+          animate="show"
+          className="flex items-center justify-between px-1"
           id={id ? `${id}-header` : undefined}
         >
-          <motion.div
-            variants={itemVariants}
-            className="flex items-center justify-between"
-          >
-            {header && (
-              <div className="w-full">
-                <Slot>{header}</Slot>
-              </div>
-            )}
-          </motion.div>
-        </CardHeader>
-        <Separator className="w-full" />
-        <CardContent
-          data-card-content
-          className="py-6"
-          role="list"
-          aria-label={description || 'Content card items'}
-        >
-          <motion.div variants={itemVariants} className="flex flex-col gap-4">
-            {showEmptyState ? (
-              <ContentCardEmptyState
-                icon={<Search className="h-12 w-12" />}
-                title="No matching results"
-                description="Try adjusting your search terms to find what you're looking for."
-              />
-            ) : (
-              content
-            )}
-          </motion.div>
-        </CardContent>
-        {footer && !showEmptyState && (
-          <>
-            <Separator className="w-full" />
-            <CardFooter data-card-footer className="px-6 py-6">
-              <motion.div variants={itemVariants} className="w-full">
-                <Slot>{footer}</Slot>
-              </motion.div>
-            </CardFooter>
-          </>
+          <div className="w-full">
+            <Slot>{header}</Slot>
+          </div>
+        </motion.div>
+      )}
+      <Card
+        className={cn(
+          contentCardVariants({ size, spacing, variant }),
+          className,
         )}
-      </motion.div>
-    </Card>
+        role="region"
+        aria-labelledby={id ? `${id}-header` : undefined}
+      >
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="show"
+        >
+          {header && headerPosition === 'INSIDE' && (
+            <>
+              <CardHeader
+                data-card-header
+                className="px-6 py-6"
+                id={id ? `${id}-header` : undefined}
+              >
+                <motion.div
+                  variants={itemVariants}
+                  className="flex items-center justify-between"
+                >
+                  <div className="w-full">
+                    <Slot>{header}</Slot>
+                  </div>
+                </motion.div>
+              </CardHeader>
+              <Separator className="w-full" />
+            </>
+          )}
+          <CardContent
+            data-card-content
+            className="py-6"
+            role="list"
+            aria-label={description || 'Content card items'}
+          >
+            <motion.div variants={itemVariants} className="flex flex-col gap-4">
+              {showEmptyState ? (
+                <ContentCardEmptyState
+                  icon={<Search className="h-12 w-12" />}
+                  title="No matching results"
+                  description="Try adjusting your search terms to find what you're looking for."
+                />
+              ) : (
+                content
+              )}
+            </motion.div>
+          </CardContent>
+          {footer && !showEmptyState && (
+            <>
+              <Separator className="w-full" />
+              <CardFooter data-card-footer className="px-6 py-6">
+                <motion.div variants={itemVariants} className="w-full">
+                  <Slot>{footer}</Slot>
+                </motion.div>
+              </CardFooter>
+            </>
+          )}
+        </motion.div>
+      </Card>
+    </div>
   );
 };

@@ -18,6 +18,8 @@ import {
   CTASection,
   NavMenu,
 } from '@/features/home/components';
+import { useAuth } from '@/features/auth/hooks/use-auth';
+import Link from 'next/link';
 
 const navigation = [
   { name: 'Product', href: '#product' },
@@ -27,6 +29,10 @@ const navigation = [
 ];
 
 export default function Page() {
+  const { user } = useAuth();
+
+  console.log('user', user);
+
   return (
     <div className="bg-background">
       <header className="absolute inset-x-0 top-0 z-50">
@@ -63,9 +69,15 @@ export default function Page() {
                       ))}
                     </div>
                     <div className="py-6">
-                      <Button asChild className="w-full" variant="secondary">
-                        <a href="#">Log in</a>
-                      </Button>
+                      {user ? (
+                        <Button asChild className="w-full" variant="secondary">
+                          <Link href="/dashboard">Dashboard</Link>
+                        </Button>
+                      ) : (
+                        <Button asChild className="w-full" variant="secondary">
+                          <Link href="/login">Log in</Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -88,11 +100,15 @@ export default function Page() {
             )}
           </div>
           <div className="hidden lg:flex lg:flex-1 lg:justify-end">
-            <Button variant="ghost" asChild>
-              <a href="#">
-                Log in <span aria-hidden="true">→</span>
-              </a>
-            </Button>
+            {user ? (
+              <Button asChild variant="default">
+                <Link href="/dashboard">Go to Dashboard</Link>
+              </Button>
+            ) : (
+              <Button asChild variant="outline">
+                <Link href="/login">Log in</Link>
+              </Button>
+            )}
           </div>
         </nav>
       </header>

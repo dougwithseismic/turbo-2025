@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { CardDescription, CardTitle } from '@/components/ui/card';
 import { ContentCard, ContentCardProvider } from '@/components/content-card';
 import { ContentCardSearch } from '@/components/content-card/components/content-card-search';
-import { PencilLine, Save } from 'lucide-react';
+import { PencilLine, Plus, Save } from 'lucide-react';
 import { EmailField } from './fields/email-field';
 import { PasswordField } from './fields/password-field';
 import { BirthdateField } from './fields/birthdate-field';
@@ -161,148 +161,168 @@ export const AccountSettings = () => {
     }
   };
 
+  console.log('Account Settings');
+
   return (
     <ContentCardProvider>
-      <div className="flex flex-1 flex-col gap-8 p-4 md:p-8 pt-0 max-w-3xl">
-        <ContentCardSearch placeholder="Search account settings..." />
+      <div className="flex flex-1 flex-col gap-4 p-4 md:p-8 pt-0 container max-w-4xl mx-auto">
+        <div className="row flex flex-col gap-6">
+          <div className="flex flex-col gap-2">
+            <h1 className="text-2xl font-bold">Account Settings</h1>
+            <span className="text-sm text-muted-foreground">
+              Manage your account settings and preferences.
+            </span>
+          </div>
 
-        <ContentCard id="account-information">
-          <ContentCard.Header>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-2">
-                <CardTitle>Account Information</CardTitle>
-                <CardDescription>
-                  Manage your account information
-                </CardDescription>
+          <ContentCardSearch placeholder="Search account settings..." />
+        </div>
+
+        <div className="flex flex-col gap-8 md:gap-12">
+          <ContentCard id="account-information" headerPosition="INSIDE">
+            <ContentCard.Header>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col gap-2">
+                  <CardTitle>Account Information</CardTitle>
+                  <CardDescription>
+                    Manage your account information
+                  </CardDescription>
+                </div>
               </div>
-              <Button variant="ghost" size="sm">
-                <PencilLine className="h-4 w-4" />
-                <span className="ml-2">Edit All</span>
-              </Button>
-            </div>
-          </ContentCard.Header>
+            </ContentCard.Header>
 
-          <ContentCard.Body>
-            <ContentCard.Item id="email">
-              <EmailField onSubmit={handleEmailUpdate} />
-            </ContentCard.Item>
+            <ContentCard.Body>
+              <ContentCard.Item id="email">
+                <EmailField onSubmit={handleEmailUpdate} />
+              </ContentCard.Item>
 
-            <ContentCard.Item id="password">
-              <PasswordField />
-            </ContentCard.Item>
+              <ContentCard.Item id="password">
+                <PasswordField />
+              </ContentCard.Item>
 
-            <ContentCard.Item id="birthdate">
-              <BirthdateField onSubmit={handleBirthdateUpdate} />
-            </ContentCard.Item>
+              <ContentCard.Item id="birthdate">
+                <BirthdateField onSubmit={handleBirthdateUpdate} />
+              </ContentCard.Item>
 
-            <ContentCard.Item id="calendar-link">
-              <CalendarLinkField onSubmit={handleCalendarLinkUpdate} />
-            </ContentCard.Item>
-          </ContentCard.Body>
+              <ContentCard.Item id="calendar-link">
+                <CalendarLinkField onSubmit={handleCalendarLinkUpdate} />
+              </ContentCard.Item>
+            </ContentCard.Body>
 
-          <ContentCard.Footer>
-            <div className="flex w-full items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Last updated: {new Date().toLocaleDateString()}
-              </p>
-              <Button variant="outline" size="sm">
-                <Save className="mr-2 h-4 w-4" />
-                Save Changes
-              </Button>
-            </div>
-          </ContentCard.Footer>
-        </ContentCard>
-
-        <ContentCard id="theme">
-          <ContentCard.Header>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-2">
-                <CardTitle>Theme</CardTitle>
+            <ContentCard.Footer>
+              <div className="flex w-full items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  Last updated: {new Date().toLocaleDateString()}
+                </p>
+                <Button variant="outline" size="sm">
+                  <Save className="mr-2 h-4 w-4" />
+                  Save Changes
+                </Button>
               </div>
-            </div>
-          </ContentCard.Header>
-          <ContentCard.Body>
-            <ContentCard.Item id="theme-selector">
-              <ThemeSelector />
-            </ContentCard.Item>
-          </ContentCard.Body>
-        </ContentCard>
+            </ContentCard.Footer>
+          </ContentCard>
 
-        <ContentCard id="personal-information">
-          <ContentCard.Header>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-2">
-                <CardTitle>Personal Information</CardTitle>
-                <CardDescription>
-                  This information will appear on all future invoices
-                </CardDescription>
+          <ContentCard id="theme" headerPosition="OUTSIDE">
+            <ContentCard.Header>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col gap-2">
+                  <CardTitle>Theme</CardTitle>
+                  <CardDescription>Manage your theme settings</CardDescription>
+                </div>
               </div>
-            </div>
-          </ContentCard.Header>
-          <ContentCard.Body>
-            <ContentCard.Item id="address">
-              <AddressField onSubmit={handleAddressUpdate} />
-            </ContentCard.Item>
+            </ContentCard.Header>
+            <ContentCard.Body>
+              <ContentCard.Item id="theme-selector">
+                <ThemeSelector />
+              </ContentCard.Item>
+            </ContentCard.Body>
+          </ContentCard>
 
-            <ContentCard.Item id="legal-entity">
-              <LegalEntityField onSubmit={handleLegalEntityUpdate} />
-            </ContentCard.Item>
-          </ContentCard.Body>
-        </ContentCard>
-
-        <ContentCard id="billing">
-          <ContentCard.Header>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-2">
-                <CardTitle>Billing</CardTitle>
+          <ContentCard id="personal-information" headerPosition="OUTSIDE">
+            <ContentCard.Header>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col gap-2">
+                  <CardTitle>Personal Information</CardTitle>
+                  <CardDescription>
+                    This information will appear on all future invoices
+                  </CardDescription>
+                </div>
               </div>
-            </div>
-          </ContentCard.Header>
-          <ContentCard.Body>
-            <ContentCard.Item id="payment-method">
-              <PaymentMethodField onSubmit={handlePaymentMethodUpdate} />
-            </ContentCard.Item>
+            </ContentCard.Header>
+            <ContentCard.Body>
+              <ContentCard.Item id="address">
+                <AddressField onSubmit={handleAddressUpdate} />
+              </ContentCard.Item>
 
-            <ContentCard.Item id="billing-history">
-              <BillingHistoryField />
-            </ContentCard.Item>
-          </ContentCard.Body>
-        </ContentCard>
+              <ContentCard.Item id="legal-entity">
+                <LegalEntityField onSubmit={handleLegalEntityUpdate} />
+              </ContentCard.Item>
+            </ContentCard.Body>
+          </ContentCard>
 
-        <ContentCard id="domains">
-          <ContentCard.Header>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex flex-col gap-2">
-                <CardTitle>Domains</CardTitle>
+          <ContentCard id="billing" headerPosition="OUTSIDE">
+            <ContentCard.Header>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col gap-2">
+                  <CardTitle>Billing</CardTitle>
+                  <CardDescription>
+                    Manage your billing information
+                  </CardDescription>
+                </div>
               </div>
-            </div>
-          </ContentCard.Header>
-          <ContentCard.Body>
-            <ContentCard.Item id="profile-domain">
-              <DomainField
-                label="Profile Domain"
-                domain="username.domain.com"
-                onSubmit={handleDomainUpdate}
-              />
-            </ContentCard.Item>
+            </ContentCard.Header>
+            <ContentCard.Body>
+              <ContentCard.Item id="payment-method">
+                <PaymentMethodField onSubmit={handlePaymentMethodUpdate} />
+              </ContentCard.Item>
 
-            <ContentCard.Item id="default-portfolio-domain">
-              <DomainField
-                label="Default Portfolio Domain"
-                domain="portfolio.domain.com"
-                onSubmit={handleDomainUpdate}
-              />
-            </ContentCard.Item>
+              <ContentCard.Item id="billing-history">
+                <BillingHistoryField />
+              </ContentCard.Item>
+            </ContentCard.Body>
+          </ContentCard>
 
-            <ContentCard.Item id="custom-portfolio-domain">
-              <DomainField
-                label="Custom Portfolio Domain"
-                domain="custom.domain.com"
-                onSubmit={handleDomainUpdate}
-              />
-            </ContentCard.Item>
-          </ContentCard.Body>
-        </ContentCard>
+          <ContentCard id="domains" headerPosition="OUTSIDE">
+            <ContentCard.Header>
+              <div className="flex items-center justify-between w-full">
+                <div className="flex flex-col gap-2">
+                  <CardTitle>Domains</CardTitle>
+                  <CardDescription>
+                    Manage your portfolio and profile domains
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Domain
+                </Button>
+              </div>
+            </ContentCard.Header>
+            <ContentCard.Body>
+              <ContentCard.Item id="profile-domain">
+                <DomainField
+                  label="Profile Domain"
+                  domain="username.domain.com"
+                  onSubmit={handleDomainUpdate}
+                />
+              </ContentCard.Item>
+
+              <ContentCard.Item id="default-portfolio-domain">
+                <DomainField
+                  label="Default Portfolio Domain"
+                  domain="portfolio.domain.com"
+                  onSubmit={handleDomainUpdate}
+                />
+              </ContentCard.Item>
+
+              <ContentCard.Item id="custom-portfolio-domain">
+                <DomainField
+                  label="Custom Portfolio Domain"
+                  domain="custom.domain.com"
+                  onSubmit={handleDomainUpdate}
+                />
+              </ContentCard.Item>
+            </ContentCard.Body>
+          </ContentCard>
+        </div>
       </div>
     </ContentCardProvider>
   );
