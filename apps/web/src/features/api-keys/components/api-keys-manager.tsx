@@ -35,7 +35,7 @@ import {
 import { DragToConfirm } from '@/components/drag-to-confirm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Check, Copy, Pencil, Plus, Trash2 } from 'lucide-react';
+import { AlertCircle, Pencil, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -54,8 +54,6 @@ const TEXT = {
   PERMISSIONS_LABEL: 'Permissions',
   PERMISSIONS_PLACEHOLDER: 'Select permissions',
   CLOSE: 'Close',
-  COPY: 'Click to copy',
-  COPIED: 'Copied!',
   VALIDATION: {
     NAME_REQUIRED: 'Name is required',
     NAME_MIN: 'Name must be at least 3 characters',
@@ -141,7 +139,6 @@ export const ApiKeysManager = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState<StepId>(1);
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
-  const [isCopied, setIsCopied] = useState(false);
 
   const form = useForm<CreateApiKeyForm>({
     resolver: zodResolver(createApiKeySchema),
@@ -207,23 +204,12 @@ export const ApiKeysManager = () => {
     setIsOpen(false);
   };
 
-  const handleCopy = async () => {
-    if (!newApiKey) return;
-    try {
-      await navigator.clipboard.writeText(newApiKey);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 1000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
   const currentStepData =
     STEPS.find((step) => step.id === currentStep) ?? STEPS[0];
 
   return (
-    <div className="w-full max-w-4xl space-y-6">
-      <div className="flex justify-between items-end">
+    <div className="w-full max-w-4xl container mx-auto space-y-6 p-6">
+      <div className="flex flex-col sm:flex-row justify-between gap-4 sm:items-end">
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl font-bold">API Keys</h1>
           <span className="text-sm text-muted-foreground">
@@ -232,14 +218,14 @@ export const ApiKeysManager = () => {
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Plus className="mr-2 h-4 w-4" />
               Create New API Key
             </Button>
           </DialogTrigger>
           <AnimatePresence mode="wait">
             {isOpen && (
-              <DialogContent forceMount className="p-0">
+              <DialogContent forceMount className="p-0 sm:max-w-xl">
                 <DialogTitle className="sr-only">
                   {TEXT.CREATE_API_KEY}
                 </DialogTitle>
@@ -332,32 +318,11 @@ export const ApiKeysManager = () => {
                           </div>
                           <div className="grid gap-2">
                             <Label>API Key</Label>
-                            <div className="relative">
-                              <Input
-                                readOnly
-                                value={newApiKey ?? ''}
-                                className="pr-24 font-mono text-sm"
-                              />
-                              <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="absolute right-0 top-0 flex h-full items-center gap-1.5 px-3 font-medium"
-                                onClick={handleCopy}
-                              >
-                                {isCopied ? (
-                                  <>
-                                    <Check className="h-3.5 w-3.5" />
-                                    <span>{TEXT.COPIED}</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="h-3.5 w-3.5" />
-                                    <span>{TEXT.COPY}</span>
-                                  </>
-                                )}
-                              </Button>
-                            </div>
+                            <SecretKey
+                              value={newApiKey ?? ''}
+                              displayLength={32}
+                              showByDefault
+                            />
                           </div>
                         </div>
                       )}
@@ -391,30 +356,48 @@ export const ApiKeysManager = () => {
         </Dialog>
       </div>
 
-      <div className="rounded-md border">
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>NAME</TableHead>
-              <TableHead>SECRET KEY</TableHead>
-              <TableHead>CREATED</TableHead>
-              <TableHead>LAST USED</TableHead>
-              <TableHead>CREATED BY</TableHead>
-              <TableHead>PERMISSIONS</TableHead>
+              <TableHead className="w-[128px] truncate">NAME</TableHead>
+              <TableHead className="min-w-[120px] truncate">
+                SECRET KEY
+              </TableHead>
+              <TableHead className="hidden md:table-cell min-w-[120px] truncate">
+                CREATED
+              </TableHead>
+              <TableHead className="hidden md:table-cell min-w-[120px]">
+                LAST USED
+              </TableHead>
+              <TableHead className="hidden md:table-cell min-w-[150px]">
+                CREATED BY
+              </TableHead>
+              <TableHead className="hidden md:table-cell min-w-[100px]">
+                PERMISSIONS
+              </TableHead>
               <TableHead className="w-[100px]">ACTIONS</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {apiKeys.map((key) => (
               <TableRow key={key.id}>
-                <TableCell>{key.name}</TableCell>
+                <TableCell className="font-medium">{key.name}</TableCell>
                 <TableCell>
                   <SecretKey value={key.secretKey} />
                 </TableCell>
-                <TableCell>{key.created}</TableCell>
-                <TableCell>{key.lastUsed}</TableCell>
-                <TableCell>{key.createdBy}</TableCell>
-                <TableCell>{key.permissions}</TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {key.created}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {key.lastUsed}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {key.createdBy}
+                </TableCell>
+                <TableCell className="hidden md:table-cell">
+                  {key.permissions}
+                </TableCell>
                 <TableCell>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon">
