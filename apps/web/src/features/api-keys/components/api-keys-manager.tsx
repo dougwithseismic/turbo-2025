@@ -370,10 +370,8 @@ export const ApiKeysManager = () => {
               <TableHead className="hidden md:table-cell min-w-[120px]">
                 LAST USED
               </TableHead>
-              <TableHead className="hidden md:table-cell min-w-[150px]">
-                CREATED BY
-              </TableHead>
-              <TableHead className="hidden md:table-cell min-w-[100px]">
+
+              <TableHead className="hidden md:table-cell">
                 PERMISSIONS
               </TableHead>
               <TableHead className="w-[100px]">ACTIONS</TableHead>
@@ -384,7 +382,11 @@ export const ApiKeysManager = () => {
               <TableRow key={key.id}>
                 <TableCell className="font-medium">{key.name}</TableCell>
                 <TableCell>
-                  <SecretKey value={key.secretKey} />
+                  <SecretKey
+                    value={key.secretKey}
+                    displayLength={16}
+                    className="w-fit"
+                  />
                 </TableCell>
                 <TableCell className="hidden md:table-cell">
                   {key.created}
@@ -392,9 +394,7 @@ export const ApiKeysManager = () => {
                 <TableCell className="hidden md:table-cell">
                   {key.lastUsed}
                 </TableCell>
-                <TableCell className="hidden md:table-cell">
-                  {key.createdBy}
-                </TableCell>
+
                 <TableCell className="hidden md:table-cell">
                   {key.permissions}
                 </TableCell>

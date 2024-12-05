@@ -43,7 +43,7 @@ export const SecretKey = ({
 
   return (
     <div className={cn('flex items-center gap-1.5 max-w-full', className)}>
-      <code className="inline-block bg-muted px-3 py-1.5 rounded font-mono truncate min-w-[120px] md:min-w-[240px]">
+      <code className="inline-block bg-muted px-3 py-1.5 rounded font-mono truncate">
         {displayValue}
       </code>
       <div className="flex gap-1.5 shrink-0">
