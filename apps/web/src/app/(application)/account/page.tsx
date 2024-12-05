@@ -14,12 +14,6 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const user = await auth();
-
-  if (!user) {
-    redirect('/login');
-  }
-
   return (
     <>
       <PageHeader

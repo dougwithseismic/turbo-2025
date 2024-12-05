@@ -5,14 +5,14 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb'
-import { Separator } from '@/components/ui/separator'
-import { SidebarTrigger } from '@/components/ui/sidebar'
-import { UpdatePasswordForm } from '@/features/auth/components/update-password-form'
-import { auth } from '@/lib/auth'
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
+} from '@/components/ui/breadcrumb';
+import { Separator } from '@/components/ui/separator';
+import { SidebarTrigger } from '@/components/ui/sidebar';
+import { UpdatePasswordForm } from '@/features/auth/components/update-password-form';
+import { auth } from '@/lib/auth';
+import { Metadata } from 'next';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
 export const metadata: Metadata = {
   title: 'Update Password | Account Settings',
@@ -21,15 +21,9 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 export default async function UpdatePasswordPage() {
-  const user = await auth()
-
-  if (!user) {
-    redirect('/login')
-  }
-
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
@@ -58,5 +52,5 @@ export default async function UpdatePasswordPage() {
         </div>
       </div>
     </>
-  )
+  );
 }

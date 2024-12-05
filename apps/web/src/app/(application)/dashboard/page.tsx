@@ -1,6 +1,4 @@
 import { Metadata } from 'next';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { PageHeader } from '@/features/page-layout/components/page-header';
 import { DashboardStats } from '@/features/dashboard/components/dashboard-stats';
 import { DashboardTable } from '@/features/dashboard/components/dashboard-table';
@@ -18,12 +16,6 @@ export const metadata: Metadata = {
 };
 
 const Page = async () => {
-  const user = await auth();
-
-  if (!user?.email) {
-    redirect('/login');
-  }
-
   const breadcrumbItems = [
     {
       label: 'Dashboard',
