@@ -17,7 +17,7 @@ const StatsCard = ({ title, value, description, icon }: StatsCardProps) => (
   <DashboardCard size="base" spacing="compact">
     <CardHeader
       data-card-header
-      className="flex flex-row items-center justify-between space-y-0 pb-2 px-6"
+      className="flex flex-row items-center justify-between space-y-0 pb-0 px-6"
     >
       <motion.div
         variants={itemVariants}
@@ -38,7 +38,7 @@ const StatsCard = ({ title, value, description, icon }: StatsCardProps) => (
 
 export const DashboardStats = () => {
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
       <StatsCard
         title="Total Revenue"
         value="$45,231.89"

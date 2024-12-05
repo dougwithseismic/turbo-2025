@@ -191,7 +191,7 @@ export const DashboardTable = () => {
   });
 
   return (
-    <DashboardCard className="h-full">
+    <DashboardCard className="h-fit">
       <CardHeader data-card-header className="px-6">
         <motion.div variants={itemVariants}>
           <CardTitle>Recent Payments</CardTitle>
@@ -199,18 +199,6 @@ export const DashboardTable = () => {
       </CardHeader>
       <CardContent data-card-content className="px-6">
         <motion.div variants={itemVariants}>
-          <div className="flex items-center pb-4">
-            <Input
-              placeholder="Filter by email..."
-              value={
-                (table.getColumn('email')?.getFilterValue() as string) ?? ''
-              }
-              onChange={(event) =>
-                table.getColumn('email')?.setFilterValue(event.target.value)
-              }
-              className="max-w-sm"
-            />
-          </div>
           <div className="rounded-md border">
             <Table>
               <TableHeader>

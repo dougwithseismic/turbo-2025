@@ -113,6 +113,25 @@ export const DragToConfirm = ({
     x,
   ]);
 
+  const handleDragStart = () => {
+    if ('vibrate' in navigator) {
+      navigator.vibrate(10); // Short vibration on drag start
+    }
+  };
+
+  const handleDrag = () => {
+    const progress = dragProgress.get();
+    if (progress > 0) {
+      // Vibrate with increasing intensity based on progress
+      if ('vibrate' in navigator) {
+        const vibrationStrength = Math.floor((progress / 100) * 20) + 5; // 5-25ms
+        const vibrationCount = Math.floor(progress / 20) + 1; // 1-6 pulses
+        const vibrationPattern = Array(vibrationCount).fill(vibrationStrength);
+        navigator.vibrate(vibrationPattern);
+      }
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -177,6 +196,8 @@ export const DragToConfirm = ({
         dragConstraints={{ left: 0, right: dragThreshold }}
         dragElastic={0.1}
         dragMomentum={false}
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         animate={controls}
         style={{

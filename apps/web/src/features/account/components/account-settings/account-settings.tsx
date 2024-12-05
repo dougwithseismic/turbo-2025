@@ -163,7 +163,7 @@ export const AccountSettings = () => {
 
   return (
     <ContentCardProvider>
-      <div className="flex flex-1 flex-col gap-8 p-8 pt-0 max-w-3xl">
+      <div className="flex flex-1 flex-col gap-8 p-4 md:p-8 pt-0 max-w-3xl">
         <ContentCardSearch placeholder="Search account settings..." />
 
         <ContentCard id="account-information">
