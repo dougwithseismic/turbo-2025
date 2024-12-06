@@ -45,7 +45,7 @@ export const MarketingFooter = () => {
             <TwitterIcon className="h-4 w-4" />
           </a>
           <a
-            href="https://www.linkedin.com/company/hardcoreeng/"
+            href="https://www.linkedin.com/company/withseismic/"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white"
@@ -54,7 +54,7 @@ export const MarketingFooter = () => {
             <LinkedInIcon className="h-4 w-4" />
           </a>
           <a
-            href="https://github.com/hcengineering/platform"
+            href="https://github.com/dougwithseismic"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white"
@@ -63,7 +63,7 @@ export const MarketingFooter = () => {
             <GithubIcon className="h-4 w-4" />
           </a>
           <a
-            href="https://www.youtube.com/@seismic_io"
+            href="https://www.youtube.com/@dougsilkstone"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-400 hover:text-white"
@@ -94,7 +94,7 @@ export const MarketingFooter = () => {
         {/* Made with passion - Right */}
         <div className="flex items-center gap-2">
           <span className="bg-gradient-to-r from-chart-1 to-chart-2 bg-clip-text text-sm text-transparent">
-            Made with passion and Seismic
+            Made with passion, and Seismic
           </span>
         </div>
       </div>
