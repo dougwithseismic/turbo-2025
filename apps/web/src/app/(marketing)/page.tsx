@@ -11,12 +11,14 @@ import {
   MarketingFooter,
   ArticleList,
   NewsletterSignup,
+  MarketingFooterLinks,
   ContactSection,
   PricingSection,
   LogoCloud,
   SecondaryFeatures,
   CTASection,
   NavMenu,
+  FooterCTA,
 } from '@/features/home/components';
 import { useAuth } from '@/features/auth/hooks/use-auth';
 import Link from 'next/link';
@@ -136,9 +138,10 @@ export default function Page() {
         <TestimonialsSection />
         <PricingSection />
         <ArticleList />
-        <CTASection />
       </main>
 
+      <FooterCTA />
+      <MarketingFooterLinks />
       <MarketingFooter />
     </div>
   );
