@@ -1,5 +1,11 @@
+'use client';
 import { ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NavMenu } from '@/features/home/components/nav-menu';
+import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links';
+import { FooterCTA } from '@/features/home/components/footer-cta';
+import { MarketingFooter, NewsletterSignup } from '@/features/home/components';
+import { NewsletterForm } from '@/features/newsletter/components/newsletter-form';
 
 const links = [
   {
@@ -104,85 +110,68 @@ const social = [
 
 export default function NotFound() {
   return (
-    <div className="bg-background">
-      <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
-        <img
-          alt="Your Company"
-          src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-          className="mx-auto h-10 w-auto sm:h-12"
-        />
-        <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
-          <p className="text-base/8 font-semibold text-primary">404</p>
-          <h1 className="mt-4 text-balance text-5xl font-semibold tracking-tight sm:text-6xl">
-            This page does not exist
-          </h1>
-          <p className="mt-6 text-pretty text-lg font-medium text-muted-foreground sm:text-xl/8">
-            Sorry, we couldn't find the page you're looking for.
-          </p>
-        </div>
-        <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
-          <h2 className="sr-only">Popular pages</h2>
-          <ul
-            role="list"
-            className="-mt-6 divide-y divide-border border-b border-border"
-          >
-            {links.map((link, linkIdx) => (
-              <li key={linkIdx} className="relative flex gap-x-6 py-6">
-                <div className="flex size-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-border">
-                  <link.icon
-                    aria-hidden="true"
-                    className="size-6 text-primary"
-                  />
-                </div>
-                <div className="flex-auto">
-                  <h3 className="text-sm/6 font-semibold">
-                    <a href={link.href}>
-                      <span aria-hidden="true" className="absolute inset-0" />
-                      {link.name}
-                    </a>
-                  </h3>
-                  <p className="mt-2 text-sm/6 text-muted-foreground">
-                    {link.description}
-                  </p>
-                </div>
-                <div className="flex-none self-center">
-                  <ChevronRight
-                    aria-hidden="true"
-                    className="size-5 text-muted-foreground"
-                  />
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="mt-10 flex justify-center">
-            <Button variant="link" asChild>
-              <a href="/">
-                <span aria-hidden="true">&larr;</span> Back to home
-              </a>
-            </Button>
+    <div>
+      <div className="bg-background container mx-auto">
+        <nav className="w-full flex items-center justify-center p-6 lg:px-8">
+          <NavMenu />
+        </nav>
+        <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
+          <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
+            <p className="text-base/8 font-semibold text-primary">404</p>
+            <h1 className="mt-4 text-balance text-5xl font-semibold tracking-tight sm:text-6xl">
+              This page does not exist
+            </h1>
+            <p className="mt-6 text-pretty text-lg font-medium text-muted-foreground sm:text-xl/8">
+              Sorry, we couldn't find the page you're looking for.
+            </p>
           </div>
-        </div>
-      </main>
-      <footer className="border-t py-6 sm:py-10">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-center gap-8 px-6 sm:flex-row lg:px-8">
-          <p className="text-sm/7 text-muted-foreground">
-            &copy; Your Company, Inc. All rights reserved.
-          </p>
-          <div className="hidden sm:block sm:h-7 sm:w-px sm:flex-none sm:bg-border" />
-          <div className="flex gap-x-4">
-            {social.map((item, itemIdx) => (
-              <a
-                key={itemIdx}
-                href={item.href}
-                className="text-muted-foreground hover:text-foreground"
-              >
-                <span className="sr-only">{item.name}</span>
-                <item.icon aria-hidden="true" className="size-6" />
-              </a>
-            ))}
+          <div className="mx-auto mt-16 flow-root max-w-lg sm:mt-20">
+            <h2 className="sr-only">Popular pages</h2>
+            <ul
+              role="list"
+              className="-mt-6 divide-y divide-border border-b border-border"
+            >
+              {links.map((link, linkIdx) => (
+                <li key={linkIdx} className="relative flex gap-x-6 py-6">
+                  <div className="flex size-10 flex-none items-center justify-center rounded-lg shadow-sm ring-1 ring-border">
+                    <link.icon
+                      aria-hidden="true"
+                      className="size-6 text-primary"
+                    />
+                  </div>
+                  <div className="flex-auto">
+                    <h3 className="text-sm/6 font-semibold">
+                      <a href={link.href}>
+                        <span aria-hidden="true" className="absolute inset-0" />
+                        {link.name}
+                      </a>
+                    </h3>
+                    <p className="mt-2 text-sm/6 text-muted-foreground">
+                      {link.description}
+                    </p>
+                  </div>
+                  <div className="flex-none self-center">
+                    <ChevronRight
+                      aria-hidden="true"
+                      className="size-5 text-muted-foreground"
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-10 flex justify-center">
+              <Button variant="link" asChild>
+                <a href="/">
+                  <span aria-hidden="true">&larr;</span> Back to home
+                </a>
+              </Button>
+            </div>
           </div>
-        </div>
-      </footer>
+        </main>
+      </div>
+      <FooterCTA />
+      <MarketingFooterLinks />
+      <MarketingFooter />
     </div>
   );
 }
