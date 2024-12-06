@@ -63,7 +63,7 @@ const recentPosts = [
 
 export const NavMenu = () => {
   return (
-    <div className="hidden lg:flex lg:gap-x-12">
+    <div className="hidden lg:flex lg:gap-x-12 z-50">
       {navigation.map((item) =>
         item.hasMenu ? (
           <Popover key={item.name}>
