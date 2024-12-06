@@ -1,14 +1,14 @@
-import { ThemeToggle } from '@/features/theme/components/theme-toggle'
+import { ThemeToggle } from '@/features/theme/components/theme-toggle';
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen dark:bg-background">
+    <div className="min-h-svh dark:bg-background">
       <ThemeToggle />
-      <div className="container relative flex min-h-screen flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
+      <div className="container relative flex min-h-svh flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r dark:bg-muted/10 lg:flex">
           <div className="absolute inset-0 bg-zinc-900 dark:bg-zinc-950" />
           <div
@@ -50,5 +50,5 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
-  )
+  );
 }
