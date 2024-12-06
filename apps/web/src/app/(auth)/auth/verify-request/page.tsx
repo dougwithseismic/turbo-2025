@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function VerifyRequestPage() {
   return (
-    <div className="container relative flex h-[100vh] flex-col items-center justify-center">
+    <div className="container relative flex h-full flex-col items-center justify-center">
       <Suspense fallback={<div>Loading...</div>}>
         <OtpVerificationForm />
       </Suspense>

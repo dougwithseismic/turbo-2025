@@ -41,7 +41,7 @@ const AuthError = () => {
 
 export default function AuthErrorPage() {
   return (
-    <div className="container relative flex h-[100vh] flex-col items-center justify-center">
+    <div className="container relative flex h-full flex-col items-center justify-center">
       <AuthError />
     </div>
   );

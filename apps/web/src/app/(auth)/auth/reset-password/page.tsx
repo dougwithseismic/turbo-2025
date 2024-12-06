@@ -1,5 +1,5 @@
-import { Metadata } from 'next'
-import { ResetPasswordForm } from '@/features/auth/components/reset-password-form'
+import { Metadata } from 'next';
+import { ResetPasswordForm } from '@/features/auth/components/reset-password-form';
 
 export const metadata: Metadata = {
   title: 'Reset Password | Your App Name',
@@ -8,11 +8,11 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 export default function ResetPasswordPage() {
   return (
-    <div className="container relative flex h-[100vh] flex-col items-center justify-center">
+    <div className="container relative flex h-full flex-col items-center justify-center">
       <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
         <div className="flex flex-col space-y-2 text-center">
           <h1 className="text-2xl font-semibold tracking-tight">
@@ -26,5 +26,5 @@ export default function ResetPasswordPage() {
         <ResetPasswordForm />
       </div>
     </div>
-  )
+  );
 }

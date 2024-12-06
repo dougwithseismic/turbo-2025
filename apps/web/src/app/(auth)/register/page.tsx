@@ -1,5 +1,5 @@
-import { Metadata } from 'next'
-import { RegisterForm } from '@/features/auth/components/register-form'
+import { Metadata } from 'next';
+import { RegisterForm } from '@/features/auth/components/register-form';
 
 export const metadata: Metadata = {
   title: 'Register | Your App Name',
@@ -8,12 +8,12 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-}
+};
 
 export default function RegisterPage() {
   return (
-    <div className="container relative flex h-[100vh] flex-col items-center justify-center">
+    <div className="container relative flex h-full flex-col items-center justify-center">
       <RegisterForm />
     </div>
-  )
+  );
 }
