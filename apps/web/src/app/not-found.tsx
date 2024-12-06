@@ -4,7 +4,11 @@ import { Button } from '@/components/ui/button';
 import { NavMenu } from '@/features/home/components/nav-menu';
 import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links';
 import { FooterCTA } from '@/features/home/components/footer-cta';
-import { MarketingFooter, NewsletterSignup } from '@/features/home/components';
+import {
+  Header,
+  MarketingFooter,
+  NewsletterSignup,
+} from '@/features/home/components';
 import { NewsletterForm } from '@/features/newsletter/components/newsletter-form';
 
 const links = [
@@ -112,9 +116,7 @@ export default function NotFound() {
   return (
     <div>
       <div className="bg-background container mx-auto">
-        <nav className="w-full flex items-center justify-center p-6 lg:px-8">
-          <NavMenu />
-        </nav>
+        <Header />
         <main className="mx-auto w-full max-w-7xl px-6 pb-16 pt-10 sm:pb-24 lg:px-8">
           <div className="mx-auto mt-20 max-w-2xl text-center sm:mt-24">
             <p className="text-base/8 font-semibold text-primary">404</p>

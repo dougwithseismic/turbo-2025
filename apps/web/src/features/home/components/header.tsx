@@ -1,9 +1,63 @@
-import { Menu } from 'lucide-react';
+'use client';
+
+import { Menu, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { NavMenu, navigation } from './nav-menu';
-import Link from 'next/link';
 import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useRouter, usePathname } from 'next/navigation';
+import { useEffect, useState } from 'react';
+
+type NavigationButtonProps = {
+  href: string;
+  children: string;
+  variant?: 'default' | 'outline' | 'secondary';
+  className?: string;
+};
+
+const useNavigationState = () => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  useEffect(() => {
+    setIsNavigating(false);
+  }, [pathname]);
+
+  const handleNavigation = (path: string) => {
+    setIsNavigating(true);
+    router.push(path);
+  };
+
+  return { isNavigating, handleNavigation };
+};
+
+const NavigationButton = ({
+  href,
+  children,
+  variant = 'default',
+  className,
+}: NavigationButtonProps) => {
+  const { isNavigating, handleNavigation } = useNavigationState();
+
+  return (
+    <Button
+      onClick={() => handleNavigation(href)}
+      className={className}
+      variant={variant}
+      disabled={isNavigating}
+    >
+      {isNavigating ? (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          On the way...
+        </>
+      ) : (
+        children
+      )}
+    </Button>
+  );
+};
 
 export const Header = () => {
   const { user } = useAuth();
@@ -44,13 +98,21 @@ export const Header = () => {
                   </div>
                   <div className="py-6">
                     {user ? (
-                      <Button asChild className="w-full" variant="secondary">
-                        <Link href="/dashboard">Dashboard</Link>
-                      </Button>
+                      <NavigationButton
+                        href="/dashboard"
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Dashboard
+                      </NavigationButton>
                     ) : (
-                      <Button asChild className="w-full" variant="secondary">
-                        <Link href="/login">Log in</Link>
-                      </Button>
+                      <NavigationButton
+                        href="/login"
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        Log in
+                      </NavigationButton>
                     )}
                   </div>
                 </div>
@@ -61,13 +123,13 @@ export const Header = () => {
         <NavMenu />
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {user ? (
-            <Button asChild variant="default">
-              <Link href="/dashboard">Go to Dashboard</Link>
-            </Button>
+            <NavigationButton href="/dashboard" variant="default">
+              Go to Dashboard
+            </NavigationButton>
           ) : (
-            <Button asChild variant="outline">
-              <Link href="/login">Log in</Link>
-            </Button>
+            <NavigationButton href="/login" variant="outline">
+              Log in
+            </NavigationButton>
           )}
         </div>
       </nav>
