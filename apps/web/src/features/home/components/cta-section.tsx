@@ -46,17 +46,18 @@ export const CTASection = () => {
       </div>
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-          Boost your productivity.
+          Stop guessing your SEO strategy.
           <br />
-          Start using our app today.
+          Start ranking better today.
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg/8 text-muted-foreground">
-          Incididunt sint fugiat pariatur cupidatat consectetur sit cillum anim
-          id veniam aliqua proident excepteur commodo do ea.
+          Get everything you need to optimize your site's technical SEO: from
+          crawling and audits to keyword research and backlink analysis. Built
+          by SEO experts who understand what modern teams need.
         </p>
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <a
-            href="#"
+            href="/register"
             className={cn(
               'rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold',
               'text-primary-foreground shadow-sm hover:bg-primary/90',
@@ -64,13 +65,13 @@ export const CTASection = () => {
               'focus-visible:outline-offset-2 focus-visible:outline-primary',
             )}
           >
-            Get started
+            Try it Free
           </a>
           <a
-            href="#"
+            href="#features"
             className="text-sm/6 font-semibold hover:text-muted-foreground"
           >
-            Learn more <span aria-hidden="true">→</span>
+            See all features <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>

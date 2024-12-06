@@ -40,6 +40,7 @@
     "react-hot-toast": "^2.4.1",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
+    "vaul": "^1.1.1",
     "vitest": "^2.1.8",
     "zod": "^3.23.8"
   },

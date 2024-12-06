@@ -1,34 +1,34 @@
-import { Bolt, CalendarDays, Users } from 'lucide-react';
+import { Search, LineChart, Link2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 type PrimaryFeature = {
   name: string;
   description: string;
   href: string;
-  icon: typeof Bolt;
+  icon: typeof Search;
 };
 
 const primaryFeatures: PrimaryFeature[] = [
   {
-    name: 'Server monitoring',
+    name: 'Technical SEO Audits',
     description:
-      'Non quo aperiam repellendus quas est est. Eos aut dolore aut ut sit nesciunt. Ex tempora quia. Sit nobis consequatur dolores incidunt.',
+      'Comprehensive technical analysis of your site structure, performance, and crawlability. Identify and fix critical issues that are holding back your rankings.',
     href: '#',
-    icon: Bolt,
+    icon: Search,
   },
   {
-    name: 'Collaborate',
+    name: 'Keyword Intelligence',
     description:
-      'Vero eum voluptatem aliquid nostrum voluptatem. Vitae esse natus. Earum nihil deserunt eos quasi cupiditate. A inventore et molestiae natus.',
+      'Advanced keyword research and tracking to identify high-value ranking opportunities. Monitor your positions and understand exactly what moves the needle.',
     href: '#',
-    icon: Users,
+    icon: LineChart,
   },
   {
-    name: 'Task scheduling',
+    name: 'Backlink Analysis',
     description:
-      'Et quod quaerat dolorem quaerat architecto aliquam accusantium. Ex adipisci et doloremque autem quia quam. Quis eos molestiae at iure impedit.',
+      'Deep insights into your backlink profile and competitor link strategies. Find and acquire quality backlinks that boost your domain authority and rankings.',
     href: '#',
-    icon: CalendarDays,
+    icon: Link2,
   },
 ];
 
@@ -37,15 +37,15 @@ export const PrimaryFeatures = () => {
     <div className="mx-auto mt-32 max-w-7xl px-6 sm:mt-56 lg:px-8">
       <div className="mx-auto max-w-2xl lg:text-center">
         <h2 className="text-base/7 font-semibold text-primary">
-          Deploy faster
+          Technical SEO Made Simple
         </h2>
         <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight sm:text-5xl lg:text-balance">
-          Everything you need to deploy your app
+          Tick off your technical SEO checklist
         </p>
         <p className="mt-6 text-lg/8 text-muted-foreground">
-          Quis tellus eget adipiscing convallis sit sit eget aliquet quis.
-          Suspendisse eget egestas a elementum pulvinar et feugiat blandit at.
-          In mi viverra elit nunc.
+          Onsite is a technical SEO platform built for modern SEM teams, by
+          technical SEO experts who needed more. Stop guessing and start
+          improving your rankings with data-driven insights.
         </p>
       </div>
       <div className="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-none">

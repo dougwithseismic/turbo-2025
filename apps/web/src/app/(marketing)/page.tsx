@@ -136,6 +136,7 @@ export default function Page() {
         <FeaturesGrid />
         <SecondaryFeatures />
         <TestimonialsSection />
+        <CTASection />
         <PricingSection />
         <ArticleList />
       </main>

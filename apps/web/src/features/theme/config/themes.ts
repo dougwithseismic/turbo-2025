@@ -6,26 +6,26 @@ import {
   Palette,
   Flower,
   Mouse,
-} from 'lucide-react'
+} from 'lucide-react';
 
 export interface ThemeConfig {
-  name: string
-  id: string
-  icon: LucideIcon
-  colorScheme: 'light' | 'dark'
-  themeColor: string
-  cssClass: string
+  name: string;
+  id: string;
+  icon: LucideIcon;
+  colorScheme: 'light' | 'dark';
+  themeColor: string;
+  cssClass: string;
 }
 
 export const themes: ThemeConfig[] = [
-  {
-    name: 'Light',
-    id: 'light',
-    icon: Sun,
-    colorScheme: 'light',
-    themeColor: 'white',
-    cssClass: 'light',
-  },
+  // {
+  //   name: 'Light',
+  //   id: 'light',
+  //   icon: Sun,
+  //   colorScheme: 'light',
+  //   themeColor: 'white',
+  //   cssClass: 'light',
+  // },
   {
     name: 'Dark',
     id: 'dark',
@@ -42,22 +42,22 @@ export const themes: ThemeConfig[] = [
     themeColor: '#0D0B14',
     cssClass: 'coffee',
   },
-  {
-    name: 'Pastel',
-    id: 'pastel',
-    icon: Palette,
-    colorScheme: 'light',
-    themeColor: 'white',
-    cssClass: 'pastel',
-  },
-  {
-    name: 'Nordic',
-    id: 'nordic',
-    icon: Palette,
-    colorScheme: 'light',
-    themeColor: 'white',
-    cssClass: 'nordic',
-  },
+  // {
+  //   name: 'Pastel',
+  //   id: 'pastel',
+  //   icon: Palette,
+  //   colorScheme: 'light',
+  //   themeColor: 'white',
+  //   cssClass: 'pastel',
+  // },
+  // {
+  //   name: 'Nordic',
+  //   id: 'nordic',
+  //   icon: Palette,
+  //   colorScheme: 'light',
+  //   themeColor: 'white',
+  //   cssClass: 'nordic',
+  // },
   {
     name: 'Greek',
     id: 'greek',
@@ -74,14 +74,14 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'purple',
   },
-  {
-    name: 'Rose.Light',
-    id: 'rose-light',
-    icon: Flower,
-    colorScheme: 'light',
-    themeColor: 'white',
-    cssClass: 'rose-light',
-  },
+  // {
+  //   name: 'Rose.Light',
+  //   id: 'rose-light',
+  //   icon: Flower,
+  //   colorScheme: 'light',
+  //   themeColor: 'white',
+  //   cssClass: 'rose-light',
+  // },
   {
     name: 'Rose.Dark',
     id: 'rose-dark',
@@ -90,14 +90,14 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'rose-dark',
   },
-  {
-    name: 'Contra',
-    id: 'contra',
-    icon: Palette,
-    colorScheme: 'light',
-    themeColor: 'light',
-    cssClass: 'contra',
-  },
+  // {
+  //   name: 'Contra',
+  //   id: 'contra',
+  //   icon: Palette,
+  //   colorScheme: 'light',
+  //   themeColor: 'light',
+  //   cssClass: 'contra',
+  // },
   {
     name: 'Cursor',
     id: 'cursor',
@@ -114,6 +114,6 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'parsera',
   },
-] as const
+] as const;
 
-export type ThemeId = (typeof themes)[number]['id']
+export type ThemeId = (typeof themes)[number]['id'];

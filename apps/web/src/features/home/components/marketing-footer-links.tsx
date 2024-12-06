@@ -52,7 +52,7 @@ export const MarketingFooterLinks = () => {
   ];
 
   return (
-    <div className="w-full bg-black border-t border-border/40">
+    <div className="w-full bg-black border-t border-border/40 md:pb-32">
       <div className="mx-auto max-w-7xl px-6 py-12 md:py-16">
         <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-4">
           <FooterLinkGroup title="Product" links={productLinks} />

@@ -1,54 +1,54 @@
 import {
-  ArrowUpDown,
-  Cloud,
-  Cog,
-  Fingerprint,
-  Lock,
-  Server,
+  Search,
+  Link2,
+  FileSearch,
+  BarChart2,
+  ScrollText,
+  InfinityIcon,
 } from 'lucide-react';
 
 type SecondaryFeature = {
   name: string;
   description: string;
-  icon: typeof Cloud;
+  icon: typeof Search;
 };
 
 const secondaryFeatures: SecondaryFeature[] = [
   {
-    name: 'Push to deploy',
+    name: 'Onsite Analysis',
     description:
-      'Autem reprehenderit aut debitis ut. Officiis harum omnis placeat blanditiis delectus sint vel et voluptatum.',
-    icon: Cloud,
+      'Get comprehensive insights into your on-page SEO elements, from meta tags to content structure, ensuring your pages are fully optimized for search engines.',
+    icon: Search,
   },
   {
-    name: 'SSL certificates',
+    name: 'Keyword Research',
     description:
-      'Illum et aut inventore. Ut et dignissimos quasi. Omnis saepe dolorum. Hic autem fugiat. Voluptatem officiis necessitatibus.',
-    icon: Lock,
+      'Discover high-impact keywords your audience is searching for, with detailed metrics on search volume, competition, and ranking potential.',
+    icon: BarChart2,
   },
   {
-    name: 'Simple queues',
+    name: 'Backlink Analysis',
     description:
-      'Commodi quam quo. In quasi mollitia optio voluptate et est reiciendis. Ut et sunt id officiis vitae perspiciatis.',
-    icon: ArrowUpDown,
+      'Monitor and analyze your backlink profile, identify toxic links, and find new link-building opportunities to boost your domain authority.',
+    icon: Link2,
   },
   {
-    name: 'Advanced security',
+    name: 'Site Crawling',
     description:
-      'Deserunt corrupti praesentium quo vel cupiditate est occaecati ad. Aperiam libero modi similique iure praesentium facilis.',
-    icon: Fingerprint,
+      'Automatically detect technical issues, broken links, and crawlability problems before they impact your search rankings.',
+    icon: InfinityIcon,
   },
   {
-    name: 'Powerful API',
+    name: 'Technical Audits',
     description:
-      'Autem reprehenderit aut debitis ut. Officiis harum omnis placeat blanditiis delectus sint vel et voluptatum.',
-    icon: Cog,
+      'Run deep technical SEO audits to identify and fix issues with site speed, mobile optimization, structured data, and more.',
+    icon: FileSearch,
   },
   {
-    name: 'Database backups',
+    name: 'Content Analysis',
     description:
-      'Illum et aut inventore. Ut et dignissimos quasi. Omnis saepe dolorum. Hic autem fugiat. Voluptatem officiis necessitatibus.',
-    icon: Server,
+      'Evaluate your content quality, readability, and topical relevance while getting actionable recommendations for improvement.',
+    icon: ScrollText,
   },
 ];
 
@@ -58,7 +58,7 @@ export const SecondaryFeatures = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto grid max-w-2xl grid-cols-1 gap-16 sm:gap-y-20 lg:mx-0 lg:max-w-none lg:grid-cols-5">
           <h2 className="col-span-2 text-pretty text-4xl font-semibold tracking-tight sm:text-5xl">
-            Everything you need to deploy your app
+            Everything you need to start ranking better
           </h2>
           <dl className="col-span-3 grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2">
             {secondaryFeatures.map((feature) => (
