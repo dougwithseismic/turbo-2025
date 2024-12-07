@@ -1,4 +1,4 @@
-# Turbo 2025 - SAAS Starter
+# Turbo 2025 - A Supabase SAAS Starter for WithSeismic.com
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
 [![Node](https://img.shields.io/badge/Node-20.x-green)](https://nodejs.org)
@@ -6,11 +6,9 @@
 [![Turborepo](https://img.shields.io/badge/Turborepo-latest-blueviolet)](https://turbo.build/)
 [![Next.js](https://img.shields.io/badge/Next.js-15.0-black)](https://nextjs.org/)
 
-🚀 [Live Demo](https://turbo-2025.vercel.app/login)
+🚀 [Live Demo](https://turbo-2025.vercel.app/)
 
 # Turbo 25 CMS
-
-<http://127.0.0.1:54323/project/default>
 
 ## Overview
 
