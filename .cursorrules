@@ -83,3 +83,70 @@ Generate code, corrections, and refactorings that comply with the basic principl
   - Fix an expected problem.
   - Add context.
   - Otherwise, use a global handler.
+
+### Meta Functions
+
+These functions define how the AI agent interacts with project documentation and tracking.
+
+#### Progress Reports
+
+When asked to add a progress report, follow this template in `_project/progress/[folder]/index.md`:
+
+```markdown
+---
+
+## {Current Date} - {Commit Message / TL;DR Summary Sentence}
+
+{Author Name}
+
+### Summary
+{Brief overview of what was accomplished}
+
+### Completed Tasks
+- {List of completed tasks with links to relevant PRs/commits}
+
+### Learnings
+- {Key insights and learnings from the work}
+
+### Blockers
+[None or list of blocking issues]
+
+### Next Steps
+- {Prioritized list of upcoming tasks}
+
+### Technical Notes
+- {Any important technical decisions or architecture notes}
+```
+
+Guidelines for Progress Reports:
+
+- Always start with a separator line (`---`) to distinguish between entries
+- Use ISO date format (YYYY-MM-DD)
+- Include author name on a new line after the heading
+- Link to relevant documentation or code changes
+- Keep summaries concise but informative
+- Include both technical and process learnings
+- Always include a Blockers section, use [None] if there aren't any
+- Prioritize next steps by importance
+- When appending to an existing file, add the new entry at the top
+- Maintain chronological order with newest entries first
+
+#### Documentation Updates
+
+When updating documentation:
+
+- Maintain consistent formatting
+- Update table of contents if needed
+- Add links to related documents
+- Version documentation if making major changes
+- Include rationale for significant changes
+
+#### Learning Capture
+
+When documenting learnings:
+
+- Separate into technical and process learnings
+- Include context for future reference
+- Link to relevant external resources
+- Tag with relevant categories
+- Note any pattern changes or improvements
