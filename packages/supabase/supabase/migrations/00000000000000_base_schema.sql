@@ -112,10 +112,15 @@ CREATE TABLE subscriptions (
     status text NOT NULL DEFAULT 'active',
     trial_ends_at timestamptz,
     next_credit_allocation_at timestamptz,
+    current_period_start timestamptz,
+    current_period_end timestamptz,
+    cancel_at_period_end boolean DEFAULT false,
     created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
     UNIQUE(subscriber_type, subscriber_id)
 );
+
+
 
 -- Credit system
 CREATE TABLE credit_pools (
@@ -192,6 +197,9 @@ CREATE TABLE oauth_states (
     CONSTRAINT valid_expiry CHECK (expires_at > created_at)
 );
 
+-- Indexes
+CREATE INDEX IF NOT EXISTS idx_subscriptions_subscriber ON subscriptions(subscriber_type, subscriber_id);
+
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
@@ -205,4 +213,4 @@ ALTER TABLE credit_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_quota_allocations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY;
-ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY; 
+ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY;

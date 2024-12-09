@@ -150,3 +150,55 @@ When documenting learnings:
 - Link to relevant external resources
 - Tag with relevant categories
 - Note any pattern changes or improvements
+
+Add learnings to ./_project/progress/learnings.md in the same format.
+
+#### Learning Template
+
+When documenting learnings in `_project/progress/learnings.md`, follow this template:
+
+```markdown
+---
+
+## {YYYY-MM-DD} - {Clear Title of Learning}
+
+### Category: {Main Category}, {Optional Additional Categories}
+
+### Learning
+
+{Brief description of the learning or technique}:
+
+```code
+{Example code or commands if applicable}
+```
+
+### Context
+
+- {List of important context points}
+- {Explain key components or flags}
+- {Detail important considerations}
+- {Include any prerequisites or dependencies}
+
+### Benefits
+
+- {List of benefits and advantages}
+- {Why this approach is valuable}
+- {What problems it solves}
+
+### Related Resources
+
+- [Resource Name](URL)
+- [Additional Resources](URL)
+
+```
+
+Guidelines for Learning Entries:
+- Start with separator line (`---`)
+- Use ISO date format (YYYY-MM-DD)
+- Categories should be concise and relevant (e.g., Database, DevOps, Frontend)
+- Include working code examples when applicable
+- Provide clear context for future reference
+- List concrete benefits
+- Link to official documentation or helpful resources
+- Add new entries at the top of the file
+- Maintain chronological order with newest entries first
