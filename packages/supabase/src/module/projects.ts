@@ -23,6 +23,33 @@ type ProjectMember = {
   profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>;
 };
 
+/**
+ * Creates a new project within an organization.
+ *
+ * @example
+ * ```typescript
+ * // Create a regular project
+ * const project = await createProject({
+ *   supabase,
+ *   organizationId: 'org_123',
+ *   name: 'Website Redesign',
+ *   settings: {
+ *     defaultBranch: 'main',
+ *     deploymentTarget: 'production'
+ *   }
+ * });
+ *
+ * // Create a client portal project
+ * const clientProject = await createProject({
+ *   supabase,
+ *   organizationId: 'org_123',
+ *   name: 'Client Website',
+ *   clientName: 'Acme Corp',
+ *   clientEmail: 'client@acme.com',
+ *   isClientPortal: true
+ * });
+ * ```
+ */
 const createProject = async ({
   supabase,
   organizationId,
@@ -57,6 +84,19 @@ const createProject = async ({
   return data;
 };
 
+/**
+ * Retrieves a project by ID, including its organization details.
+ *
+ * @example
+ * ```typescript
+ * const project = await getProject({
+ *   supabase,
+ *   projectId: 'project_123'
+ * });
+ * console.log(project.name); // 'Website Redesign'
+ * console.log(project.organization.name); // 'Acme Corp'
+ * ```
+ */
 const getProject = async ({
   supabase,
   projectId,
@@ -90,6 +130,24 @@ const getProject = async ({
   return data as unknown as ProjectWithOrg;
 };
 
+/**
+ * Updates a project's properties.
+ *
+ * @example
+ * ```typescript
+ * const updated = await updateProject({
+ *   supabase,
+ *   projectId: 'project_123',
+ *   updates: {
+ *     name: 'Website Redesign 2.0',
+ *     settings: {
+ *       deploymentTarget: 'staging',
+ *       notifyOnDeploy: true
+ *     }
+ *   }
+ * });
+ * ```
+ */
 const updateProject = async ({
   supabase,
   projectId,
@@ -110,6 +168,18 @@ const updateProject = async ({
   return data;
 };
 
+/**
+ * Retrieves all members of a project with their profiles.
+ *
+ * @example
+ * ```typescript
+ * const members = await getProjectMembers({
+ *   supabase,
+ *   projectId: 'project_123'
+ * });
+ * console.log(members); // [{ user_id: 'user_1', role: 'admin', profiles: {...} }, ...]
+ * ```
+ */
 const getProjectMembers = async ({
   supabase,
   projectId,
@@ -143,6 +213,27 @@ const getProjectMembers = async ({
   return data as unknown as ProjectMember[];
 };
 
+/**
+ * Adds a new member to a project.
+ *
+ * @example
+ * ```typescript
+ * // Add a regular member
+ * const membership = await addProjectMember({
+ *   supabase,
+ *   projectId: 'project_123',
+ *   userId: 'user_456'
+ * });
+ *
+ * // Add a project admin
+ * const adminMembership = await addProjectMember({
+ *   supabase,
+ *   projectId: 'project_123',
+ *   userId: 'user_789',
+ *   role: 'admin'
+ * });
+ * ```
+ */
 const addProjectMember = async ({
   supabase,
   projectId,
@@ -169,6 +260,18 @@ const addProjectMember = async ({
   return data;
 };
 
+/**
+ * Retrieves all projects belonging to an organization.
+ *
+ * @example
+ * ```typescript
+ * const projects = await getOrganizationProjects({
+ *   supabase,
+ *   organizationId: 'org_123'
+ * });
+ * console.log(projects); // [{ id: 'project_1', name: 'Website', ... }, ...]
+ * ```
+ */
 const getOrganizationProjects = async ({
   supabase,
   organizationId,

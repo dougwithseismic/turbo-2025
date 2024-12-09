@@ -6,6 +6,25 @@ type Subscription = Database['public']['Tables']['subscriptions']['Row'];
 type SubscriptionPlan =
   Database['public']['Tables']['subscription_plans']['Row'];
 
+/**
+ * Creates a new subscription record after successful Stripe subscription creation.
+ *
+ * @example
+ * ```typescript
+ * const subscription = await createSubscription({
+ *   supabase,
+ *   subscriberType: 'organization',
+ *   subscriberId: 'org_123',
+ *   planId: 'plan_pro_monthly',
+ *   stripeCustomerId: 'cus_xyz',
+ *   stripeSubscriptionId: 'sub_abc',
+ *   status: 'active',
+ *   currentPeriodStart: '2024-01-01T00:00:00Z',
+ *   currentPeriodEnd: '2024-02-01T00:00:00Z',
+ *   cancelAtPeriodEnd: false
+ * });
+ * ```
+ */
 const createSubscription = async ({
   supabase,
   subscriberType,
@@ -49,6 +68,23 @@ const createSubscription = async ({
   return data;
 };
 
+/**
+ * Retrieves the current subscription for an organization or user.
+ *
+ * @example
+ * ```typescript
+ * const subscription = await getSubscription({
+ *   supabase,
+ *   subscriberType: 'organization',
+ *   subscriberId: 'org_123'
+ * });
+ *
+ * if (subscription) {
+ *   console.log(subscription.status); // 'active'
+ *   console.log(subscription.current_period_end); // '2024-02-01T00:00:00Z'
+ * }
+ * ```
+ */
 const getSubscription = async ({
   supabase,
   subscriberType,
@@ -69,6 +105,28 @@ const getSubscription = async ({
   return data;
 };
 
+/**
+ * Updates a subscription's properties after Stripe webhook events.
+ *
+ * @example
+ * ```typescript
+ * // Update subscription status
+ * const updated = await updateSubscription({
+ *   supabase,
+ *   id: 'sub_123',
+ *   status: 'past_due'
+ * });
+ *
+ * // Update subscription plan and period
+ * const changed = await updateSubscription({
+ *   supabase,
+ *   id: 'sub_123',
+ *   planId: 'plan_pro_yearly',
+ *   currentPeriodStart: '2024-01-01T00:00:00Z',
+ *   currentPeriodEnd: '2025-01-01T00:00:00Z'
+ * });
+ * ```
+ */
 const updateSubscription = async ({
   supabase,
   id,
@@ -108,6 +166,24 @@ const updateSubscription = async ({
   return data;
 };
 
+/**
+ * Allocates subscription credits to a subscriber's credit pool.
+ *
+ * @example
+ * ```typescript
+ * await allocateSubscriptionCredits({
+ *   supabase,
+ *   sub: subscription,
+ *   plan: {
+ *     id: 'plan_pro',
+ *     monthly_credits: 10000,
+ *     // ... other plan properties
+ *   }
+ * });
+ * ```
+ *
+ * @throws {Error} If credit allocation fails
+ */
 const allocateSubscriptionCredits = async ({
   supabase,
   sub,

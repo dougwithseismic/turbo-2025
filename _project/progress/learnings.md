@@ -437,3 +437,97 @@ type MixedSettings = {
 - [PostgreSQL JSONB](https://www.postgresql.org/docs/current/datatype-json.html)
 - [TypeScript Type Assertions](https://www.typescriptlang.org/docs/handbook/2/everyday-types.html#type-assertions)
 - [Zod Schema Validation](https://github.com/colinhacks/zod)
+
+## 2024-12-09 - Type-Safe Supabase Library Architecture
+
+### Category: Database, TypeScript, Architecture
+
+### Learning
+
+Building a type-safe Supabase library with modular architecture:
+
+```typescript
+// Example of type-safe module pattern
+import type { Database } from '../database.types';
+
+type ApiService = Database['public']['Tables']['api_services']['Row'];
+
+const getApiServices = async ({
+  supabase,
+}: {
+  supabase: SupabaseClient<Database>;
+}) => {
+  const { data, error } = await supabase.from('api_services').select();
+  if (error) throw error;
+  return data;
+};
+
+export { getApiServices };
+export type { ApiService };
+```
+
+### Context
+
+- Each module focuses on a specific domain (organizations, projects, etc.)
+- Types are generated from database schema
+- Functions follow RO-RO pattern
+- Error handling is standardized
+- Documentation includes practical examples
+
+### Benefits
+
+- Complete type safety from database to application code
+- Better developer experience with IDE support
+- Reduced runtime errors through compile-time checks
+- Easier onboarding with documented examples
+- Maintainable and scalable codebase
+
+### Related Resources
+
+- [Supabase TypeScript Support](https://supabase.com/docs/reference/typescript-support)
+- [TypeScript Handbook](https://www.typescriptlang.org/docs/handbook/intro.html)
+- [JSDoc Documentation](https://jsdoc.app/)
+
+## 2024-12-09 - Row Level Security (RLS) Implementation
+
+### Category: Security, Database
+
+### Learning
+
+Implementing Row Level Security in Supabase:
+
+```sql
+-- Example RLS policy
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their organization's projects"
+ON projects
+FOR SELECT
+USING (
+  EXISTS (
+    SELECT 1 FROM memberships
+    WHERE resource_type = 'organization'
+    AND resource_id = projects.organization_id
+    AND user_id = auth.uid()
+  )
+);
+```
+
+### Context
+
+- RLS policies are defined at table level
+- Policies can be specific to operations (SELECT, INSERT, etc.)
+- Can use complex conditions and joins
+- Integrates with Supabase Auth
+
+### Benefits
+
+- Data access control at database level
+- Impossible to accidentally expose protected data
+- Policies are always enforced
+- Reduces need for application-level checks
+
+### Related Resources
+
+- [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security)
+- [PostgreSQL RLS](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)

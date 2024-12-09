@@ -13,6 +13,23 @@ type OrganizationMember = Omit<Membership, 'user_id'> & {
   profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>;
 };
 
+/**
+ * Creates a new organization and assigns the creator as owner.
+ *
+ * @example
+ * ```typescript
+ * const org = await createOrganization({
+ *   supabase,
+ *   name: 'Acme Corp',
+ *   ownerId: 'user_123',
+ *   settings: {
+ *     defaultQuota: 1000,
+ *     allowExternalMembers: true
+ *   }
+ * });
+ * console.log(org); // { id: 'org_1', name: 'Acme Corp', ... }
+ * ```
+ */
 const createOrganization = async ({
   supabase,
   name,
@@ -44,6 +61,18 @@ const createOrganization = async ({
   return org;
 };
 
+/**
+ * Retrieves an organization by ID.
+ *
+ * @example
+ * ```typescript
+ * const org = await getOrganization({
+ *   supabase,
+ *   orgId: 'org_123'
+ * });
+ * console.log(org.name); // 'Acme Corp'
+ * ```
+ */
 const getOrganization = async ({
   supabase,
   orgId,
@@ -61,6 +90,24 @@ const getOrganization = async ({
   return data;
 };
 
+/**
+ * Updates an organization's properties.
+ *
+ * @example
+ * ```typescript
+ * const updated = await updateOrganization({
+ *   supabase,
+ *   orgId: 'org_123',
+ *   updates: {
+ *     name: 'Acme Corporation',
+ *     settings: {
+ *       defaultQuota: 2000,
+ *       brandColor: '#FF0000'
+ *     }
+ *   }
+ * });
+ * ```
+ */
 const updateOrganization = async ({
   supabase,
   orgId,
@@ -81,6 +128,18 @@ const updateOrganization = async ({
   return data;
 };
 
+/**
+ * Retrieves all members of an organization with their profiles.
+ *
+ * @example
+ * ```typescript
+ * const members = await getOrganizationMembers({
+ *   supabase,
+ *   orgId: 'org_123'
+ * });
+ * console.log(members); // [{ user_id: 'user_1', role: 'owner', profiles: {...} }, ...]
+ * ```
+ */
 const getOrganizationMembers = async ({
   supabase,
   orgId,
@@ -114,6 +173,27 @@ const getOrganizationMembers = async ({
   return data as unknown as OrganizationMember[];
 };
 
+/**
+ * Adds a new member to an organization.
+ *
+ * @example
+ * ```typescript
+ * // Add a regular member
+ * const membership = await addOrganizationMember({
+ *   supabase,
+ *   orgId: 'org_123',
+ *   userId: 'user_456'
+ * });
+ *
+ * // Add an admin
+ * const adminMembership = await addOrganizationMember({
+ *   supabase,
+ *   orgId: 'org_123',
+ *   userId: 'user_789',
+ *   role: 'admin'
+ * });
+ * ```
+ */
 const addOrganizationMember = async ({
   supabase,
   orgId,

@@ -7,6 +7,21 @@ type ApiUsage = DbFunctions['track_api_usage']['Returns'];
 type ApiQuota = DbFunctions['check_api_quota']['Returns'];
 type ApiUsageStats = DbFunctions['get_api_usage_stats']['Returns'];
 
+/**
+ * Tracks API usage for a specific user and service.
+ *
+ * @example
+ * ```typescript
+ * const usage = await trackApiUsage({
+ *   supabase,
+ *   serviceId: 'gpt4',
+ *   userId: 'user_123',
+ *   requestCount: 1,
+ *   metadata: { model: 'gpt-4', tokens: 150 }
+ * });
+ * console.log(usage); // { daily_usage: 1, remaining_quota: 999, ... }
+ * ```
+ */
 const trackApiUsage = async ({
   supabase,
   serviceId,
@@ -31,6 +46,19 @@ const trackApiUsage = async ({
   return data as unknown as ApiUsage;
 };
 
+/**
+ * Checks if a user has remaining quota for a specific service.
+ *
+ * @example
+ * ```typescript
+ * const quota = await checkApiQuota({
+ *   supabase,
+ *   serviceId: 'gpt4',
+ *   userId: 'user_123'
+ * });
+ * console.log(quota); // { has_quota: true, remaining: 1000, ... }
+ * ```
+ */
 const checkApiQuota = async ({
   supabase,
   serviceId,
@@ -49,6 +77,18 @@ const checkApiQuota = async ({
   return data as unknown as ApiQuota;
 };
 
+/**
+ * Resets the daily API usage for a user and service.
+ *
+ * @example
+ * ```typescript
+ * await resetDailyUsage({
+ *   supabase,
+ *   serviceId: 'gpt4',
+ *   userId: 'user_123'
+ * });
+ * ```
+ */
 const resetDailyUsage = async ({
   supabase,
   serviceId,
@@ -66,6 +106,21 @@ const resetDailyUsage = async ({
   if (error) throw error;
 };
 
+/**
+ * Gets API usage statistics for a specific period.
+ *
+ * @example
+ * ```typescript
+ * const stats = await getApiUsageStats({
+ *   supabase,
+ *   serviceId: 'gpt4',
+ *   userId: 'user_123',
+ *   startDate: '2024-01-01',
+ *   endDate: '2024-01-31'
+ * });
+ * console.log(stats); // { total_requests: 150, average_daily: 5, ... }
+ * ```
+ */
 const getApiUsageStats = async ({
   supabase,
   serviceId,

@@ -14,6 +14,19 @@ type OnboardingStep =
 
 type UserOnboarding = Database['public']['Tables']['user_onboarding']['Row'];
 
+/**
+ * Retrieves the onboarding status and progress for a user.
+ *
+ * @example
+ * ```typescript
+ * const onboarding = await getUserOnboarding({
+ *   supabase,
+ *   userId: 'user_123'
+ * });
+ * console.log(onboarding.current_step); // 'google_connected'
+ * console.log(onboarding.completed_steps); // ['signup_completed', 'google_connected']
+ * ```
+ */
 const getUserOnboarding = async ({
   supabase,
   userId,
@@ -31,6 +44,32 @@ const getUserOnboarding = async ({
   return data;
 };
 
+/**
+ * Updates the onboarding progress for a user by marking steps as completed.
+ *
+ * @example
+ * ```typescript
+ * // Mark Google connection step as completed
+ * const updatedOnboarding = await updateOnboardingStep({
+ *   supabase,
+ *   userId: 'user_123',
+ *   currentStep: 'google_connected',
+ *   metadata: {
+ *     accountEmail: 'user@example.com',
+ *     scopes: ['analytics.readonly']
+ *   }
+ * });
+ *
+ * // Complete onboarding process
+ * const completed = await updateOnboardingStep({
+ *   supabase,
+ *   userId: 'user_123',
+ *   currentStep: 'subscription_selected',
+ *   isCompleted: true,
+ *   metadata: { plan: 'pro' }
+ * });
+ * ```
+ */
 const updateOnboardingStep = async ({
   supabase,
   userId,

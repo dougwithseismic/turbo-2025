@@ -5,6 +5,23 @@ import type { Json } from '../types';
 type CreditTransaction =
   Database['public']['Tables']['credit_transactions']['Row'];
 
+/**
+ * Creates a new credit transaction record.
+ *
+ * @example
+ * ```typescript
+ * const transaction = await createCreditTransaction({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   projectId: 'project_456',
+ *   amount: -50,
+ *   balanceAfter: 950,
+ *   description: 'API usage deduction',
+ *   metadata: { service: 'gpt-4', tokens: 1000 }
+ * });
+ * console.log(transaction); // { id: 'tx_1', amount: -50, ... }
+ * ```
+ */
 const createCreditTransaction = async ({
   supabase,
   poolId,
@@ -39,6 +56,28 @@ const createCreditTransaction = async ({
   return data;
 };
 
+/**
+ * Retrieves credit transactions for a specific pool, optionally filtered by project.
+ *
+ * @example
+ * ```typescript
+ * // Get all pool transactions
+ * const allTransactions = await getPoolTransactions({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   limit: 10
+ * });
+ *
+ * // Get project-specific transactions
+ * const projectTransactions = await getPoolTransactions({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   projectId: 'project_456',
+ *   limit: 20,
+ *   offset: 0
+ * });
+ * ```
+ */
 const getPoolTransactions = async ({
   supabase,
   poolId,

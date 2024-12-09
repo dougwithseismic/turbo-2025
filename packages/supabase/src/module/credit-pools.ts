@@ -11,6 +11,22 @@ type CreditSource = 'subscription' | 'purchase' | 'bonus';
 type AddCreditsResult = DbFunctions['add_credits_to_pool']['Returns'];
 type ReserveCreditsResult = DbFunctions['reserve_credits_from_pool']['Returns'];
 
+/**
+ * Creates a new credit pool for an organization or user.
+ *
+ * @example
+ * ```typescript
+ * const pool = await createCreditPool({
+ *   supabase,
+ *   ownerType: 'organization',
+ *   ownerId: 'org_123',
+ *   totalCredits: 1000,
+ *   source: 'subscription',
+ *   expiresAt: '2024-12-31'
+ * });
+ * console.log(pool); // { id: 'pool_1', total_credits: 1000, ... }
+ * ```
+ */
 const createCreditPool = async ({
   supabase,
   ownerType,
@@ -42,6 +58,21 @@ const createCreditPool = async ({
   return data;
 };
 
+/**
+ * Retrieves a credit pool for an organization or user.
+ *
+ * @example
+ * ```typescript
+ * const pool = await getCreditPool({
+ *   supabase,
+ *   ownerType: 'organization',
+ *   ownerId: 'org_123'
+ * });
+ * if (pool) {
+ *   console.log(pool.available_credits);
+ * }
+ * ```
+ */
 const getCreditPool = async ({
   supabase,
   ownerType,
@@ -62,6 +93,21 @@ const getCreditPool = async ({
   return data;
 };
 
+/**
+ * Updates an existing credit pool's properties.
+ *
+ * @example
+ * ```typescript
+ * const updatedPool = await updateCreditPool({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   totalCredits: 2000,
+ *   reservedCredits: 500,
+ *   expiresAt: '2024-12-31'
+ * });
+ * console.log(updatedPool); // { total_credits: 2000, reserved_credits: 500, ... }
+ * ```
+ */
 const updateCreditPool = async ({
   supabase,
   poolId,
@@ -92,6 +138,22 @@ const updateCreditPool = async ({
   return data;
 };
 
+/**
+ * Adds credits to a pool and creates a transaction record.
+ *
+ * @example
+ * ```typescript
+ * const result = await addCredits({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   amount: 500,
+ *   source: 'purchase',
+ *   description: 'Additional credits purchase'
+ * });
+ * console.log(result.pool); // Updated pool
+ * console.log(result.transaction); // New transaction record
+ * ```
+ */
 const addCredits = async ({
   supabase,
   poolId,
@@ -116,6 +178,23 @@ const addCredits = async ({
   return data as unknown as AddCreditsResult;
 };
 
+/**
+ * Reserves credits from a pool and creates a transaction record.
+ *
+ * @example
+ * ```typescript
+ * const result = await reserveCredits({
+ *   supabase,
+ *   poolId: 'pool_123',
+ *   amount: 100,
+ *   description: 'API usage reservation'
+ * });
+ * console.log(result.pool); // Updated pool with reserved credits
+ * console.log(result.transaction); // Reservation transaction
+ * ```
+ *
+ * @throws {Error} If insufficient credits are available
+ */
 const reserveCredits = async ({
   supabase,
   poolId,
