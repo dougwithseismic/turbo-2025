@@ -1,6 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
 import type { Json } from '../types';
+import { createOAuthState, verifyOAuthState } from './oauth';
 
 type OnboardingStep =
   | 'signup_completed'
@@ -64,53 +65,6 @@ const updateOnboardingStep = async ({
       metadata,
     })
     .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
-const createOAuthState = async ({
-  supabase,
-  userId,
-  redirectTo,
-  expiresIn = 3600, // 1 hour
-}: {
-  supabase: SupabaseClient<Database>;
-  userId: string;
-  redirectTo?: string;
-  expiresIn?: number;
-}) => {
-  const state = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
-
-  const { data, error } = await supabase
-    .from('oauth_states')
-    .insert({
-      user_id: userId,
-      state,
-      redirect_to: redirectTo,
-      expires_at: expiresAt,
-    })
-    .select()
-    .single();
-
-  if (error) throw error;
-  return data;
-};
-
-const verifyOAuthState = async ({
-  supabase,
-  state,
-}: {
-  supabase: SupabaseClient<Database>;
-  state: string;
-}) => {
-  const { data, error } = await supabase
-    .from('oauth_states')
-    .select()
-    .eq('state', state)
-    .gt('expires_at', new Date().toISOString())
     .single();
 
   if (error) throw error;

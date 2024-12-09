@@ -9,7 +9,12 @@
     "@repo/config-eslint": "workspace:*",
     "@repo/config-typescript": "workspace:*",
     "@types/node": "^20.17.6",
-    "typescript": "latest"
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
   },
   "exports": {
     ".": {
@@ -18,22 +23,34 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "src"
   ],
   "main": "./dist/index.js",
   "name": "@repo/supabase",
+  "peerDependencies": {
+    "@supabase/supabase-js": "^2.0.0"
+  },
   "private": true,
   "scripts": {
     "build": "tsc",
+    "build:watch": "tsc --watch",
     "clean": "rm -rf dist",
-    "dev": "tsc --watch",
-    "generate-types": "npx supabase gen types typescript --local > ./src/database.types.ts",
-    "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "reset": "npx supabase db reset",
-    "setup": "pnpm run start-service && pnpm run generate-types",
-    "start-service": "npx supabase start",
-    "stop-service": "npx supabase stop"
+    "clean:all": "rm -rf dist node_modules",
+    "db:generate-types": "npx supabase gen types typescript --local > ./src/database.types.ts",
+    "db:reset": "npx supabase db reset",
+    "db:setup": "pnpm run db:start && pnpm run db:generate-types",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "dev": "pnpm run build:watch",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "lint": "eslint src --ext .ts,.tsx --cache",
+    "lint:fix": "eslint src --ext .ts,.tsx --fix --cache",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run lint && pnpm run typecheck && pnpm run format:check",
+    "test:types": "tsc --noEmit",
+    "validate": "pnpm run lint && pnpm run test:types && pnpm run format:check"
   },
   "type": "module",
   "types": "./dist/index.d.ts",
