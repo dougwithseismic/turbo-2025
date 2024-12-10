@@ -13,7 +13,7 @@ importers:
         version: 9.16.0(jiti@1.21.6)
       inquirer:
         specifier: ^12.0.1
-        version: 12.0.1(@types/node@20.17.6)
+        version: 12.0.1(@types/node@22.10.1)
     devDependencies:
       '@eslint/eslintrc':
         specifier: ^3.2.0
@@ -28,8 +28,8 @@ importers:
         specifier: workspace:*
         version: link:packages/config-typescript
       '@types/node':
-        specifier: ^20.11.24
-        version: 20.17.6
+        specifier: ^22.10.1
+        version: 22.10.1
       commander:
         specifier: ^12.0.0
         version: 12.1.0
@@ -148,6 +148,103 @@ importers:
       vitest:
         specifier: ^2.1.4
         version: 2.1.5(@types/node@20.17.6)(jsdom@25.0.1)(sass@1.77.4)
+
+  apps/queue-workers:
+    dependencies:
+      '@repo/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@repo/env':
+        specifier: workspace:*
+        version: link:../../packages/env
+      '@sentry/node':
+        specifier: ^7.101.1
+        version: 7.120.0
+      '@sentry/profiling-node':
+        specifier: ^1.3.5
+        version: 1.3.5(@sentry/node@7.120.0)
+      '@types/winston':
+        specifier: ^2.4.4
+        version: 2.4.4
+      cors:
+        specifier: ^2.8.5
+        version: 2.8.5
+      dotenv:
+        specifier: ^16.4.5
+        version: 16.4.5
+      dotenv-cli:
+        specifier: ^7.4.2
+        version: 7.4.2
+      express:
+        specifier: ^4.18.2
+        version: 4.21.1
+      express-winston:
+        specifier: ^4.0.0
+        version: 4.2.0(winston@3.17.0)
+      helmet:
+        specifier: ^7.1.0
+        version: 7.2.0
+      puppeteer:
+        specifier: ^23.9.0
+        version: 23.9.0(typescript@5.7.2)
+      winston:
+        specifier: ^3.3.3
+        version: 3.17.0
+      zod:
+        specifier: ^3.22.4
+        version: 3.23.8
+    devDependencies:
+      '@eslint/js':
+        specifier: ^9.16.0
+        version: 9.16.0
+      '@repo/config-eslint':
+        specifier: workspace:*
+        version: link:../../packages/config-eslint
+      '@repo/config-prettier':
+        specifier: workspace:*
+        version: link:../../packages/config-prettier
+      '@repo/config-typescript':
+        specifier: workspace:*
+        version: link:../../packages/config-typescript
+      '@types/cors':
+        specifier: ^2.8.17
+        version: 2.8.17
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      '@types/node':
+        specifier: ^20.11.0
+        version: 20.17.6
+      '@types/supertest':
+        specifier: ^6.0.2
+        version: 6.0.2
+      '@typescript-eslint/eslint-plugin':
+        specifier: ^8.17.0
+        version: 8.17.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
+      '@typescript-eslint/parser':
+        specifier: ^8.17.0
+        version: 8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
+      eslint:
+        specifier: ^9.16.0
+        version: 9.16.0(jiti@1.21.6)
+      globals:
+        specifier: ^15.12.0
+        version: 15.13.0
+      supertest:
+        specifier: ^7.0.0
+        version: 7.0.0
+      tsx:
+        specifier: ^4.7.0
+        version: 4.19.2
+      typescript:
+        specifier: ^5.3.3
+        version: 5.7.2
+      typescript-eslint:
+        specifier: ^8.15.0
+        version: 8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.8(@types/node@20.17.6)(@vitest/ui@2.1.8)(jsdom@25.0.1)(sass@1.77.4)
 
   apps/web:
     dependencies:
@@ -493,8 +590,11 @@ importers:
       '@types/node':
         specifier: ^20.17.6
         version: 20.17.6
+      prettier:
+        specifier: ^3.2.5
+        version: 3.3.3
       typescript:
-        specifier: latest
+        specifier: ^5.3.3
         version: 5.7.2
 
 packages:
@@ -1995,6 +2095,9 @@ packages:
 
   '@types/node@20.17.6':
     resolution: {integrity: sha512-VEI7OdvK2wP7XHnsuXbAJnEpEkF6NjSN45QJlL4VGqZSXsnicpesdTWsg9RISeSdYd3yeRj/y3k5KGjUXYnFwQ==}
+
+  '@types/node@22.10.1':
+    resolution: {integrity: sha512-qKgsUwfHZV2WCWLAnVP1JqnpE6Im6h3Y0+fYgMTasNQ7V++CBX5OT1as0g0f+OyubbFqhf6XVNIsmN4IIhEgGQ==}
 
   '@types/phoenix@1.6.5':
     resolution: {integrity: sha512-xegpDuR+z0UqG9fwHqNoy3rI7JDlvaPh2TY47Fl80oq6g+hXT+c/LEuE43X48clZ6lOfANl5WrPur9fYO1RJ/w==}
@@ -4854,6 +4957,9 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
+  undici-types@6.20.0:
+    resolution: {integrity: sha512-Ny6QZ2Nju20vw1SRHe3d9jVu6gJ+4e3+MMpqu7pqE5HT6WsTSlce++GQmK5UXS8mzV8DSYHrQH+Xrf2jVcuKNg==}
+
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
     engines: {node: '>= 10.0.0'}
@@ -5618,25 +5724,25 @@ snapshots:
   '@img/sharp-win32-x64@0.33.5':
     optional: true
 
-  '@inquirer/checkbox@4.0.1(@types/node@20.17.6)':
+  '@inquirer/checkbox@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
       '@inquirer/figures': 1.0.7
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       ansi-escapes: 4.3.2
       yoctocolors-cjs: 2.1.2
 
-  '@inquirer/confirm@5.0.1(@types/node@20.17.6)':
+  '@inquirer/confirm@5.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
 
-  '@inquirer/core@10.0.1(@types/node@20.17.6)':
+  '@inquirer/core@10.0.1(@types/node@22.10.1)':
     dependencies:
       '@inquirer/figures': 1.0.7
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
       ansi-escapes: 4.3.2
       cli-width: 4.1.0
       mute-stream: 2.0.0
@@ -5647,82 +5753,82 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@inquirer/editor@4.0.1(@types/node@20.17.6)':
+  '@inquirer/editor@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       external-editor: 3.1.0
 
-  '@inquirer/expand@4.0.1(@types/node@20.17.6)':
+  '@inquirer/expand@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       yoctocolors-cjs: 2.1.2
 
   '@inquirer/figures@1.0.7': {}
 
-  '@inquirer/input@4.0.1(@types/node@20.17.6)':
+  '@inquirer/input@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
 
-  '@inquirer/number@3.0.1(@types/node@20.17.6)':
+  '@inquirer/number@3.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
 
-  '@inquirer/password@4.0.1(@types/node@20.17.6)':
+  '@inquirer/password@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       ansi-escapes: 4.3.2
 
-  '@inquirer/prompts@7.0.1(@types/node@20.17.6)':
+  '@inquirer/prompts@7.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/checkbox': 4.0.1(@types/node@20.17.6)
-      '@inquirer/confirm': 5.0.1(@types/node@20.17.6)
-      '@inquirer/editor': 4.0.1(@types/node@20.17.6)
-      '@inquirer/expand': 4.0.1(@types/node@20.17.6)
-      '@inquirer/input': 4.0.1(@types/node@20.17.6)
-      '@inquirer/number': 3.0.1(@types/node@20.17.6)
-      '@inquirer/password': 4.0.1(@types/node@20.17.6)
-      '@inquirer/rawlist': 4.0.1(@types/node@20.17.6)
-      '@inquirer/search': 3.0.1(@types/node@20.17.6)
-      '@inquirer/select': 4.0.1(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/checkbox': 4.0.1(@types/node@22.10.1)
+      '@inquirer/confirm': 5.0.1(@types/node@22.10.1)
+      '@inquirer/editor': 4.0.1(@types/node@22.10.1)
+      '@inquirer/expand': 4.0.1(@types/node@22.10.1)
+      '@inquirer/input': 4.0.1(@types/node@22.10.1)
+      '@inquirer/number': 3.0.1(@types/node@22.10.1)
+      '@inquirer/password': 4.0.1(@types/node@22.10.1)
+      '@inquirer/rawlist': 4.0.1(@types/node@22.10.1)
+      '@inquirer/search': 3.0.1(@types/node@22.10.1)
+      '@inquirer/select': 4.0.1(@types/node@22.10.1)
+      '@types/node': 22.10.1
 
-  '@inquirer/rawlist@4.0.1(@types/node@20.17.6)':
+  '@inquirer/rawlist@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       yoctocolors-cjs: 2.1.2
 
-  '@inquirer/search@3.0.1(@types/node@20.17.6)':
+  '@inquirer/search@3.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
       '@inquirer/figures': 1.0.7
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       yoctocolors-cjs: 2.1.2
 
-  '@inquirer/select@4.0.1(@types/node@20.17.6)':
+  '@inquirer/select@4.0.1(@types/node@22.10.1)':
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
       '@inquirer/figures': 1.0.7
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       ansi-escapes: 4.3.2
       yoctocolors-cjs: 2.1.2
 
-  '@inquirer/type@3.0.0(@types/node@20.17.6)':
+  '@inquirer/type@3.0.0(@types/node@22.10.1)':
     dependencies:
-      '@types/node': 20.17.6
+      '@types/node': 22.10.1
 
   '@isaacs/cliui@8.0.2':
     dependencies:
@@ -6568,6 +6674,10 @@ snapshots:
     dependencies:
       undici-types: 6.19.8
 
+  '@types/node@22.10.1':
+    dependencies:
+      undici-types: 6.20.0
+
   '@types/phoenix@1.6.5': {}
 
   '@types/prop-types@15.7.13': {}
@@ -7340,6 +7450,15 @@ snapshots:
     optionalDependencies:
       typescript: 5.6.3
 
+  cosmiconfig@9.0.0(typescript@5.7.2):
+    dependencies:
+      env-paths: 2.2.1
+      import-fresh: 3.3.0
+      js-yaml: 4.1.0
+      parse-json: 5.2.0
+    optionalDependencies:
+      typescript: 5.7.2
+
   cross-spawn@7.0.5:
     dependencies:
       path-key: 3.1.1
@@ -7741,7 +7860,7 @@ snapshots:
       '@typescript-eslint/parser': 8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
       eslint: 9.16.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.16.0(jiti@1.21.6))
+      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6))
       eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-typescript@3.6.3)(eslint@9.16.0(jiti@1.21.6))
       eslint-plugin-jsx-a11y: 6.10.2(eslint@9.16.0(jiti@1.21.6))
       eslint-plugin-react: 7.37.2(eslint@9.16.0(jiti@1.21.6))
@@ -7765,13 +7884,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.16.0(jiti@1.21.6)):
+  eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6)):
     dependencies:
       '@nolyfill/is-core-module': 1.0.39
       debug: 4.3.7
       enhanced-resolve: 5.17.1
       eslint: 9.16.0(jiti@1.21.6)
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.16.0(jiti@1.21.6))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6))
       fast-glob: 3.3.2
       get-tsconfig: 4.8.1
       is-bun-module: 1.3.0
@@ -7784,14 +7903,14 @@ snapshots:
       - eslint-import-resolver-webpack
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.16.0(jiti@1.21.6)):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6)):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
       '@typescript-eslint/parser': 8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2)
       eslint: 9.16.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0)(eslint@9.16.0(jiti@1.21.6))
+      eslint-import-resolver-typescript: 3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6))
     transitivePeerDependencies:
       - supports-color
 
@@ -7806,7 +7925,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.16.0(jiti@1.21.6)
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3)(eslint@9.16.0(jiti@1.21.6))
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-import-resolver-typescript@3.6.3(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.17.0(eslint@9.16.0(jiti@1.21.6))(typescript@5.7.2))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6)))(eslint@9.16.0(jiti@1.21.6))
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -8349,12 +8468,12 @@ snapshots:
       react: 19.0.0-rc-66855b96-20241106
       react-dom: 19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106)
 
-  inquirer@12.0.1(@types/node@20.17.6):
+  inquirer@12.0.1(@types/node@22.10.1):
     dependencies:
-      '@inquirer/core': 10.0.1(@types/node@20.17.6)
-      '@inquirer/prompts': 7.0.1(@types/node@20.17.6)
-      '@inquirer/type': 3.0.0(@types/node@20.17.6)
-      '@types/node': 20.17.6
+      '@inquirer/core': 10.0.1(@types/node@22.10.1)
+      '@inquirer/prompts': 7.0.1(@types/node@22.10.1)
+      '@inquirer/type': 3.0.0(@types/node@22.10.1)
+      '@types/node': 22.10.1
       ansi-escapes: 4.3.2
       mute-stream: 2.0.0
       run-async: 3.0.0
@@ -9135,6 +9254,20 @@ snapshots:
       '@puppeteer/browsers': 2.4.1
       chromium-bidi: 0.8.0(devtools-protocol@0.0.1367902)
       cosmiconfig: 9.0.0(typescript@5.6.3)
+      devtools-protocol: 0.0.1367902
+      puppeteer-core: 23.9.0
+      typed-query-selector: 2.12.0
+    transitivePeerDependencies:
+      - bufferutil
+      - supports-color
+      - typescript
+      - utf-8-validate
+
+  puppeteer@23.9.0(typescript@5.7.2):
+    dependencies:
+      '@puppeteer/browsers': 2.4.1
+      chromium-bidi: 0.8.0(devtools-protocol@0.0.1367902)
+      cosmiconfig: 9.0.0(typescript@5.7.2)
       devtools-protocol: 0.0.1367902
       puppeteer-core: 23.9.0
       typed-query-selector: 2.12.0
@@ -9955,6 +10088,8 @@ snapshots:
       through: 2.3.8
 
   undici-types@6.19.8: {}
+
+  undici-types@6.20.0: {}
 
   universalify@2.0.1: {}
 
