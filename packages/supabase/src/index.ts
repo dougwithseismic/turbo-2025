@@ -38,23 +38,39 @@ export type { SubscriptionPlan } from './module/stripe';
 const env = createEnv({
   server: {
     SUPABASE_URL: z.string().url(),
-    SUPABASE_ANON_KEY: z.string().min(1),
+    SUPABASE_ANON_KEY: z.string().min(1).optional(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
 });
 
-let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
+export type SupabaseClient = ReturnType<typeof createClient<Database>>;
+
+let supabaseInstance: SupabaseClient | null = null;
 
 const createSupabaseClient = ({
   supabaseUrl = env.SUPABASE_URL,
   supabaseAnonKey = env.SUPABASE_ANON_KEY,
+  supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY,
 }: {
   supabaseUrl?: string;
   supabaseAnonKey?: string;
-}) => {
+  supabaseServiceRoleKey?: string;
+}): SupabaseClient => {
+  if (!supabaseUrl) {
+    throw new Error('SUPABASE_URL is required');
+  }
+
+  if (!supabaseAnonKey) {
+    throw new Error('SUPABASE_ANON_KEY is required');
+  }
+
   if (!supabaseInstance) {
-    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey);
+    supabaseInstance = createClient<Database>(
+      supabaseUrl,
+      supabaseServiceRoleKey ?? supabaseAnonKey,
+    );
   }
   return supabaseInstance;
 };
