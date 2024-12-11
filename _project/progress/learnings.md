@@ -531,3 +531,162 @@ USING (
 
 - [Supabase RLS Guide](https://supabase.com/docs/guides/auth/row-level-security)
 - [PostgreSQL RLS](https://www.postgresql.org/docs/current/ddl-rowsecurity.html)
+
+## 2024-03-19 - Queue Worker Architecture with Bull and Express
+
+### Category: Architecture, Queue, TypeScript
+
+### Learning
+
+Implementing a robust queue worker architecture using Bull and Express:
+
+```typescript
+type QueueProcessor = {
+  name: string;
+  processor: Bull.ProcessCallbackFunction<any>;
+  options?: Bull.JobOptions;
+};
+
+const createQueueWorker = ({
+  queueName,
+  processor,
+  options = {},
+}: QueueProcessor) => {
+  const queue = new Bull(queueName, REDIS_URL);
+  queue.process(processor);
+  return queue;
+};
+
+// Usage with typed job data
+type EmailJobData = {
+  to: string;
+  subject: string;
+  body: string;
+};
+
+const emailProcessor: Bull.ProcessCallbackFunction<EmailJobData> = async (job) => {
+  const { to, subject, body } = job.data;
+  // Process email job
+};
+
+const emailQueue = createQueueWorker({
+  name: 'email-queue',
+  processor: emailProcessor,
+  options: {
+    attempts: 3,
+    backoff: {
+      type: 'exponential',
+      delay: 1000,
+    },
+  },
+});
+```
+
+### Context
+
+- Bull queues handle job processing with Redis
+- Each queue has a dedicated processor function
+- Jobs can be retried with backoff strategies
+- TypeScript ensures job data type safety
+- Options configure queue behavior
+- Processors run in separate processes for isolation
+
+### Benefits
+
+- **Scalability**: Multiple workers can process jobs concurrently
+- **Reliability**: Failed jobs can be retried automatically
+- **Type Safety**: TypeScript prevents data structure errors
+- **Monitoring**: Built-in job progress and status tracking
+- **Performance**: Efficient job distribution across workers
+- **Maintainability**: Modular processor architecture
+
+### Related Resources
+
+- [Bull Documentation](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md)
+- [Redis Queue Patterns](https://redis.io/docs/manual/patterns/messaging/)
+- [Node.js Worker Threads](https://nodejs.org/api/worker_threads.html)
+
+---
+
+## 2024-03-19 - Request Logger Middleware Pattern
+
+### Category: Middleware, Logging, TypeScript
+
+### Learning
+
+Implementing a type-safe request logger middleware:
+
+```typescript
+type RequestLoggerOptions = {
+  excludePaths?: string[];
+  logLevel?: 'debug' | 'info' | 'warn' | 'error';
+  sanitizeHeaders?: string[];
+};
+
+const createRequestLogger = ({
+  excludePaths = [],
+  logLevel = 'info',
+  sanitizeHeaders = ['authorization', 'cookie'],
+}: RequestLoggerOptions = {}) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    // Skip excluded paths
+    if (excludePaths.some(path => req.path.startsWith(path))) {
+      return next();
+    }
+
+    const startTime = Date.now();
+
+    // Log request
+    const requestLog = {
+      method: req.method,
+      path: req.path,
+      query: req.query,
+      headers: sanitizeHeaders.reduce((acc, header) => {
+        const headers = { ...req.headers };
+        delete headers[header];
+        return headers;
+      }, {}),
+    };
+
+    // Log response
+    res.on('finish', () => {
+      const duration = Date.now() - startTime;
+      const responseLog = {
+        statusCode: res.statusCode,
+        duration,
+      };
+
+      logger[logLevel]('Request completed', {
+        request: requestLog,
+        response: responseLog,
+      });
+    });
+
+    next();
+  };
+};
+```
+
+### Context
+
+- Middleware intercepts HTTP requests and responses
+- Configurable logging levels and exclusions
+- Sanitizes sensitive header information
+- Measures request duration
+- TypeScript ensures type safety
+- Uses event listeners for response logging
+
+### Benefits
+
+- **Debugging**: Detailed request/response information
+- **Security**: Sensitive data is sanitized
+- **Performance**: Request timing measurements
+- **Flexibility**: Configurable logging behavior
+- **Maintainability**: Type-safe implementation
+- **Monitoring**: Request patterns and issues
+
+### Related Resources
+
+- [Express Middleware Guide](https://expressjs.com/en/guide/using-middleware.html)
+- [TypeScript Express](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/express)
+- [Node.js Logging Best Practices](https://blog.appsignal.com/2021/09/01/best-practices-for-logging-in-nodejs.html)
