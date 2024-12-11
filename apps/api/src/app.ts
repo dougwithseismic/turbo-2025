@@ -4,11 +4,12 @@ import helmet from 'helmet';
 
 import { config } from './config/app-config';
 import { logger } from './config/logger';
-import { initializeSentry } from './config/sentry';
+import { initSentry } from './config/sentry';
 import { requestLogger } from './middleware/request-logger';
 import { healthRouter } from './routes/health';
 import { googleAuthRouter } from './routes/google-auth';
 import { handleErrors } from './middleware/handle-errors';
+import { initPrometheus } from './lib/prometheus';
 
 const app = express();
 app.use(helmet());
@@ -20,7 +21,8 @@ app.use(handleErrors);
 app.use('/health', healthRouter);
 app.use('/google', googleAuthRouter);
 
-initializeSentry();
+initSentry();
+initPrometheus(app);
 
 const server = app.listen(config.PORT, () => {
   logger.info(`🚀 :: Server is running on port ${config.PORT}`);

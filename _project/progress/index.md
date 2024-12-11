@@ -7,9 +7,9 @@
 - [X] Initialize Supabase project
 - [X] Setup authentication flows
 - [X] Create database schema
-- [ ] Setup Express API server
-- [ ] Setup Express crawler server
-- [ ] Configure Redis for queues
+- [X] Setup Express API server
+- [X] Setup Express crawler server
+- [X] Configure Redis for queues
 - [ ] Setup Prometheus metrics collection
 - [ ] Configure Grafana dashboards
 - [ ] Setup development environment

@@ -1,9 +1,9 @@
-import * as Sentry from '@sentry/node'
-import { ProfilingIntegration } from '@sentry/profiling-node'
+import * as Sentry from '@sentry/node';
+import { ProfilingIntegration } from '@sentry/profiling-node';
 
-import { config } from './app-config'
+import { config } from './app-config';
 
-export const initializeSentry = (): void => {
+export const initSentry = (): void => {
   if (config.SENTRY.ENABLED) {
     Sentry.init({
       dsn: config.SENTRY.DSN,
@@ -11,6 +11,6 @@ export const initializeSentry = (): void => {
       integrations: [new ProfilingIntegration()],
       tracesSampleRate: 1.0,
       profilesSampleRate: 1.0,
-    })
+    });
   }
-}
+};
