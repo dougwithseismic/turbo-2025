@@ -7,7 +7,6 @@ import {
   QueueOptions,
 } from 'bullmq';
 import IORedis from 'ioredis';
-import { RequestHandler } from 'express';
 import {
   JobHandler,
   StepInfo,
@@ -39,7 +38,7 @@ const DEFAULT_JOB_OPTIONS = {
  *
  * const { queue, worker, getApiRouter } = queueManager.createBull({
  *   name: 'email-queue',
- *   handler: {
+ *   worker: {
  *     steps: [{
  *       name: 'send',
  *       handler: async (job) => {
@@ -61,6 +60,8 @@ export class QueueManager {
    */
   constructor(redisConfig: RedisConfig) {
     this.connection = new IORedis({
+      enableOfflineQueue: true,
+      connectTimeout: 10000,
       host: redisConfig.host,
       port: redisConfig.port,
       password: redisConfig.password,
@@ -73,15 +74,14 @@ export class QueueManager {
   /**
    * Creates a new queue with associated worker and API router
    * @param name - Unique name for the queue
-   * @param handler - Configuration for processing jobs
-   * @param workerOptions - Options for the worker
+   * @param worker - Configuration for processing jobs
    * @returns Queue handlers including queue, worker, and API router
    *
    * @example
    * ```typescript
    * const { queue } = queueManager.createBull({
    *   name: 'email',
-   *   handler: {
+   *   worker: {
    *     steps: [{
    *       name: 'send',
    *       handler: async (job, stepInfo, helpers) => {
@@ -101,8 +101,7 @@ export class QueueManager {
    */
   createBull<TData, TResult>({
     name,
-    handler,
-    workerOptions = {},
+    worker,
     queueOptions = {
       defaultJobOptions: {
         removeOnComplete: false,
@@ -111,8 +110,9 @@ export class QueueManager {
     },
   }: {
     name: string;
-    handler: JobHandler<TData, TResult>;
-    workerOptions?: Partial<WorkerOptions>;
+    worker: JobHandler<TData, TResult> & {
+      workerOptions?: Partial<WorkerOptions>;
+    };
     queueOptions?: Partial<QueueOptions>;
   }): QueueHandlers<TData> {
     if (this.bulls.has(name)) {
@@ -127,12 +127,12 @@ export class QueueManager {
       ...queueOptions,
     });
 
-    const worker = new Worker<TData>(
+    const workerInstance = new Worker<TData>(
       name,
       async (job, token) => {
         const stepInfo: StepInfo = {
           currentStepIndex: (job.data as any).currentStepIndex || 0,
-          totalSteps: handler.steps.length,
+          totalSteps: worker.steps.length,
           stepResults: (job.data as any).stepResults || {},
         };
 
@@ -206,7 +206,10 @@ export class QueueManager {
         };
 
         while (stepInfo.currentStepIndex < stepInfo.totalSteps) {
-          const currentStep = handler.steps[stepInfo.currentStepIndex];
+          const currentStep = worker.steps[stepInfo.currentStepIndex];
+          if (!currentStep) {
+            throw new Error('Current step is undefined');
+          }
 
           try {
             const hasWaiting = await helpers.hasWaitingDependencies();
@@ -229,7 +232,7 @@ export class QueueManager {
             }
 
             if (
-              stepInfo.currentStepIndex === handler.steps.indexOf(currentStep)
+              stepInfo.currentStepIndex === worker.steps.indexOf(currentStep)
             ) {
               const stillHasWaiting = await helpers.hasWaitingDependencies();
               if (!stillHasWaiting) {
@@ -246,25 +249,25 @@ export class QueueManager {
       },
       {
         connection: this.connection,
-        concurrency: workerOptions.concurrency ?? 8,
-        ...workerOptions,
+        concurrency: worker.workerOptions?.concurrency ?? 8,
+        ...worker.workerOptions,
       },
     );
 
-    if (handler.onCompleted) {
-      worker.on('completed', handler.onCompleted);
+    if (worker.onCompleted) {
+      workerInstance.on('completed', worker.onCompleted);
     }
-    if (handler.onFailed) {
-      worker.on('failed', (job, error) => {
+    if (worker.onFailed) {
+      workerInstance.on('failed', (job, error) => {
         if (job) {
-          handler.onFailed!(job, error);
+          worker.onFailed!(job, error);
         }
       });
     }
 
     const handlers = {
       queue,
-      worker,
+      worker: workerInstance,
       getApiRouter: () => {
         return createQueueRouter(queue);
       },
@@ -301,3 +304,5 @@ export class QueueManager {
     await this.connection.quit();
   }
 }
+
+export type { Queue, Worker };

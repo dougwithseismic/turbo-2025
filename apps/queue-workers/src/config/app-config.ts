@@ -11,6 +11,12 @@ export const config = {
   NODE_ENV: env.NODE_ENV ?? 'development',
   PORT: env.PORT ?? 666,
   BASE_URL: env.API_BASE_URL,
+  REDIS: {
+    URL: env.REDIS_URL,
+    PORT: env.REDIS_PORT,
+    USER: env.REDIS_USER,
+    PASSWORD: env.REDIS_PASSWORD,
+  },
   API: {
     TIMEOUT: env.API_TIMEOUT,
   },

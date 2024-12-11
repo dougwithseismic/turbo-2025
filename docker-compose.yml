@@ -2,29 +2,22 @@ name: turbo-25
 
 services:
   redis:
+    container_name: turbo-25-redis
     image: redis:7-alpine
     ports:
       - '6379:6379'
     volumes:
       - redis-data:/data
     networks:
-      - dwf-network
+      - turbo-25-network
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     environment:
       - REDIS_USER=${REDIS_USER:-default}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-secret123}
-      - REDIS_ACL_FILE=/usr/local/etc/redis/users.acl
-    configs:
-      - source: redis_users
-        target: /usr/local/etc/redis/users.acl
-
-configs:
-  redis_users:
-    file: ./redis/users.acl
 
 volumes:
   redis-data:
 
 networks:
-  dwf-network:
+  turbo-25-network:
     driver: bridge

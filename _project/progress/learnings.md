@@ -606,8 +606,6 @@ const emailQueue = createQueueWorker({
 - [Redis Queue Patterns](https://redis.io/docs/manual/patterns/messaging/)
 - [Node.js Worker Threads](https://nodejs.org/api/worker_threads.html)
 
----
-
 ## 2024-03-19 - Request Logger Middleware Pattern
 
 ### Category: Middleware, Logging, TypeScript
@@ -690,3 +688,130 @@ const createRequestLogger = ({
 - [Express Middleware Guide](https://expressjs.com/en/guide/using-middleware.html)
 - [TypeScript Express](https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/express)
 - [Node.js Logging Best Practices](https://blog.appsignal.com/2021/09/01/best-practices-for-logging-in-nodejs.html)
+
+## 2024-03-20 - Using @repo/queue-manager Package for Queue Management
+
+### Category: Queue Management, Internal Packages
+
+### Learning
+
+The @repo/queue-manager package provides a standardized way to handle queue operations across our applications:
+
+```typescript
+import { QueueManager } from '@repo/queue-manager';
+// Initialize the queue manager
+const queueManager = new QueueManager({
+redisUrl: process.env.REDIS_URL,
+queueName: 'my-queue'
+});
+// Add a job to the queue
+await queueManager.addJob({
+jobType: 'processData',
+payload: {
+userId: '123',
+data: { / job specific data / }
+}
+});
+// Process jobs
+queueManager.processJobs({
+jobHandler: async ({ jobType, payload }) => {
+switch (jobType) {
+case 'processData':
+// Handle the job
+break;
+default:
+throw new Error(Unknown job type: ${jobType});
+}
+}
+});
+
+```
+
+### Context
+
+- Package is available as a workspace dependency: `"@repo/queue-manager": "workspace:*"`
+- Built on top of Bull queue for Redis-backed job processing
+- Provides TypeScript types for job payloads and handlers
+- Handles reconnection and error scenarios automatically
+- Includes built-in logging and monitoring capabilities
+
+### Benefits
+
+- Standardized queue management across all applications
+- Type-safe job definitions and processing
+- Built-in error handling and retry mechanisms
+- Simplified API for common queue operations
+- Consistent logging and monitoring
+- Redis-backed for reliability and persistence
+
+### Related Resources
+
+- [Bull Queue Documentation](https://github.com/OptimalBits/bull/blob/master/REFERENCE.md)
+- [Redis Documentation](https://redis.io/documentation)
+- Internal: packages/queue-manager/README.md
+
+### Configuration Requirements
+
+```bash
+env
+REDIS_URL=redis://localhost:6379
+QUEUE_PREFIX=app_name
+```
+
+### Common Usage Patterns
+
+1. Job Processing:
+
+```typescript
+// Define job types
+type JobTypes = 'processEmail' | 'generateReport';
+// Initialize with typed jobs
+const queueManager = new QueueManager<JobTypes>({
+redisUrl: process.env.REDIS_URL,
+queueName: 'my-queue'
+});
+// Type-safe job processing
+queueManager.processJobs({
+jobHandler: async ({ jobType, payload }) => {
+if (jobType === 'processEmail') {
+// TypeScript knows payload structure
+await sendEmail(payload);
+}
+}
+});
+```
+
+2. Job Monitoring:
+
+```typescript
+// Get queue metrics
+const metrics = await queueManager.getMetrics();
+console.log(Active jobs: ${metrics.active});
+console.log(Waiting jobs: ${metrics.waiting});
+// Listen to job events
+queueManager.on('completed', (job) => {
+console.log(Job ${job.id} completed);
+});
+
+```
+
+3. Error Handling:
+
+```typescript
+queueManager.processJobs({
+jobHandler: async ({ jobType, payload }) => {
+try {
+await processJob(payload);
+} catch (err) {
+// Jobs will automatically retry based on configuration
+throw new Error(Failed to process ${jobType}: ${err.message});
+}
+},
+maxAttempts: 3,
+backoff: {
+type: 'exponential',
+delay: 1000
+}
+});
+
+```

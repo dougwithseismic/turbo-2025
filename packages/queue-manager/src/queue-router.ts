@@ -14,7 +14,120 @@ import {
   type QueryParams,
 } from './schemas';
 
-const createQueueRouter = <TData>(queue: Queue<TData>) => {
+/**
+ * Creates an Express router for managing Bull queue operations
+ *
+ * @openapi
+ * paths:
+ *   /:
+ *     get:
+ *       summary: Get all jobs with pagination and filters
+ *       parameters:
+ *         - in: query
+ *           name: start
+ *           schema:
+ *             type: number
+ *             default: 0
+ *         - in: query
+ *           name: end
+ *           schema:
+ *             type: number
+ *             default: 100
+ *         - in: query
+ *           name: status
+ *           schema:
+ *             type: string
+ *             enum: [active, completed, failed, delayed, waiting]
+ *             default: active
+ *       responses: *         200:
+ *           description: List of jobs
+ *     post:
+ *       summary: Add a new job with secure room token
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 data:
+ *                   type: object
+ *                 opts:
+ *                   type: object
+ *       responses:
+ *         201:
+ *           description: Job created successfully
+ *   /bulk:
+ *     post:
+ *       summary: Add multiple jobs in bulk with secure room tokens
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 jobs:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       data:
+ *                         type: object
+ *                       opts:
+ *                         type: object
+ *       responses:
+ *         201:
+ *           description: Jobs created successfully
+ *     delete:
+ *       summary: Remove multiple jobs
+ *       requestBody:
+ *         required: true
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 ids:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *       responses:
+ *         200:
+ *           description: Jobs removed successfully
+ *   /{id}:
+ *     delete:
+ *       summary: Remove a specific job
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: string
+ *       responses:
+ *         200:
+ *           description: Job removed successfully
+ *         404:
+ *           description: Job not found
+ *   /{id}/retry:
+ *     post:
+ *       summary: Retry a failed job
+ *       parameters:
+ *         - in: path
+ *           name: id
+ *           required: true
+ *           schema:
+ *             type: string
+ *       responses:
+ *         200:
+ *           description: Job retry initiated successfully
+ *         404:
+ *           description: Job not found
+ *
+ * @param queue - The Bull queue instance to create routes for
+ * @returns Express router with queue management endpoints
+ */
+const createQueueRouter = <TData>(queue: Queue<TData>): Router => {
   const router = Router();
 
   // Get all jobs with pagination and filters
@@ -96,7 +209,7 @@ const createQueueRouter = <TData>(queue: Queue<TData>) => {
               _secureRoomToken: roomToken,
             },
             opts: job.opts,
-            roomToken, // Store token to include in response
+            roomToken,
           };
         });
 
@@ -108,12 +221,18 @@ const createQueueRouter = <TData>(queue: Queue<TData>) => {
           })),
         );
 
-        // Return jobs with their corresponding room tokens
-        const response = bulkJobs.map((job, index) => ({
-          jobId: job.id,
-          roomToken: jobsWithTokens[index].roomToken,
-          job, // Include full job data if needed
-        }));
+        // Add null check for jobsWithTokens[index]
+        const response = bulkJobs.map((job, index) => {
+          const token = jobsWithTokens[index]?.roomToken;
+          if (!token) {
+            throw new Error(`Missing token for job at index ${index}`);
+          }
+          return {
+            jobId: job.id,
+            roomToken: token,
+            job,
+          };
+        });
 
         res.status(201).json(response);
       } catch (error) {
@@ -145,7 +264,11 @@ const createQueueRouter = <TData>(queue: Queue<TData>) => {
   // Remove a job
   router.delete('/:id', async (req: Request, res: Response) => {
     try {
-      const job = await queue.getJob(req.params.id);
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Job ID is required' });
+      }
+      const job = await queue.getJob(id);
       if (!job) {
         return res.status(404).json({ error: 'Job not found' });
       }
@@ -159,7 +282,11 @@ const createQueueRouter = <TData>(queue: Queue<TData>) => {
   // Retry a failed job
   router.post('/:id/retry', async (req: Request, res: Response) => {
     try {
-      const job = await queue.getJob(req.params.id);
+      const { id } = req.params;
+      if (!id) {
+        return res.status(400).json({ error: 'Job ID is required' });
+      }
+      const job = await queue.getJob(id);
       if (!job) {
         return res.status(404).json({ error: 'Job not found' });
       }

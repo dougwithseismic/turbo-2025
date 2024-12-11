@@ -8,4 +8,5 @@ export const requestLogger = expressWinston.logger({
   msg: 'HTTP  ',
   expressFormat: true,
   colorize: false,
+  ignoredRoutes: ['/health', '/api/webhook', '/admin/queues/*'],
 });
