@@ -123,4 +123,18 @@ export type DbFunctions = {
       }>;
     };
   };
+  encrypt_token: {
+    Args: {
+      input_text: string;
+      secret_key?: string;
+    };
+    Returns: string;
+  };
+  decrypt_token: {
+    Args: {
+      encrypted_text: string;
+      secret_key?: string;
+    };
+    Returns: string;
+  };
 };

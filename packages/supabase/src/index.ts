@@ -26,6 +26,26 @@ export * from './module/organizations';
 export * from './module/profiles';
 export * from './module/projects';
 
+// Export Google auth functionality and types separately to avoid conflicts
+export {
+  storeGoogleCredentials,
+  addGscProperty,
+  getGscProperties,
+  getGoogleCredentials,
+  updateGoogleTokens,
+  needsTokenRefresh,
+} from './module/google-auth';
+
+export type {
+  GoogleTokens,
+  GoogleAccount,
+  GscProperty,
+  PropertyType,
+  PermissionLevel,
+  GoogleAccountRow,
+  GscPropertyRow,
+} from './types/google-auth';
+
 // Export stripe and subscriptions separately to avoid conflicts
 export {
   createSubscription,

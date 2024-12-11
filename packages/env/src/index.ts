@@ -30,6 +30,13 @@ export const env = createEnv({
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
     SUPABASE_URL: z.string().url().optional(),
     SUPABASE_ANON_KEY: z.string().min(1).optional(),
+    AUTH_GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+    AUTH_GOOGLE_SECRET: z.string().min(1).optional(),
+    AUTH_GOOGLE_REDIRECT_URI: z.string().url().optional(),
+    ENCRYPTION_KEY: z
+      .string()
+      .min(32)
+      .default('your-long-secure-encryption-key-min-32-chars'),
   },
   clientPrefix: 'NEXT_PUBLIC_',
   client: {

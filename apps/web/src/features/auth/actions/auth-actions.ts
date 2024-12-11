@@ -1,6 +1,7 @@
 import { AuthError, AuthErrorCode } from '@/lib/errors';
 import { supabaseClient } from '@/lib/supabase/client';
 import { toast } from 'react-hot-toast';
+import { GOOGLE_SCOPES } from '../../../../../../packages/consts/src/scopes/google/index';
 import type {
   AuthFormData,
   AuthResponse,
@@ -336,6 +337,7 @@ export const executeGoogleSignIn = async (): Promise<{
       await supabaseClient.auth.signInWithOAuth({
         provider: 'google',
         options: {
+          scopes: `${GOOGLE_SCOPES.WEBMASTERS_READONLY} ${GOOGLE_SCOPES.EMAIL} ${GOOGLE_SCOPES.PROFILE}`,
           redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?next=/dashboard`,
           queryParams: {
             access_type: 'offline',

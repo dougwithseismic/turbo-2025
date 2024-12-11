@@ -19,6 +19,13 @@ export const config = {
     ANON_KEY: env.SUPABASE_ANON_KEY,
     SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
   },
+  AUTH: {
+    GOOGLE: {
+      CLIENT_ID: env.AUTH_GOOGLE_CLIENT_ID,
+      SECRET: env.AUTH_GOOGLE_SECRET,
+      REDIRECT_URI: env.AUTH_GOOGLE_REDIRECT_URI,
+    },
+  },
   RATE_LIMIT: {
     API: {
       WINDOW_MS: env.RATE_LIMIT_API_WINDOW_MS,
@@ -35,8 +42,6 @@ export const config = {
     DSN: env.SENTRY_DSN ?? '',
   },
 } as const;
-
-console.log(config.SUPABASE);
 
 // Log configuration on startup
 logger.info('🕵️‍♂️ :: Configuration loaded');

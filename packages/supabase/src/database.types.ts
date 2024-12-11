@@ -1126,6 +1126,42 @@ export type Database = {
         };
         Relationships: [];
       };
+      user_oauth_tokens: {
+        Row: {
+          access_token: string;
+          created_at: string;
+          google_email: string;
+          id: string;
+          refresh_token: string;
+          scopes: string[];
+          token_expires_at: string;
+          updated_at: string;
+          user_id: string | null;
+        };
+        Insert: {
+          access_token: string;
+          created_at?: string;
+          google_email: string;
+          id?: string;
+          refresh_token: string;
+          scopes: string[];
+          token_expires_at: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Update: {
+          access_token?: string;
+          created_at?: string;
+          google_email?: string;
+          id?: string;
+          refresh_token?: string;
+          scopes?: string[];
+          token_expires_at?: string;
+          updated_at?: string;
+          user_id?: string | null;
+        };
+        Relationships: [];
+      };
       user_onboarding: {
         Row: {
           completed_steps:
@@ -1217,6 +1253,20 @@ export type Database = {
           daily_quota: number;
           queries_per_second: number;
         }[];
+      };
+      decrypt_token: {
+        Args: {
+          encrypted_text: string;
+          secret_key?: string;
+        };
+        Returns: string;
+      };
+      encrypt_token: {
+        Args: {
+          input_text: string;
+          secret_key?: string;
+        };
+        Returns: string;
       };
       get_api_usage_stats: {
         Args: {

@@ -90,7 +90,7 @@ These functions define how the AI agent interacts with project documentation and
 
 #### Progress Reports
 
-When asked to add a progress report, follow this template in `_project/progress/[folder]/index.md`:
+When asked to add a progress report, follow this template in `_project/progress/[number].md`:
 
 ```markdown
 ---
@@ -151,11 +151,11 @@ When documenting learnings:
 - Tag with relevant categories
 - Note any pattern changes or improvements
 
-Add learnings to ./_project/progress/learnings.md in the same format.
+Add learnings to ./_project/learnings/[subject].md in the same format. Check
 
 #### Learning Template
 
-When documenting learnings in `_project/progress/learnings.md`, follow this template:
+When documenting learnings in `_project/learnings/[subject].md`, follow this template:
 
 ```markdown
 ---

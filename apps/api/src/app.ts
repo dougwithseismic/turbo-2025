@@ -7,50 +7,44 @@ import { logger } from './config/logger';
 import { initializeSentry } from './config/sentry';
 import { requestLogger } from './middleware/request-logger';
 import { healthRouter } from './routes/health';
-import { supabaseAdmin, supabaseClient } from './lib/supabase';
-
-// Initialize Sentry
-initializeSentry();
+import { googleAuthRouter } from './routes/google-auth';
+import { handleErrors } from './middleware/handle-errors';
 
 const app = express();
-
-// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
+app.use(handleErrors);
 
-// Routes
 app.use('/health', healthRouter);
+app.use('/google', googleAuthRouter);
 
-// Error handling middleware
-app.use((err: Error, _req: express.Request, res: express.Response) => {
-  logger.error('Unhandled error', { error: err.stack });
-  res.status(500).json({
-    error: 'Internal server error',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined,
-  });
+initializeSentry();
+
+const server = app.listen(config.PORT, () => {
+  logger.info(`🚀 :: Server is running on port ${config.PORT}`);
 });
 
-const PORT = config.PORT;
-
-const server = app.listen(PORT, async () => {
-  logger.info(`🚀 :: Server is running on port ${PORT}`);
-
-  const { data, error } = await supabaseClient.from('api_services').select('*');
-
-  const { data: data2, error: error2 } = await supabaseAdmin
-    .from('subscription_plans')
-    .select('*');
-
-  console.log(data, error);
-  console.log(data2, error2);
-});
-
-// Cleanup on shutdown
 const cleanup = async () => {
-  server.close();
-  process.exit(0);
+  logger.info('Shutting down server...');
+
+  // Add timeout to force shutdown if graceful shutdown fails
+  const forceShutdown = setTimeout(() => {
+    logger.error(
+      'Could not close connections in time, forcefully shutting down',
+    );
+    process.exit(1);
+  }, 10000);
+
+  try {
+    await new Promise((resolve) => server.close(resolve));
+    clearTimeout(forceShutdown);
+    process.exit(0);
+  } catch (err) {
+    logger.error('Error during shutdown', { error: err });
+    process.exit(1);
+  }
 };
 
 process.on('SIGTERM', cleanup);

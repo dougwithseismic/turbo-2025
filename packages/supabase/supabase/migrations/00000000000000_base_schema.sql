@@ -1,8 +1,10 @@
 -- Enable necessary extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_cron";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
 
 -- Drop existing tables in reverse dependency order
+DROP TABLE IF EXISTS user_oauth_tokens CASCADE;
 DROP TABLE IF EXISTS oauth_states CASCADE;
 DROP TABLE IF EXISTS user_onboarding CASCADE;
 DROP TABLE IF EXISTS api_quota_allocations CASCADE;
@@ -29,6 +31,20 @@ CREATE TABLE profiles (
     avatar_url text,
     created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- OAuth tokens for third-party services
+CREATE TABLE user_oauth_tokens (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id uuid REFERENCES auth.users ON DELETE CASCADE,
+    google_email text NOT NULL,
+    access_token text NOT NULL,
+    refresh_token text NOT NULL,
+    token_expires_at timestamptz NOT NULL,
+    scopes text[] NOT NULL,
+    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(user_id, google_email)
 );
 
 -- Organizations
@@ -200,8 +216,10 @@ CREATE TABLE oauth_states (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_subscriptions_subscriber ON subscriptions(subscriber_type, subscriber_id);
 
+
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE user_oauth_tokens ENABLE ROW LEVEL SECURITY;
 ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memberships ENABLE ROW LEVEL SECURITY;

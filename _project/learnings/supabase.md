@@ -387,8 +387,7 @@ const validateSettings = (settings: unknown) => {
 
 - **Type Safety**: Catch JSON-related errors at compile time
 - **Better IDE Support**: Get autocomplete for JSON properties
-- **Runtime Safety**: Can validate JSON data before database operations
-- **Maintainability**: Clear contracts for JSON data structure
+- **Runtime Safety**: Can validate JSON data before database operations- **Maintainability**: Clear contracts for JSON data structure
 - **Performance**: JSONB columns are efficient for querying
 
 ### Common Issues and Solutions

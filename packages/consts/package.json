@@ -4,7 +4,12 @@
   "keywords": [],
   "license": "ISC",
   "main": "src/index.ts",
+  "type": "module",
   "name": "@repo/consts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./scopes/google": "./src/scopes/google/index.ts"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
