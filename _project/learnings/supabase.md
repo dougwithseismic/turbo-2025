@@ -1,5 +1,3 @@
----
-
 ## 2024-12-11 - Supabase Upsert with onConflict Parameter
 
 ### Category: Database, Supabase
