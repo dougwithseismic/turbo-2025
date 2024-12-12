@@ -29,14 +29,19 @@ export const storeGoogleCredentials = async ({
 }) => {
   const { data, error } = await supabase
     .from('user_google_accounts')
-    .upsert({
-      user_id: userId,
-      google_email: googleEmail,
-      access_token: tokens.accessToken,
-      refresh_token: tokens.refreshToken,
-      token_expires_at: tokens.expiresAt.toISOString(),
-      scopes: tokens.scopes,
-    })
+    .upsert(
+      {
+        user_id: userId,
+        google_email: googleEmail,
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+        token_expires_at: tokens.expiresAt.toISOString(),
+        scopes: tokens.scopes,
+      },
+      {
+        onConflict: 'user_id,google_email',
+      },
+    )
     .select()
     .single();
 

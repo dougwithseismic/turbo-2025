@@ -2,6 +2,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server';
 import { GOOGLE_SCOPES } from '@repo/consts/scopes/google';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
+import { storeGoogleCredentials } from '@repo/supabase';
 
 /**
  * Handles OAuth callback after user authentication.
@@ -55,35 +56,24 @@ export const GET = async (request: NextRequest) => {
     userEmail &&
     sessionData.user.app_metadata.provider === 'google'
   ) {
-    // Upsert tokens - creates new record or updates existing one
-    // based on user_id and google_email combination
-    const { error: insertError } = await supabase
-      .from('user_oauth_tokens')
-      .upsert(
-        {
-          user_id: sessionData.user.id,
-          google_email: userEmail,
-          access_token: providerToken,
-          refresh_token: refreshToken,
+    try {
+      await storeGoogleCredentials({
+        supabase,
+        userId: sessionData.user.id,
+        googleEmail: userEmail,
+        tokens: {
+          accessToken: providerToken,
+          refreshToken: refreshToken,
+          expiresAt: new Date(sessionData.session?.expires_at ?? 0),
           scopes: [
             GOOGLE_SCOPES.WEBMASTERS_READONLY,
             GOOGLE_SCOPES.EMAIL,
             GOOGLE_SCOPES.PROFILE,
           ],
-          token_expires_at: new Date().toISOString(),
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
         },
-        {
-          onConflict: 'user_id,google_email',
-        },
-      )
-      .select()
-      .single();
-
-    // Log any token storage errors but don't fail the auth flow
-    if (insertError) {
-      console.error('Error storing Google OAuth token:', insertError);
+      });
+    } catch (error) {
+      console.error('Error storing Google OAuth token:', error);
     }
   }
 

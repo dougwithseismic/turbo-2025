@@ -8,17 +8,13 @@ import {
   getGoogleCredentials,
   updateGoogleTokens,
   needsTokenRefresh,
-  type GoogleTokens,
-  type GscProperty,
-  type GoogleAccount,
-  type PropertyType,
-  type PermissionLevel,
   type GoogleAccountRow,
 } from '@repo/supabase';
 import { requireAuth, type AuthenticatedRequest } from '../middleware/auth';
 import { google } from 'googleapis';
 import { z } from 'zod';
 import { GOOGLE_SCOPES } from '@repo/consts';
+import { config } from '../config/app-config';
 
 export const googleAuthRouter: ExpressRouter = Router();
 
@@ -41,9 +37,9 @@ const gscPropertySchema = z.object({
 // Create OAuth2 client for server-side operations
 const createOAuth2Client = () => {
   const client = new google.auth.OAuth2(
-    process.env.GOOGLE_CLIENT_ID,
-    process.env.GOOGLE_CLIENT_SECRET,
-    process.env.GOOGLE_REDIRECT_URI,
+    config.AUTH.GOOGLE.CLIENT_ID,
+    config.AUTH.GOOGLE.SECRET,
+    config.AUTH.GOOGLE.REDIRECT_URI,
   );
 
   return client;
