@@ -1,41 +1,28 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalDependencies": [
-    "@repo/config-typescript",
-    "@repo/env",
-    ".env"
-  ],
+  "globalDependencies": ["@repo/config-typescript", "@repo/env", ".env"],
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
+      "dependsOn": ["^build"],
       "env": [
-        "NODE_ENV"
+        "NODE_ENV",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "STRIPE_SECRET_KEY",
+        "SUPABASE_AUTH_GOOGLE_CLIENT_ID",
+        "SUPABASE_AUTH_GOOGLE_SECRET",
+        "SUPABASE_URL"
       ],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        ".env*"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
-      ]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "dev": {
       "cache": false,
-      "dependsOn": [
-        "^build",
-        "@repo/env#build"
-      ],
+      "dependsOn": ["^build", "@repo/env#build"],
       "persistent": true
     },
     "lint": {},
     "setup": {
-      "dependsOn": [
-        "^setup"
-      ]
+      "dependsOn": ["^setup"]
     }
   },
   "ui": "stream"
