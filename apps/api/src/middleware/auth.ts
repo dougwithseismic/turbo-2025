@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { supabaseClient } from '../lib/supabase';
+import { supabaseAdmin } from '../lib/supabase';
 
 export interface AuthenticatedRequest extends Request {
   user: {
@@ -23,7 +23,7 @@ export const requireAuth = async (
     const {
       data: { user },
       error,
-    } = await supabaseClient.auth.getUser(token);
+    } = await supabaseAdmin.auth.getUser(token);
 
     if (error || !user) {
       return res.status(401).json({ error: 'Invalid or expired token' });
@@ -37,6 +37,8 @@ export const requireAuth = async (
 
     next();
   } catch (error) {
-    res.status(401).json({ error: 'Authentication failed' });
+    res
+      .status(401)
+      .json({ error: `Authentication failed: ${JSON.stringify(error)}` });
   }
 };

@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
 
 type OAuthState = Database['public']['Tables']['oauth_states']['Row'];
@@ -27,7 +27,7 @@ const storeOauthToken = async ({
   email: string;
   provider: string;
   tokens: TokenData;
-}): Promise<OAuthToken> => {
+}): Promise<{ data: OAuthToken | null; error: PostgrestError | null }> => {
   const { data, error } = await supabase
     .from('user_oauth_tokens')
     .upsert(
@@ -48,7 +48,7 @@ const storeOauthToken = async ({
     .single();
 
   if (error) throw error;
-  return data;
+  return { data, error };
 };
 
 /**
@@ -64,17 +64,21 @@ const getOauthToken = async ({
   userId: string;
   provider: string;
   email: string;
-}): Promise<OAuthToken | null> => {
+}): Promise<{ data: OAuthToken | null; error: PostgrestError | null }> => {
   const { data, error } = await supabase
     .from('user_oauth_tokens')
     .select()
     .eq('user_id', userId)
     .eq('provider', provider)
     .eq('email', email)
-    .single();
+    .select();
 
-  if (error) return null;
-  return data;
+  if (error) throw error;
+
+  console.log('🚨 data', data);
+  console.log('🚨 error', error);
+
+  return { data: data[0] || null, error };
 };
 
 /**

@@ -56,12 +56,17 @@ export const connectOAuthAccount = async ({
   const supabase = await createSupabaseServerClient();
 
   try {
-    const existingTokenData = await getOauthToken({
-      supabase,
-      userId: user.id,
-      provider,
-      email: user.email!,
-    });
+    const { data: existingTokenData, error: existingTokenError } =
+      await getOauthToken({
+        supabase,
+        userId: user.id,
+        provider,
+        email: user.email!,
+      });
+
+    if (existingTokenError) {
+      throw existingTokenError;
+    }
 
     console.log('🚨 existingTokenData', existingTokenData);
 

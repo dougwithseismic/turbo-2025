@@ -55,12 +55,16 @@ export const useOAuthScopes = ({
         setIsLoading(true);
         setError(null);
 
-        const token = await getOauthToken({
+        const { data: token, error: tokenError } = await getOauthToken({
           email: user.email!,
           supabase: supabaseClient,
           userId: user.id,
           provider,
         });
+
+        if (tokenError) {
+          throw tokenError;
+        }
 
         if (token) {
           console.log('✅ Token found:', { provider, scopes: token.scopes });

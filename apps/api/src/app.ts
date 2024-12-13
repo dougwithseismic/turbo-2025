@@ -7,6 +7,7 @@ import { logger } from './config/logger';
 import { initSentry } from './config/sentry';
 import { requestLogger } from './middleware/request-logger';
 import { healthRouter } from './routes/health';
+import { googleSearchConsoleRouter } from './routes/google-search-console';
 import { handleErrors } from './middleware/handle-errors';
 import { initPrometheus } from './lib/prometheus';
 
@@ -15,9 +16,10 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 app.use(requestLogger);
-app.use(handleErrors);
+// app.use(handleErrors);
 
 app.use('/health', healthRouter);
+app.use('/api/v1/google-search-console', googleSearchConsoleRouter);
 
 initSentry();
 initPrometheus(app);
