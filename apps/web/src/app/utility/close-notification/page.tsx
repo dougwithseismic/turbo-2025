@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
-const CloseNotificationContent = () => {
+const NotificationContent = () => {
   const searchParams = useSearchParams();
   const message =
     searchParams.get('message') ?? 'Sorted - You can close this window now';
@@ -50,6 +50,14 @@ const CloseNotificationContent = () => {
         Close Now
       </Button>
     </motion.div>
+  );
+};
+
+const CloseNotificationContent = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NotificationContent />
+    </Suspense>
   );
 };
 

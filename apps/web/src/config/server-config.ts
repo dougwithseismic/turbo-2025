@@ -1,3 +1,4 @@
+/* eslint-disable turbo/no-undeclared-env-vars */
 'use server';
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
@@ -38,7 +39,7 @@ export const env = createEnv({
 // Server-only configuration
 export const serverConfig = {
   PORT: env.PORT,
-  BASE_URL: env.NEXT_PUBLIC_BASE_URL,
+  BASE_URL: env.BASE_URL,
   SUPABASE: {
     SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
   },
