@@ -24,6 +24,7 @@ import { executeUpdateLegalEntity } from '../../actions/legal-entity-actions';
 import { executeUpdatePaymentMethod } from '../../actions/payment-method-actions';
 import { executeUpdateDomain } from '../../actions/domain-actions';
 import { executeUpdateCalendarLink } from '../../actions/calendar-link-actions';
+import { OAuthAccountsField } from './fields/oauth-accounts-field';
 
 export const AccountSettings = () => {
   const { user } = useAuth();
@@ -203,6 +204,9 @@ export const AccountSettings = () => {
                 <BirthdateField onSubmit={handleBirthdateUpdate} />
               </ContentCard.Item>
 
+              <ContentCard.Item id="account-link">
+                <OAuthAccountsField />
+              </ContentCard.Item>
               <ContentCard.Item id="calendar-link">
                 <CalendarLinkField onSubmit={handleCalendarLinkUpdate} />
               </ContentCard.Item>

@@ -1,3 +1,5 @@
+'use server';
+
 interface EmailResponse {
   data: { email: string } | null;
   error: Error | null;

@@ -1130,8 +1130,9 @@ export type Database = {
         Row: {
           access_token: string;
           created_at: string;
-          google_email: string;
+          email: string;
           id: string;
+          provider: string;
           refresh_token: string;
           scopes: string[];
           token_expires_at: string;
@@ -1141,8 +1142,9 @@ export type Database = {
         Insert: {
           access_token: string;
           created_at?: string;
-          google_email: string;
+          email: string;
           id?: string;
+          provider: string;
           refresh_token: string;
           scopes: string[];
           token_expires_at: string;
@@ -1152,8 +1154,9 @@ export type Database = {
         Update: {
           access_token?: string;
           created_at?: string;
-          google_email?: string;
+          email?: string;
           id?: string;
+          provider?: string;
           refresh_token?: string;
           scopes?: string[];
           token_expires_at?: string;
@@ -1253,20 +1256,6 @@ export type Database = {
           daily_quota: number;
           queries_per_second: number;
         }[];
-      };
-      decrypt_token: {
-        Args: {
-          encrypted_text: string;
-          secret_key?: string;
-        };
-        Returns: string;
-      };
-      encrypt_token: {
-        Args: {
-          input_text: string;
-          secret_key?: string;
-        };
-        Returns: string;
       };
       get_api_usage_stats: {
         Args: {

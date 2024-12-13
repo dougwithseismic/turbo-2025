@@ -1,3 +1,5 @@
+'use server';
+
 type LegalEntityType = 'individual' | 'company' | 'non-profit';
 
 interface LegalEntityResponse {

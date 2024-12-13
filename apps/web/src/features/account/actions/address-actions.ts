@@ -1,3 +1,5 @@
+'use server';
+
 interface AddressData {
   street: string;
   city: string;

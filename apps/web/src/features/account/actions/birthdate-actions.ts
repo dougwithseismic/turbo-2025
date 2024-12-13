@@ -1,3 +1,5 @@
+'use server';
+
 interface BirthdateResponse {
   data: { birthdate: Date } | null;
   error: Error | null;

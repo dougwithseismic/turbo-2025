@@ -1,13 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Settings2, RefreshCcw, CheckCircle2 } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { CheckCircle2, RefreshCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useState } from 'react';
 import { useHealthCheck } from '../hooks/use-health-check';
-import { Metadata } from 'next';
 
 const REDIRECT_COUNTDOWN_SECONDS = 3;
 

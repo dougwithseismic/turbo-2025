@@ -7,6 +7,7 @@ export const env = createEnv({
     PORT: z.number().default(666),
     API_BASE_URL: z.string().url(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
+    BASE_URL: z.string().url(),
     API_TIMEOUT: z.number(),
     RATE_LIMIT_API_WINDOW_MS: z.number(),
     RATE_LIMIT_API_MAX_REQUESTS: z.number(),
@@ -18,6 +19,7 @@ export const env = createEnv({
     PORT: process.env.PORT ? Number(process.env.PORT) : undefined,
     API_BASE_URL: process.env.API_BASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
     API_TIMEOUT: Number(process.env.API_TIMEOUT),
     RATE_LIMIT_API_WINDOW_MS: Number(process.env.RATE_LIMIT_API_WINDOW_MS),
     RATE_LIMIT_API_MAX_REQUESTS: Number(
@@ -36,7 +38,7 @@ export const env = createEnv({
 // Server-only configuration
 export const serverConfig = {
   PORT: env.PORT,
-  BASE_URL: env.API_BASE_URL,
+  BASE_URL: env.NEXT_PUBLIC_BASE_URL,
   SUPABASE: {
     SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
   },

@@ -37,14 +37,15 @@ CREATE TABLE profiles (
 CREATE TABLE user_oauth_tokens (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users ON DELETE CASCADE,
-    google_email text NOT NULL,
+    email text NOT NULL,
+    provider text NOT NULL,
     access_token text NOT NULL,
     refresh_token text NOT NULL,
     token_expires_at timestamptz NOT NULL,
     scopes text[] NOT NULL,
     created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    UNIQUE(user_id, google_email)
+    UNIQUE(user_id, provider, email)
 );
 
 -- Organizations
@@ -232,3 +233,17 @@ ALTER TABLE api_services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_quota_allocations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY;
 ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY;
+
+-- Enable Realtime
+DROP PUBLICATION IF EXISTS supabase_realtime;
+CREATE PUBLICATION supabase_realtime FOR TABLE 
+    user_oauth_tokens,
+    organizations,
+    projects,
+    memberships,
+    subscriptions,
+    user_onboarding,
+    profiles;
+
+-- Configure the publication to handle all operations (insert, update, delete, truncate)
+ALTER PUBLICATION supabase_realtime SET (publish = 'insert,update,delete');

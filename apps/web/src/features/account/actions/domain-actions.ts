@@ -1,3 +1,5 @@
+'use server';
+
 interface DomainResponse {
   data: { domain: string } | null;
   error: Error | null;

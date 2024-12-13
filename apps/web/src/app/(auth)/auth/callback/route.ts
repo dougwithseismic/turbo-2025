@@ -1,8 +1,7 @@
 import { createSupabaseServerClient } from '@/lib/supabase/server';
-import { GOOGLE_SCOPES } from '@repo/consts/scopes/google';
-import { NextResponse } from 'next/server';
-import { NextRequest } from 'next/server';
-import { storeGoogleCredentials } from '@repo/supabase';
+import { NextRequest, NextResponse } from 'next/server';
+import { createRedirectUrl } from './utility/create-redirect-url';
+import { handleOAuthTokens } from './utility/handle-auth-tokens';
 
 /**
  * Handles OAuth callback after user authentication.
@@ -19,9 +18,19 @@ export const GET = async (request: NextRequest) => {
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get('code');
   const next = requestUrl.searchParams.get('next') ?? '/dashboard';
+  const scopes = requestUrl.searchParams.get('scopes')?.split(' ') ?? [];
+
+  console.log('requestUrl', requestUrl);
+  console.log('code', code);
+  console.log('next', next);
+  console.log('scopes', scopes);
 
   // If no auth code provided, redirect to destination
   if (!code) {
+    console.log(
+      '🚨 No auth code provided - redirecting to:',
+      `${requestUrl.origin}${next}`,
+    );
     return NextResponse.redirect(`${requestUrl.origin}${next}`);
   }
 
@@ -31,52 +40,73 @@ export const GET = async (request: NextRequest) => {
   const { data: sessionData, error: sessionError } =
     await supabase.auth.exchangeCodeForSession(code);
 
-  // Handle authentication errors by redirecting to error page
-  if (sessionError) {
+  const handleAuthError = ({
+    error,
+    origin,
+  }: {
+    error: string;
+    origin: string;
+  }): NextResponse => {
+    console.error('🚨 Authentication error:', error);
     return NextResponse.redirect(
-      `${requestUrl.origin}/auth/auth-error?error=${sessionError.message}`,
+      `${origin}/auth/auth-error?error=${encodeURIComponent(error)}`,
     );
+  };
+
+  // Then use it like:
+  if (sessionError) {
+    return handleAuthError({
+      error: sessionError.message,
+      origin: requestUrl.origin,
+    });
   }
 
   // Ensure we have a valid user before proceeding
   if (!sessionData?.user) {
+    console.log(
+      '🚨 No user data - redirecting to:',
+      `${requestUrl.origin}${next}`,
+    );
     return NextResponse.redirect(`${requestUrl.origin}${next}`);
   }
 
   // Extract OAuth tokens from the session
-  // These are only present for Google sign-ins
+  // These are only present for OAuth sign-ins
   const providerToken = sessionData.session?.provider_token;
   const refreshToken = sessionData.session?.provider_refresh_token;
   const userEmail = sessionData.user.email;
+  const provider = sessionData.user.app_metadata.provider;
 
-  // Store OAuth tokens for Google users to enable future API access
   if (
+    sessionData.session &&
     providerToken &&
     refreshToken &&
     userEmail &&
-    sessionData.user.app_metadata.provider === 'google'
+    provider &&
+    scopes.length > 0
   ) {
+    console.log('🚨 Storing OAuth tokens for:', provider);
     try {
-      await storeGoogleCredentials({
+      await handleOAuthTokens({
+        session: sessionData.session,
+        user: sessionData.user,
         supabase,
-        userId: sessionData.user.id,
-        googleEmail: userEmail,
-        tokens: {
-          accessToken: providerToken,
-          refreshToken: refreshToken,
-          expiresAt: new Date(sessionData.session?.expires_at ?? 0),
-          scopes: [
-            GOOGLE_SCOPES.WEBMASTERS_READONLY,
-            GOOGLE_SCOPES.EMAIL,
-            GOOGLE_SCOPES.PROFILE,
-          ],
-        },
+        scopes,
       });
     } catch (error) {
-      console.error('Error storing Google OAuth token:', error);
+      console.error(`Error storing ${provider} OAuth token:`, error);
     }
   }
 
   // Finally, redirect user to their intended destination
-  return NextResponse.redirect(`${requestUrl.origin}${next}`);
+  console.log(
+    '✅ Authentication successful - redirecting to:',
+    `${requestUrl.origin}${next}`,
+  );
+  return NextResponse.redirect(
+    createRedirectUrl({
+      origin: requestUrl.origin,
+      path: next,
+    }),
+  );
 };

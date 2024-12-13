@@ -21,6 +21,7 @@ export const env = createEnv({
   },
   server: {
     SUPABASE_URL: z.string().url(),
+    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   },
   runtimeEnv: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
@@ -40,6 +41,7 @@ export const env = createEnv({
 export const clientConfig = {
   APP_NAME: appName,
   NODE_ENV: process.env.NODE_ENV ?? 'development',
+  BASE_URL: env.NEXT_PUBLIC_BASE_URL,
   SUPABASE: {
     URL: env.NEXT_PUBLIC_SUPABASE_URL,
     ANON_KEY: env.NEXT_PUBLIC_SUPABASE_ANON_KEY,

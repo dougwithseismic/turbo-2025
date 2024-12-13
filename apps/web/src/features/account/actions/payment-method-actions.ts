@@ -1,3 +1,5 @@
+'use server';
+
 interface PaymentMethodData {
   lastFour: string;
   expiryMonth: number;

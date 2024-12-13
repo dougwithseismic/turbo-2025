@@ -1,3 +1,5 @@
+'use server';
+
 interface CalendarLinkResponse {
   data: { link: string } | null;
   error: Error | null;

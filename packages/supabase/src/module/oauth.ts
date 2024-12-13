@@ -2,6 +2,155 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../database.types';
 
 type OAuthState = Database['public']['Tables']['oauth_states']['Row'];
+type OAuthToken = Database['public']['Tables']['user_oauth_tokens']['Row'];
+
+interface TokenData {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: Date;
+  scopes: string[];
+}
+
+/**
+ * Stores OAuth tokens for a user and provider.
+ * Used after initial auth to enable server-side operations.
+ */
+const storeOauthToken = async ({
+  supabase,
+  userId,
+  email,
+  provider,
+  tokens,
+}: {
+  supabase: SupabaseClient<Database>;
+  userId: string;
+  email: string;
+  provider: string;
+  tokens: TokenData;
+}): Promise<OAuthToken> => {
+  const { data, error } = await supabase
+    .from('user_oauth_tokens')
+    .upsert(
+      {
+        user_id: userId,
+        email,
+        provider,
+        access_token: tokens.accessToken,
+        refresh_token: tokens.refreshToken,
+        token_expires_at: tokens.expiresAt.toISOString(),
+        scopes: tokens.scopes,
+      },
+      {
+        onConflict: 'user_id,provider,email',
+      },
+    )
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+/**
+ * Retrieves OAuth tokens for server-side operations.
+ */
+const getOauthToken = async ({
+  supabase,
+  userId,
+  provider,
+  email,
+}: {
+  supabase: SupabaseClient<Database>;
+  userId: string;
+  provider: string;
+  email: string;
+}): Promise<OAuthToken | null> => {
+  const { data, error } = await supabase
+    .from('user_oauth_tokens')
+    .select()
+    .eq('user_id', userId)
+    .eq('provider', provider)
+    .eq('email', email)
+    .single();
+
+  if (error) return null;
+  return data;
+};
+
+/**
+ * Updates tokens after a refresh operation.
+ */
+const updateOauthToken = async ({
+  supabase,
+  tokenId,
+  tokens,
+}: {
+  supabase: SupabaseClient<Database>;
+  tokenId: string;
+  tokens: Partial<TokenData>;
+}): Promise<OAuthToken> => {
+  const updates: Record<string, any> = {};
+
+  if (tokens.accessToken) {
+    updates.access_token = tokens.accessToken;
+  }
+  if (tokens.refreshToken) {
+    updates.refresh_token = tokens.refreshToken;
+  }
+  if (tokens.expiresAt) {
+    updates.token_expires_at = tokens.expiresAt.toISOString();
+  }
+  if (tokens.scopes) {
+    updates.scopes = tokens.scopes;
+  }
+
+  const { data, error } = await supabase
+    .from('user_oauth_tokens')
+    .update(updates)
+    .eq('id', tokenId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+};
+
+/**
+ * Deletes OAuth tokens and cascades the deletion to related records.
+ * Note: Requires ON DELETE CASCADE to be set up in the database schema
+ * for proper cascading deletion of related records.
+ */
+const deleteOauthToken = async ({
+  supabase,
+  userId,
+  provider,
+  email,
+}: {
+  supabase: SupabaseClient<Database>;
+  userId: string;
+  provider: string;
+  email: string;
+}): Promise<void> => {
+  try {
+    const { error } = await supabase
+      .from('user_oauth_tokens')
+      .delete()
+      .eq('user_id', userId)
+      .eq('provider', provider)
+      .eq('email', email);
+
+    if (error) {
+      throw new Error(`Failed to delete OAuth token: ${error.message}`);
+    }
+  } catch (err) {
+    const errorMessage =
+      err instanceof Error
+        ? err.message
+        : 'Unknown error occurred while deleting OAuth token';
+    console.error('Error deleting OAuth token:', errorMessage);
+    throw new Error(errorMessage);
+  }
+};
 
 /**
  * Creates a new OAuth state for secure authentication flow.
@@ -136,6 +285,10 @@ export {
   verifyOAuthState,
   cleanupExpiredStates,
   deleteOAuthState,
+  storeOauthToken,
+  getOauthToken,
+  updateOauthToken,
+  deleteOauthToken,
 };
 
-export type { OAuthState };
+export type { OAuthState, OAuthToken, TokenData };
