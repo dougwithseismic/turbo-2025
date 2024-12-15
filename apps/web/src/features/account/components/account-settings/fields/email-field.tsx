@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 const TEXT = {
   EMAIL_LABEL: 'Email',
@@ -19,37 +19,32 @@ const TEXT = {
     EMAILS_MATCH: "Emails don't match",
     PASSWORD_REQUIRED: 'Password is required',
   },
-};
+}
 
-import { ActionField } from '@/components/action-field';
-import { DragToConfirm } from '@/components/drag-to-confirm';
-import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
+import { ActionField } from '@/components/action-field'
+import { DragToConfirm } from '@/components/drag-to-confirm'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Form } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { cn } from '@/lib/utils';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { cva } from 'class-variance-authority';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, PencilLine } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+} from '@/components/ui/dialog'
+import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { cn } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { cva } from 'class-variance-authority'
+import { motion, AnimatePresence } from 'motion/react'
+import { Mail, PencilLine } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const modalCardVariants = cva(
   cn(
@@ -83,7 +78,7 @@ const modalCardVariants = cva(
       spacing: 'base',
     },
   },
-);
+)
 
 const STEPS = [
   {
@@ -96,10 +91,10 @@ const STEPS = [
     title: 'Confirm',
     description: TEXT.VERIFY_WITH_PASSWORD,
   },
-] as const;
+] as const
 
-type Step = (typeof STEPS)[number];
-type StepId = Step['id'];
+type Step = (typeof STEPS)[number]
+type StepId = Step['id']
 
 const emailStepSchema = z
   .object({
@@ -109,25 +104,25 @@ const emailStepSchema = z
   .refine((data) => data.newEmail === data.confirmEmail, {
     message: TEXT.VALIDATION.EMAILS_MATCH,
     path: ['confirmEmail'],
-  });
+  })
 
 const passwordStepSchema = z.object({
   password: z.string().min(1, TEXT.VALIDATION.PASSWORD_REQUIRED),
-});
+})
 
-type EmailStepForm = z.infer<typeof emailStepSchema>;
-type PasswordStepForm = z.infer<typeof passwordStepSchema>;
+type EmailStepForm = z.infer<typeof emailStepSchema>
+type PasswordStepForm = z.infer<typeof passwordStepSchema>
 
 type EmailFieldProps = {
-  onSubmit: (data: EmailStepForm & PasswordStepForm) => Promise<boolean>;
-};
+  onSubmit: (data: EmailStepForm & PasswordStepForm) => Promise<boolean>
+}
 
 export const EmailField = ({ onSubmit }: EmailFieldProps) => {
-  const { user } = useAuth();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<StepId>(1);
-  const [isOpen, setIsOpen] = useState(false);
-  const [emailData, setEmailData] = useState<EmailStepForm | null>(null);
+  const { user } = useAuth()
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState<StepId>(1)
+  const [isOpen, setIsOpen] = useState(false)
+  const [emailData, setEmailData] = useState<EmailStepForm | null>(null)
 
   const emailForm = useForm<EmailStepForm>({
     resolver: zodResolver(emailStepSchema),
@@ -136,7 +131,7 @@ export const EmailField = ({ onSubmit }: EmailFieldProps) => {
       confirmEmail: '',
     },
     mode: 'onChange',
-  });
+  })
 
   const passwordForm = useForm<PasswordStepForm>({
     resolver: zodResolver(passwordStepSchema),
@@ -144,55 +139,55 @@ export const EmailField = ({ onSubmit }: EmailFieldProps) => {
       password: '',
     },
     mode: 'onChange',
-  });
+  })
 
   const currentStepData =
-    STEPS.find((step) => step.id === currentStep) ?? STEPS[0];
+    STEPS.find((step) => step.id === currentStep) ?? STEPS[0]
 
   const resetForms = () => {
-    emailForm.reset();
-    passwordForm.reset();
-    setEmailData(null);
-    setCurrentStep(1);
-  };
+    emailForm.reset()
+    passwordForm.reset()
+    setEmailData(null)
+    setCurrentStep(1)
+  }
 
   const handleNext = async (data: EmailStepForm) => {
-    setEmailData(data);
-    setCurrentStep(2);
-  };
+    setEmailData(data)
+    setCurrentStep(2)
+  }
 
   const handleBack = () => {
-    setCurrentStep(1);
-  };
+    setCurrentStep(1)
+  }
 
   const handleSubmit = async (data: PasswordStepForm): Promise<boolean> => {
-    if (!emailData) return false;
+    if (!emailData) return false
     try {
-      setIsSubmitting(true);
-      await onSubmit({ ...emailData, ...data });
+      setIsSubmitting(true)
+      await onSubmit({ ...emailData, ...data })
       setTimeout(() => {
-        resetForms();
-        setIsOpen(false);
-      }, 1000);
-      return true;
+        resetForms()
+        setIsOpen(false)
+      }, 1000)
+      return true
     } catch (error) {
-      console.error('Failed to update email:', error);
-      return false;
+      console.error('Failed to update email:', error)
+      return false
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleSwipeConfirm = async (): Promise<boolean> => {
     try {
-      const data = passwordForm.getValues();
-      if (!passwordForm.formState.isValid) return false;
-      return await handleSubmit(data);
+      const data = passwordForm.getValues()
+      if (!passwordForm.formState.isValid) return false
+      return await handleSubmit(data)
     } catch (error) {
-      console.error('Failed to handle swipe confirmation:', error);
-      return false;
+      console.error('Failed to handle swipe confirmation:', error)
+      return false
     }
-  };
+  }
 
   return (
     <ActionField<'IDLE' | 'EDITING' | 'CONFIRM' | 'LOADING' | 'ERROR'>
@@ -405,5 +400,5 @@ export const EmailField = ({ onSubmit }: EmailFieldProps) => {
         </>
       )}
     </ActionField>
-  );
-};
+  )
+}

@@ -1,12 +1,12 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { Globe, PencilLine } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { Globe, PencilLine } from 'lucide-react'
 
 type DomainFieldProps = {
-  label: string;
-  domain: string;
-  onSubmit: (domain: string) => Promise<boolean>;
-};
+  label: string
+  domain: string
+  onSubmit: (domain: string) => Promise<boolean>
+}
 
 export const DomainField = ({ label, domain, onSubmit }: DomainFieldProps) => {
   return (
@@ -24,5 +24,5 @@ export const DomainField = ({ label, domain, onSubmit }: DomainFieldProps) => {
         </Button>
       </ActionField.Action>
     </ActionField>
-  );
-};
+  )
+}

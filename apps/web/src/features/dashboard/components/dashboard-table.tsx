@@ -1,5 +1,25 @@
-'use client';
+'use client'
 
+import { itemVariants } from '@/components/content-card/animations/content-card-animations'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -10,41 +30,18 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-  Header,
-  Row,
-} from '@tanstack/react-table';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Button } from '@/components/ui/button';
-import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { ArrowUpDown, MoreHorizontal } from 'lucide-react';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Badge } from '@/components/ui/badge';
-import { DashboardCard } from './dashboard-card';
-import { motion } from 'framer-motion';
-import { itemVariants } from '@/components/content-card/animations/content-card-animations';
-import toast from 'react-hot-toast';
+} from '@tanstack/react-table'
+import { ArrowUpDown, MoreHorizontal } from 'lucide-react'
+import { motion } from 'motion/react'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import { DashboardCard } from './dashboard-card'
 
 interface Payment {
-  id: string;
-  amount: number;
-  status: 'pending' | 'processing' | 'success' | 'failed';
-  email: string;
+  id: string
+  amount: number
+  status: 'pending' | 'processing' | 'success' | 'failed'
+  email: string
 }
 
 const columns: ColumnDef<Payment>[] = [
@@ -52,7 +49,7 @@ const columns: ColumnDef<Payment>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as string;
+      const status = row.getValue('status') as string
       return (
         <Badge
           variant={
@@ -67,7 +64,7 @@ const columns: ColumnDef<Payment>[] = [
         >
           {status}
         </Badge>
-      );
+      )
     },
   },
   {
@@ -81,7 +78,7 @@ const columns: ColumnDef<Payment>[] = [
           Email
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
-      );
+      )
     },
   },
   {
@@ -97,22 +94,22 @@ const columns: ColumnDef<Payment>[] = [
       </Button>
     ),
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
+      const amount = parseFloat(row.getValue('amount'))
       const formatted = new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
-      }).format(amount);
+      }).format(amount)
       return (
         <div className="text-right font-medium hidden md:block">
           {formatted}
         </div>
-      );
+      )
     },
   },
   {
     id: 'actions',
     cell: ({ row }) => {
-      const payment = row.original;
+      const payment = row.original
 
       return (
         <DropdownMenu>
@@ -126,8 +123,8 @@ const columns: ColumnDef<Payment>[] = [
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => {
-                navigator.clipboard.writeText(payment.id);
-                toast.success('Payment ID copied to clipboard');
+                navigator.clipboard.writeText(payment.id)
+                toast.success('Payment ID copied to clipboard')
               }}
             >
               Copy payment ID
@@ -137,10 +134,10 @@ const columns: ColumnDef<Payment>[] = [
             <DropdownMenuItem>View customer</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-      );
+      )
     },
   },
-];
+]
 
 const data: Payment[] = [
   {
@@ -173,11 +170,11 @@ const data: Payment[] = [
     status: 'failed',
     email: 'carmella@hotmail.com',
   },
-];
+]
 
 export const DashboardTable = () => {
-  const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([])
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const table = useReactTable({
     data,
@@ -192,7 +189,7 @@ export const DashboardTable = () => {
       sorting,
       columnFilters,
     },
-  });
+  })
 
   return (
     <DashboardCard className="h-full">
@@ -221,7 +218,7 @@ export const DashboardTable = () => {
                                 header.getContext(),
                               )}
                         </TableHead>
-                      );
+                      )
                     })}
                   </TableRow>
                 ))}
@@ -282,5 +279,5 @@ export const DashboardTable = () => {
         </motion.div>
       </CardContent>
     </DashboardCard>
-  );
-};
+  )
+}

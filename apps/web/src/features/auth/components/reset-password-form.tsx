@@ -1,70 +1,70 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import Link from 'next/link'
+import { motion } from 'motion/react'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 
-const COOLDOWN_TIME = 60; // 60 seconds
+const COOLDOWN_TIME = 60 // 60 seconds
 
 export const ResetPasswordForm = () => {
-  const { resetPassword } = useAuth();
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
-  const [cooldown, setCooldown] = useState(0);
-  const [email, setEmail] = useState('');
+  const { resetPassword } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [success, setSuccess] = useState(false)
+  const [cooldown, setCooldown] = useState(0)
+  const [email, setEmail] = useState('')
 
   useEffect(() => {
     if (cooldown > 0) {
       const timer = setInterval(() => {
-        setCooldown((prev) => prev - 1);
-      }, 1000);
-      return () => clearInterval(timer);
+        setCooldown((prev) => prev - 1)
+      }, 1000)
+      return () => clearInterval(timer)
     }
-  }, [cooldown]);
+  }, [cooldown])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    e.preventDefault()
+    setIsLoading(true)
+    setError(null)
 
     try {
-      const formData = new FormData(e.currentTarget);
-      const emailValue = formData.get('email') as string;
+      const formData = new FormData(e.currentTarget)
+      const emailValue = formData.get('email') as string
       if (!emailValue) {
-        setError('Email is required');
-        return;
+        setError('Email is required')
+        return
       }
 
-      setEmail(emailValue);
-      await resetPassword({ email: emailValue });
-      setSuccess(true);
-      setCooldown(COOLDOWN_TIME);
+      setEmail(emailValue)
+      await resetPassword({ email: emailValue })
+      setSuccess(true)
+      setCooldown(COOLDOWN_TIME)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleResend = async () => {
-    if (cooldown > 0) return;
-    setIsLoading(true);
-    setError(null);
+    if (cooldown > 0) return
+    setIsLoading(true)
+    setError(null)
 
     try {
-      await resetPassword({ email });
-      setCooldown(COOLDOWN_TIME);
+      await resetPassword({ email })
+      setCooldown(COOLDOWN_TIME)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   if (success) {
     return (
@@ -99,7 +99,7 @@ export const ResetPasswordForm = () => {
           </Button>
         </div>
       </motion.div>
-    );
+    )
   }
 
   return (
@@ -141,5 +141,5 @@ export const ResetPasswordForm = () => {
         <Link href="/login">Back to login</Link>
       </Button>
     </motion.form>
-  );
-};
+  )
+}

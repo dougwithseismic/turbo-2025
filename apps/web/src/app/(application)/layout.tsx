@@ -1,14 +1,14 @@
-import { AppSidebar } from '@/components/app-sidebar';
-import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { ThemeToggle } from '@/features/theme/components/theme-toggle';
-import { protectedRoute } from '@/lib/auth';
+import { AppSidebar } from '@/components/app-sidebar'
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
+import { ThemeToggle } from '@/features/theme/components/theme-toggle'
+import { protectedRoute } from '@/lib/auth'
 
 interface ApplicationLayoutProps {
-  children: React.ReactNode;
+  children: React.ReactNode
 }
 
 const ApplicationLayout = async ({ children }: ApplicationLayoutProps) => {
-  await protectedRoute();
+  await protectedRoute()
 
   return (
     <SidebarProvider>
@@ -16,7 +16,7 @@ const ApplicationLayout = async ({ children }: ApplicationLayoutProps) => {
       <AppSidebar />
       <SidebarInset>{children}</SidebarInset>
     </SidebarProvider>
-  );
-};
+  )
+}
 
-export default ApplicationLayout;
+export default ApplicationLayout

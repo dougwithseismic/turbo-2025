@@ -1,4 +1,4 @@
-import { useAuth } from '@/features/auth/hooks/use-auth';
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import {
   ArticleList,
   CTASection,
@@ -8,7 +8,7 @@ import {
   PricingSection,
   SecondaryFeatures,
   TestimonialsSection,
-} from '@/features/home/components';
+} from '@/features/home/components'
 
 export default function Page() {
   return (
@@ -24,5 +24,5 @@ export default function Page() {
         <ArticleList />
       </main>
     </div>
-  );
+  )
 }

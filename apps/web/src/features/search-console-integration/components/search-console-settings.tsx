@@ -1,27 +1,9 @@
-'use client';
+'use client'
 
-import * as React from 'react';
-import { ContentCardProvider, ContentCard } from '@/components/content-card';
-import { ContentCardSearch } from '@/components/content-card/components/content-card-search';
-import { CardTitle, CardDescription } from '@/components/ui/card';
-import { Plus, RefreshCw, ExternalLink, PencilLine } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { GoogleSite } from '../actions/fetch-search-console-sites';
-import {
-  Area,
-  AreaChart,
-  ResponsiveContainer,
-  CartesianGrid,
-  XAxis,
-} from 'recharts';
-import { ActionField } from '@/components/action-field';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { ContentCard, ContentCardProvider } from '@/components/content-card'
+import { ContentCardSearch } from '@/components/content-card/components/content-card-search'
+import { Button } from '@/components/ui/button'
+import { CardDescription, CardTitle } from '@/components/ui/card'
 import {
   ChartConfig,
   ChartContainer,
@@ -29,30 +11,41 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
+} from '@/components/ui/chart'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Plus } from 'lucide-react'
+import * as React from 'react'
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
+import { GoogleSite } from '../actions/fetch-search-console-sites'
 
 interface SiteMetrics {
-  date: string;
-  clicks: number;
-  impressions: number;
+  date: string
+  clicks: number
+  impressions: number
 }
 
 // Demo data - replace with real API data
 const generateDemoMetrics = (days: number): SiteMetrics[] => {
-  const data: SiteMetrics[] = [];
-  const endDate = new Date();
+  const data: SiteMetrics[] = []
+  const endDate = new Date()
 
   for (let i = days; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(endDate.getDate() - i);
+    const date = new Date()
+    date.setDate(endDate.getDate() - i)
     data.push({
       date: date.toISOString().slice(0, 10),
       clicks: Math.floor(Math.random() * 500),
       impressions: Math.floor(Math.random() * 2000 + 500),
-    });
+    })
   }
-  return data;
-};
+  return data
+}
 
 const chartConfig = {
   metrics: {
@@ -66,28 +59,28 @@ const chartConfig = {
     label: 'Impressions',
     color: 'hsl(var(--chart-2))',
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const SearchConsoleSettings = ({ sites }: { sites?: GoogleSite[] | null }) => {
-  const [timeRange, setTimeRange] = React.useState('30d');
+  const [timeRange, setTimeRange] = React.useState('30d')
   const [metrics, setMetrics] = React.useState<Record<string, SiteMetrics[]>>(
     {},
-  );
+  )
 
   React.useEffect(() => {
     if (sites) {
-      const newMetrics: Record<string, SiteMetrics[]> = {};
+      const newMetrics: Record<string, SiteMetrics[]> = {}
       sites.forEach((site) => {
-        newMetrics[site.siteUrl] = generateDemoMetrics(90);
-      });
-      setMetrics(newMetrics);
+        newMetrics[site.siteUrl] = generateDemoMetrics(90)
+      })
+      setMetrics(newMetrics)
     }
-  }, [sites]);
+  }, [sites])
 
   const getFilteredData = (siteUrl: string) => {
-    const days = timeRange === '90d' ? 90 : timeRange === '30d' ? 30 : 7;
-    return metrics[siteUrl]?.slice(-days) || [];
-  };
+    const days = timeRange === '90d' ? 90 : timeRange === '30d' ? 30 : 7
+    return metrics[siteUrl]?.slice(-days) || []
+  }
 
   return (
     <ContentCardProvider>
@@ -219,11 +212,11 @@ const SearchConsoleSettings = ({ sites }: { sites?: GoogleSite[] | null }) => {
                               tickMargin={8}
                               minTickGap={32}
                               tickFormatter={(value) => {
-                                const date = new Date(value);
+                                const date = new Date(value)
                                 return date.toLocaleDateString('en-US', {
                                   month: 'short',
                                   day: 'numeric',
-                                });
+                                })
                               }}
                             />
                             <ChartTooltip
@@ -237,7 +230,7 @@ const SearchConsoleSettings = ({ sites }: { sites?: GoogleSite[] | null }) => {
                                         month: 'short',
                                         day: 'numeric',
                                       },
-                                    );
+                                    )
                                   }}
                                   indicator="dot"
                                 />
@@ -296,7 +289,7 @@ const SearchConsoleSettings = ({ sites }: { sites?: GoogleSite[] | null }) => {
         </div>
       </div>
     </ContentCardProvider>
-  );
-};
+  )
+}
 
-export default SearchConsoleSettings;
+export default SearchConsoleSettings

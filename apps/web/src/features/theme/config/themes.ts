@@ -1,20 +1,19 @@
 import {
   type LucideIcon,
-  Sun,
   Moon,
   Coffee,
   Palette,
   Flower,
   Mouse,
-} from 'lucide-react';
+} from 'lucide-react'
 
 export interface ThemeConfig {
-  name: string;
-  id: string;
-  icon: LucideIcon;
-  colorScheme: 'light' | 'dark';
-  themeColor: string;
-  cssClass: string;
+  name: string
+  id: string
+  icon: LucideIcon
+  colorScheme: 'light' | 'dark'
+  themeColor: string
+  cssClass: string
 }
 
 export const themes: ThemeConfig[] = [
@@ -114,6 +113,6 @@ export const themes: ThemeConfig[] = [
     themeColor: 'dark',
     cssClass: 'parsera',
   },
-] as const;
+] as const
 
-export type ThemeId = (typeof themes)[number]['id'];
+export type ThemeId = (typeof themes)[number]['id']

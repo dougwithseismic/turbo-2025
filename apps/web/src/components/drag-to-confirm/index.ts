@@ -1,1 +1,1 @@
-export { DragToConfirm } from './components/drag-to-confirm';
+export { DragToConfirm } from './components/drag-to-confirm'

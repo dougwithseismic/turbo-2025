@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { ChevronRight } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
+import { ChevronRight } from 'lucide-react'
+import { motion } from 'motion/react'
+import { cn } from '@/lib/utils'
 
-type Status = 'pending' | 'completed' | 'in-progress';
+type Status = 'pending' | 'completed' | 'in-progress'
 
 const statuses: Record<Status, string> = {
   pending: 'text-gray-500 bg-gray-100/10',
   completed: 'text-green-400 bg-green-400/10',
   'in-progress': 'text-blue-400 bg-blue-400/10',
-};
+}
 
 const priorities = {
   required: 'text-rose-400 bg-rose-400/10 ring-rose-400/30',
   optional: 'text-gray-400 bg-gray-400/10 ring-gray-400/20',
-};
+}
 
 // Animation variants
 const containerVariants = {
@@ -27,7 +27,7 @@ const containerVariants = {
       delayChildren: 0.2,
     },
   },
-};
+}
 
 const itemVariants = {
   hidden: {
@@ -43,17 +43,17 @@ const itemVariants = {
       damping: 24,
     },
   },
-};
+}
 
 type OnboardingTask = {
-  id: number;
-  href: string;
-  taskName: string;
-  description: string;
-  status: Status;
-  statusText: string;
-  priority: keyof typeof priorities;
-};
+  id: number
+  href: string
+  taskName: string
+  description: string
+  status: Status
+  statusText: string
+  priority: keyof typeof priorities
+}
 
 const onboardingTasks: OnboardingTask[] = [
   {
@@ -93,7 +93,7 @@ const onboardingTasks: OnboardingTask[] = [
     statusText: 'Not started',
     priority: 'optional',
   },
-];
+]
 
 export const RecentActivity = () => {
   return (
@@ -153,5 +153,5 @@ export const RecentActivity = () => {
         </motion.li>
       ))}
     </motion.ul>
-  );
-};
+  )
+}

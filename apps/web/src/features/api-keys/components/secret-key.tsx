@@ -1,23 +1,23 @@
-import { useState } from 'react';
+import { useState } from 'react'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { Button } from '@/components/ui/button';
-import { Check, Copy, Eye, EyeOff } from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from '@/components/ui/tooltip'
+import { Button } from '@/components/ui/button'
+import { Check, Copy, Eye, EyeOff } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type SecretKeyProps = {
-  value: string;
-  allowCopy?: boolean;
-  displayLength?: number;
-  className?: string;
-  showByDefault?: boolean;
-};
+  value: string
+  allowCopy?: boolean
+  displayLength?: number
+  className?: string
+  showByDefault?: boolean
+}
 
-const createDisplayMask = (length: number) => '•'.repeat(length);
+const createDisplayMask = (length: number) => '•'.repeat(length)
 
 export const SecretKey = ({
   value,
@@ -26,20 +26,20 @@ export const SecretKey = ({
   className,
   showByDefault = false,
 }: SecretKeyProps) => {
-  const [isCopied, setIsCopied] = useState(false);
-  const [isRevealed, setIsRevealed] = useState(showByDefault);
-  const displayValue = isRevealed ? value : createDisplayMask(displayLength);
+  const [isCopied, setIsCopied] = useState(false)
+  const [isRevealed, setIsRevealed] = useState(showByDefault)
+  const displayValue = isRevealed ? value : createDisplayMask(displayLength)
 
   const handleCopy = async () => {
-    if (!allowCopy) return;
+    if (!allowCopy) return
     try {
-      await navigator.clipboard.writeText(value);
-      setIsCopied(true);
-      setTimeout(() => setIsCopied(false), 1000);
+      await navigator.clipboard.writeText(value)
+      setIsCopied(true)
+      setTimeout(() => setIsCopied(false), 1000)
     } catch (err) {
-      console.error('Failed to copy:', err);
+      console.error('Failed to copy:', err)
     }
-  };
+  }
 
   return (
     <div className={cn('flex items-center gap-1.5 max-w-full', className)}>
@@ -93,5 +93,5 @@ export const SecretKey = ({
         )}
       </div>
     </div>
-  );
-};
+  )
+}

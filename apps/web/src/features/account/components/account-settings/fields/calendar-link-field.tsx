@@ -1,10 +1,10 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { PencilLine } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { PencilLine } from 'lucide-react'
 
 type CalendarLinkFieldProps = {
-  onSubmit: (link: string) => Promise<boolean>;
-};
+  onSubmit: (link: string) => Promise<boolean>
+}
 
 export const CalendarLinkField = ({ onSubmit }: CalendarLinkFieldProps) => {
   return (
@@ -14,10 +14,16 @@ export const CalendarLinkField = ({ onSubmit }: CalendarLinkFieldProps) => {
         <span className="text-sm">https://cal.com/username/vip</span>
       </ActionField.Content>
       <ActionField.Action>
-        <Button variant="ghost" size="icon">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            onSubmit('https://cal.com/username/vip')
+          }}
+        >
           <PencilLine className="h-4 w-4" />
         </Button>
       </ActionField.Action>
     </ActionField>
-  );
-};
+  )
+}

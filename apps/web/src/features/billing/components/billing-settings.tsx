@@ -1,34 +1,34 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
-import { ContentCard, ContentCardProvider } from '@/components/content-card';
-import { ActionField } from '@/components/action-field';
-import { CreditCard, Package, Receipt } from 'lucide-react';
-import Link from 'next/link';
-import { SubscriptionManager } from './subscription-manager';
-import toast from 'react-hot-toast';
-import { useEffect, useRef } from 'react';
-import { CardTitle, CardDescription } from '@/components/ui/card';
-import { ContentCardSearch } from '@/components/content-card/components/content-card-search';
+import { Button } from '@/components/ui/button'
+import { ContentCard, ContentCardProvider } from '@/components/content-card'
+import { ActionField } from '@/components/action-field'
+import { CreditCard, Package, Receipt } from 'lucide-react'
+import Link from 'next/link'
+import { SubscriptionManager } from './subscription-manager'
+import toast from 'react-hot-toast'
+import { useEffect, useRef } from 'react'
+import { CardTitle, CardDescription } from '@/components/ui/card'
+import { ContentCardSearch } from '@/components/content-card/components/content-card-search'
 
 interface BillingSettingsProps {
   searchParams: {
-    success?: string;
-    canceled?: string;
-  };
+    success?: string
+    canceled?: string
+  }
 }
 
 export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
   // todo
-  const hasShownToast = useRef(false);
+  const hasShownToast = useRef(false)
   useEffect(() => {
     if (searchParams.success && !hasShownToast.current) {
       toast.success('Subscription updated successfully', {
         position: 'bottom-right',
-      });
-      hasShownToast.current = true;
+      })
+      hasShownToast.current = true
     }
-  }, [searchParams.success]);
+  }, [searchParams.success])
 
   return (
     <ContentCardProvider>
@@ -126,5 +126,5 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
         </ContentCard>
       </div>
     </ContentCardProvider>
-  );
-};
+  )
+}

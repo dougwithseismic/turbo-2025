@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 export const NewsletterSignup = () => {
   return (
@@ -86,5 +86,5 @@ export const NewsletterSignup = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -1,7 +1,6 @@
-/* eslint-disable turbo/no-undeclared-env-vars */
-'use server';
-import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod';
+'use server'
+import { createEnv } from '@t3-oss/env-nextjs'
+import { z } from 'zod'
 
 export const env = createEnv({
   server: {
@@ -34,7 +33,7 @@ export const env = createEnv({
       process.env.RATE_LIMIT_AUTH_MAX_ATTEMPTS,
     ),
   },
-});
+})
 
 // Server-only configuration
 export const serverConfig = {
@@ -57,7 +56,7 @@ export const serverConfig = {
       MAX_ATTEMPTS: env.RATE_LIMIT_AUTH_MAX_ATTEMPTS,
     },
   },
-} as const;
+} as const
 
 // Log configuration on startup
-console.info('🕵️‍♂️ :: Server Config loaded');
+console.info('🕵️‍♂️ :: Server Config loaded')

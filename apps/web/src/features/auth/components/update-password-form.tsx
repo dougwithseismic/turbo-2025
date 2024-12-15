@@ -1,47 +1,47 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { getErrorConfig } from '@/lib/errors';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { useState } from 'react'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { getErrorConfig } from '@/lib/errors'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
+import { motion } from 'motion/react'
 
 export const UpdatePasswordForm = () => {
-  const { updatePassword, loadingState, user } = useAuth();
-  const [error, setError] = useState<Error | null>(null);
-  const [showPasswords, setShowPasswords] = useState(false);
-  const isLoading = loadingState === 'progress';
+  const { updatePassword, loadingState, user } = useAuth()
+  const [error, setError] = useState<Error | null>(null)
+  const [showPasswords, setShowPasswords] = useState(false)
+  const isLoading = loadingState === 'progress'
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setError(null);
+    event.preventDefault()
+    setError(null)
 
-    const formData = new FormData(event.currentTarget);
-    const currentPassword = formData.get('currentPassword') as string;
-    const password = formData.get('password') as string;
-    const confirmPassword = formData.get('confirmPassword') as string;
+    const formData = new FormData(event.currentTarget)
+    const currentPassword = formData.get('currentPassword') as string
+    const password = formData.get('password') as string
+    const confirmPassword = formData.get('confirmPassword') as string
 
     if (password !== confirmPassword) {
-      setError(new Error('Passwords do not match'));
-      return;
+      setError(new Error('Passwords do not match'))
+      return
     }
 
     try {
-      const result = await updatePassword({ currentPassword, password });
+      const result = await updatePassword({ currentPassword, password })
       if (result.error) {
-        setError(result.error);
+        setError(result.error)
       }
     } catch (err) {
-      console.error('Failed to update password:', err);
+      console.error('Failed to update password:', err)
       setError(
         err instanceof Error ? err : new Error('Failed to update password'),
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
@@ -141,5 +141,5 @@ export const UpdatePasswordForm = () => {
         </Button>
       </motion.form>
     </div>
-  );
-};
+  )
+}

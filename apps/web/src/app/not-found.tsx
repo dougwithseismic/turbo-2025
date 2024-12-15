@@ -1,15 +1,16 @@
-'use client';
-import { ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { NavMenu } from '@/features/home/components/nav-menu';
-import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links';
-import { FooterCTA } from '@/features/home/components/footer-cta';
+'use client'
+import { ChevronRight } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { NavMenu } from '@/features/home/components/nav-menu'
+import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links'
+import { FooterCTA } from '@/features/home/components/footer-cta'
 import {
   Header,
   MarketingFooter,
   NewsletterSignup,
-} from '@/features/home/components';
-import { NewsletterForm } from '@/features/newsletter/components/newsletter-form';
+} from '@/features/home/components'
+import { NewsletterForm } from '@/features/newsletter/components/newsletter-form'
+import Link from 'next/link'
 
 const links = [
   {
@@ -85,7 +86,7 @@ const links = [
       </svg>
     ),
   },
-];
+]
 
 const social = [
   {
@@ -110,7 +111,7 @@ const social = [
       </svg>
     ),
   },
-];
+]
 
 export default function NotFound() {
   return (
@@ -163,9 +164,9 @@ export default function NotFound() {
             </ul>
             <div className="mt-10 flex justify-center">
               <Button variant="link" asChild>
-                <a href="/">
+                <Link href="/">
                   <span aria-hidden="true">&larr;</span> Back to home
-                </a>
+                </Link>
               </Button>
             </div>
           </div>
@@ -175,5 +176,5 @@ export default function NotFound() {
       <MarketingFooterLinks />
       <MarketingFooter />
     </div>
-  );
+  )
 }

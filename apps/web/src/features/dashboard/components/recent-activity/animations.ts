@@ -7,7 +7,7 @@ export const containerVariants = {
       delayChildren: 0.2,
     },
   },
-} as const;
+} as const
 
 export const listVariants = {
   hidden: { opacity: 0 },
@@ -18,7 +18,7 @@ export const listVariants = {
       delayChildren: 0.1,
     },
   },
-} as const;
+} as const
 
 export const itemVariants = {
   hidden: {
@@ -47,7 +47,7 @@ export const itemVariants = {
       duration: 0.2,
     },
   },
-} as const;
+} as const
 
 export const itemContentVariants = {
   hidden: { opacity: 0, x: -20 },
@@ -60,4 +60,4 @@ export const itemContentVariants = {
       damping: 24,
     },
   },
-} as const;
+} as const

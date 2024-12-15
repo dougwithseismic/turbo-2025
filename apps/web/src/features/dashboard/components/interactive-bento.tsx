@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { DragToConfirm } from '@/components/drag-to-confirm';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { DragToConfirm } from '@/components/drag-to-confirm'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Search } from 'lucide-react'
 
 export const InteractiveBento = () => {
   return (
@@ -23,11 +23,11 @@ export const InteractiveBento = () => {
 
           <DragToConfirm
             onConfirm={async () => {
-              return true;
+              return true
             }}
           />
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}

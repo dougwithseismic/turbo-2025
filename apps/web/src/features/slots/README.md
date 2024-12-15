@@ -141,7 +141,7 @@ Creates a component that can be used in a specific slot.
 ```typescript
 function createSlottedComponent<T extends string, P = unknown>(
   slot: T,
-  Component: ComponentType<P>
+  Component: ComponentType<P>,
 ): ComponentType<P> & { slot: T }
 ```
 
@@ -163,23 +163,26 @@ Type guard to check if a component is designated for a specific slot.
 ```typescript
 function isSlottedComponent<T extends string>(
   child: unknown,
-  slot: T
+  slot: T,
 ): child is ReactElement<any, SlottedComponent<T>>
 ```
 
 ## Best Practices
 
 1. **Naming Conventions**
+
    - Use PascalCase for component names
    - Use camelCase for slot names
    - Use descriptive names that indicate the slot's purpose
 
 2. **Component Structure**
+
    - Keep slot components focused on their specific role
    - Use composition over configuration
    - Implement sensible defaults for styling
 
 3. **Type Safety**
+
    - Always define slot types as string literals
    - Use proper interface definitions for props
    - Avoid using `any` types

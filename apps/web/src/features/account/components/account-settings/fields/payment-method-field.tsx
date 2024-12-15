@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 import {
   Check,
   CheckCircle2,
@@ -10,11 +10,11 @@ import {
   PencilLine,
   X,
   AlertCircle,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
+} from 'lucide-react'
+import { motion } from 'motion/react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
   FormControl,
@@ -22,24 +22,24 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
+} from '@/components/ui/form'
 
 const isExpiryDateValid = (value: string) => {
-  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) return false;
+  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(value)) return false
 
-  const [month, year] = value.split('/') as [string, string];
-  const monthNum = parseInt(month, 10);
-  const yearNum = parseInt(year, 10);
+  const [month, year] = value.split('/') as [string, string]
+  const monthNum = parseInt(month, 10)
+  const yearNum = parseInt(year, 10)
 
-  const now = new Date();
-  const currentYear = now.getFullYear() % 100;
-  const currentMonth = now.getMonth() + 1;
+  const now = new Date()
+  const currentYear = now.getFullYear() % 100
+  const currentMonth = now.getMonth() + 1
 
-  if (yearNum < currentYear) return false;
-  if (yearNum === currentYear && monthNum < currentMonth) return false;
+  if (yearNum < currentYear) return false
+  if (yearNum === currentYear && monthNum < currentMonth) return false
 
-  return true;
-};
+  return true
+}
 
 const paymentFormSchema = z.object({
   cardholderName: z.string().min(1, 'Name is required'),
@@ -49,45 +49,45 @@ const paymentFormSchema = z.object({
     .regex(/^(0[1-9]|1[0-2])\/\d{2}$/, 'Must be in MM/YY format')
     .refine(isExpiryDateValid, 'Expiry date must be in the future'),
   cvv: z.string().regex(/^\d{3,4}$/, 'Invalid CVV'),
-});
+})
 
-type PaymentFormData = z.infer<typeof paymentFormSchema>;
+type PaymentFormData = z.infer<typeof paymentFormSchema>
 
 type PaymentMethodFieldProps = {
-  onSubmit: (data: PaymentFormData) => Promise<boolean>;
-};
+  onSubmit: (data: PaymentFormData) => Promise<boolean>
+}
 
 const formatCardNumber = (value: string) => {
-  const digits = value.replace(/\D/g, '');
-  const groups = digits.match(/.{1,4}/g);
-  return groups ? groups.join(' ') : digits;
-};
+  const digits = value.replace(/\D/g, '')
+  const groups = digits.match(/.{1,4}/g)
+  return groups ? groups.join(' ') : digits
+}
 
 const formatExpiryDate = (value: string) => {
-  const digits = value.replace(/\D/g, '');
+  const digits = value.replace(/\D/g, '')
 
   // Allow empty input
-  if (digits === '') return '';
+  if (digits === '') return ''
 
   // First digit can only be 0 or 1
   if (digits.length >= 1) {
-    const firstDigit = parseInt(digits.charAt(0), 10);
-    if (firstDigit > 1) return '';
+    const firstDigit = parseInt(digits.charAt(0), 10)
+    if (firstDigit > 1) return ''
   }
 
   // Second digit can only make a valid month (01-12)
   if (digits.length >= 2) {
-    const monthNum = parseInt(digits.slice(0, 2), 10);
-    if (monthNum === 0 || monthNum > 12) return digits.charAt(0);
-    const month = digits.slice(0, 2);
+    const monthNum = parseInt(digits.slice(0, 2), 10)
+    if (monthNum === 0 || monthNum > 12) return digits.charAt(0)
+    const month = digits.slice(0, 2)
     if (digits.length > 2) {
-      return `${month}/${digits.slice(2, 4)}`;
+      return `${month}/${digits.slice(2, 4)}`
     }
-    return month;
+    return month
   }
 
-  return digits;
-};
+  return digits
+}
 
 const cardBrandIcons = {
   visa: (
@@ -105,24 +105,24 @@ const cardBrandIcons = {
       <path d="M22.588 13.941L24 9.374h-3.129l-.84 2.642h-.899l.899-2.642H16.88l-1.411 4.567h3.129l.84-2.642h.899l-.899 2.642h3.129zm-8.696-4.567l-1.411 4.567h3.129l.84-2.642h.899l-.899 2.642h3.129L24 9.374h-3.129l-.84 2.642h-.899l.899-2.642h-6.139zm-6.732 0H2.824L0 13.941h3.129l.84-2.642h.899l-.899 2.642h3.129l1.411-4.567z" />
     </svg>
   ),
-};
+}
 
 const getCardBrandIcon = (cardNumber: string) => {
-  const firstDigit = cardNumber.charAt(0);
-  if (firstDigit === '4') return cardBrandIcons.visa;
-  if (firstDigit === '5') return cardBrandIcons.mastercard;
-  if (firstDigit === '3') return cardBrandIcons.amex;
-  return <CreditCard className="h-6 w-6" />;
-};
+  const firstDigit = cardNumber.charAt(0)
+  if (firstDigit === '4') return cardBrandIcons.visa
+  if (firstDigit === '5') return cardBrandIcons.mastercard
+  if (firstDigit === '3') return cardBrandIcons.amex
+  return <CreditCard className="h-6 w-6" />
+}
 
 const PaymentMethodForm = ({
   isReadOnly,
   onSubmit,
   isLoading,
 }: {
-  isReadOnly: boolean;
-  onSubmit: (data: PaymentFormData) => Promise<{ error: Error | null }>;
-  isLoading: boolean;
+  isReadOnly: boolean
+  onSubmit: (data: PaymentFormData) => Promise<{ error: Error | null }>
+  isLoading: boolean
 }) => {
   const form = useForm<PaymentFormData>({
     resolver: zodResolver(paymentFormSchema),
@@ -132,9 +132,9 @@ const PaymentMethodForm = ({
       expiryDate: '',
       cvv: '',
     },
-  });
+  })
 
-  const cardNumber = form.watch('cardNumber');
+  // const cardNumber = form.watch('cardNumber')
 
   return (
     <Form {...form}>
@@ -168,8 +168,8 @@ const PaymentMethodForm = ({
                     {...field}
                     value={formatCardNumber(value)}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/\D/g, '');
-                      onChange(rawValue);
+                      const rawValue = e.target.value.replace(/\D/g, '')
+                      onChange(rawValue)
                     }}
                     disabled={isReadOnly || isLoading}
                     placeholder="4242 4242 4242 4242"
@@ -196,13 +196,13 @@ const PaymentMethodForm = ({
                     {...field}
                     value={formatExpiryDate(value)}
                     onChange={(e) => {
-                      const rawValue = e.target.value.replace(/\D/g, '');
-                      const formattedValue = formatExpiryDate(rawValue);
-                      onChange(formattedValue.replace(/\D/g, ''));
+                      const rawValue = e.target.value.replace(/\D/g, '')
+                      const formattedValue = formatExpiryDate(rawValue)
+                      onChange(formattedValue.replace(/\D/g, ''))
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Backspace' || e.key === 'Delete') {
-                        e.currentTarget.select();
+                        e.currentTarget.select()
                       }
                     }}
                     disabled={isReadOnly || isLoading}
@@ -237,8 +237,8 @@ const PaymentMethodForm = ({
         </div>
       </form>
     </Form>
-  );
-};
+  )
+}
 
 export const PaymentMethodField = ({ onSubmit }: PaymentMethodFieldProps) => {
   return (
@@ -263,14 +263,14 @@ export const PaymentMethodField = ({ onSubmit }: PaymentMethodFieldProps) => {
                   isLoading={status === 'LOADING'}
                   onSubmit={async (data) => {
                     if (status === 'ACTIVE') {
-                      const success = await onSubmit(data);
+                      const success = await onSubmit(data)
                       return {
                         error: success
                           ? null
                           : new Error('Failed to update payment method'),
-                      };
+                      }
                     }
-                    return { error: null };
+                    return { error: null }
                   }}
                 />
               </div>
@@ -304,23 +304,23 @@ export const PaymentMethodField = ({ onSubmit }: PaymentMethodFieldProps) => {
                 className={cn(status === 'ERROR' && 'bg-red-500', 'group')}
                 onClick={async () => {
                   if (status === 'IDLE') {
-                    setStatus('ACTIVE');
+                    setStatus('ACTIVE')
                   }
 
                   if (status === 'ACTIVE') {
-                    setStatus('LOADING');
-                    const success = await onSubmit({} as PaymentFormData);
+                    setStatus('LOADING')
+                    const success = await onSubmit({} as PaymentFormData)
 
                     if (success) {
-                      setStatus('SUCCESS');
+                      setStatus('SUCCESS')
                       setTimeout(() => {
-                        setStatus('IDLE');
-                      }, 1000);
+                        setStatus('IDLE')
+                      }, 1000)
                     } else {
-                      setStatus('ERROR');
+                      setStatus('ERROR')
                       setTimeout(() => {
-                        setStatus('IDLE');
-                      }, 2000);
+                        setStatus('IDLE')
+                      }, 2000)
                     }
                   }
                 }}
@@ -401,5 +401,5 @@ export const PaymentMethodField = ({ onSubmit }: PaymentMethodFieldProps) => {
         </>
       )}
     </ActionField>
-  );
-};
+  )
+}

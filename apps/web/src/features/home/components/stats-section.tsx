@@ -55,5 +55,5 @@ export const StatsSection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

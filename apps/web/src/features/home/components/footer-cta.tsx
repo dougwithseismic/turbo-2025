@@ -1,6 +1,6 @@
-import { env } from '@/config/app-config';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+import { env } from '@/config/app-config'
+import { cn } from '@/lib/utils'
+import Link from 'next/link'
 
 export const FooterCTA = () => {
   return (
@@ -89,5 +89,5 @@ export const FooterCTA = () => {
         </div>
       </div>
     </section>
-  );
-};
+  )
+}

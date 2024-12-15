@@ -1,14 +1,11 @@
-'use client';
+'use client'
 
-import { Card } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
-import { ReactNode } from 'react';
-import {
-  containerVariants,
-  itemVariants,
-} from '@/components/content-card/animations/content-card-animations';
+import { containerVariants } from '@/components/content-card/animations/content-card-animations'
+import { Card } from '@/components/ui/card'
+import { cn } from '@/lib/utils'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { motion } from 'motion/react'
+import { ReactNode } from 'react'
 
 const dashboardCardVariants = cva(
   cn(
@@ -67,12 +64,12 @@ const dashboardCardVariants = cva(
       variant: 'base',
     },
   },
-);
+)
 
 export interface DashboardCardProps
   extends VariantProps<typeof dashboardCardVariants> {
-  children: ReactNode;
-  className?: string;
+  children: ReactNode
+  className?: string
 }
 
 export const DashboardCard = ({
@@ -93,5 +90,5 @@ export const DashboardCard = ({
         {children}
       </motion.div>
     </Card>
-  );
-};
+  )
+}

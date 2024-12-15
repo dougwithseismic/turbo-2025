@@ -1,5 +1,5 @@
-import type { User } from '@supabase/supabase-js'
 import type { AuthError } from '@/lib/errors'
+import type { Session, User } from '@supabase/supabase-js'
 
 export type LoadingState = 'idle' | 'progress' | 'complete' | 'error'
 
@@ -15,7 +15,7 @@ export interface AuthResponse<T = null> {
 
 export interface AuthSession {
   user: User | null
-  session: any | null
+  session: Session | null
 }
 
 export type AuthResponseWithSession = AuthResponse<AuthSession>

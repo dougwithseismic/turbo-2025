@@ -1,12 +1,12 @@
-import { Search, LineChart, Link2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Search, LineChart, Link2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type PrimaryFeature = {
-  name: string;
-  description: string;
-  href: string;
-  icon: typeof Search;
-};
+  name: string
+  description: string
+  href: string
+  icon: typeof Search
+}
 
 const primaryFeatures: PrimaryFeature[] = [
   {
@@ -30,7 +30,7 @@ const primaryFeatures: PrimaryFeature[] = [
     href: '#',
     icon: Link2,
   },
-];
+]
 
 export const PrimaryFeatures = () => {
   return (
@@ -80,5 +80,5 @@ export const PrimaryFeatures = () => {
         </dl>
       </div>
     </div>
-  );
-};
+  )
+}

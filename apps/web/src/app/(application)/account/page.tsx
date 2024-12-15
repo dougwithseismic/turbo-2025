@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import { AccountSettings } from '@/features/account/components/account-settings/account-settings';
-import { PageHeader } from '@/features/page-layout/components/page-header';
+import { Metadata } from 'next'
+import { AccountSettings } from '@/features/account/components/account-settings/account-settings'
+import { PageHeader } from '@/features/page-layout/components/page-header'
 
 export const metadata: Metadata = {
   title: 'Account Settings',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 const Page = async () => {
   return (
@@ -27,7 +27,7 @@ const Page = async () => {
         <AccountSettings />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

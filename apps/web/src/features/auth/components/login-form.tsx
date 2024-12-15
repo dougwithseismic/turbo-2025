@@ -2,7 +2,7 @@
 
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/features/auth/hooks/use-auth'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Link from 'next/link'
 import { useState } from 'react'
 import { container, item } from '../animations/form-animations'

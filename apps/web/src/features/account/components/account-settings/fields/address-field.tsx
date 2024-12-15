@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { AddressForm } from '../../../forms/address-form';
-import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { AddressForm } from '../../../forms/address-form'
+import { cn } from '@/lib/utils'
 import {
   Check,
   CheckCircle2,
@@ -9,20 +9,20 @@ import {
   PencilLine,
   X,
   AlertCircle,
-} from 'lucide-react';
-import { motion } from 'framer-motion';
+} from 'lucide-react'
+import { motion } from 'motion/react'
 
 type AddressData = {
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
-};
+  street: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
+}
 
 type AddressFieldProps = {
-  onSubmit: (address: AddressData) => Promise<boolean>;
-};
+  onSubmit: (address: AddressData) => Promise<boolean>
+}
 
 export const AddressField = ({ onSubmit }: AddressFieldProps) => {
   return (
@@ -44,8 +44,8 @@ export const AddressField = ({ onSubmit }: AddressFieldProps) => {
                   country: '',
                 }}
                 onSubmit={async () => {
-                  console.log('submit');
-                  return { error: null };
+                  console.log('submit')
+                  return { error: null }
                 }}
                 isLoading={status === 'LOADING'}
               />
@@ -79,29 +79,29 @@ export const AddressField = ({ onSubmit }: AddressFieldProps) => {
                 className={cn(status === 'ERROR' && 'bg-red-500', 'group')}
                 onClick={async () => {
                   if (status === 'IDLE') {
-                    setStatus('ACTIVE');
+                    setStatus('ACTIVE')
                   }
 
                   if (status === 'ACTIVE') {
-                    setStatus('LOADING');
-                    const success = await onSubmit({} as AddressData);
+                    setStatus('LOADING')
+                    const success = await onSubmit({} as AddressData)
 
                     if (success) {
-                      setStatus('SUCCESS');
+                      setStatus('SUCCESS')
                       setTimeout(() => {
-                        setStatus('IDLE');
-                      }, 1000);
+                        setStatus('IDLE')
+                      }, 1000)
                     } else {
-                      setStatus('ERROR');
+                      setStatus('ERROR')
                       setTimeout(() => {
-                        setStatus('IDLE');
-                      }, 2000);
+                        setStatus('IDLE')
+                      }, 2000)
                     }
                     return {
                       error: success
                         ? null
                         : new Error('Failed to update address'),
-                    };
+                    }
                   }
                 }}
               >
@@ -181,5 +181,5 @@ export const AddressField = ({ onSubmit }: AddressFieldProps) => {
         </>
       )}
     </ActionField>
-  );
-};
+  )
+}

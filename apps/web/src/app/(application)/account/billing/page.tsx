@@ -1,8 +1,6 @@
-import { Metadata } from 'next';
-import { auth } from '@/lib/auth';
-import { redirect } from 'next/navigation';
-import { PageHeader } from '@/features/page-layout/components/page-header';
-import { BillingSettings } from '@/features/billing/components/billing-settings';
+import { BillingSettings } from '@/features/billing/components/billing-settings'
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Billing & Subscription | Account Settings',
@@ -11,19 +9,19 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 interface BillingPageProps {
   searchParams: Promise<{
-    success?: string;
-    canceled?: string;
-  }>;
+    success?: string
+    canceled?: string
+  }>
 }
 
 export default async function BillingPage({
   searchParams: searchParamsPromise,
 }: BillingPageProps) {
-  const searchParams = await searchParamsPromise;
+  const searchParams = await searchParamsPromise
 
   return (
     <>
@@ -44,5 +42,5 @@ export default async function BillingPage({
         <BillingSettings searchParams={searchParams} />
       </div>
     </>
-  );
+  )
 }

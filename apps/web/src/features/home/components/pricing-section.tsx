@@ -1,17 +1,17 @@
-import { CheckCircle2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { CheckCircle2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 type PricingTier = {
-  name: string;
-  id: string;
-  href: string;
+  name: string
+  id: string
+  href: string
   price: {
-    monthly: string;
-    annually: string;
-  };
-  description: string;
-  features: string[];
-};
+    monthly: string
+    annually: string
+  }
+  description: string
+  features: string[]
+}
 
 const tiers: PricingTier[] = [
   {
@@ -62,7 +62,7 @@ const tiers: PricingTier[] = [
       '24/7 priority support',
     ],
   },
-];
+]
 
 export const PricingSection = () => {
   return (
@@ -147,5 +147,5 @@ export const PricingSection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

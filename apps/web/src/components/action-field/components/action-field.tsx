@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import { cn } from '@/lib/utils';
-import { Slot } from '@radix-ui/react-slot';
-import React, { useState, Children, isValidElement, Fragment } from 'react';
-import { createSlottedComponent } from '@/features/slots';
+import { cn } from '@/lib/utils'
+import { Slot } from '@radix-ui/react-slot'
+import React, { useState, Children, isValidElement, Fragment } from 'react'
+import { createSlottedComponent } from '@/features/slots'
 
 /**
  * Default status type for ActionField if none is provided
  * @typedef {'IDLE' | 'ACTIVE' | 'LOADING'} DefaultActionFieldStatus
  */
-type DefaultActionFieldStatus = 'IDLE' | 'ACTIVE' | 'LOADING'; // The default statuses for ActionField
+type DefaultActionFieldStatus = 'IDLE' | 'ACTIVE' | 'LOADING' // The default statuses for ActionField
 
 /**
  * The available slots in the ActionField component
  * @typedef {'label' | 'content' | 'action'} ActionFieldSlots
  */
-type ActionFieldSlots = 'label' | 'content' | 'action';
+type ActionFieldSlots = 'label' | 'content' | 'action'
 
 interface ActionFieldSubComponentProps {
-  children: React.ReactNode;
-  asChild?: boolean;
-  className?: string;
+  children: React.ReactNode
+  asChild?: boolean
+  className?: string
 }
 
 /**
@@ -29,11 +29,11 @@ interface ActionFieldSubComponentProps {
  */
 interface ActionFieldState<TStatus> {
   /** Current status of the ActionField */
-  status: TStatus;
+  status: TStatus
   /** Function to toggle between default states */
-  toggleEdit: () => void;
+  toggleEdit: () => void
   /** Function to manually set the status */
-  setStatus: (status: TStatus) => void;
+  setStatus: (status: TStatus) => void
 }
 
 /**
@@ -42,15 +42,15 @@ interface ActionFieldState<TStatus> {
  */
 interface ActionFieldRenderProps<TStatus> {
   /** Render prop function that receives the ActionFieldState */
-  children: (state: ActionFieldState<TStatus>) => React.ReactNode;
+  children: (state: ActionFieldState<TStatus>) => React.ReactNode
   /** Whether to merge props onto child component instead of a DOM element */
-  asChild?: boolean;
+  asChild?: boolean
   /** Optional CSS classes */
-  className?: string;
+  className?: string
   /** Initial status of the ActionField */
-  initialStatus?: TStatus;
+  initialStatus?: TStatus
   /** Function to handle status toggle. If not provided, defaults to IDLE <-> ACTIVE */
-  onToggle?: (currentStatus: TStatus) => TStatus;
+  onToggle?: (currentStatus: TStatus) => TStatus
 }
 
 /**
@@ -59,26 +59,26 @@ interface ActionFieldRenderProps<TStatus> {
  */
 interface ActionFieldStandardProps {
   /** React children */
-  children: React.ReactNode;
+  children: React.ReactNode
   /** Whether to merge props onto child component instead of a DOM element */
-  asChild?: boolean;
+  asChild?: boolean
   /** Optional CSS classes */
-  className?: string;
+  className?: string
   /** Initial status of the ActionField */
-  initialStatus?: DefaultActionFieldStatus;
+  initialStatus?: DefaultActionFieldStatus
 }
 
 type ActionFieldProps<TStatus> =
   | ActionFieldRenderProps<TStatus>
-  | ActionFieldStandardProps;
+  | ActionFieldStandardProps
 
 interface ActionFieldComposition {
   <TStatus = DefaultActionFieldStatus>(
     props: ActionFieldProps<TStatus>,
-  ): JSX.Element;
-  Label: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots };
-  Content: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots };
-  Action: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots };
+  ): React.ReactElement
+  Label: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots }
+  Content: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots }
+  Action: React.FC<ActionFieldSubComponentProps> & { slot: ActionFieldSlots }
 }
 
 function findSlotComponents(children: React.ReactNode) {
@@ -86,32 +86,35 @@ function findSlotComponents(children: React.ReactNode) {
     label: null,
     content: null,
     action: null,
-  };
+  }
 
   const processNode = (node: React.ReactNode) => {
-    if (!isValidElement(node)) return;
+    if (!isValidElement(node)) return
 
     // Check if this is one of our slot components
-    const type = node.type as { slot?: ActionFieldSlots };
+    const type = node.type as { slot?: ActionFieldSlots }
     if (type?.slot) {
-      slots[type.slot as ActionFieldSlots] = node;
-      return;
+      slots[type.slot as ActionFieldSlots] = node
+      return
     }
 
     // If it's a fragment or div, process its children
     if (type === Fragment || typeof type === 'string') {
-      Children.forEach(node.props.children, processNode);
+      Children.forEach(
+        (node.props as { children: React.ReactNode }).children,
+        processNode,
+      )
     }
-  };
+  }
 
-  Children.forEach(children, processNode);
-  return slots;
+  Children.forEach(children, processNode)
+  return slots
 }
 
 const ActionFieldLabel = createSlottedComponent(
   'label',
   ({ children, asChild, className }: ActionFieldSubComponentProps) => {
-    const Comp = asChild ? Slot : 'span';
+    const Comp = asChild ? Slot : 'span'
     return (
       <Comp
         className={cn('text-sm text-muted-foreground', className)}
@@ -119,14 +122,14 @@ const ActionFieldLabel = createSlottedComponent(
       >
         {children}
       </Comp>
-    );
+    )
   },
-);
+)
 
 const ActionFieldContent = createSlottedComponent(
   'content',
   ({ children, asChild, className }: ActionFieldSubComponentProps) => {
-    const Comp = asChild ? Slot : 'div';
+    const Comp = asChild ? Slot : 'div'
     return (
       <Comp
         className={cn('flex items-center gap-2', className)}
@@ -134,28 +137,28 @@ const ActionFieldContent = createSlottedComponent(
       >
         {children}
       </Comp>
-    );
+    )
   },
-);
+)
 
 const ActionFieldAction = createSlottedComponent(
   'action',
   ({ children, asChild, className }: ActionFieldSubComponentProps) => {
-    const Comp = asChild ? Slot : 'div';
+    const Comp = asChild ? Slot : 'div'
     return (
       <Comp className={cn(className)} role="group" aria-label="Item actions">
         {children}
       </Comp>
-    );
+    )
   },
-);
+)
 
 function isRenderProps<TStatus>(
   props: ActionFieldProps<TStatus>,
 ): props is ActionFieldRenderProps<TStatus> {
   return (
     typeof (props as ActionFieldRenderProps<TStatus>).children === 'function'
-  );
+  )
 }
 
 /**
@@ -368,34 +371,34 @@ function isRenderProps<TStatus>(
  */
 const ActionField = Object.assign(
   <TStatus = DefaultActionFieldStatus,>(props: ActionFieldProps<TStatus>) => {
-    const { asChild, className } = props;
-    const Comp = asChild ? Slot : 'div';
+    const { asChild, className } = props
+    const Comp = asChild ? Slot : 'div'
 
     const defaultToggle = (status: TStatus) => {
-      if (status === 'IDLE') return 'ACTIVE' as TStatus;
-      if (status === 'ACTIVE') return 'IDLE' as TStatus;
-      return status;
-    };
+      if (status === 'IDLE') return 'ACTIVE' as TStatus
+      if (status === 'ACTIVE') return 'IDLE' as TStatus
+      return status
+    }
 
     const initialStatus =
       (props as ActionFieldRenderProps<TStatus>).initialStatus ||
-      ('IDLE' as TStatus);
+      ('IDLE' as TStatus)
     const onToggle =
-      (props as ActionFieldRenderProps<TStatus>).onToggle || defaultToggle;
+      (props as ActionFieldRenderProps<TStatus>).onToggle || defaultToggle
 
-    const [status, setStatus] = useState<TStatus>(initialStatus);
+    const [status, setStatus] = useState<TStatus>(initialStatus)
 
     const state: ActionFieldState<TStatus> = {
       status,
       toggleEdit: () => setStatus(onToggle(status)),
       setStatus,
-    };
+    }
 
     const renderedChildren = isRenderProps(props)
       ? props.children(state)
-      : props.children;
+      : props.children
 
-    const slots = findSlotComponents(renderedChildren);
+    const slots = findSlotComponents(renderedChildren)
 
     return (
       <Comp
@@ -427,18 +430,18 @@ const ActionField = Object.assign(
           </div>
         </div>
       </Comp>
-    );
+    )
   },
   {
     Label: ActionFieldLabel,
     Content: ActionFieldContent,
     Action: ActionFieldAction,
   },
-) as ActionFieldComposition;
+) as ActionFieldComposition
 
-export { ActionField };
+export { ActionField }
 export type {
   ActionFieldSlots,
   DefaultActionFieldStatus as ActionFieldStatus,
   ActionFieldState,
-};
+}

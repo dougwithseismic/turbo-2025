@@ -1,7 +1,7 @@
-import { PageHeader } from '@/features/page-layout/components/page-header';
-import { fetchSearchConsoleSites } from '@/features/search-console-integration/actions/fetch-search-console-sites';
-import SearchConsoleSettings from '@/features/search-console-integration/components/search-console-settings';
-import { Metadata } from 'next';
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { fetchSearchConsoleSites } from '@/features/search-console-integration/actions/fetch-search-console-sites'
+import SearchConsoleSettings from '@/features/search-console-integration/components/search-console-settings'
+import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Google Search Console',
@@ -10,12 +10,12 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 const Page = async () => {
-  const { data: sites } = await fetchSearchConsoleSites();
+  const { data: sites } = await fetchSearchConsoleSites()
 
-  console.log('sites', sites);
+  console.log('sites', sites)
 
   return (
     <>
@@ -39,7 +39,7 @@ const Page = async () => {
         <SearchConsoleSettings sites={sites?.siteEntry} />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

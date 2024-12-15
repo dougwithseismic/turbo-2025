@@ -1,16 +1,16 @@
-'use client';
+'use client'
 
-import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, DollarSign, CreditCard, Activity } from 'lucide-react';
-import { motion } from 'framer-motion';
-import { itemVariants } from '@/components/content-card/animations/content-card-animations';
-import { DashboardCard } from './dashboard-card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Users, DollarSign, CreditCard, Activity } from 'lucide-react'
+import { motion } from 'motion/react'
+import { itemVariants } from '@/components/content-card/animations/content-card-animations'
+import { DashboardCard } from './dashboard-card'
 
 interface StatsCardProps {
-  title: string;
-  value: string;
-  description: string;
-  icon: React.ReactNode;
+  title: string
+  value: string
+  description: string
+  icon: React.ReactNode
 }
 
 const StatsCard = ({ title, value, description, icon }: StatsCardProps) => (
@@ -34,7 +34,7 @@ const StatsCard = ({ title, value, description, icon }: StatsCardProps) => (
       </motion.div>
     </CardContent>
   </DashboardCard>
-);
+)
 
 export const DashboardStats = () => {
   return (
@@ -64,5 +64,5 @@ export const DashboardStats = () => {
         icon={<Activity className="h-4 w-4 text-muted-foreground" />}
       />
     </div>
-  );
-};
+  )
+}

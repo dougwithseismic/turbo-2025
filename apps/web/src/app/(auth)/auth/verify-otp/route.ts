@@ -65,7 +65,7 @@ export const GET = async (req: NextRequest): Promise<NextResponse> => {
     return NextResponse.redirect(new URL(redirectTo, req.url))
   } catch (error) {
     return NextResponse.json(
-      { error: 'Failed to verify token' },
+      { error: `Failed to verify token. ${error}` },
       { status: 500 },
     )
   }

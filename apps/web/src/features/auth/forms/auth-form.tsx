@@ -1,25 +1,21 @@
-'use client';
+'use client'
 
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
-import { EyeIcon, EyeOffIcon } from 'lucide-react';
-import type { AuthFormProps, FormState } from './types';
-import {
-  useSecurityState,
-  MAX_ATTEMPTS,
-  LOCKOUT_TIME,
-} from '../utils/security';
+import { useState, useEffect } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { EyeIcon, EyeOffIcon } from 'lucide-react'
+import type { AuthFormProps, FormState } from './types'
+import { useSecurityState, MAX_ATTEMPTS, LOCKOUT_TIME } from '../utils/security'
 import {
   getShakeAnimation,
   getReducedShakeAnimation,
-} from '../animations/form-animations';
-import { Checkbox } from '@/components/ui/checkbox';
-import { executeGoogleSignIn } from '../actions/auth-actions';
-import { clientConfig } from '@/config/app-config';
+} from '../animations/form-animations'
+import { Checkbox } from '@/components/ui/checkbox'
+import { executeGoogleSignIn } from '../actions/auth-actions'
+import { clientConfig } from '@/config/app-config'
 
 export function AuthForm({
   type,
@@ -27,8 +23,8 @@ export function AuthForm({
   isLoading,
   onLockoutChange,
 }: AuthFormProps) {
-  const prefersReducedMotion = useReducedMotion();
-  const { security, updateSecurityState } = useSecurityState();
+  const prefersReducedMotion = useReducedMotion()
+  const { security, updateSecurityState } = useSecurityState()
   const [formState, setFormState] = useState<FormState>({
     email: '',
     password: '',
@@ -36,109 +32,109 @@ export function AuthForm({
     error: null,
     shake: false,
     acceptedTerms: false,
-  });
+  })
 
-  const remainingAttempts = MAX_ATTEMPTS - security.attempts;
+  const remainingAttempts = MAX_ATTEMPTS - security.attempts
 
   // Count enabled auth providers
   const enabledAuthProviders = Object.values(clientConfig.AUTH).filter(
     (provider) => provider.ENABLED,
-  ).length;
+  ).length
 
   useEffect(() => {
-    onLockoutChange?.(security.lockoutTimer > 0);
-  }, [security.lockoutTimer, onLockoutChange]);
+    onLockoutChange?.(security.lockoutTimer > 0)
+  }, [security.lockoutTimer, onLockoutChange])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormState((prev) => ({ ...prev, [name]: value }))
+  }
 
   const triggerShake = () => {
-    setFormState((prev) => ({ ...prev, shake: true }));
-    setTimeout(() => setFormState((prev) => ({ ...prev, shake: false })), 500);
-  };
+    setFormState((prev) => ({ ...prev, shake: true }))
+    setTimeout(() => setFormState((prev) => ({ ...prev, shake: false })), 500)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
     if (type === 'register' && !formState.acceptedTerms) {
       setFormState((prev) => ({
         ...prev,
         error: 'You must accept the terms and conditions',
-      }));
-      triggerShake();
-      return;
+      }))
+      triggerShake()
+      return
     }
 
     if (security.lockoutTimer > 0) {
       setFormState((prev) => ({
         ...prev,
         error: `Too many attempts. Please try again in ${security.lockoutTimer} seconds`,
-      }));
-      triggerShake();
-      return;
+      }))
+      triggerShake()
+      return
     }
 
     try {
       const result = await onSubmit({
         email: formState.email,
         password: formState.password,
-      });
+      })
 
-      if (result.error) throw result.error;
+      if (result.error) throw result.error
 
       updateSecurityState({
         attempts: 0,
         lockoutTimer: 0,
-      });
-      setFormState((prev) => ({ ...prev, error: null }));
+      })
+      setFormState((prev) => ({ ...prev, error: null }))
     } catch (err) {
-      const newAttempts = security.attempts + 1;
-      triggerShake();
+      const newAttempts = security.attempts + 1
+      triggerShake()
 
       if (newAttempts >= MAX_ATTEMPTS) {
         updateSecurityState({
           attempts: newAttempts,
           lockoutTimer: LOCKOUT_TIME,
-        });
+        })
         setFormState((prev) => ({
           ...prev,
           error: `Too many failed attempts. Please try again in ${LOCKOUT_TIME} seconds`,
-        }));
+        }))
       } else {
-        updateSecurityState({ attempts: newAttempts });
+        updateSecurityState({ attempts: newAttempts })
         setFormState((prev) => ({
           ...prev,
           error: err instanceof Error ? err.message : 'An error occurred',
-        }));
+        }))
       }
     }
-  };
+  }
 
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await executeGoogleSignIn();
+      const { error } = await executeGoogleSignIn()
       if (error) {
         setFormState((prev) => ({
           ...prev,
           error: error.message,
-        }));
-        triggerShake();
+        }))
+        triggerShake()
       }
     } catch (err) {
       setFormState((prev) => ({
         ...prev,
         error:
           err instanceof Error ? err.message : 'Failed to sign in with Google',
-      }));
-      triggerShake();
+      }))
+      triggerShake()
     }
-  };
+  }
 
   const shakeAnimation = prefersReducedMotion
     ? getReducedShakeAnimation()
-    : getShakeAnimation((MAX_ATTEMPTS - remainingAttempts + 1) * 4);
+    : getShakeAnimation((MAX_ATTEMPTS - remainingAttempts + 1) * 4)
 
   return (
     <motion.form
@@ -329,5 +325,5 @@ export function AuthForm({
         </Button>
       </motion.div>
     </motion.form>
-  );
+  )
 }

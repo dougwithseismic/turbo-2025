@@ -1,33 +1,33 @@
-'use server';
+'use server'
 
-import { createSupabaseServerClient } from '@/lib/supabase/server';
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 
 export interface GoogleSite {
-  siteUrl: string;
-  permissionLevel: string;
+  siteUrl: string
+  permissionLevel: string
 }
 
 interface GoogleSitesResponse {
   data: {
-    siteEntry?: GoogleSite[];
-  };
+    siteEntry?: GoogleSite[]
+  }
 }
 
 interface GoogleSitesResponse {
   data: {
-    siteEntry?: GoogleSite[];
-  };
+    siteEntry?: GoogleSite[]
+  }
 }
 
 export const fetchSearchConsoleSites =
   async (): Promise<GoogleSitesResponse> => {
-    const supabase = await createSupabaseServerClient();
-    const { data: session } = await supabase.auth.getSession();
+    const supabase = await createSupabaseServerClient()
+    const { data: session } = await supabase.auth.getSession()
 
-    const accessToken = session?.session?.access_token;
+    const accessToken = session?.session?.access_token
 
     if (!accessToken) {
-      throw new Error('No access token found');
+      throw new Error('No access token found')
     }
 
     const response = await fetch(
@@ -39,12 +39,12 @@ export const fetchSearchConsoleSites =
         },
         next: { revalidate: 30 }, // Cache for 30 seconds
       },
-    );
+    )
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || 'Failed to fetch sites');
+      const errorData = await response.json().catch(() => ({}))
+      throw new Error(errorData.error || 'Failed to fetch sites')
     }
 
-    return response.json();
-  };
+    return response.json()
+  }

@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 export const CTASection = () => {
   return (
@@ -76,5 +76,5 @@ export const CTASection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

@@ -43,7 +43,7 @@ body {
   .card-bg-subtle {
     @apply bg-gradient-to-br from-red-500 to-red-500/30;
   }
-  
+
   .card-bg-accent {
     @apply bg-gradient-to-br from-background to-accent;
   }

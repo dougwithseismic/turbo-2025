@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   motion,
   AnimatePresence,
   useReducedMotion,
   HTMLMotionProps,
-} from 'framer-motion';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
+} from 'motion/react'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
 import {
   getShakeAnimation,
   getReducedShakeAnimation,
-} from '@/features/auth/animations/form-animations';
+} from '@/features/auth/animations/form-animations'
 
 const addressFormVariants = cva('grid gap-8 dark:text-foreground', {
   variants: {
@@ -35,7 +35,7 @@ const addressFormVariants = cva('grid gap-8 dark:text-foreground', {
     size: 'default',
     spacing: 'default',
   },
-});
+})
 
 const inputVariants = cva(
   'transition-all duration-200 dark:bg-background dark:text-foreground dark:border-input',
@@ -51,7 +51,7 @@ const inputVariants = cva(
       state: 'default',
     },
   },
-);
+)
 
 const buttonWrapperVariants = cva('', {
   variants: {
@@ -63,32 +63,32 @@ const buttonWrapperVariants = cva('', {
   defaultVariants: {
     fullWidth: true,
   },
-});
+})
 
 interface AddressFormData {
-  street: string;
-  city: string;
-  state: string;
-  postalCode: string;
-  country: string;
+  street: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
 }
 
 type AddressFormProps = Omit<HTMLMotionProps<'form'>, 'onSubmit'> &
   VariantProps<typeof addressFormVariants> & {
-    initialData?: AddressFormData;
+    initialData?: AddressFormData
     onSubmit: ({
       address,
     }: {
-      address: AddressFormData;
-    }) => Promise<{ error: Error | null }>;
-    isLoading?: boolean;
-    isReadOnly?: boolean;
-    showButton?: boolean;
-  };
+      address: AddressFormData
+    }) => Promise<{ error: Error | null }>
+    isLoading?: boolean
+    isReadOnly?: boolean
+    showButton?: boolean
+  }
 
 interface FormState extends AddressFormData {
-  error: string | null;
-  shake: boolean;
+  error: string | null
+  shake: boolean
 }
 
 export const AddressForm = ({
@@ -102,7 +102,7 @@ export const AddressForm = ({
   spacing,
   ...props
 }: AddressFormProps): JSX.Element => {
-  const prefersReducedMotion = useReducedMotion();
+  const prefersReducedMotion = useReducedMotion()
   const [formState, setFormState] = useState<FormState>({
     street: initialData?.street ?? '',
     city: initialData?.city ?? '',
@@ -111,20 +111,20 @@ export const AddressForm = ({
     country: initialData?.country ?? '',
     error: null,
     shake: false,
-  });
+  })
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormState((prev) => ({ ...prev, [name]: value }));
-  };
+    const { name, value } = e.target
+    setFormState((prev) => ({ ...prev, [name]: value }))
+  }
 
   const triggerShake = () => {
-    setFormState((prev) => ({ ...prev, shake: true }));
-    setTimeout(() => setFormState((prev) => ({ ...prev, shake: false })), 500);
-  };
+    setFormState((prev) => ({ ...prev, shake: true }))
+    setTimeout(() => setFormState((prev) => ({ ...prev, shake: false })), 500)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+    e.preventDefault()
 
     try {
       const { error } = await onSubmit({
@@ -135,31 +135,31 @@ export const AddressForm = ({
           postalCode: formState.postalCode,
           country: formState.country,
         },
-      });
+      })
 
-      if (error) throw error;
+      if (error) throw error
 
-      setFormState((prev) => ({ ...prev, error: null }));
+      setFormState((prev) => ({ ...prev, error: null }))
     } catch (err) {
-      triggerShake();
+      triggerShake()
       setFormState((prev) => ({
         ...prev,
         error:
           err instanceof Error
             ? err.message
             : 'An error occurred updating your address',
-      }));
+      }))
     }
-  };
+  }
 
   const shakeAnimation = prefersReducedMotion
     ? getReducedShakeAnimation()
-    : getShakeAnimation(4);
+    : getShakeAnimation(4)
 
   const inputClassName = cn(
     inputVariants({ state: formState.error ? 'error' : 'default' }),
-  );
-  const buttonWrapperClassName = cn(buttonWrapperVariants({ fullWidth: true }));
+  )
+  const buttonWrapperClassName = cn(buttonWrapperVariants({ fullWidth: true }))
 
   return (
     <motion.form
@@ -295,5 +295,5 @@ export const AddressForm = ({
         </motion.div>
       )}
     </motion.form>
-  );
-};
+  )
+}

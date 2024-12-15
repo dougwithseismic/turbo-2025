@@ -5,13 +5,13 @@ import {
   BarChart2,
   ScrollText,
   InfinityIcon,
-} from 'lucide-react';
+} from 'lucide-react'
 
 type SecondaryFeature = {
-  name: string;
-  description: string;
-  icon: typeof Search;
-};
+  name: string
+  description: string
+  icon: typeof Search
+}
 
 const secondaryFeatures: SecondaryFeature[] = [
   {
@@ -50,7 +50,7 @@ const secondaryFeatures: SecondaryFeature[] = [
       'Evaluate your content quality, readability, and topical relevance while getting actionable recommendations for improvement.',
     icon: ScrollText,
   },
-];
+]
 
 export const SecondaryFeatures = () => {
   return (
@@ -81,5 +81,5 @@ export const SecondaryFeatures = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

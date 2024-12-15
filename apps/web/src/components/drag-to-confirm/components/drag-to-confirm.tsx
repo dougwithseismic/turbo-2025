@@ -1,17 +1,17 @@
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Loader2 } from 'lucide-react';
-import { useEffect, useRef } from 'react';
-import { useDragToConfirm } from '../hooks/use-drag-to-confirm';
-import { useId } from 'react';
+import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'motion/react'
+import { Check, Loader2 } from 'lucide-react'
+import { useEffect, useRef } from 'react'
+import { useDragToConfirm } from '../hooks/use-drag-to-confirm'
+import { useId } from 'react'
 
 type DragToConfirmProps = {
-  onConfirm: () => Promise<boolean>;
-  disabled?: boolean;
-  className?: string;
-  label?: string;
-  ariaLabel?: string;
-};
+  onConfirm: () => Promise<boolean>
+  disabled?: boolean
+  className?: string
+  label?: string
+  ariaLabel?: string
+}
 
 export const DragToConfirm = ({
   onConfirm,
@@ -41,66 +41,66 @@ export const DragToConfirm = ({
     handleDragEnd,
   } = useDragToConfirm({
     onConfirm,
-  });
+  })
 
-  const trackId = useId();
-  const labelId = useId();
-  const descriptionId = useId();
-  const progressRef = useRef<HTMLDivElement>(null);
+  const trackId = useId()
+  const labelId = useId()
+  const descriptionId = useId()
+  const progressRef = useRef<HTMLDivElement>(null)
 
   // Handle keyboard navigation
   useEffect(() => {
     const handleKeyDown = async (e: KeyboardEvent) => {
-      if (disabled || isSubmitting || showSuccess) return;
+      if (disabled || isSubmitting || showSuccess) return
 
       switch (e.key) {
         case 'ArrowRight':
         case 'Right':
-          e.preventDefault();
+          e.preventDefault()
           if (progressRef.current) {
-            const currentValue = dragProgress.get();
-            const newValue = Math.min(currentValue + 10, 100);
-            x.set((newValue / 100) * dragThreshold);
+            const currentValue = dragProgress.get()
+            const newValue = Math.min(currentValue + 10, 100)
+            x.set((newValue / 100) * dragThreshold)
             if (newValue >= 90) {
-              await handleDragEnd();
+              await handleDragEnd()
             }
           }
-          break;
+          break
         case 'ArrowLeft':
         case 'Left':
-          e.preventDefault();
+          e.preventDefault()
           if (progressRef.current) {
-            const currentValue = dragProgress.get();
-            const newValue = Math.max(currentValue - 10, 0);
-            x.set((newValue / 100) * dragThreshold);
+            const currentValue = dragProgress.get()
+            const newValue = Math.max(currentValue - 10, 0)
+            x.set((newValue / 100) * dragThreshold)
           }
-          break;
+          break
         case 'Home':
-          e.preventDefault();
-          x.set(0);
-          break;
+          e.preventDefault()
+          x.set(0)
+          break
         case 'End':
-          e.preventDefault();
+          e.preventDefault()
           if (!disabled) {
-            x.set(dragThreshold);
-            await handleDragEnd();
+            x.set(dragThreshold)
+            await handleDragEnd()
           }
-          break;
+          break
         case 'Enter':
         case ' ':
-          e.preventDefault();
+          e.preventDefault()
           if (!disabled) {
-            x.set(dragThreshold);
-            await handleDragEnd();
+            x.set(dragThreshold)
+            await handleDragEnd()
           }
-          break;
+          break
       }
-    };
+    }
 
-    const button = buttonRef.current;
+    const button = buttonRef.current
     if (button) {
-      button.addEventListener('keydown', handleKeyDown);
-      return () => button.removeEventListener('keydown', handleKeyDown);
+      button.addEventListener('keydown', handleKeyDown)
+      return () => button.removeEventListener('keydown', handleKeyDown)
     }
   }, [
     disabled,
@@ -111,26 +111,26 @@ export const DragToConfirm = ({
     handleDragEnd,
     buttonRef,
     x,
-  ]);
+  ])
 
   const handleDragStart = () => {
     if ('vibrate' in navigator) {
-      navigator.vibrate(10); // Short vibration on drag start
+      navigator.vibrate(10) // Short vibration on drag start
     }
-  };
+  }
 
   const handleDrag = () => {
-    const progress = dragProgress.get();
+    const progress = dragProgress.get()
     if (progress > 0) {
       // Vibrate with increasing intensity based on progress
       if ('vibrate' in navigator) {
-        const vibrationStrength = Math.floor((progress / 100) * 20) + 5; // 5-25ms
-        const vibrationCount = Math.floor(progress / 20) + 1; // 1-6 pulses
-        const vibrationPattern = Array(vibrationCount).fill(vibrationStrength);
-        navigator.vibrate(vibrationPattern);
+        const vibrationStrength = Math.floor((progress / 100) * 20) + 5 // 5-25ms
+        const vibrationCount = Math.floor(progress / 20) + 1 // 1-6 pulses
+        const vibrationPattern = Array(vibrationCount).fill(vibrationStrength)
+        navigator.vibrate(vibrationPattern)
       }
     }
-  };
+  }
 
   return (
     <motion.div
@@ -293,5 +293,5 @@ export const DragToConfirm = ({
         </AnimatePresence>
       </motion.div>
     </motion.div>
-  );
-};
+  )
+}

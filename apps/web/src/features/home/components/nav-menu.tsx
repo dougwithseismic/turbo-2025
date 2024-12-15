@@ -1,19 +1,18 @@
-import { ChevronDown, Github } from 'lucide-react';
-import { BookMarked, CalendarDays, HelpCircle } from 'lucide-react';
+import { ChevronDown, Github } from 'lucide-react'
+import { BookMarked, CalendarDays, HelpCircle } from 'lucide-react'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { cn } from '@/lib/utils';
-import Link from 'next/link';
+} from '@/components/ui/popover'
+import { cn } from '@/lib/utils'
 
 export const navigation = [
   { name: 'Product', href: '#product' },
   { name: 'Features', href: '#features' },
   { name: 'Pricing', href: '#pricing' },
   { name: 'Resources', href: '#resources', hasMenu: true },
-];
+]
 
 const resources = [
   {
@@ -34,7 +33,7 @@ const resources = [
     href: '#',
     icon: CalendarDays,
   },
-];
+]
 
 const recentPosts = [
   {
@@ -59,7 +58,7 @@ const recentPosts = [
     date: 'Feb 21, 2023',
     datetime: '2023-02-21',
   },
-];
+]
 
 export const NavMenu = () => {
   return (
@@ -158,5 +157,5 @@ export const NavMenu = () => {
         <Github className="size-5 inline-block" />
       </a>
     </div>
-  );
-};
+  )
+}

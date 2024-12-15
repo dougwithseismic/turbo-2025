@@ -5,14 +5,12 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Separator } from '@/components/ui/separator';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { UpdatePasswordForm } from '@/features/auth/components/update-password-form';
-import { auth } from '@/lib/auth';
-import { Metadata } from 'next';
-import Link from 'next/link';
-import { redirect } from 'next/navigation';
+} from '@/components/ui/breadcrumb'
+import { Separator } from '@/components/ui/separator'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import { UpdatePasswordForm } from '@/features/auth/components/update-password-form'
+import { Metadata } from 'next'
+import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Update Password | Account Settings',
@@ -21,7 +19,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 export default async function UpdatePasswordPage() {
   return (
@@ -52,5 +50,5 @@ export default async function UpdatePasswordPage() {
         </div>
       </div>
     </>
-  );
+  )
 }

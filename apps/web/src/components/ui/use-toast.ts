@@ -1,10 +1,10 @@
-import toast from 'react-hot-toast';
+import toast from 'react-hot-toast'
 
 type ToastProps = {
-  title?: string;
-  description?: string;
-  variant?: 'default' | 'destructive';
-};
+  title?: string
+  description?: string
+  variant?: 'default' | 'destructive'
+}
 
 export const useToast = () => {
   const showToast = ({
@@ -12,14 +12,14 @@ export const useToast = () => {
     description,
     variant = 'default',
   }: ToastProps) => {
-    const message = description ? `${title}\n${description}` : title;
+    const message = description ? `${title}\n${description}` : title
 
     if (variant === 'destructive') {
-      toast.error(message);
+      toast.error(message)
     } else {
-      toast.success(message);
+      toast.success(message)
     }
-  };
+  }
 
-  return { toast: showToast };
-};
+  return { toast: showToast }
+}

@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,22 +8,22 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
-import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import Link from 'next/link';
+} from '@/components/ui/breadcrumb'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { SidebarTrigger } from '@/components/ui/sidebar'
+import Link from 'next/link'
 
 interface BreadcrumbItem {
-  label: string;
-  href?: string;
-  current?: boolean;
+  label: string
+  href?: string
+  current?: boolean
 }
 
 interface PageHeaderProps {
-  items: BreadcrumbItem[];
-  title?: string;
-  actions?: React.ReactNode;
+  items: BreadcrumbItem[]
+  title?: string
+  actions?: React.ReactNode
 }
 
 export const PageHeader = ({ items, title, actions }: PageHeaderProps) => {
@@ -79,5 +79,5 @@ export const PageHeader = ({ items, title, actions }: PageHeaderProps) => {
         </div>
       )}
     </header>
-  );
-};
+  )
+}

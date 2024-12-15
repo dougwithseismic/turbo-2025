@@ -1,11 +1,11 @@
-'use client';
+'use client'
 
-import { cva, type VariantProps } from 'class-variance-authority';
-import { type ReactNode, useEffect } from 'react';
-import { cn } from '@/lib/utils';
-import { motion, AnimatePresence } from 'framer-motion';
-import { itemVariants } from '../animations/content-card-animations';
-import { useContentCard } from '../context/content-card-context';
+import { cva, type VariantProps } from 'class-variance-authority'
+import { type ReactNode, useEffect } from 'react'
+import { cn } from '@/lib/utils'
+import { motion, AnimatePresence } from 'motion/react'
+import { itemVariants } from '../animations/content-card-animations'
+import { useContentCard } from '../context/content-card-context'
 
 const contentCardItemVariants = cva('flex items-center', {
   variants: {
@@ -38,18 +38,18 @@ const contentCardItemVariants = cva('flex items-center', {
     size: 'default',
     contentWidth: 'default',
   },
-});
+})
 
 export interface ContentCardItemProps
   extends VariantProps<typeof contentCardItemVariants> {
-  id?: string;
-  label?: string;
-  description?: string;
-  action?: ReactNode;
-  children?: ReactNode;
-  className?: string;
-  contentClassName?: string;
-  parentId?: string;
+  id?: string
+  label?: string
+  description?: string
+  action?: ReactNode
+  children?: ReactNode
+  className?: string
+  contentClassName?: string
+  parentId?: string
 }
 
 export const ContentCardItem = ({
@@ -66,18 +66,18 @@ export const ContentCardItem = ({
   contentWidth,
   parentId,
 }: ContentCardItemProps) => {
-  const { filteredItems, registerItem } = useContentCard();
+  const { filteredItems, registerItem } = useContentCard()
 
   const doesMatchItems =
-    !filteredItems.length || filteredItems.some((item) => item.id === id);
+    !filteredItems.length || filteredItems.some((item) => item.id === id)
 
   useEffect(() => {
     if (id) {
-      console.log('registering item', id, label, description, parentId);
-      registerItem(id, { id, label, description, parentId });
+      console.log('registering item', id, label, description, parentId)
+      registerItem(id, { id, label, description, parentId })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id])
 
   return (
     <AnimatePresence mode="popLayout">
@@ -125,5 +125,5 @@ export const ContentCardItem = ({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}

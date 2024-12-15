@@ -5,7 +5,7 @@ import {
   YoutubeIcon,
   SlackIcon,
   DiscordIcon,
-} from '@/components/icons/social-icons';
+} from '@/components/icons/social-icons'
 
 export const MarketingFooter = () => {
   return (
@@ -99,5 +99,5 @@ export const MarketingFooter = () => {
         </div>
       </div>
     </footer>
-  );
-};
+  )
+}

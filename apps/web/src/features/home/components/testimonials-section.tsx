@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn } from '@/lib/utils'
 
 const featuredTestimonial = {
   body: 'Onsite completely transformed how we handle technical SEO. We went from scattered spreadsheets and manual checks to a streamlined process that catches issues before they impact rankings.',
@@ -9,7 +9,7 @@ const featuredTestimonial = {
       'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=1024&h=1024&q=80',
     logoUrl: 'https://tailwindui.com/plus/img/logos/savvycal-logo-gray-900.svg',
   },
-};
+}
 
 const testimonials = [
   [
@@ -60,7 +60,7 @@ const testimonials = [
       },
     ],
   ],
-];
+]
 
 export const TestimonialsSection = () => {
   return (
@@ -173,5 +173,5 @@ export const TestimonialsSection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

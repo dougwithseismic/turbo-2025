@@ -1,25 +1,25 @@
-'use client';
+'use client'
 
-import { useTheme } from '@/features/theme/hooks/use-theme';
-import { Settings, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useState } from 'react';
-import { themes } from '../config/themes';
-import { cn } from '@/lib/utils';
+import { useTheme } from '@/features/theme/hooks/use-theme'
+import { Settings, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'motion/react'
+import { useState } from 'react'
+import { themes } from '../config/themes'
+import { cn } from '@/lib/utils'
 
 type FloatingThemeSelectorProps = {
-  position?: 'left' | 'right';
-};
+  position?: 'left' | 'right'
+}
 
 export const FloatingThemeSelector = ({
   position = 'right',
 }: FloatingThemeSelectorProps) => {
-  const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
+  const { theme, setTheme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
 
-  const sidePosition = position === 'left' ? 'left-4' : 'right-4';
-  const panelPosition = position === 'left' ? 'left-12' : 'right-12';
-  const slideAnimation = position === 'left' ? { x: -20 } : { x: 20 };
+  const sidePosition = position === 'left' ? 'left-4' : 'right-4'
+  const panelPosition = position === 'left' ? 'left-12' : 'right-12'
+  const slideAnimation = position === 'left' ? { x: -20 } : { x: 20 }
 
   return (
     <div className={cn('fixed top-1/3 -translate-y-1/2 z-50', sidePosition)}>
@@ -79,5 +79,5 @@ export const FloatingThemeSelector = ({
         {isOpen ? <X className="w-5 h-5" /> : <Settings className="w-5 h-5" />}
       </button>
     </div>
-  );
-};
+  )
+}

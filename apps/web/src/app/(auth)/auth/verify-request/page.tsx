@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import { OtpVerificationForm } from '@/features/otp/components/otp-verification-form';
-import { Suspense } from 'react';
+import { Metadata } from 'next'
+import { OtpVerificationForm } from '@/features/otp/components/otp-verification-form'
+import { Suspense } from 'react'
 
 export const metadata: Metadata = {
   title: 'Verify Your Email | Your App Name',
@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 export default function VerifyRequestPage() {
   return (
@@ -19,5 +19,5 @@ export default function VerifyRequestPage() {
         <OtpVerificationForm />
       </Suspense>
     </div>
-  );
+  )
 }

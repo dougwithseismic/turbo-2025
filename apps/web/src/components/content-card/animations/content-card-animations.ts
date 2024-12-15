@@ -1,4 +1,4 @@
-import type { Variants } from 'framer-motion';
+import type { Variants } from 'motion/react'
 
 export const containerVariants: Variants = {
   hidden: {
@@ -14,7 +14,7 @@ export const containerVariants: Variants = {
       delayChildren: 0.1,
     },
   },
-};
+}
 
 export const itemVariants: Variants = {
   hidden: {
@@ -35,4 +35,4 @@ export const itemVariants: Variants = {
       damping: 20,
     },
   },
-};
+}

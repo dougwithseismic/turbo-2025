@@ -1,9 +1,9 @@
-import { ThemeToggle } from '@/features/theme/components/theme-toggle';
+import { ThemeToggle } from '@/features/theme/components/theme-toggle'
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <div className="min-h-svh dark:bg-background">
@@ -50,5 +50,5 @@ export default function AuthLayout({
         </div>
       </div>
     </div>
-  );
+  )
 }

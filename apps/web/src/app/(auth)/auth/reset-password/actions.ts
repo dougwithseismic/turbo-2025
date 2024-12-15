@@ -1,11 +1,11 @@
-'use server';
-import { executeResetPasswordRequest } from '@/features/auth/actions/auth-actions';
-import { AuthResponse } from '@/features/auth/types';
+'use server'
+import { executeResetPasswordRequest } from '@/features/auth/actions/auth-actions'
+import { AuthResponse } from '@/features/auth/types'
 
 export const handleResetPassword = async ({
   email,
 }: {
-  email: string;
+  email: string
 }): Promise<AuthResponse> => {
-  return await executeResetPasswordRequest({ email });
-};
+  return await executeResetPasswordRequest({ email })
+}

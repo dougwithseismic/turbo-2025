@@ -1,6 +1,6 @@
-import { cache } from 'react';
-import { redirect } from 'next/navigation';
-import { createSupabaseServerClient } from './supabase/server';
+import { cache } from 'react'
+import { redirect } from 'next/navigation'
+import { createSupabaseServerClient } from './supabase/server'
 
 /**
  * Get the current authenticated user session
@@ -16,23 +16,23 @@ import { createSupabaseServerClient } from './supabase/server';
  * @returns {Promise<User | null>} The authenticated user or null
  */
 export const auth = cache(async () => {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient()
   try {
     const {
       data: { user },
       error,
-    } = await supabase.auth.getUser();
+    } = await supabase.auth.getUser()
 
     if (error) {
-      throw error;
+      throw error
     }
 
-    return user;
+    return user
   } catch (error) {
-    console.error('Auth error:', error);
-    return null;
+    console.error('Auth error:', error)
+    return null
   }
-});
+})
 
 /**
  * Middleware to protect routes from unauthenticated access
@@ -47,11 +47,11 @@ export const auth = cache(async () => {
  * @throws {Redirect} Redirects to login page if not authenticated
  */
 export const protectedRoute = async () => {
-  const user = await auth();
+  const user = await auth()
 
   if (!user) {
-    redirect('/login');
+    redirect('/login')
   }
 
-  return user;
-};
+  return user
+}

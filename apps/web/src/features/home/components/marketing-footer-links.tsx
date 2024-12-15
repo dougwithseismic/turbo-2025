@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { type FC } from 'react';
-import { NewsletterForm } from '@/features/newsletter/components/newsletter-form';
+import { type FC } from 'react'
+import { NewsletterForm } from '@/features/newsletter/components/newsletter-form'
 
 type FooterLinkGroupProps = {
-  title: string;
+  title: string
   links: Array<{
-    label: string;
-    href: string;
-  }>;
-};
+    label: string
+    href: string
+  }>
+}
 
 const FooterLinkGroup: FC<FooterLinkGroupProps> = ({ title, links }) => (
   <div className="flex flex-col space-y-3">
@@ -27,7 +27,7 @@ const FooterLinkGroup: FC<FooterLinkGroupProps> = ({ title, links }) => (
       ))}
     </ul>
   </div>
-);
+)
 
 export const MarketingFooterLinks = () => {
   const productLinks = [
@@ -35,21 +35,21 @@ export const MarketingFooterLinks = () => {
     { label: 'Pricing', href: '/pricing' },
     { label: 'Documentation', href: '/docs' },
     { label: 'API Reference', href: '/api' },
-  ];
+  ]
 
   const companyLinks = [
     { label: 'About Us', href: '/about' },
     { label: 'Blog', href: '/blog' },
     { label: 'Careers', href: '/careers' },
     { label: 'Contact', href: '/contact' },
-  ];
+  ]
 
   const resourceLinks = [
     { label: 'Community', href: '/community' },
     { label: 'Support', href: '/support' },
     { label: 'Status', href: '/status' },
     { label: 'Partners', href: '/partners' },
-  ];
+  ]
 
   return (
     <div className="w-full bg-black border-t border-border/40 md:pb-32">
@@ -65,5 +65,5 @@ export const MarketingFooterLinks = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

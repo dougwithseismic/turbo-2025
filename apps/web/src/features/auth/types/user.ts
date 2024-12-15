@@ -1,4 +1,4 @@
 export interface User {
-  email: string;
-  birthdate: Date | null;
+  email: string
+  birthdate: Date | null
 }

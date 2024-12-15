@@ -1,7 +1,7 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { Lock, PencilLine } from 'lucide-react';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { Lock, PencilLine } from 'lucide-react'
+import Link from 'next/link'
 
 export const PasswordField = () => {
   return (
@@ -21,5 +21,5 @@ export const PasswordField = () => {
         </Button>
       </ActionField.Action>
     </ActionField>
-  );
-};
+  )
+}

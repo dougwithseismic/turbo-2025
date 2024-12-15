@@ -1,5 +1,5 @@
-import { Button } from '@/components/ui/button';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export const HeroSection = () => {
   return (
@@ -104,5 +104,5 @@ export const HeroSection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

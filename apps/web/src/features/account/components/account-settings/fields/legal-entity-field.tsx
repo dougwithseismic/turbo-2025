@@ -1,19 +1,19 @@
-import { ActionField } from '@/components/action-field';
-import { Package, CheckCircle2, Loader2 } from 'lucide-react';
+import { ActionField } from '@/components/action-field'
+import { Package, CheckCircle2, Loader2 } from 'lucide-react'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { motion } from 'framer-motion';
+} from '@/components/ui/select'
+import { motion } from 'motion/react'
 
-type LegalEntityType = 'individual' | 'company' | 'non-profit';
+type LegalEntityType = 'individual' | 'company' | 'non-profit'
 
 type LegalEntityFieldProps = {
-  onSubmit: (type: LegalEntityType) => Promise<boolean>;
-};
+  onSubmit: (type: LegalEntityType) => Promise<boolean>
+}
 
 export const LegalEntityField = ({ onSubmit }: LegalEntityFieldProps) => {
   return (
@@ -27,15 +27,15 @@ export const LegalEntityField = ({ onSubmit }: LegalEntityFieldProps) => {
               <Select
                 defaultValue="individual"
                 onValueChange={async (value: LegalEntityType) => {
-                  setStatus('LOADING');
-                  const success = await onSubmit(value);
+                  setStatus('LOADING')
+                  const success = await onSubmit(value)
                   if (success) {
-                    setStatus('SUCCESS');
+                    setStatus('SUCCESS')
                     setTimeout(() => {
-                      setStatus('IDLE');
-                    }, 1000);
+                      setStatus('IDLE')
+                    }, 1000)
                   } else {
-                    setStatus('IDLE');
+                    setStatus('IDLE')
                   }
                 }}
               >
@@ -83,5 +83,5 @@ export const LegalEntityField = ({ onSubmit }: LegalEntityFieldProps) => {
         </>
       )}
     </ActionField>
-  );
-};
+  )
+}

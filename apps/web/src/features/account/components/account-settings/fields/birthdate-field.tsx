@@ -1,22 +1,22 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
-import { CalendarIcon, CheckCircle2, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import { Calendar } from '@/components/ui/calendar'
+import { cn } from '@/lib/utils'
+import { format } from 'date-fns'
+import { CalendarIcon, CheckCircle2, Loader2 } from 'lucide-react'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
-import { motion } from 'framer-motion';
+} from '@/components/ui/popover'
+import { motion } from 'motion/react'
 
 type BirthdateFieldProps = {
-  onSubmit: (date: Date) => Promise<boolean>;
-};
+  onSubmit: (date: Date) => Promise<boolean>
+}
 
 export const BirthdateField = ({ onSubmit }: BirthdateFieldProps) => {
-  const birthdateMock = new Date('1990-01-01');
+  const birthdateMock = new Date('1990-01-01')
 
   return (
     <ActionField<'IDLE' | 'LOADING' | 'SUCCESS'>>
@@ -33,7 +33,7 @@ export const BirthdateField = ({ onSubmit }: BirthdateFieldProps) => {
                     !birthdateMock && 'text-muted-foreground',
                   )}
                   onClick={(e) => {
-                    e.stopPropagation();
+                    e.stopPropagation()
                   }}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -49,16 +49,16 @@ export const BirthdateField = ({ onSubmit }: BirthdateFieldProps) => {
                   mode="single"
                   selected={birthdateMock}
                   onSelect={async (date) => {
-                    if (!date) return;
-                    setStatus('LOADING');
-                    const success = await onSubmit(date);
+                    if (!date) return
+                    setStatus('LOADING')
+                    const success = await onSubmit(date)
                     if (success) {
-                      setStatus('SUCCESS');
+                      setStatus('SUCCESS')
                       setTimeout(() => {
-                        setStatus('IDLE');
-                      }, 1000);
+                        setStatus('IDLE')
+                      }, 1000)
                     } else {
-                      setStatus('IDLE');
+                      setStatus('IDLE')
                     }
                   }}
                   initialFocus
@@ -102,5 +102,5 @@ export const BirthdateField = ({ onSubmit }: BirthdateFieldProps) => {
         </>
       )}
     </ActionField>
-  );
-};
+  )
+}

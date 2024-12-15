@@ -1,28 +1,28 @@
-'use client';
+'use client'
 
-import { useEffect, Suspense } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { useEffect, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { motion } from 'motion/react'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 const NotificationContent = () => {
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams()
   const message =
-    searchParams.get('message') ?? 'Sorted - You can close this window now';
-  const type = searchParams.get('type') === 'error' ? 'error' : 'success';
+    searchParams.get('message') ?? 'Sorted - You can close this window now'
+  const type = searchParams.get('type') === 'error' ? 'error' : 'success'
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      window.close();
-    }, 3000);
+      window.close()
+    }, 3000)
 
-    return () => clearTimeout(timer);
-  }, []);
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleClose = () => {
-    window.close();
-  };
+    window.close()
+  }
 
   return (
     <motion.div
@@ -50,21 +50,21 @@ const NotificationContent = () => {
         Close Now
       </Button>
     </motion.div>
-  );
-};
+  )
+}
 
 const CloseNotificationContent = () => {
   return (
     <Suspense fallback={<div>Loading...</div>}>
       <NotificationContent />
     </Suspense>
-  );
-};
+  )
+}
 
 export default function CloseNotificationPage() {
   return (
     <div className="container relative flex min-h-screen flex-col items-center justify-center p-8">
       <CloseNotificationContent />
     </div>
-  );
+  )
 }

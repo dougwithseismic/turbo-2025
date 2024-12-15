@@ -1,9 +1,9 @@
-'use client';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import * as z from 'zod';
+'use client'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import * as z from 'zod'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -11,9 +11,9 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
 const contactFormSchema = z.object({
   firstName: z.string().min(2, 'First name must be at least 2 characters'),
@@ -21,9 +21,9 @@ const contactFormSchema = z.object({
   budget: z.string().min(1, 'Please enter your budget'),
   website: z.string().url('Please enter a valid URL').or(z.literal('')),
   message: z.string().min(10, 'Message must be at least 10 characters'),
-});
+})
 
-type ContactFormValues = z.infer<typeof contactFormSchema>;
+type ContactFormValues = z.infer<typeof contactFormSchema>
 
 const defaultValues: Partial<ContactFormValues> = {
   firstName: '',
@@ -31,18 +31,18 @@ const defaultValues: Partial<ContactFormValues> = {
   budget: '',
   website: '',
   message: '',
-};
+}
 
 export const ContactForm = () => {
   const form = useForm<ContactFormValues>({
     resolver: zodResolver(contactFormSchema),
     defaultValues,
-  });
+  })
 
   const onSubmit = async (data: ContactFormValues) => {
     // TODO: Implement form submission
-    console.log(data);
-  };
+    console.log(data)
+  }
 
   return (
     <Form {...form}>
@@ -153,5 +153,5 @@ export const ContactForm = () => {
         </p>
       </form>
     </Form>
-  );
-};
+  )
+}

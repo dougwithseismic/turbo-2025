@@ -1,11 +1,11 @@
-import { Metadata } from 'next';
-import { PageHeader } from '@/features/page-layout/components/page-header';
-import { DashboardStats } from '@/features/dashboard/components/dashboard-stats';
-import { DashboardTable } from '@/features/dashboard/components/dashboard-table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { RecentActivity } from '@/features/dashboard/components/recent-activity';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import DashboardCharts from '@/features/dashboard/components/dashboard-charts';
+import { Metadata } from 'next'
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { DashboardStats } from '@/features/dashboard/components/dashboard-stats'
+import { DashboardTable } from '@/features/dashboard/components/dashboard-table'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { RecentActivity } from '@/features/dashboard/components/recent-activity'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import DashboardCharts from '@/features/dashboard/components/dashboard-charts'
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 const Page = async () => {
   const breadcrumbItems = [
@@ -24,7 +24,7 @@ const Page = async () => {
       href: '/dashboard',
       current: true,
     },
-  ];
+  ]
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -93,7 +93,7 @@ const Page = async () => {
         </Tabs>
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default Page;
+export default Page

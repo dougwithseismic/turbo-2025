@@ -1,6 +1,6 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Table,
   TableBody,
@@ -8,40 +8,35 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from '@/components/ui/table'
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
   DialogTitle,
-} from '@/components/ui/dialog';
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
-import { Form } from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
+} from '@/components/ui/dialog'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Form } from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Separator } from '@/components/ui/separator'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { DragToConfirm } from '@/components/drag-to-confirm';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, Pencil, Plus, Trash2 } from 'lucide-react';
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { cn } from '@/lib/utils';
-import { cva } from 'class-variance-authority';
-import { SecretKey } from './secret-key';
+} from '@/components/ui/select'
+import { DragToConfirm } from '@/components/drag-to-confirm'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { motion, AnimatePresence } from 'motion/react'
+import { AlertCircle, Pencil, Plus, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { cn } from '@/lib/utils'
+import { cva } from 'class-variance-authority'
+import { SecretKey } from './secret-key'
 
 const TEXT = {
   CREATE_API_KEY: 'Create New API Key',
@@ -59,7 +54,7 @@ const TEXT = {
     NAME_MIN: 'Name must be at least 3 characters',
     PERMISSIONS_REQUIRED: 'Permissions are required',
   },
-};
+}
 
 const STEPS = [
   {
@@ -72,16 +67,16 @@ const STEPS = [
     title: TEXT.API_KEY_CREATED,
     description: TEXT.SAVE_KEY_WARNING,
   },
-] as const;
+] as const
 
 const PERMISSIONS = [
   { value: 'read', label: 'Read Only' },
   { value: 'write', label: 'Read & Write' },
   { value: 'admin', label: 'Full Admin' },
-] as const;
+] as const
 
-type Step = (typeof STEPS)[number];
-type StepId = Step['id'];
+type Step = (typeof STEPS)[number]
+type StepId = Step['id']
 
 const modalCardVariants = cva(
   cn(
@@ -115,30 +110,30 @@ const modalCardVariants = cva(
       spacing: 'base',
     },
   },
-);
+)
 
 type ApiKey = {
-  id: string;
-  name: string;
-  secretKey: string;
-  created: string;
-  lastUsed: string;
-  createdBy: string;
-  permissions: string;
-};
+  id: string
+  name: string
+  secretKey: string
+  created: string
+  lastUsed: string
+  createdBy: string
+  permissions: string
+}
 
 const createApiKeySchema = z.object({
   name: z.string().min(3, TEXT.VALIDATION.NAME_MIN),
   permissions: z.string().min(1, TEXT.VALIDATION.PERMISSIONS_REQUIRED),
-});
+})
 
-type CreateApiKeyForm = z.infer<typeof createApiKeySchema>;
+type CreateApiKeyForm = z.infer<typeof createApiKeySchema>
 
 export const ApiKeysManager = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStep, setCurrentStep] = useState<StepId>(1);
-  const [newApiKey, setNewApiKey] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [currentStep, setCurrentStep] = useState<StepId>(1)
+  const [newApiKey, setNewApiKey] = useState<string | null>(null)
 
   const form = useForm<CreateApiKeyForm>({
     resolver: zodResolver(createApiKeySchema),
@@ -147,7 +142,7 @@ export const ApiKeysManager = () => {
       permissions: '',
     },
     mode: 'all',
-  });
+  })
 
   // This would typically come from an API call
   const apiKeys: ApiKey[] = [
@@ -169,43 +164,43 @@ export const ApiKeysManager = () => {
       createdBy: 'Doug Silkstone',
       permissions: 'All',
     },
-  ];
+  ]
 
   const resetForm = () => {
-    form.reset();
-    setNewApiKey(null);
-    setCurrentStep(1);
-  };
+    form.reset()
+    setNewApiKey(null)
+    setCurrentStep(1)
+  }
 
   const handleSubmit = async (): Promise<boolean> => {
-    const isValid = await form.trigger();
-    if (!isValid) return false;
+    const isValid = await form.trigger()
+    if (!isValid) return false
 
     try {
-      setIsSubmitting(true);
-      const formData = form.getValues();
+      setIsSubmitting(true)
+      const formData = form.getValues()
       // Here you would typically make an API call to create the key
-      console.log('Creating new API key:', formData);
+      console.log('Creating new API key:', formData)
       // Simulate API response with a new key
-      const generatedKey = 'sk_test_' + Math.random().toString(36).substring(2);
-      setNewApiKey(generatedKey);
-      setCurrentStep(2);
-      return true;
+      const generatedKey = 'sk_test_' + Math.random().toString(36).substring(2)
+      setNewApiKey(generatedKey)
+      setCurrentStep(2)
+      return true
     } catch (error) {
-      console.error('Failed to create API key:', error);
-      return false;
+      console.error('Failed to create API key:', error)
+      return false
     } finally {
-      setIsSubmitting(false);
+      setIsSubmitting(false)
     }
-  };
+  }
 
   const handleClose = () => {
-    resetForm();
-    setIsOpen(false);
-  };
+    resetForm()
+    setIsOpen(false)
+  }
 
   const currentStepData =
-    STEPS.find((step) => step.id === currentStep) ?? STEPS[0];
+    STEPS.find((step) => step.id === currentStep) ?? STEPS[0]
 
   return (
     <div className="w-full max-w-4xl container mx-auto space-y-6 p-6">
@@ -418,5 +413,5 @@ export const ApiKeysManager = () => {
         </Table>
       </div>
     </div>
-  );
-};
+  )
+}

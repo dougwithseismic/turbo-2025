@@ -1,36 +1,36 @@
-'use client';
+'use client'
 
-import { Menu, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { NavMenu, navigation } from './nav-menu';
-import { useAuth } from '@/features/auth/hooks/use-auth';
-import { useRouter, usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Menu, Loader2 } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { NavMenu, navigation } from './nav-menu'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { useRouter, usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 type NavigationButtonProps = {
-  href: string;
-  children: string;
-  variant?: 'default' | 'outline' | 'secondary';
-  className?: string;
-};
+  href: string
+  children: string
+  variant?: 'default' | 'outline' | 'secondary'
+  className?: string
+}
 
 const useNavigationState = () => {
-  const router = useRouter();
-  const pathname = usePathname();
-  const [isNavigating, setIsNavigating] = useState(false);
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isNavigating, setIsNavigating] = useState(false)
 
   useEffect(() => {
-    setIsNavigating(false);
-  }, [pathname]);
+    setIsNavigating(false)
+  }, [pathname])
 
   const handleNavigation = (path: string) => {
-    setIsNavigating(true);
-    router.push(path);
-  };
+    setIsNavigating(true)
+    router.push(path)
+  }
 
-  return { isNavigating, handleNavigation };
-};
+  return { isNavigating, handleNavigation }
+}
 
 const NavigationButton = ({
   href,
@@ -38,7 +38,7 @@ const NavigationButton = ({
   variant = 'default',
   className,
 }: NavigationButtonProps) => {
-  const { isNavigating, handleNavigation } = useNavigationState();
+  const { isNavigating, handleNavigation } = useNavigationState()
 
   return (
     <Button
@@ -56,11 +56,11 @@ const NavigationButton = ({
         children
       )}
     </Button>
-  );
-};
+  )
+}
 
 export const Header = () => {
-  const { user } = useAuth();
+  const { user } = useAuth()
 
   return (
     <header className="relative inset-x-0 top-0 z-50">
@@ -134,5 +134,5 @@ export const Header = () => {
         </div>
       </nav>
     </header>
-  );
-};
+  )
+}

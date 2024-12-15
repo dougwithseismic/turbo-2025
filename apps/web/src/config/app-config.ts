@@ -1,8 +1,8 @@
-import { createEnv } from '@t3-oss/env-nextjs';
-import { z } from 'zod';
-import packageJson from '../../package.json';
+import { createEnv } from '@t3-oss/env-nextjs'
+import { z } from 'zod'
+import packageJson from '../../package.json'
 
-const appName = packageJson.name || 'default-app-name';
+const appName = packageJson.name || 'default-app-name'
 
 export const env = createEnv({
   client: {
@@ -35,7 +35,7 @@ export const env = createEnv({
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   },
-});
+})
 
 // Client-safe configuration
 export const clientConfig = {
@@ -61,7 +61,7 @@ export const clientConfig = {
       ENABLED: env.NEXT_PUBLIC_AUTH_DISCORD_ENABLED,
     },
   },
-} as const;
+} as const
 
 // Log configuration on startup
-console.info('🕵️‍♂️ :: Client Config loaded');
+console.info('🕵️‍♂️ :: Client Config loaded')

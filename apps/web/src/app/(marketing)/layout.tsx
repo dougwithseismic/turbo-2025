@@ -1,13 +1,9 @@
-import { Header, MarketingFooter } from '@/features/home/components';
-import { FooterCTA } from '@/features/home/components/footer-cta';
-import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links';
-import { ReactNode } from 'react';
+import { Header, MarketingFooter } from '@/features/home/components'
+import { FooterCTA } from '@/features/home/components/footer-cta'
+import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links'
+import React from 'react'
 
-type MarketingLayoutProps = {
-  children: ReactNode;
-};
-
-const MarketingLayout = ({ children }: MarketingLayoutProps) => {
+const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container max-w-7xl mx-auto">
@@ -18,7 +14,7 @@ const MarketingLayout = ({ children }: MarketingLayoutProps) => {
       <MarketingFooterLinks />
       <MarketingFooter />
     </div>
-  );
-};
+  )
+}
 
-export default MarketingLayout;
+export default MarketingLayout

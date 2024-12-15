@@ -1,17 +1,12 @@
-'use client';
+'use client'
 
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { cn } from '@/lib/utils';
-import { Slot } from '@radix-ui/react-slot';
-import { cva, type VariantProps } from 'class-variance-authority';
-import { motion } from 'framer-motion';
-import { Search } from 'lucide-react';
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { cn } from '@/lib/utils'
+import { Slot } from '@radix-ui/react-slot'
+import { cva, type VariantProps } from 'class-variance-authority'
+import { motion } from 'motion/react'
+import { Search } from 'lucide-react'
 import {
   Children,
   cloneElement,
@@ -20,20 +15,17 @@ import {
   type ReactNode,
   useEffect,
   useMemo,
-} from 'react';
+} from 'react'
 import {
   containerVariants,
   itemVariants,
-} from '../animations/content-card-animations';
-import { useContentCard } from '../context/content-card-context';
-import type { ContentCardItem } from '../types/content-card-types';
-import {
-  ContentCardBody,
-  type ContentCardBodyProps,
-} from './content-card-body';
-import { ContentCardEmptyState } from './content-card-empty-state';
-import { ContentCardFooter } from './content-card-footer';
-import { ContentCardHeader } from './content-card-header';
+} from '../animations/content-card-animations'
+import { useContentCard } from '../context/content-card-context'
+import type { ContentCardItem } from '../types/content-card-types'
+import { ContentCardBody, type ContentCardBodyProps } from './content-card-body'
+import { ContentCardEmptyState } from './content-card-empty-state'
+import { ContentCardFooter } from './content-card-footer'
+import { ContentCardHeader } from './content-card-header'
 
 const contentCardVariants = cva(
   cn(
@@ -91,23 +83,23 @@ const contentCardVariants = cva(
       variant: 'base',
     },
   },
-);
+)
 
 export interface ContentCardProps
   extends VariantProps<typeof contentCardVariants> {
-  description?: string;
-  children: ReactNode;
-  itemFilter?: (item: ContentCardItem) => boolean;
-  className?: string;
+  description?: string
+  children: ReactNode
+  itemFilter?: (item: ContentCardItem) => boolean
+  className?: string
   // id is required for the content card search filter to work. It should be unique.
-  id?: string;
-  headerPosition?: 'INSIDE' | 'OUTSIDE';
+  id?: string
+  headerPosition?: 'INSIDE' | 'OUTSIDE'
 }
 
 type ContentCardComponent =
   | typeof ContentCardHeader
   | typeof ContentCardFooter
-  | typeof ContentCardBody;
+  | typeof ContentCardBody
 
 export const ContentCard = ({
   description,
@@ -119,74 +111,74 @@ export const ContentCard = ({
   id,
   headerPosition = 'INSIDE',
 }: ContentCardProps) => {
-  const { filteredItems, registerItem, isReady } = useContentCard();
+  const { filteredItems, registerItem, isReady } = useContentCard()
 
   const hasMatchingItems = filteredItems.some(
     (item) => item.id === id || item.parentId === id,
-  );
+  )
 
   const { header, footer, content } = useMemo(() => {
-    let header: ReactNode | null = null;
-    let footer: ReactNode | null = null;
-    const content: ReactNode[] = [];
+    let header: ReactNode | null = null
+    let footer: ReactNode | null = null
+    const content: ReactNode[] = []
 
     Children.forEach(children, (child, index) => {
-      console.log('Processing child:', { child, index });
+      console.log('Processing child:', { child, index })
       if (!child) {
-        console.log('Skipping null/undefined child');
-        return;
+        console.log('Skipping null/undefined child')
+        return
       }
       if (isValidElement(child)) {
-        const childType = child.type as ContentCardComponent;
-        console.log('Child type:', childType);
+        const childType = child.type as ContentCardComponent
+        console.log('Child type:', childType)
         if (childType === ContentCardHeader) {
-          console.log('Found header component');
-          header = child.props.children;
+          console.log('Found header component')
+          header = child.props.children
         } else if (childType === ContentCardFooter) {
-          console.log('Found footer component');
-          footer = child.props.children;
+          console.log('Found footer component')
+          footer = child.props.children
         } else if (childType === ContentCardBody) {
-          console.log('Found body component');
+          console.log('Found body component')
           content.push(
             cloneElement(child as ReactElement<ContentCardBodyProps>, {
               parentId: id,
               key: child.key ?? `content-card-body-${index}`,
             }),
-          );
+          )
         } else {
-          console.log('Found other component type');
+          console.log('Found other component type')
           content.push(
             cloneElement(child, {
               key: child.key ?? `content-card-content-${index}`,
             }),
-          );
+          )
         }
       } else {
-        console.log('Found non-element child');
-        content.push(child);
+        console.log('Found non-element child')
+        content.push(child)
       }
-    });
+    })
 
-    return { header, footer, content };
-  }, [children, id]);
+    return { header, footer, content }
+  }, [children, id])
 
   useEffect(() => {
     if (id) {
-      registerItem(id, { id, label: id, description, parentId: null });
+      registerItem(id, { id, label: id, description, parentId: null })
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array since we only want to register once on mount
+  }, []) // Empty dependency array since we only want to register once on mount
 
   if (!isReady) {
-    return null;
+    return null
   }
 
   // After ready, check if we should show this card
   if (!hasMatchingItems && filteredItems.length > 0) {
-    return null;
+    return null
   }
 
-  const showEmptyState = !hasMatchingItems || filteredItems.length === 0;
+  const showEmptyState = !hasMatchingItems || filteredItems.length === 0
 
   return (
     <div className="space-y-4">
@@ -266,5 +258,5 @@ export const ContentCard = ({
         </motion.div>
       </Card>
     </div>
-  );
-};
+  )
+}

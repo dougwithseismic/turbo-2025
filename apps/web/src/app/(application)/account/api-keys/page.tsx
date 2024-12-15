@@ -1,6 +1,6 @@
-import { Metadata } from 'next';
-import { PageHeader } from '@/features/page-layout/components/page-header';
-import { ApiKeysManager } from '@/features/api-keys/components/api-keys-manager';
+import { Metadata } from 'next'
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { ApiKeysManager } from '@/features/api-keys/components/api-keys-manager'
 
 export const metadata: Metadata = {
   title: 'API Keys',
@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
-};
+}
 
 const ApiKeysPage = () => {
   return (
@@ -31,7 +31,7 @@ const ApiKeysPage = () => {
         <ApiKeysManager />
       </div>
     </>
-  );
-};
+  )
+}
 
-export default ApiKeysPage;
+export default ApiKeysPage

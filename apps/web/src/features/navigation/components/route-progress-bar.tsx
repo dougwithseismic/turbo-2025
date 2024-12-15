@@ -1,19 +1,19 @@
-'use client';
+'use client'
 
-import { animate } from 'framer-motion';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef } from 'react';
+import { animate } from 'motion/react'
+import { usePathname } from 'next/navigation'
+import { useEffect, useRef } from 'react'
 
-const PROGRESS_DURATION = 0.3;
-const FADE_DURATION = 0.3;
+const PROGRESS_DURATION = 0.3
+const FADE_DURATION = 0.3
 
 export const RouteProgressBar = (): JSX.Element => {
-  const pathname = usePathname();
-  const progressRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname()
+  const progressRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const element = progressRef.current;
-    if (!element) return;
+    const element = progressRef.current
+    if (!element) return
 
     // Reset the progress bar
     const controls = animate(
@@ -26,7 +26,7 @@ export const RouteProgressBar = (): JSX.Element => {
         duration: PROGRESS_DURATION,
         ease: [0.43, 0.13, 0.23, 0.96], // Custom easing curve for smoother motion
       },
-    );
+    )
 
     controls.then(() => {
       animate(
@@ -38,11 +38,11 @@ export const RouteProgressBar = (): JSX.Element => {
           duration: FADE_DURATION,
           ease: [0.4, 0, 0.2, 1], // Smooth ease out for fade
         },
-      );
-    });
+      )
+    })
 
-    return () => controls.stop();
-  }, [pathname]);
+    return () => controls.stop()
+  }, [pathname])
 
   return (
     <div
@@ -57,5 +57,5 @@ export const RouteProgressBar = (): JSX.Element => {
       }}
       className="fixed top-0 z-20 w-full"
     />
-  );
-};
+  )
+}

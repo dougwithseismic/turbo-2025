@@ -2,7 +2,7 @@ import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
-  transpilePackages: ['motion/react'],
+  // transpilePackages: ['motion/react'],
   images: {
     remotePatterns: [
       {

@@ -1,23 +1,23 @@
-'use server';
+'use server'
 
 interface PaymentMethodData {
-  lastFour: string;
-  expiryMonth: number;
-  expiryYear: number;
-  type: 'credit' | 'debit';
+  lastFour: string
+  expiryMonth: number
+  expiryYear: number
+  type: 'credit' | 'debit'
 }
 
 interface PaymentMethodResponse {
-  data: PaymentMethodData | null;
-  error: Error | null;
+  data: PaymentMethodData | null
+  error: Error | null
 }
 
 export const executeUpdatePaymentMethod = async ({
   token,
 }: {
-  token: string;
+  token: string
 }): Promise<PaymentMethodResponse> => {
-  console.log('executeUpdatePaymentMethod', token);
+  console.log('executeUpdatePaymentMethod', token)
   // placeholder
   return {
     data: {
@@ -27,8 +27,8 @@ export const executeUpdatePaymentMethod = async ({
       type: 'credit',
     },
     error: null,
-  };
-};
+  }
+}
 
 export const executeGetPaymentMethod =
   async (): Promise<PaymentMethodResponse> => {
@@ -37,7 +37,7 @@ export const executeGetPaymentMethod =
       expiryMonth: 12,
       expiryYear: 2025,
       type: 'credit',
-    };
-    console.log('executeGetPaymentMethod', mockPaymentMethod);
-    return { data: mockPaymentMethod, error: null };
-  };
+    }
+    console.log('executeGetPaymentMethod', mockPaymentMethod)
+    return { data: mockPaymentMethod, error: null }
+  }

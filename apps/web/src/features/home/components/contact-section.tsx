@@ -1,4 +1,4 @@
-import { ContactForm } from '@/features/forms/contact-form';
+import { ContactForm } from '@/features/forms/contact-form'
 
 export const ContactSection = () => {
   return (
@@ -73,5 +73,5 @@ export const ContactSection = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

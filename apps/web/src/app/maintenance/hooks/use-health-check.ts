@@ -58,15 +58,12 @@ export const useHealthCheck = ({
   useEffect(() => {
     if (state === 'restored') return
 
-    let timeoutId: NodeJS.Timeout
-    let intervalId: NodeJS.Timeout
-
     // Schedule next check
-    timeoutId = setTimeout(performHealthCheck, currentInterval)
+    const timeoutId = setTimeout(performHealthCheck, currentInterval)
 
     // Update the countdown timer
     setNextCheckIn(currentInterval)
-    intervalId = setInterval(() => {
+    const intervalId = setInterval(() => {
       setNextCheckIn((prev) => Math.max(0, prev - 1000))
     }, 1000)
 

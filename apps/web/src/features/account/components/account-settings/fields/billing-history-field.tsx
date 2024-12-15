@@ -1,6 +1,6 @@
-import { Button } from '@/components/ui/button';
-import { ActionField } from '@/components/action-field';
-import Link from 'next/link';
+import { Button } from '@/components/ui/button'
+import { ActionField } from '@/components/action-field'
+import Link from 'next/link'
 
 export const BillingHistoryField = () => {
   return (
@@ -15,5 +15,5 @@ export const BillingHistoryField = () => {
         </Button>
       </ActionField.Action>
     </ActionField>
-  );
-};
+  )
+}

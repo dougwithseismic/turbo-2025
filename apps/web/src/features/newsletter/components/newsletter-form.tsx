@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 
 const newsletterSchema = z.object({
   email: z.string().email('Please enter a valid email address'),
-});
+})
 
-type NewsletterForm = z.infer<typeof newsletterSchema>;
+type NewsletterForm = z.infer<typeof newsletterSchema>
 
 export const NewsletterForm = () => {
   const form = useForm<NewsletterForm>({
@@ -25,16 +25,16 @@ export const NewsletterForm = () => {
     defaultValues: {
       email: '',
     },
-  });
+  })
 
   const onSubmit = async (data: NewsletterForm) => {
     try {
       // TODO: Implement newsletter subscription
-      console.log('Newsletter subscription:', data);
+      console.log('Newsletter subscription:', data)
     } catch (error) {
-      console.error('Newsletter subscription failed:', error);
+      console.error('Newsletter subscription failed:', error)
     }
-  };
+  }
 
   return (
     <div>
@@ -72,5 +72,5 @@ export const NewsletterForm = () => {
         </form>
       </Form>
     </div>
-  );
-};
+  )
+}

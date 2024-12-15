@@ -1,13 +1,13 @@
-import { SupabaseClient } from '@supabase/supabase-js';
+import { SupabaseClient } from '@supabase/supabase-js'
 
-import { Session } from '@supabase/supabase-js';
+import { Session } from '@supabase/supabase-js'
 
-import { User } from '@supabase/supabase-js';
-import { validateScopes } from './validate-scopes';
-import { storeOauthToken } from '@repo/supabase';
-import { GOOGLE_SCOPES } from '@repo/consts';
+import { User } from '@supabase/supabase-js'
+import { validateScopes } from './validate-scopes'
+import { storeOauthToken } from '@repo/supabase'
+import { GOOGLE_SCOPES } from '@repo/consts'
 
-const ALLOWED_SCOPES: string[] = [...Object.values(GOOGLE_SCOPES)];
+const ALLOWED_SCOPES: string[] = [...Object.values(GOOGLE_SCOPES)]
 
 export const handleOAuthTokens = async ({
   session,
@@ -15,25 +15,25 @@ export const handleOAuthTokens = async ({
   supabase,
   scopes,
 }: {
-  session: Session;
-  user: User;
-  supabase: SupabaseClient;
-  scopes: string[];
+  session: Session
+  user: User
+  supabase: SupabaseClient
+  scopes: string[]
 }): Promise<void> => {
-  const providerToken = session?.provider_token;
-  const refreshToken = session?.provider_refresh_token;
-  const email = user.email;
-  const provider = user.app_metadata.provider;
+  const providerToken = session?.provider_token
+  const refreshToken = session?.provider_refresh_token
+  const email = user.email
+  const provider = user.app_metadata.provider
 
-  if (!providerToken || !refreshToken || !email || !provider) return;
+  if (!providerToken || !refreshToken || !email || !provider) return
 
   const { isValid, invalidScopes } = validateScopes({
     scopes,
     allowedScopes: ALLOWED_SCOPES,
-  });
+  })
   if (!isValid) {
-    console.error('Invalid scopes detected:', invalidScopes);
-    throw new Error(`Invalid scopes detected: ${invalidScopes.join(', ')}`);
+    console.error('Invalid scopes detected:', invalidScopes)
+    throw new Error(`Invalid scopes detected: ${invalidScopes.join(', ')}`)
   }
 
   await storeOauthToken({
@@ -47,5 +47,5 @@ export const handleOAuthTokens = async ({
       expiresAt: new Date(session?.expires_at ?? 0),
       scopes,
     },
-  });
-};
+  })
+}

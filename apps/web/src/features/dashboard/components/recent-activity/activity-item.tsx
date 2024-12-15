@@ -1,10 +1,10 @@
-import { motion } from 'framer-motion';
-import { X } from 'lucide-react';
-import { cva } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
-import { ActivityItemProps } from './types';
-import { itemVariants, itemContentVariants } from './animations';
-import Link from 'next/link';
+import { motion } from 'motion/react'
+import { X } from 'lucide-react'
+import { cva } from 'class-variance-authority'
+import { cn } from '@/lib/utils'
+import { ActivityItemProps } from './types'
+import { itemVariants, itemContentVariants } from './animations'
+import Link from 'next/link'
 
 const activityItemVariants = cva(
   'relative flex gap-x-4 w-full group transition-opacity duration-200',
@@ -18,7 +18,7 @@ const activityItemVariants = cva(
       type: 'default',
     },
   },
-);
+)
 
 const activityContentVariants = cva(
   'flex-auto rounded-md w-full p-3 ring-1 ring-inset ring-muted',
@@ -32,7 +32,7 @@ const activityContentVariants = cva(
       type: 'default',
     },
   },
-);
+)
 
 export const ActivityItem = ({ item, onDelete }: ActivityItemProps) => {
   return (
@@ -70,8 +70,8 @@ export const ActivityItem = ({ item, onDelete }: ActivityItemProps) => {
       </motion.div>
       <DeleteButton onDelete={() => onDelete(item.id)} />
     </motion.li>
-  );
-};
+  )
+}
 
 const deleteButtonVariants = cva(
   'opacity-0 group-hover:opacity-100 transition-opacity',
@@ -85,7 +85,7 @@ const deleteButtonVariants = cva(
       intent: 'default',
     },
   },
-);
+)
 
 const DeleteButton = ({
   onDelete,
@@ -101,4 +101,4 @@ const DeleteButton = ({
   >
     <X className="size-4" />
   </motion.button>
-);
+)

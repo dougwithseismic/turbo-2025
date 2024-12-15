@@ -1,17 +1,17 @@
-import { motion } from 'framer-motion';
-import { Paperclip } from 'lucide-react';
-import { cva } from 'class-variance-authority';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { cn } from '@/lib/utils';
-import { itemVariants, itemContentVariants } from './animations';
+import { motion } from 'motion/react'
+import { Paperclip } from 'lucide-react'
+import { cva } from 'class-variance-authority'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from '@/lib/utils'
+import { itemVariants, itemContentVariants } from './animations'
 
 type CommentFormProps = {
-  newComment: string;
-  isSubmitting: boolean;
-  onCommentChange: (value: string) => void;
-  onSubmit: (e: React.FormEvent) => void;
-};
+  newComment: string
+  isSubmitting: boolean
+  onCommentChange: (value: string) => void
+  onSubmit: (e: React.FormEvent) => void
+}
 
 const formVariants = cva('mt-6 flex flex-col gap-x-3', {
   variants: {
@@ -23,7 +23,7 @@ const formVariants = cva('mt-6 flex flex-col gap-x-3', {
   defaultVariants: {
     state: 'default',
   },
-});
+})
 
 const textareaContainerVariants = cva(
   'overflow-hidden rounded-lg ring-1 ring-muted',
@@ -38,7 +38,7 @@ const textareaContainerVariants = cva(
       state: 'default',
     },
   },
-);
+)
 
 const textareaVariants = cva(
   'block w-full resize-none border-0 bg-transparent px-3 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0',
@@ -53,7 +53,7 @@ const textareaVariants = cva(
       state: 'default',
     },
   },
-);
+)
 
 const attachButtonVariants = cva(
   '-m-2.5 flex size-10 items-center justify-center rounded-full',
@@ -68,7 +68,7 @@ const attachButtonVariants = cva(
       state: 'default',
     },
   },
-);
+)
 
 export const CommentForm = ({
   newComment,
@@ -76,7 +76,7 @@ export const CommentForm = ({
   onCommentChange,
   onSubmit,
 }: CommentFormProps) => {
-  const state = isSubmitting ? 'submitting' : 'default';
+  const state = isSubmitting ? 'submitting' : 'default'
 
   return (
     <motion.form
@@ -128,5 +128,5 @@ export const CommentForm = ({
         </Button>
       </motion.div>
     </motion.form>
-  );
-};
+  )
+}
