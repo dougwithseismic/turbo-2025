@@ -26,6 +26,17 @@ body {
   body {
     @apply bg-background text-foreground;
   }
+  :root {
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+  }
+
+  .dark {
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+  }
 }
 
 @layer utilities {

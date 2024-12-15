@@ -5,6 +5,7 @@ import { DashboardTable } from '@/features/dashboard/components/dashboard-table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RecentActivity } from '@/features/dashboard/components/recent-activity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import DashboardCharts from '@/features/dashboard/components/dashboard-charts';
 
 export const metadata: Metadata = {
   title: 'Dashboard',
@@ -38,7 +39,7 @@ const Page = async () => {
           <TabsContent value="overview" className="space-y-4">
             <DashboardStats />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-12">
-              <Card className="col-span-12 lg:col-span-8 h-fit">
+              <Card className="col-span-12 lg:col-span-8">
                 <DashboardTable />
               </Card>
               <Card className="col-span-12 h-fit lg:col-span-4">
@@ -48,6 +49,9 @@ const Page = async () => {
                 <CardContent>
                   <RecentActivity />
                 </CardContent>
+              </Card>
+              <Card className="col-span-12 lg:col-span-8">
+                <DashboardCharts />
               </Card>
             </div>
           </TabsContent>

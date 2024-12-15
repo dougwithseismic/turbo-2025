@@ -16,6 +16,7 @@ const dashboardCardVariants = cva(
     'hover:shadow-primary/10',
     'transition-shadow',
     'duration-800',
+    'h-full',
   ),
   {
     variants: {

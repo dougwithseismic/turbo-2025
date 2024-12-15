@@ -131,14 +131,22 @@ export const ContentCard = ({
     const content: ReactNode[] = [];
 
     Children.forEach(children, (child, index) => {
-      if (!child) return;
+      console.log('Processing child:', { child, index });
+      if (!child) {
+        console.log('Skipping null/undefined child');
+        return;
+      }
       if (isValidElement(child)) {
         const childType = child.type as ContentCardComponent;
+        console.log('Child type:', childType);
         if (childType === ContentCardHeader) {
+          console.log('Found header component');
           header = child.props.children;
         } else if (childType === ContentCardFooter) {
+          console.log('Found footer component');
           footer = child.props.children;
         } else if (childType === ContentCardBody) {
+          console.log('Found body component');
           content.push(
             cloneElement(child as ReactElement<ContentCardBodyProps>, {
               parentId: id,
@@ -146,6 +154,7 @@ export const ContentCard = ({
             }),
           );
         } else {
+          console.log('Found other component type');
           content.push(
             cloneElement(child, {
               key: child.key ?? `content-card-content-${index}`,
@@ -153,6 +162,7 @@ export const ContentCard = ({
           );
         }
       } else {
+        console.log('Found non-element child');
         content.push(child);
       }
     });

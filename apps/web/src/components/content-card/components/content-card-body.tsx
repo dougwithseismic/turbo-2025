@@ -17,6 +17,8 @@ export const ContentCardBody = ({
   children,
   parentId,
 }: ContentCardBodyProps) => {
+  console.log('children', children);
+
   const processedChildren = Children.map(children, (child, index) => {
     if (isValidElement(child) && child.type === ContentCardItem) {
       return cloneElement(child as ReactElement<ContentCardItemProps>, {
@@ -24,6 +26,7 @@ export const ContentCardBody = ({
         key: child.key ?? `content-card-item-${index}`,
       });
     }
+    console.log('child', child);
     return isValidElement(child)
       ? cloneElement(child, { key: child.key ?? `content-card-child-${index}` })
       : child;

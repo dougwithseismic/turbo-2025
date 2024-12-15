@@ -195,14 +195,17 @@ export const DashboardTable = () => {
   });
 
   return (
-    <DashboardCard className="h-fit">
-      <CardHeader data-card-header className="px-6">
+    <DashboardCard className="h-full">
+      <CardHeader data-card-header className="px-6 h-full">
         <motion.div variants={itemVariants}>
           <CardTitle>Recent Payments</CardTitle>
         </motion.div>
       </CardHeader>
-      <CardContent data-card-content className="px-6">
-        <motion.div variants={itemVariants}>
+      <CardContent
+        data-card-content
+        className="px-6 flex flex-col gap-4 justify-between"
+      >
+        <motion.div variants={itemVariants} className="h-full">
           <div className="rounded-md border">
             <Table>
               <TableHeader>
@@ -257,7 +260,7 @@ export const DashboardTable = () => {
             <div className="text-sm text-muted-foreground">
               {table.getFilteredRowModel().rows.length} payment(s) total.
             </div>
-            <div className="space-x-2">
+            <div className="flex gap-2 mt-auto">
               <Button
                 variant="outline"
                 size="sm"

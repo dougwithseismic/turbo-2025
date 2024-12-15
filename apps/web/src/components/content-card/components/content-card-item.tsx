@@ -1,3 +1,5 @@
+'use client';
+
 import { cva, type VariantProps } from 'class-variance-authority';
 import { type ReactNode, useEffect } from 'react';
 import { cn } from '@/lib/utils';
@@ -71,6 +73,7 @@ export const ContentCardItem = ({
 
   useEffect(() => {
     if (id) {
+      console.log('registering item', id, label, description, parentId);
       registerItem(id, { id, label, description, parentId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -106,7 +106,8 @@ const getSites: RequestHandler<unknown, unknown, unknown, unknown> = async (
       email: authReq.user.email,
     });
     const { data } = await searchConsole.sites.list();
-    res.json(data);
+    console.log({ data });
+    res.json({ data });
   } catch (error) {
     handleApiError(error, res);
   }

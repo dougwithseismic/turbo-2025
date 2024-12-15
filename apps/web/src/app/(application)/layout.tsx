@@ -8,7 +8,7 @@ interface ApplicationLayoutProps {
 }
 
 const ApplicationLayout = async ({ children }: ApplicationLayoutProps) => {
-  const user = await protectedRoute();
+  await protectedRoute();
 
   return (
     <SidebarProvider>
