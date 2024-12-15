@@ -9,6 +9,7 @@
     "dev:api": "turbo dev --filter=api",
     "dev:web": "turbo dev --filter=web",
     "dev:queue": "turbo dev --filter=queue-workers",
+    "dev:main": "turbo dev --filter=api --filter=web --filter=queue-workers",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
@@ -30,6 +31,7 @@
     "@repo/config-typescript": "workspace:*",
     "@types/node": "^22.10.1",
     "commander": "^12.0.0",
+    "cross-env": "^7.0.3",
     "husky": "^8.0.3",
     "lint-staged": "^15.2.0",
     "prettier": "^3.0.0",
@@ -45,5 +47,28 @@
     "eslint": "^9.16.0",
     "inquirer": "^12.0.1"
   },
-  "type": "module"
+  "type": "module",
+  "turbo": {
+    "pipeline": {
+      "build": {
+        "dependsOn": [
+          "^build"
+        ],
+        "outputs": [
+          "dist/**",
+          ".next/**",
+          "!.next/cache/**"
+        ]
+      },
+      "dev": {
+        "cache": false,
+        "persistent": true
+      },
+      "//#extension": {
+        "env": [
+          "NODE_VERSION=20.18.1"
+        ]
+      }
+    }
+  }
 }
