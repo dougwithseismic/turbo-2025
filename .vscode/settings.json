@@ -1,14 +1,9 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-  "eslint.workingDirectories": [
-    {
-      "mode": "auto",
-      "pattern": "apps/*"
-    },
-    {
-      "mode": "auto",
-      "pattern": "packages/*"
-    }
-  ]
-
+  "eslint.run": "onType",
+  "eslint.lintTask.enable": true,
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  }
 }
