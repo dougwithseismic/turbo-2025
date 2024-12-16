@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 
-export async function GET() {
+export function GET() {
   try {
     //const isHealthy = await checkDatabaseConnection()
     const isHealthy = true

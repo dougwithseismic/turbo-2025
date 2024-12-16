@@ -83,7 +83,7 @@ export const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
         </Alert>
         <div className="flex flex-col space-y-2">
           <Button
-            onClick={handleResend}
+            onClick={() => void handleResend()}
             disabled={cooldown > 0 || isLoading}
             variant="outline"
           >
@@ -109,7 +109,7 @@ export const ResetPasswordForm = ({ onSubmit }: ResetPasswordFormProps) => {
     <motion.form
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      onSubmit={handleSubmit}
+      onSubmit={(e) => void handleSubmit(e)}
       className="grid gap-4"
     >
       {error && (

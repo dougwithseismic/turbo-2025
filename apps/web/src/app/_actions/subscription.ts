@@ -19,7 +19,7 @@ type SubscriptionWithPrice = Stripe.Subscription & {
 /**
  * Fetches the current user's subscription data
  */
-export const getCurrentSubscription = async () => {
+export const getCurrentSubscription = () => {
   // TODO: Implement subscription fetching
   return null
 }

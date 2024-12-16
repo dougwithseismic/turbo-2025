@@ -1,4 +1,4 @@
-'use client';
+'use client'
 
 import {
   Card,
@@ -6,7 +6,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
+} from '@/components/ui/card'
 import {
   ChartConfig,
   ChartContainer,
@@ -14,60 +14,60 @@ import {
   ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
-} from '@/components/ui/chart';
+} from '@/components/ui/chart'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import * as React from 'react';
-import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts';
+} from '@/components/ui/select'
+import * as React from 'react'
+import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
 
 interface SiteMetrics {
-  date: string;
-  clicks: number;
-  impressions: number;
+  date: string
+  clicks: number
+  impressions: number
 }
 
 interface DeviceShare {
-  name: string;
-  value: number;
-  fill: string;
+  name: string
+  value: number
+  fill: string
 }
 
 interface VisitorStats {
-  desktop: number;
-  mobile: number;
+  desktop: number
+  mobile: number
 }
 
 const generateVisitorData = (days: number): SiteMetrics[] => {
-  const data: SiteMetrics[] = [];
-  const endDate = new Date();
+  const data: SiteMetrics[] = []
+  const endDate = new Date()
 
   for (let i = days; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(endDate.getDate() - i);
+    const date = new Date()
+    date.setDate(endDate.getDate() - i)
     data.push({
       date: date.toISOString().slice(0, 10),
       clicks: Math.floor(Math.random() * 500),
       impressions: Math.floor(Math.random() * 2000 + 500),
-    });
+    })
   }
-  return data;
-};
+  return data
+}
 
 const generateDeviceShareData = (): DeviceShare[] => {
-  return [{ name: 'Desktop', value: 35, fill: 'hsl(var(--chart-2))' }];
-};
+  return [{ name: 'Desktop', value: 35, fill: 'hsl(var(--chart-2))' }]
+}
 
 const generateVisitorStats = (): VisitorStats => {
   return {
     desktop: 1260,
     mobile: 570,
-  };
-};
+  }
+}
 
 const chartConfig = {
   metrics: {
@@ -81,13 +81,13 @@ const chartConfig = {
     label: 'Impressions',
     color: 'hsl(var(--chart-2))',
   },
-} satisfies ChartConfig;
+} satisfies ChartConfig
 
 const DashboardCharts = () => {
-  const [timeRange, setTimeRange] = React.useState('30d');
+  const [timeRange, setTimeRange] = React.useState('30d')
 
-  const days = timeRange === '90d' ? 90 : timeRange === '30d' ? 30 : 7;
-  const visitorData = React.useMemo(() => generateVisitorData(days), [days]);
+  const days = timeRange === '90d' ? 90 : timeRange === '30d' ? 30 : 7
+  const visitorData = React.useMemo(() => generateVisitorData(days), [days])
 
   return (
     <div className="">
@@ -167,23 +167,23 @@ const DashboardCharts = () => {
                 axisLine={false}
                 tickMargin={8}
                 minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
+                tickFormatter={(value: string) => {
+                  const date = new Date(value)
                   return date.toLocaleDateString('en-US', {
                     month: 'short',
                     day: 'numeric',
-                  });
+                  })
                 }}
               />
               <ChartTooltip
                 cursor={false}
                 content={
                   <ChartTooltipContent
-                    labelFormatter={(value) => {
+                    labelFormatter={(value: string) => {
                       return new Date(value).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
-                      });
+                      })
                     }}
                     indicator="dot"
                   />
@@ -215,7 +215,7 @@ const DashboardCharts = () => {
         </CardContent>
       </Card>
     </div>
-  );
-};
+  )
+}
 
-export default DashboardCharts;
+export default DashboardCharts

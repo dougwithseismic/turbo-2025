@@ -63,10 +63,10 @@ export const RegisterForm = () => {
               {getErrorConfig(error).action && (
                 <div className="mt-2">
                   <Link
-                    href={getErrorConfig(error).action!.href}
+                    href={String(getErrorConfig(error).action?.href)}
                     className="font-medium text-primary hover:underline"
                   >
-                    {getErrorConfig(error).action!.text}
+                    {String(getErrorConfig(error).action?.text)}
                   </Link>
                 </div>
               )}

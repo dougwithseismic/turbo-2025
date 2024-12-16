@@ -21,8 +21,8 @@ export const updateSession = async ({ request }: { request: NextRequest }) => {
   })
 
   const supabase = createServerClient(
-    clientConfig.SUPABASE.URL!,
-    clientConfig.SUPABASE.ANON_KEY!,
+    clientConfig.SUPABASE.URL,
+    clientConfig.SUPABASE.ANON_KEY,
     {
       cookies: {
         getAll: () => {

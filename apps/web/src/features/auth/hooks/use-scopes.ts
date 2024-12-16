@@ -56,7 +56,7 @@ export const useOAuthScopes = ({
         setError(null)
 
         const { data: token, error: tokenError } = await getOauthToken({
-          email: user.email!,
+          email: String(user.email),
           supabase: supabaseClient,
           userId: user.id,
           provider,

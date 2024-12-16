@@ -13,10 +13,8 @@ interface GoogleSitesResponse {
   }
 }
 
-interface GoogleSitesResponse {
-  data: {
-    siteEntry?: GoogleSite[]
-  }
+interface ErrorResponse {
+  error?: string
 }
 
 export const fetchSearchConsoleSites =
@@ -42,9 +40,12 @@ export const fetchSearchConsoleSites =
     )
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      throw new Error(errorData.error || 'Failed to fetch sites')
+      const errorData = (await response
+        .json()
+        .catch(() => ({ error: undefined }))) as ErrorResponse
+      throw new Error(errorData.error ?? 'Failed to fetch sites')
     }
 
-    return response.json()
+    const data = (await response.json()) as GoogleSitesResponse
+    return data
   }

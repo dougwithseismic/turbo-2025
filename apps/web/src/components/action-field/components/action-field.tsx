@@ -94,7 +94,7 @@ function findSlotComponents(children: React.ReactNode) {
     // Check if this is one of our slot components
     const type = node.type as { slot?: ActionFieldSlots }
     if (type?.slot) {
-      slots[type.slot as ActionFieldSlots] = node
+      slots[type.slot] = node
       return
     }
 

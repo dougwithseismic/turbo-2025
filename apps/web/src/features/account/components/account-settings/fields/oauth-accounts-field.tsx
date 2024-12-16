@@ -161,7 +161,7 @@ export const OAuthAccountsField = () => {
       </CardHeader>
       <CardContent className="space-y-2 px-0">
         {SUPPORTED_PROVIDERS.map((provider) => {
-          const Icon = ProviderIcons[provider] as React.ComponentType
+          const Icon = ProviderIcons[provider]
           const loading = isLoading === provider
 
           return (

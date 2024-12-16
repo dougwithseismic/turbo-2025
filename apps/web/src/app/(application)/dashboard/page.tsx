@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
 }
 
-const Page = async () => {
+const Page = () => {
   const breadcrumbItems = [
     {
       label: 'Dashboard',

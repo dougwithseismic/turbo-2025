@@ -52,6 +52,10 @@ export const connectOAuthAccount = async ({
   }
 
   console.log('🚨 user', user)
+  const { email, id } = user
+  if (!email || !id) {
+    throw new Error('User email or id not found')
+  }
 
   const supabase = await createSupabaseServerClient()
 
@@ -59,9 +63,9 @@ export const connectOAuthAccount = async ({
     const { data: existingTokenData, error: existingTokenError } =
       await getOauthToken({
         supabase,
-        userId: user.id,
+        userId: id,
         provider,
-        email: user.email!,
+        email,
       })
 
     if (existingTokenError) {
@@ -129,7 +133,7 @@ export const disconnectOAuthAccount = async ({
       supabase,
       userId: user.id,
       provider,
-      email: user.email!,
+      email: String(user.email),
     })
 
     return {

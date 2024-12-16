@@ -11,8 +11,8 @@ export const createSupabaseServerClient = cache(async () => {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
-    clientConfig.SUPABASE.URL!,
-    clientConfig.SUPABASE.ANON_KEY!,
+    clientConfig.SUPABASE.URL,
+    clientConfig.SUPABASE.ANON_KEY,
     {
       cookies: {
         getAll() {

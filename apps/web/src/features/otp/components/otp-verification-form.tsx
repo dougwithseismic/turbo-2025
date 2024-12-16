@@ -105,7 +105,7 @@ export const OtpVerificationForm = () => {
 
         <Button
           className="w-full"
-          onClick={() => handleVerifyCode(code)}
+          onClick={() => void handleVerifyCode(code)}
           disabled={code.length !== 6 || isVerifying || lockoutTimer > 0}
         >
           {isVerifying ? (
@@ -122,7 +122,7 @@ export const OtpVerificationForm = () => {
         <Button
           variant="ghost"
           className="w-full"
-          onClick={handleResendCode}
+          onClick={() => void handleResendCode()}
           disabled={cooldown > 0 || lockoutTimer > 0}
         >
           {cooldown > 0

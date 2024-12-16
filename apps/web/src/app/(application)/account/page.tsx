@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   },
 }
 
-const Page = async () => {
+const Page = () => {
   return (
     <>
       <PageHeader

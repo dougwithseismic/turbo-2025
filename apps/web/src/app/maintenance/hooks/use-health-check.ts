@@ -27,7 +27,7 @@ export const useHealthCheck = ({
   const checkHealth = useCallback(async (): Promise<boolean> => {
     try {
       const response = await fetch('/api/health')
-      const data = await response.json()
+      const data = (await response.json()) as { isHealthy: boolean }
       return data.isHealthy
     } catch (error) {
       console.error('Health check failed:', error)

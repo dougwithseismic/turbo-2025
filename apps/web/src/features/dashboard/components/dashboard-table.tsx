@@ -49,7 +49,7 @@ const columns: ColumnDef<Payment>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => {
-      const status = row.getValue('status') as string
+      const status = row.getValue('status')
       return (
         <Badge
           variant={
@@ -62,7 +62,7 @@ const columns: ColumnDef<Payment>[] = [
                   : 'secondary'
           }
         >
-          {status}
+          {String(status)}
         </Badge>
       )
     },
