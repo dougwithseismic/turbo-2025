@@ -2,12 +2,12 @@
 
 import { animate } from 'motion/react'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
+import { ReactNode, useEffect, useRef } from 'react'
 
 const PROGRESS_DURATION = 0.3
 const FADE_DURATION = 0.3
 
-export const RouteProgressBar = (): JSX.Element => {
+export const RouteProgressBar = (): ReactNode => {
   const pathname = usePathname()
   const progressRef = useRef<HTMLDivElement>(null)
 

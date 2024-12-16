@@ -22,6 +22,17 @@ DROP TABLE IF EXISTS profiles CASCADE;
 -- Drop existing types
 DROP TYPE IF EXISTS onboarding_step CASCADE;
 
+-- Create types first
+CREATE TYPE onboarding_step AS ENUM (
+    'signup_completed',
+    'google_connected',
+    'gsc_connected',
+    'first_project_created',
+    'first_site_added',
+    'first_crawl_completed',
+    'subscription_selected'
+);
+
 -- Core user profile (extends Supabase auth.users)
 CREATE TABLE profiles (
     id uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
@@ -182,16 +193,6 @@ CREATE TABLE credit_transactions (
 );
 
 -- Onboarding system
-CREATE TYPE onboarding_step AS ENUM (
-    'signup_completed',
-    'google_connected',
-    'gsc_connected',
-    'first_project_created',
-    'first_site_added',
-    'first_crawl_completed',
-    'subscription_selected'
-);
-
 CREATE TABLE user_onboarding (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id uuid REFERENCES auth.users ON DELETE CASCADE,

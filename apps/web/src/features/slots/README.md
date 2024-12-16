@@ -67,7 +67,7 @@ interface MyComponentProps {
 }
 
 interface MyComponentComposition {
-  ({ children, className }: MyComponentProps): JSX.Element
+  ({ children, className }: MyComponentProps): ReactNode
   Header: typeof Header
   Content: typeof Content
   Footer: typeof Footer

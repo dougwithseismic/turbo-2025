@@ -377,6 +377,66 @@ BEGIN
 END;
 $$;
 
+-- Function to automatically create a profile when a new user signs up
+CREATE OR REPLACE FUNCTION handle_new_user()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    _user_id uuid;
+BEGIN
+    -- Store user_id to ensure consistency
+    _user_id := COALESCE(NEW.id, gen_random_uuid());
+    
+    -- Create profile with NULL handling
+    INSERT INTO public.profiles (id, email, full_name)
+    VALUES (
+        _user_id,
+        COALESCE(NEW.email, ''),
+        NULLIF(COALESCE(NEW.raw_user_meta_data->>'full_name', ''), '')
+    );
+
+    -- Create onboarding record with detailed error handling
+    BEGIN
+        RAISE NOTICE 'Attempting to create onboarding record for user %', _user_id;
+        
+        INSERT INTO public.user_onboarding (
+            user_id,
+            current_step,
+            completed_steps,
+            is_completed,
+            metadata
+        )
+        VALUES (
+            _user_id,
+            'signup_completed'::public.onboarding_step,
+            ARRAY['signup_completed']::public.onboarding_step[],
+            false,
+            '{}'::jsonb
+        );
+        
+        RAISE NOTICE 'Successfully created onboarding record for user %', _user_id;
+    EXCEPTION WHEN OTHERS THEN
+        RAISE WARNING 'Failed to create onboarding record for user %. Error: %. Detail: %. Hint: %.', 
+            _user_id, SQLERRM, SQLSTATE, SQLERRM;
+    END;
+
+    RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+    RAISE WARNING 'Failed to handle new user creation for user %. Error: %. Detail: %. Hint: %.', 
+        _user_id, SQLERRM, SQLSTATE, SQLERRM;
+    RETURN NEW;
+END;
+$$;
+
+-- Trigger to create profile after user signup
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW
+    EXECUTE FUNCTION handle_new_user();
+
 -- Grant necessary permissions
 GRANT EXECUTE ON FUNCTION has_organization_access TO authenticated;
 GRANT EXECUTE ON FUNCTION has_project_access TO authenticated;

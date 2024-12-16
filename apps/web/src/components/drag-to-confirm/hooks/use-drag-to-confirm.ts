@@ -14,7 +14,7 @@ type UseDragToConfirmProps = {
 type UseDragToConfirmReturn = {
   x: MotionValue<number>
   controls: ReturnType<typeof useAnimation>
-  buttonRef: React.RefObject<HTMLDivElement>
+  buttonRef: React.RefObject<HTMLDivElement | null>
   dragThreshold: number
   showSuccess: boolean
   isSubmitting: boolean
@@ -39,7 +39,7 @@ export const useDragToConfirm = ({
 }: UseDragToConfirmProps): UseDragToConfirmReturn => {
   const controls = useAnimation()
   const x = useMotionValue(0)
-  const buttonRef = useRef<HTMLDivElement>(null)
+  const buttonRef = useRef<HTMLDivElement | null>(null)
   const [dragThreshold, setDragThreshold] = useState(0)
   const [showSuccess, setShowSuccess] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -55,7 +55,7 @@ export const useDragToConfirm = ({
 
     updateThreshold()
     window.addEventListener('resize', updateThreshold)
-    return () => window.removeEventListener('resize', updateThreshold)
+    return (): void => window.removeEventListener('resize', updateThreshold)
   }, [])
 
   const dragProgress = useTransform(x, [0, dragThreshold], [0, 100])
@@ -154,13 +154,13 @@ export const useDragToConfirm = ({
         }
 
         // Spring back to start
-        controls.start({
+        void controls.start({
           x: 0,
           transition: { type: 'spring', stiffness: 400, damping: 40 },
         })
       } catch (err) {
         // On error, just spring back
-        controls.start({
+        void controls.start({
           x: 0,
           transition: { type: 'spring', stiffness: 400, damping: 40 },
         })
@@ -171,7 +171,7 @@ export const useDragToConfirm = ({
       }
     } else {
       // Not dragged far enough, spring back
-      controls.start({
+      void controls.start({
         x: 0,
         transition: { type: 'spring', stiffness: 400, damping: 40 },
       })
