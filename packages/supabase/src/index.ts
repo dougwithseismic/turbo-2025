@@ -1,40 +1,51 @@
-import { createClient } from '@supabase/supabase-js';
-import { Database } from './database.types';
-import { z } from 'zod';
-import { createEnv } from '@t3-oss/env-core';
+import { createClient } from '@supabase/supabase-js'
+import { Database } from './database.types'
+import { z } from 'zod'
+import { createEnv } from '@t3-oss/env-core'
 
-// Re-export base types
+// Client Type Definition
+export type SupabaseClient = ReturnType<typeof createClient<Database>>
+
+// Base Types
 export type {
   Json,
   ResourceType,
   Role,
   SubscriberType,
   OwnerType,
-} from './types';
+} from './types'
 
-export type { Database } from './database.types';
-export type { DbFunctions } from './database.functions';
+// Database Types
+export type { Database } from './database.types'
+export type { DbFunctions } from './database.functions'
 
-// Export all modules with their types
-export * from './module/api-services';
-export * from './module/api-usage';
-export * from './module/credit-pools';
-export * from './module/credit-transactions';
-export * from './module/oauth';
-export * from './module/onboarding';
-export * from './module/organizations';
-export * from './module/profiles';
-export * from './module/projects';
+// API & Services
+export * from './module/api-services'
+export * from './module/api-services.react'
+export * from './module/api-usage'
+export * from './module/api-usage.react'
 
-// Export stripe and subscriptions separately to avoid conflicts
-export {
-  createSubscription,
-  getSubscription,
-  updateSubscription,
-  allocateSubscriptionCredits,
-} from './module/stripe';
-export type { SubscriptionPlan } from './module/stripe';
+// Authentication & OAuth
+export * from './module/oauth'
 
+// Credits & Billing
+export * from './module/subscriptions'
+
+// Organizations & Projects
+export * from './module/organizations'
+export * from './module/organizations.react'
+export * from './module/projects'
+export * from './module/projects.react'
+
+// User Management
+export * from './module/profiles'
+export * from './module/profiles.react'
+export * from './module/onboarding'
+export * from './module/onboarding.react'
+export * from './module/invitations'
+export * from './module/invitations.react'
+
+// Environment Configuration
 const env = createEnv({
   server: {
     SUPABASE_URL: z.string().url(),
@@ -43,36 +54,50 @@ const env = createEnv({
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,
-});
+})
 
-export type SupabaseClient = ReturnType<typeof createClient<Database>>;
+// Client Instance Management
+let supabaseInstance: SupabaseClient | null = null
 
-let supabaseInstance: SupabaseClient | null = null;
-
+/**
+ * Creates or returns an existing Supabase client instance
+ *
+ * @example
+ * ```typescript
+ * // Using environment variables
+ * const supabase = createSupabaseClient({});
+ *
+ * // Using custom credentials
+ * const supabase = createSupabaseClient({
+ *   supabaseUrl: 'https://your-project.supabase.co',
+ *   supabaseAnonKey: 'your-anon-key'
+ * });
+ * ```
+ */
 const createSupabaseClient = ({
   supabaseUrl = env.SUPABASE_URL,
   supabaseAnonKey = env.SUPABASE_ANON_KEY,
   supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY,
 }: {
-  supabaseUrl?: string;
-  supabaseAnonKey?: string;
-  supabaseServiceRoleKey?: string;
-}): SupabaseClient => {
+  supabaseUrl?: string
+  supabaseAnonKey?: string
+  supabaseServiceRoleKey?: string
+} = {}): SupabaseClient => {
   if (!supabaseUrl) {
-    throw new Error('SUPABASE_URL is required');
+    throw new Error('SUPABASE_URL is required')
   }
 
   if (!supabaseAnonKey) {
-    throw new Error('SUPABASE_ANON_KEY is required');
+    throw new Error('SUPABASE_ANON_KEY is required')
   }
 
   if (!supabaseInstance) {
     supabaseInstance = createClient<Database>(
       supabaseUrl,
       supabaseServiceRoleKey ?? supabaseAnonKey,
-    );
+    )
   }
-  return supabaseInstance;
-};
+  return supabaseInstance
+}
 
-export { createSupabaseClient };
+export { createSupabaseClient }

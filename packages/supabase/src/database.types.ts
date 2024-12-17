@@ -596,6 +596,45 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          invited_by: string | null
+          resource_id: string
+          resource_type: string
+          role: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          resource_id: string
+          resource_type: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          resource_id?: string
+          resource_type?: string
+          role?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       keyword_clusters: {
         Row: {
           avg_position: number | null
@@ -722,6 +761,118 @@ export type Database = {
           id?: string
           name?: string
           owner_id?: string | null
+          settings?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      payment_methods: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          id: string
+          is_default: boolean | null
+          provider_data: Json | null
+          provider_payment_method_id: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          provider_data?: Json | null
+          provider_payment_method_id: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          provider_data?: Json | null
+          provider_payment_method_id?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'payment_methods_account_id_fkey'
+            columns: ['account_id']
+            isOneToOne: false
+            referencedRelation: 'payment_provider_accounts'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      payment_provider_accounts: {
+        Row: {
+          created_at: string
+          id: string
+          is_default: boolean | null
+          owner_id: string
+          owner_type: string
+          provider_customer_id: string
+          provider_data: Json | null
+          provider_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          owner_id: string
+          owner_type: string
+          provider_customer_id: string
+          provider_data?: Json | null
+          provider_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_default?: boolean | null
+          owner_id?: string
+          owner_type?: string
+          provider_customer_id?: string
+          provider_data?: Json | null
+          provider_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'payment_provider_accounts_provider_id_fkey'
+            columns: ['provider_id']
+            isOneToOne: false
+            referencedRelation: 'payment_providers'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      payment_providers: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          settings: Json | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          settings?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
           settings?: Json | null
           updated_at?: string
         }
@@ -901,9 +1052,11 @@ export type Database = {
           current_period_start: string | null
           id: string
           next_credit_allocation_at: string | null
+          payment_account_id: string | null
           plan_id: string | null
+          provider_data: Json | null
+          provider_subscription_id: string | null
           status: string
-          stripe_subscription_id: string
           subscriber_id: string
           subscriber_type: string
           trial_ends_at: string | null
@@ -916,9 +1069,11 @@ export type Database = {
           current_period_start?: string | null
           id?: string
           next_credit_allocation_at?: string | null
+          payment_account_id?: string | null
           plan_id?: string | null
+          provider_data?: Json | null
+          provider_subscription_id?: string | null
           status?: string
-          stripe_subscription_id: string
           subscriber_id: string
           subscriber_type: string
           trial_ends_at?: string | null
@@ -931,15 +1086,24 @@ export type Database = {
           current_period_start?: string | null
           id?: string
           next_credit_allocation_at?: string | null
+          payment_account_id?: string | null
           plan_id?: string | null
+          provider_data?: Json | null
+          provider_subscription_id?: string | null
           status?: string
-          stripe_subscription_id?: string
           subscriber_id?: string
           subscriber_type?: string
           trial_ends_at?: string | null
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: 'subscriptions_payment_account_id_fkey'
+            columns: ['payment_account_id']
+            isOneToOne: false
+            referencedRelation: 'payment_provider_accounts'
+            referencedColumns: ['id']
+          },
           {
             foreignKeyName: 'subscriptions_plan_id_fkey'
             columns: ['plan_id']
@@ -1209,6 +1373,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_invitation: {
+        Args: {
+          invitation_id_param: string
+        }
+        Returns: string
+      }
       add_credits_to_pool: {
         Args: {
           p_pool_id: string
@@ -1256,6 +1426,21 @@ export type Database = {
           daily_quota: number
           queries_per_second: number
         }[]
+      }
+      create_invitation: {
+        Args: {
+          resource_type_param: string
+          resource_id_param: string
+          email_param: string
+          role_param?: string
+        }
+        Returns: string
+      }
+      decline_invitation: {
+        Args: {
+          invitation_id_param: string
+        }
+        Returns: boolean
       }
       get_api_usage_stats: {
         Args: {
@@ -1308,6 +1493,58 @@ export type Database = {
           full_name: string
           role: string
           joined_at: string
+        }[]
+      }
+      get_payment_account: {
+        Args: {
+          p_owner_type: string
+          p_owner_id: string
+          p_provider_name?: string
+        }
+        Returns: {
+          account_id: string
+          provider_id: string
+          provider_customer_id: string
+          provider_data: Json
+        }[]
+      }
+      get_payment_methods: {
+        Args: {
+          p_account_id: string
+        }
+        Returns: {
+          payment_method_id: string
+          provider_payment_method_id: string
+          type: string
+          provider_data: Json
+          is_default: boolean
+        }[]
+      }
+      get_pending_invitations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          resource_type: string
+          resource_id: string
+          role: string
+          invited_by_email: string
+          invited_by_name: string
+          created_at: string
+          expires_at: string
+        }[]
+      }
+      get_sent_invitations: {
+        Args: {
+          resource_type_param: string
+          resource_id_param: string
+        }
+        Returns: {
+          id: string
+          email: string
+          role: string
+          status: string
+          created_at: string
+          expires_at: string
         }[]
       }
       has_organization_access: {

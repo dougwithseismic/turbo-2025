@@ -31,6 +31,7 @@ const eslintConfig = [
       '@typescript-eslint/no-unsafe-call': 'warn',
       '@typescript-eslint/no-misused-promises': 'warn',
       '@typescript-eslint/require-await': 'warn',
+      '@typescript-eslint/explicit-function-return-type': 'off',
     },
   }),
 ]

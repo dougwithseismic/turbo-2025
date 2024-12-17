@@ -4,9 +4,10 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
-export type ResourceType = 'organization' | 'project';
-export type Role = 'owner' | 'member';
-export type SubscriberType = 'user' | 'organization';
-export type OwnerType = 'user' | 'organization';
+export type ResourceType = 'organization' | 'project'
+export type Role = 'owner' | 'member'
+export type SubscriberType = 'user' | 'organization'
+export type OwnerType = 'user' | 'organization'
+export type StripeSubscriberType = 'user' | 'organization'

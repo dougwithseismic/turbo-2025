@@ -54,9 +54,9 @@ export const FooterCTA = () => {
         {/* Content */}
         <div className="flex flex-col items-center text-center md:items-start md:text-left">
           <h2 className="text-4xl md:text-6xl font-medium text-foreground mb-4">
-            Build the
+            Start building your
             <br />
-            Future
+            future today
           </h2>
           <p className="text-base md:text-lg text-muted-foreground mb-8">
             Create powerful tools and shape tomorrow with Seismic.

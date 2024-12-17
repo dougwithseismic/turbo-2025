@@ -3,7 +3,9 @@
     "@repo/stripe": "workspace:*",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-core": "^0.11.1",
+    "@tanstack/react-query": "^5.62.7",
     "googleapis": "^144.0.0",
+    "stripe": "^17.4.0",
     "zod": "^3.22.4"
   },
   "devDependencies": {

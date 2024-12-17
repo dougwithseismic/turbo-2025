@@ -22,7 +22,11 @@ import {
 import { Plus } from 'lucide-react'
 import * as React from 'react'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-import { GoogleSite } from '../actions/fetch-search-console-sites'
+import {
+  fetchSearchConsoleSites,
+  GoogleSite,
+} from '../actions/fetch-search-console-sites'
+import { useQuery } from '@tanstack/react-query'
 
 interface SiteMetrics {
   date: string
@@ -61,7 +65,19 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-const SearchConsoleSettings = ({ sites }: { sites?: GoogleSite[] | null }) => {
+const SearchConsoleSettings = () => {
+  const { data: sites } = useQuery({
+    queryKey: ['searchConsoleSites'],
+    queryFn: async () => {
+      const sites = await fetchSearchConsoleSites()
+      if (!sites) {
+        throw new Error('Failed to fetch sites')
+      }
+      const siteArray = sites.data.siteEntry
+      return siteArray ?? []
+    },
+  })
+
   const [timeRange, setTimeRange] = React.useState('30d')
   const [metrics, setMetrics] = React.useState<Record<string, SiteMetrics[]>>(
     {},

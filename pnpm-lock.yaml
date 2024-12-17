@@ -359,6 +359,12 @@ importers:
       '@t3-oss/env-nextjs':
         specifier: ^0.11.1
         version: 0.11.1(typescript@5.7.2)(zod@3.24.1)
+      '@tanstack/react-query':
+        specifier: ^5.62.7
+        version: 5.62.7(react@19.1.0-canary-e06c72fc-20241215)
+      '@tanstack/react-query-devtools':
+        specifier: ^5.62.7
+        version: 5.62.7(@tanstack/react-query@5.62.7(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)
       '@tanstack/react-table':
         specifier: ^8.20.5
         version: 8.20.6(react-dom@19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)
@@ -398,6 +404,9 @@ importers:
       react-dom:
         specifier: 19.1.0-canary-e06c72fc-20241215
         version: 19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215)
+      react-error-boundary:
+        specifier: ^4.1.2
+        version: 4.1.2(react@19.1.0-canary-e06c72fc-20241215)
       react-hook-form:
         specifier: ^7.53.2
         version: 7.54.1(react@19.1.0-canary-e06c72fc-20241215)
@@ -427,7 +436,7 @@ importers:
         specifier: ^9.16.0
         version: 9.17.0
       '@repo/config-eslint':
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../../packages/config-eslint
       '@repo/config-prettier':
         specifier: workspace:*
@@ -662,9 +671,15 @@ importers:
       '@t3-oss/env-core':
         specifier: ^0.11.1
         version: 0.11.1(typescript@5.7.2)(zod@3.24.1)
+      '@tanstack/react-query':
+        specifier: ^5.62.7
+        version: 5.62.7(react@19.1.0-canary-e06c72fc-20241215)
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
+      stripe:
+        specifier: ^17.4.0
+        version: 17.4.0
       zod:
         specifier: ^3.22.4
         version: 3.24.1
@@ -2218,6 +2233,23 @@ packages:
     peerDependenciesMeta:
       typescript:
         optional: true
+
+  '@tanstack/query-core@5.62.7':
+    resolution: {integrity: sha512-fgpfmwatsrUal6V+8EC2cxZIQVl9xvL7qYa03gsdsCy985UTUlS4N+/3hCzwR0PclYDqisca2AqR1BVgJGpUDA==}
+
+  '@tanstack/query-devtools@5.61.4':
+    resolution: {integrity: sha512-21Tw+u8E3IJJj4A/Bct4H0uBaDTEu7zBrR79FeSyY+mS2gx5/m316oDtJiKkILc819VSTYt+sFzODoJNcpPqZQ==}
+
+  '@tanstack/react-query-devtools@5.62.7':
+    resolution: {integrity: sha512-wxXsdTZJRs//hMtJMU5aNlUaTclRFPqLvDNeWbRj8YpGD3aoo4zyu53W55W2DY16+ycg3fti21uCW4N9oyj91w==}
+    peerDependencies:
+      '@tanstack/react-query': ^5.62.7
+      react: ^18 || ^19
+
+  '@tanstack/react-query@5.62.7':
+    resolution: {integrity: sha512-+xCtP4UAFDTlRTYyEjLx0sRtWyr5GIk7TZjZwBu4YaNahi3Rt2oMyRqfpfVrtwsqY2sayP4iXVCwmC+ZqqFmuw==}
+    peerDependencies:
+      react: ^18 || ^19
 
   '@tanstack/react-table@8.20.6':
     resolution: {integrity: sha512-w0jluT718MrOKthRcr2xsjqzx+oEM7B7s/XXyfs19ll++hlId3fjTm+B2zrR3ijpANpkzBAr15j1XGVOMxpggQ==}
@@ -4764,6 +4796,11 @@ packages:
     peerDependencies:
       react: 19.1.0-canary-e06c72fc-20241215
 
+  react-error-boundary@4.1.2:
+    resolution: {integrity: sha512-GQDxZ5Jd+Aq/qUxbCm1UtzmL/s++V7zKgE8yMktJiCQXCCFZnMZh9ng+6/Ne6PjNSXH0L9CjeOEREfRnq6Duag==}
+    peerDependencies:
+      react: '>=16.13.1'
+
   react-hook-form@7.54.1:
     resolution: {integrity: sha512-PUNzFwQeQ5oHiiTUO7GO/EJXGEtuun2Y1A59rLnZBBj+vNEOWt/3ERTiG1/zt7dVeJEM+4vDX/7XQ/qanuvPMg==}
     engines: {node: '>=18.0.0'}
@@ -7135,6 +7172,21 @@ snapshots:
       zod: 3.24.1
     optionalDependencies:
       typescript: 5.7.2
+
+  '@tanstack/query-core@5.62.7': {}
+
+  '@tanstack/query-devtools@5.61.4': {}
+
+  '@tanstack/react-query-devtools@5.62.7(@tanstack/react-query@5.62.7(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)':
+    dependencies:
+      '@tanstack/query-devtools': 5.61.4
+      '@tanstack/react-query': 5.62.7(react@19.1.0-canary-e06c72fc-20241215)
+      react: 19.1.0-canary-e06c72fc-20241215
+
+  '@tanstack/react-query@5.62.7(react@19.1.0-canary-e06c72fc-20241215)':
+    dependencies:
+      '@tanstack/query-core': 5.62.7
+      react: 19.1.0-canary-e06c72fc-20241215
 
   '@tanstack/react-table@8.20.6(react-dom@19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)':
     dependencies:
@@ -10014,6 +10066,11 @@ snapshots:
     dependencies:
       react: 19.1.0-canary-e06c72fc-20241215
       scheduler: 0.26.0-canary-e06c72fc-20241215
+
+  react-error-boundary@4.1.2(react@19.1.0-canary-e06c72fc-20241215):
+    dependencies:
+      '@babel/runtime': 7.26.0
+      react: 19.1.0-canary-e06c72fc-20241215
 
   react-hook-form@7.54.1(react@19.1.0-canary-e06c72fc-20241215):
     dependencies:

@@ -15,6 +15,7 @@ DROP TABLE IF EXISTS credit_pools CASCADE;
 DROP TABLE IF EXISTS subscriptions CASCADE;
 DROP TABLE IF EXISTS subscription_plans CASCADE;
 DROP TABLE IF EXISTS memberships CASCADE;
+DROP TABLE IF EXISTS invitations CASCADE;
 DROP TABLE IF EXISTS projects CASCADE;
 DROP TABLE IF EXISTS organizations CASCADE;
 DROP TABLE IF EXISTS profiles CASCADE;
@@ -215,6 +216,21 @@ CREATE TABLE oauth_states (
     CONSTRAINT valid_expiry CHECK (expires_at > created_at)
 );
 
+-- Create invitations table
+CREATE TABLE invitations (
+    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+    email text NOT NULL,
+    resource_type text NOT NULL CHECK (resource_type IN ('project', 'organization')),
+    resource_id uuid NOT NULL,
+    role text NOT NULL DEFAULT 'member',
+    invited_by uuid REFERENCES auth.users ON DELETE CASCADE,
+    status text NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'accepted', 'declined', 'expired')),
+    expires_at timestamptz NOT NULL DEFAULT (now() + interval '7 days'),
+    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
+    UNIQUE(email, resource_type, resource_id, status)
+);
+
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_subscriptions_subscriber ON subscriptions(subscriber_type, subscriber_id);
 
@@ -234,6 +250,7 @@ ALTER TABLE api_services ENABLE ROW LEVEL SECURITY;
 ALTER TABLE api_quota_allocations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY;
 ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY;
+ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
 
 -- Enable Realtime
 DROP PUBLICATION IF EXISTS supabase_realtime;
@@ -244,6 +261,7 @@ CREATE PUBLICATION supabase_realtime FOR TABLE
     memberships,
     subscriptions,
     user_onboarding,
+    invitations,
     profiles;
 
 -- Configure the publication to handle all operations (insert, update, delete, truncate)

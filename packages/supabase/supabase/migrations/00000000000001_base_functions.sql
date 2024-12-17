@@ -437,6 +437,223 @@ CREATE TRIGGER on_auth_user_created
     FOR EACH ROW
     EXECUTE FUNCTION handle_new_user();
 
+-- Create invitation functions
+CREATE OR REPLACE FUNCTION create_invitation(
+    resource_type_param text,
+    resource_id_param uuid,
+    email_param text,
+    role_param text DEFAULT 'member'
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    invitation_id uuid;
+BEGIN
+    -- Check access
+    IF resource_type_param = 'organization' AND NOT has_organization_access(resource_id_param) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    IF resource_type_param = 'project' AND NOT has_project_access(resource_id_param) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    -- Check if user is already a member
+    IF EXISTS (
+        SELECT 1 FROM profiles p
+        JOIN memberships m ON m.user_id = p.id
+        WHERE p.email = email_param
+        AND m.resource_type = resource_type_param
+        AND m.resource_id = resource_id_param
+    ) THEN
+        RAISE EXCEPTION 'User is already a member';
+    END IF;
+
+    -- Create invitation
+    INSERT INTO invitations (
+        email,
+        resource_type,
+        resource_id,
+        role,
+        invited_by
+    )
+    VALUES (
+        email_param,
+        resource_type_param,
+        resource_id_param,
+        role_param,
+        auth.uid()
+    )
+    RETURNING id INTO invitation_id;
+
+    RETURN invitation_id;
+END;
+$$;
+
+-- Function to accept invitation
+CREATE OR REPLACE FUNCTION accept_invitation(invitation_id_param uuid)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    membership_id uuid;
+    invitation_record invitations%ROWTYPE;
+BEGIN
+    -- Get and validate invitation
+    SELECT * INTO invitation_record
+    FROM invitations
+    WHERE id = invitation_id_param
+    AND status = 'pending'
+    AND expires_at > now();
+
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Invalid or expired invitation';
+    END IF;
+
+    -- Verify the accepting user owns the email
+    IF NOT EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.uid()
+        AND email = invitation_record.email
+    ) THEN
+        RAISE EXCEPTION 'Email mismatch';
+    END IF;
+
+    -- Create membership
+    INSERT INTO memberships (
+        user_id,
+        resource_type,
+        resource_id,
+        role
+    )
+    VALUES (
+        auth.uid(),
+        invitation_record.resource_type,
+        invitation_record.resource_id,
+        invitation_record.role
+    )
+    RETURNING id INTO membership_id;
+
+    -- Update invitation status
+    UPDATE invitations
+    SET status = 'accepted',
+        updated_at = now()
+    WHERE id = invitation_id_param;
+
+    RETURN membership_id;
+END;
+$$;
+
+-- Function to decline invitation
+CREATE OR REPLACE FUNCTION decline_invitation(invitation_id_param uuid)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Verify the declining user owns the email
+    IF NOT EXISTS (
+        SELECT 1 
+        FROM invitations i
+        JOIN profiles p ON p.email = i.email
+        WHERE i.id = invitation_id_param
+        AND p.id = auth.uid()
+    ) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    -- Update invitation status
+    UPDATE invitations
+    SET status = 'declined',
+        updated_at = now()
+    WHERE id = invitation_id_param
+    AND status = 'pending'
+    AND expires_at > now();
+
+    RETURN FOUND;
+END;
+$$;
+
+-- Function to list pending invitations for current user
+CREATE OR REPLACE FUNCTION get_pending_invitations()
+RETURNS TABLE (
+    id uuid,
+    resource_type text,
+    resource_id uuid,
+    role text,
+    invited_by_email text,
+    invited_by_name text,
+    created_at timestamptz,
+    expires_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    RETURN QUERY
+    SELECT
+        i.id,
+        i.resource_type,
+        i.resource_id,
+        i.role,
+        p.email as invited_by_email,
+        p.full_name as invited_by_name,
+        i.created_at,
+        i.expires_at
+    FROM invitations i
+    JOIN profiles p ON p.id = i.invited_by
+    JOIN profiles user_profile ON user_profile.id = auth.uid()
+    WHERE i.email = user_profile.email
+    AND i.status = 'pending'
+    AND i.expires_at > now()
+    ORDER BY i.created_at DESC;
+END;
+$$;
+
+-- Function to list sent invitations
+CREATE OR REPLACE FUNCTION get_sent_invitations(
+    resource_type_param text,
+    resource_id_param uuid
+)
+RETURNS TABLE (
+    id uuid,
+    email text,
+    role text,
+    status text,
+    created_at timestamptz,
+    expires_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Check access
+    IF resource_type_param = 'organization' AND NOT has_organization_access(resource_id_param) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    IF resource_type_param = 'project' AND NOT has_project_access(resource_id_param) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    RETURN QUERY
+    SELECT 
+        i.id,
+        i.email,
+        i.role,
+        i.status,
+        i.created_at,
+        i.expires_at
+    FROM invitations i
+    WHERE i.resource_type = resource_type_param
+    AND i.resource_id = resource_id_param
+    ORDER BY i.created_at DESC;
+END;
+$$;
+
 -- Grant necessary permissions
 GRANT EXECUTE ON FUNCTION has_organization_access TO authenticated;
 GRANT EXECUTE ON FUNCTION has_project_access TO authenticated;
@@ -447,4 +664,9 @@ GRANT EXECUTE ON FUNCTION record_credit_usage TO authenticated;
 GRANT EXECUTE ON FUNCTION get_credit_usage TO authenticated;
 GRANT EXECUTE ON FUNCTION get_memberships TO authenticated;
 GRANT EXECUTE ON FUNCTION add_member TO authenticated;
-GRANT EXECUTE ON FUNCTION remove_member TO authenticated; 
+GRANT EXECUTE ON FUNCTION remove_member TO authenticated;
+GRANT EXECUTE ON FUNCTION create_invitation TO authenticated;
+GRANT EXECUTE ON FUNCTION accept_invitation TO authenticated;
+GRANT EXECUTE ON FUNCTION decline_invitation TO authenticated;
+GRANT EXECUTE ON FUNCTION get_pending_invitations TO authenticated;
+GRANT EXECUTE ON FUNCTION get_sent_invitations TO authenticated; 

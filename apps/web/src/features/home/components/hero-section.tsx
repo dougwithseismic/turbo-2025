@@ -29,15 +29,15 @@ export const HeroSection = () => {
             <Button
               asChild
               variant="default"
-              className="flex items-center w-fit px-8 sm:px-12 md:px-16 transition-all duration-200 uppercase font-bold h-8 sm:h-9 md:h-10 text-sm sm:text-base text-foreground rounded-full border border-border bg-muted space-x-1"
+              className="grid grid-cols-[1fr_auto] justify-between items-center w-fit px-8 sm:px-12 md:px-16 transition-all duration-200 uppercase font-bold h-8 sm:h-9 md:h-10 text-sm sm:text-base text-foreground rounded-full border border-border bg-muted gap-x-1"
             >
               <Link href="/register">
-                <span>Try it Free</span>
+                <span className="justify-self-center">Try it Free</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
                   viewBox="0 0 17 9"
-                  className="w-4 sm:w-5 md:w-6 h-auto"
+                  className="w-4 sm:w-5 md:w-6 h-auto justify-self-end"
                 >
                   <path
                     fill="currentColor"
