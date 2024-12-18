@@ -17,20 +17,37 @@ import {
   getOrganizationProjects,
 } from './projects'
 
+// Common Types
+type SupabaseProps = {
+  supabase: SupabaseClient<Database>
+}
+
+type QueryEnabledProps = {
+  enabled?: boolean
+}
+
+type ProjectResponse<T> = {
+  data: T
+  error: ProjectError | null
+}
+
 /**
  * Custom error class for handling project-related errors with additional context
  *
  * @example
- * ```typescript
- * throw new ProjectError('Project not found', 'NOT_FOUND', 404);
+ * ```ts
+ * // Create a new error
+ * const error = new ProjectError({
+ *   message: 'Project not found',
+ *   code: 'NOT_FOUND',
+ *   status: 404
+ * })
  *
+ * // Convert from unknown error
  * try {
- *   // Some project operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof ProjectError) {
- *     console.log(err.code); // 'NOT_FOUND'
- *     console.log(err.status); // 404
- *   }
+ *   throw ProjectError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -52,65 +69,102 @@ export class ProjectError extends Error {
 
   public readonly code?: string
   public readonly status?: number
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): ProjectError {
+    if (err instanceof Error) {
+      return new ProjectError({
+        message: err.message,
+        code: err instanceof ProjectError ? err.code : code,
+        status: err instanceof ProjectError ? err.status : status,
+      })
+    }
+    return new ProjectError({
+      message: 'An unknown error occurred',
+      code,
+      status,
+    })
+  }
 }
+
+// Query Key Types
+type BaseKey = ['projects']
+type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
+type DetailKey = [...BaseKey, 'detail', string]
+type MembersKey = [...DetailKey, 'members']
+type OrgProjectsKey = [...BaseKey, 'list', { organizationId: string }]
 
 /**
  * Query key factory for projects with proper type safety
  *
  * @example
- * ```typescript
- * // Get base key for all project queries
- * const allKey = projectKeys.all(); // ['projects']
+ * ```ts
+ * // Get base key
+ * const baseKey = projectKeys.all() // ['projects']
  *
- * // Get key for a specific project
- * const projectKey = projectKeys.detail({ id: 'project_123' }); // ['projects', 'detail', 'project_123']
+ * // Get list key with filters
+ * const listKey = projectKeys.list({ filters: { status: 'active' } })
  *
- * // Get key for project members
- * const membersKey = projectKeys.members({ projectId: 'project_123' }); // ['projects', 'detail', 'project_123', 'members']
+ * // Get detail key
+ * const detailKey = projectKeys.detail({ id: '123' })
  *
- * // Get key for organization projects
- * const orgKey = projectKeys.organizationProjects({ organizationId: 'org_123' }); // ['projects', 'list', { organizationId: 'org_123' }]
+ * // Get members key
+ * const membersKey = projectKeys.members({ projectId: '123' })
+ *
+ * // Get org projects key
+ * const orgKey = projectKeys.organizationProjects({ organizationId: '123' })
  * ```
  */
 export const projectKeys = {
-  all: () => ['projects'] as const,
+  all: (): BaseKey => ['projects'],
   lists: () => [...projectKeys.all(), 'list'] as const,
-  list: ({ filters }: { filters: Record<string, unknown> }) =>
-    [...projectKeys.lists(), { filters }] as const,
+  list: ({ filters }: { filters: Record<string, unknown> }): ListKey => [
+    ...projectKeys.lists(),
+    { filters },
+  ],
   details: () => [...projectKeys.all(), 'detail'] as const,
-  detail: ({ id }: { id: string }) => [...projectKeys.details(), id] as const,
-  members: ({ projectId }: { projectId: string }) =>
-    [...projectKeys.detail({ id: projectId }), 'members'] as const,
-  organizationProjects: ({ organizationId }: { organizationId: string }) =>
-    [...projectKeys.lists(), { organizationId }] as const,
+  detail: ({ id }: { id: string }): DetailKey => [...projectKeys.details(), id],
+  members: ({ projectId }: { projectId: string }): MembersKey => [
+    ...projectKeys.detail({ id: projectId }),
+    'members',
+  ],
+  organizationProjects: ({
+    organizationId,
+  }: {
+    organizationId: string
+  }): OrgProjectsKey => [...projectKeys.lists(), { organizationId }],
+} as const
+
+type ProjectQueryParams = SupabaseProps & {
+  projectId: string
+}
+
+type OrgProjectsQueryParams = SupabaseProps & {
+  organizationId: string
 }
 
 /**
  * Query options factory for project queries with error handling
  *
  * @example
- * ```typescript
- * // Get options for project detail query
- * const detailOptions = projectQueries.detail({ supabase, projectId: 'project_123' });
- *
+ * ```ts
  * // Use in a custom query
- * const { data } = useQuery(detailOptions);
- *
- * // Get options for project members
- * const memberOptions = projectQueries.members({ supabase, projectId: 'project_123' });
+ * const { data } = useQuery({
+ *   ...projectQueries.detail({
+ *     supabase,
+ *     projectId: '123'
+ *   })
+ * })
  * ```
  */
 export const projectQueries = {
-  detail: ({
-    supabase,
-    projectId,
-  }: {
-    supabase: SupabaseClient<Database>
-    projectId: string
-  }) =>
+  detail: ({ supabase, projectId }: ProjectQueryParams) =>
     queryOptions({
       queryKey: projectKeys.detail({ id: projectId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<Project> => {
         try {
           const data = await getProject({ supabase, projectId })
           if (!data) {
@@ -122,40 +176,20 @@ export const projectQueries = {
           }
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ProjectError({
-              message: err.message,
-              code: 'FETCH_ERROR',
-              status: err instanceof ProjectError ? err.status : 500,
-            })
-          }
-          throw err
+          throw ProjectError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 
-  members: ({
-    supabase,
-    projectId,
-  }: {
-    supabase: SupabaseClient<Database>
-    projectId: string
-  }) =>
+  members: ({ supabase, projectId }: ProjectQueryParams) =>
     queryOptions({
       queryKey: projectKeys.members({ projectId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<ProjectMember[]> => {
         try {
           const data = await getProjectMembers({ supabase, projectId })
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ProjectError({
-              message: err.message,
-              code: 'FETCH_ERROR',
-              status: err instanceof ProjectError ? err.status : 500,
-            })
-          }
-          throw err
+          throw ProjectError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
@@ -163,225 +197,160 @@ export const projectQueries = {
   organizationProjects: ({
     supabase,
     organizationId,
-  }: {
-    supabase: SupabaseClient<Database>
-    organizationId: string
-  }) =>
+  }: OrgProjectsQueryParams) =>
     queryOptions({
       queryKey: projectKeys.organizationProjects({ organizationId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<ProjectWithOrg[]> => {
         try {
           const data = await getOrganizationProjects({
             supabase,
             organizationId,
           })
-          return data
-        } catch (err) {
-          if (err instanceof Error) {
-            throw new ProjectError({
-              message: err.message,
-              code: 'FETCH_ERROR',
-              status: err instanceof ProjectError ? err.status : 500,
-            })
+          if (!data) {
+            return []
           }
-          throw err
+          // Transform the data to match ProjectWithOrg type
+          return data
+            .filter(
+              (project): project is Project & { organization_id: string } =>
+                project.organization_id !== null,
+            )
+            .map((project) => ({
+              ...project,
+              organization: {
+                id: project.organization_id,
+                name: project.name,
+              },
+            })) as ProjectWithOrg[]
+        } catch (err) {
+          throw ProjectError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
+type GetProjectParams = ProjectQueryParams & QueryEnabledProps
+
 /**
  * React hook to fetch a project's details with type safety and error handling
  *
  * @example
- * ```typescript
- * const ProjectDetails = ({ projectId }: { projectId: string }) => {
- *   const { data: project, isLoading, error } = useGetProject({
- *     supabase,
- *     projectId,
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetProject({
+ *   supabase,
+ *   projectId: '123'
+ * })
  *
- *   if (isLoading) return <div>Loading...</div>;
- *   if (error) return <div>Error: {error.message}</div>;
- *
- *   return (
- *     <div>
- *       <h1>{project.name}</h1>
- *       <p>Organization: {project.organization.name}</p>
- *       {project.client_name && (
- *         <p>Client: {project.client_name}</p>
- *       )}
- *     </div>
- *   );
- * };
+ * // With enabled flag
+ * const { data, error } = useGetProject({
+ *   supabase,
+ *   projectId: '123',
+ *   enabled: isReady
+ * })
  * ```
  */
 export const useGetProject = ({
   supabase,
   projectId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  projectId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetProjectParams): ProjectResponse<Project | null> => {
+  const { data, error } = useQuery<Project, ProjectError>({
     ...projectQueries.detail({ supabase, projectId }),
     enabled: Boolean(projectId) && enabled,
   })
+
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
 }
 
 /**
  * React hook to fetch a project's members with type safety and error handling
  *
  * @example
- * ```typescript
- * const ProjectMembers = ({ projectId }: { projectId: string }) => {
- *   const { data: members, isLoading } = useGetProjectMembers({
- *     supabase,
- *     projectId,
- *   });
- *
- *   if (isLoading) return <div>Loading members...</div>;
- *
- *   return (
- *     <ul>
- *       {members?.map((member) => (
- *         <li key={member.id}>
- *           <img src={member.profiles.avatar_url} alt="" />
- *           <span>{member.profiles.full_name}</span>
- *           <span>Role: {member.role}</span>
- *         </li>
- *       ))}
- *     </ul>
- *   );
- * };
+ * ```ts
+ * const { data, error } = useGetProjectMembers({
+ *   supabase,
+ *   projectId: '123'
+ * })
  * ```
  */
 export const useGetProjectMembers = ({
   supabase,
   projectId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  projectId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetProjectParams): ProjectResponse<ProjectMember[]> => {
+  const { data, error } = useQuery<ProjectMember[], ProjectError>({
     ...projectQueries.members({ supabase, projectId }),
     enabled: Boolean(projectId) && enabled,
   })
+
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
 }
+
+type GetOrgProjectsParams = OrgProjectsQueryParams & QueryEnabledProps
 
 /**
  * React hook to fetch all projects in an organization
  *
  * @example
- * ```typescript
- * const OrganizationProjects = ({ organizationId }: { organizationId: string }) => {
- *   const { data: projects, isLoading } = useGetOrganizationProjects({
- *     supabase,
- *     organizationId,
- *   });
- *
- *   if (isLoading) return <div>Loading projects...</div>;
- *
- *   return (
- *     <div>
- *       <h2>Projects</h2>
- *       <div className="grid">
- *         {projects?.map((project) => (
- *           <div key={project.id} className="card">
- *             <h3>{project.name}</h3>
- *             {project.is_client_portal && (
- *               <span className="badge">Client Portal</span>
- *             )}
- *           </div>
- *         ))}
- *       </div>
- *     </div>
- *   );
- * };
+ * ```ts
+ * const { data, error } = useGetOrganizationProjects({
+ *   supabase,
+ *   organizationId: '123'
+ * })
  * ```
  */
 export const useGetOrganizationProjects = ({
   supabase,
   organizationId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  organizationId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetOrgProjectsParams): ProjectResponse<ProjectWithOrg[]> => {
+  const { data, error } = useQuery<ProjectWithOrg[], ProjectError>({
     ...projectQueries.organizationProjects({ supabase, organizationId }),
     enabled: Boolean(organizationId) && enabled,
   })
+
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
+}
+
+type UpdateProjectRequest = {
+  projectId: string
+  updates: ProjectUpdate
 }
 
 /**
  * React hook to update a project with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const ProjectSettings = ({ projectId }: { projectId: string }) => {
- *   const { mutate: updateProject, isLoading } = useUpdateProject({
- *     supabase,
- *   });
+ * ```ts
+ * const mutation = useUpdateProject({ supabase })
  *
- *   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
- *     e.preventDefault();
- *     const formData = new FormData(e.currentTarget);
- *
- *     updateProject({
- *       projectId,
- *       updates: {
- *         name: formData.get('name') as string,
- *         settings: {
- *           deploymentTarget: formData.get('deploymentTarget'),
- *           notifyOnDeploy: formData.get('notify') === 'true',
- *         },
- *       },
- *     }, {
- *       onSuccess: () => {
- *         toast.success('Project updated successfully');
- *       },
- *       onError: (error) => {
- *         toast.error(error.message);
- *       },
- *     });
- *   };
- *
- *   return (
- *     <form onSubmit={handleSubmit}>
- *       <input name="name" placeholder="Project Name" />
- *       <select name="deploymentTarget">
- *         <option value="production">Production</option>
- *         <option value="staging">Staging</option>
- *       </select>
- *       <label>
- *         <input type="checkbox" name="notify" value="true" />
- *         Notify on Deploy
- *       </label>
- *       <button type="submit" disabled={isLoading}>
- *         {isLoading ? 'Updating...' : 'Update Project'}
- *       </button>
- *     </form>
- *   );
- * };
+ * // Update project
+ * mutation.mutate({
+ *   projectId: '123',
+ *   updates: {
+ *     name: 'New Name',
+ *     settings: { feature: true }
+ *   }
+ * })
  * ```
  */
-export const useUpdateProject = ({
-  supabase,
-}: {
-  supabase: SupabaseClient<Database>
-}) => {
+export const useUpdateProject = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     Project,
     ProjectError,
-    { projectId: string; updates: ProjectUpdate },
+    UpdateProjectRequest,
     { previousData: ProjectWithOrg | undefined }
   >({
     mutationFn: async ({ projectId, updates }) => {
@@ -395,14 +364,7 @@ export const useUpdateProject = ({
         }
         return data
       } catch (err) {
-        if (err instanceof Error) {
-          throw new ProjectError({
-            message: err.message,
-            code: 'UPDATE_ERROR',
-            status: err instanceof ProjectError ? err.status : 500,
-          })
-        }
-        throw err
+        throw ProjectError.fromError(err, 'UPDATE_ERROR')
       }
     },
     onMutate: async ({ projectId, updates }) => {
@@ -438,10 +400,10 @@ export const useUpdateProject = ({
       }
     },
     onSuccess: (data, { projectId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: projectKeys.detail({ id: projectId }),
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
       })
     },

@@ -11,20 +11,33 @@ import {
 import type { Database } from '../database.types'
 import { getProfile, Profile, ProfileUpdate, updateProfile } from './profiles'
 
+// Common Types
+type SupabaseProps = {
+  supabase: SupabaseClient<Database>
+}
+
+type QueryEnabledProps = {
+  enabled?: boolean
+}
+
+type ProfileResponse<T> = {
+  data: T
+  error: ProfileError | null
+}
+
 /**
  * Custom error class for handling profile-related errors with additional context
  *
  * @example
  * ```ts
- * throw new ProfileError('Profile not found', 'NOT_FOUND', 404);
+ * // Create a new error
+ * const error = new ProfileError('Profile not found', 'NOT_FOUND', 404)
  *
+ * // Convert from unknown error
  * try {
- *   // Some profile operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof ProfileError) {
- *     console.log(err.code); // 'NOT_FOUND'
- *     console.log(err.status); // 404
- *   }
+ *   throw ProfileError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -37,30 +50,56 @@ export class ProfileError extends Error {
     super(message)
     this.name = 'ProfileError'
   }
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): ProfileError {
+    if (err instanceof Error) {
+      return new ProfileError(
+        err.message,
+        err instanceof ProfileError ? err.code : code,
+        err instanceof ProfileError ? err.status : status,
+      )
+    }
+    return new ProfileError('An unknown error occurred', code, status)
+  }
 }
+
+// Query Key Types
+type BaseKey = ['profiles']
+type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
+type DetailKey = [...BaseKey, 'detail', string]
 
 /**
  * Query key factory for profiles with proper type safety
  *
  * @example
  * ```ts
- * // Get base key for all profile queries
- * const allKey = profileKeys.all(); // ['profiles']
+ * // Get base key
+ * const baseKey = profileKeys.all() // ['profiles']
  *
- * // Get key for a specific profile
- * const profileKey = profileKeys.detail('user_123'); // ['profiles', 'detail', 'user_123']
+ * // Get list key with filters
+ * const listKey = profileKeys.list({ filters: { role: 'admin' } })
  *
- * // Get key for filtered list
- * const filteredKey = profileKeys.list({ role: 'admin' }); // ['profiles', 'list', { filters: { role: 'admin' }}]
+ * // Get detail key
+ * const detailKey = profileKeys.detail({ id: '123' })
  * ```
  */
 export const profileKeys = {
-  all: () => ['profiles'] as const,
+  all: (): BaseKey => ['profiles'],
   lists: () => [...profileKeys.all(), 'list'] as const,
-  list: ({ filters }: { filters: Record<string, unknown> }) =>
-    [...profileKeys.lists(), { filters }] as const,
+  list: ({ filters }: { filters: Record<string, unknown> }): ListKey => [
+    ...profileKeys.lists(),
+    { filters },
+  ],
   details: () => [...profileKeys.all(), 'detail'] as const,
-  detail: ({ id }: { id: string }) => [...profileKeys.details(), id] as const,
+  detail: ({ id }: { id: string }): DetailKey => [...profileKeys.details(), id],
+} as const
+
+type ProfileQueryParams = SupabaseProps & {
+  userId: string
 }
 
 /**
@@ -68,26 +107,20 @@ export const profileKeys = {
  *
  * @example
  * ```ts
- * const queryOptions = profileQueries.detail({ supabase, userId: 'user_123' });
- *
  * // Use in a custom query
- * const { data } = useQuery(queryOptions);
- *
- * // Access query key
- * console.log(queryOptions.queryKey); // ['profiles', 'detail', 'user_123']
+ * const { data } = useQuery({
+ *   ...profileQueries.detail({
+ *     supabase,
+ *     userId: '123'
+ *   })
+ * })
  * ```
  */
 export const profileQueries = {
-  detail: ({
-    supabase,
-    userId,
-  }: {
-    supabase: SupabaseClient<Database>
-    userId: string
-  }) =>
+  detail: ({ supabase, userId }: ProfileQueryParams) =>
     queryOptions({
       queryKey: profileKeys.detail({ id: userId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<Profile> => {
         try {
           const data = await getProfile({ supabase, userId })
           if (!data) {
@@ -95,105 +128,78 @@ export const profileQueries = {
           }
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ProfileError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof ProfileError ? err.status : 500,
-            )
-          }
-          throw err
+          throw ProfileError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
+type GetProfileParams = ProfileQueryParams & QueryEnabledProps
+
 /**
  * React hook to fetch a user's profile with type safety and error handling
  *
  * @example
- * ```tsx
- * const { data: profile, isLoading, error } = useGetProfile({
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetProfile({
  *   supabase,
- *   userId: 'user_123'
- * });
+ *   userId: '123'
+ * })
  *
- * if (isLoading) return <div>Loading...</div>;
- * if (error) return <div>Error: {error.message}</div>;
- *
- * return (
- *   <div>
- *     <h1>{profile.full_name}</h1>
- *     <img src={profile.avatar_url} alt="Profile" />
- *   </div>
- * );
+ * // With enabled flag
+ * const { data, error } = useGetProfile({
+ *   supabase,
+ *   userId: '123',
+ *   enabled: isReady
+ * })
  * ```
  */
 export const useGetProfile = ({
   supabase,
   userId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  userId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetProfileParams): ProfileResponse<Profile | null> => {
+  const { data, error } = useQuery<Profile, ProfileError>({
     ...profileQueries.detail({ supabase, userId }),
     enabled: Boolean(userId) && enabled,
   })
+
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
+}
+
+type UpdateProfileRequest = {
+  userId: string
+  profile: ProfileUpdate
 }
 
 /**
  * React hook to update a user's profile with optimistic updates and error handling
  *
  * @example
- * ```tsx
- * const { mutate: updateProfile, isLoading, error } = useUpdateProfile({
- *   supabase
- * });
+ * ```ts
+ * const mutation = useUpdateProfile({ supabase })
  *
- * const handleSubmit = (e: React.FormEvent) => {
- *   e.preventDefault();
- *   updateProfile({
- *     userId: 'user_123',
- *     profile: {
- *       full_name: 'John Doe',
- *       avatar_url: 'https://example.com/avatar.jpg',
- *       bio: 'Software developer'
- *     }
- *   }, {
- *     onSuccess: () => {
- *       toast.success('Profile updated successfully');
- *     },
- *     onError: (err) => {
- *       toast.error(err.message);
- *     }
- *   });
- * };
- *
- * return (
- *   <form onSubmit={handleSubmit}>
- *     <button type="submit" disabled={isLoading}>
- *       {isLoading ? 'Updating...' : 'Update Profile'}
- *     </button>
- *     {error && <div>Error: {error.message}</div>}
- *   </form>
- * );
+ * // Update profile
+ * mutation.mutate({
+ *   userId: '123',
+ *   profile: {
+ *     full_name: 'John Doe',
+ *     avatar_url: 'https://example.com/avatar.jpg'
+ *   }
+ * })
  * ```
  */
-
-export const useUpdateProfile = ({
-  supabase,
-}: {
-  supabase: SupabaseClient<Database>
-}) => {
+export const useUpdateProfile = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     Profile,
     ProfileError,
-    { userId: string; profile: ProfileUpdate },
+    UpdateProfileRequest,
     { previousData: Profile | undefined }
   >({
     mutationFn: async ({ userId, profile }) => {
@@ -204,14 +210,7 @@ export const useUpdateProfile = ({
         }
         return data
       } catch (err) {
-        if (err instanceof Error) {
-          throw new ProfileError(
-            err.message,
-            'UPDATE_ERROR',
-            err instanceof ProfileError ? err.status : 500,
-          )
-        }
-        throw err
+        throw ProfileError.fromError(err, 'UPDATE_ERROR')
       }
     },
     onMutate: async ({ userId, profile }) => {
@@ -222,7 +221,6 @@ export const useUpdateProfile = ({
         profileKeys.detail({ id: userId }),
       )
 
-      // Fix type safety in optimistic update
       if (previousData) {
         queryClient.setQueryData<Profile>(profileKeys.detail({ id: userId }), {
           ...previousData,
@@ -241,10 +239,10 @@ export const useUpdateProfile = ({
       }
     },
     onSuccess: (data, { userId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: profileKeys.detail({ id: userId }),
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: profileKeys.lists(),
       })
     },

@@ -14,20 +14,27 @@ import {
 } from './onboarding'
 import type { Json } from '../types'
 
+// Common Types
+import type { SupabaseProps, QueryEnabledProps } from '../types/react-query'
+
+type OnboardingResponse<T> = {
+  data: T
+  error: OnboardingError | null
+}
+
 /**
  * Custom error class for handling onboarding-related errors with additional context
  *
  * @example
- * ```typescript
- * throw new OnboardingError('Onboarding step not found', 'NOT_FOUND', 404);
+ * ```ts
+ * // Create a new error
+ * const error = new OnboardingError('Failed to fetch onboarding', 'FETCH_ERROR', 500)
  *
+ * // Convert from unknown error
  * try {
- *   // Some onboarding operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof OnboardingError) {
- *     console.log(err.code); // 'NOT_FOUND'
- *     console.log(err.status); // 404
- *   }
+ *   throw OnboardingError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -40,42 +47,66 @@ export class OnboardingError extends Error {
     super(message)
     this.name = 'OnboardingError'
   }
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): OnboardingError {
+    if (err instanceof Error) {
+      return new OnboardingError(
+        err.message,
+        err instanceof OnboardingError ? err.code : code,
+        err instanceof OnboardingError ? err.status : status,
+      )
+    }
+    return new OnboardingError('An unknown error occurred', code, status)
+  }
 }
 
-type OnboardingKeysParams = {
-  filters?: Record<string, unknown>
-  userId?: string
-}
+// Query Key Types
+type BaseKey = ['onboarding']
+type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
+type DetailKey = [...BaseKey, 'detail', string]
+type StepsKey = [...DetailKey, 'steps']
 
 /**
  * Query key factory for onboarding with proper type safety
  *
  * @example
- * ```typescript
- * // Get base key for all onboarding queries
- * const allKey = onboardingKeys.all(); // ['onboarding']
+ * ```ts
+ * // Get base key
+ * const baseKey = onboardingKeys.all() // ['onboarding']
  *
- * // Get key for a specific user's onboarding
- * const userKey = onboardingKeys.detail({ userId: 'user_123' }); // ['onboarding', 'detail', 'user_123']
+ * // Get list key with filters
+ * const listKey = onboardingKeys.list({ filters: { status: 'active' } })
  *
- * // Get key for onboarding steps
- * const stepsKey = onboardingKeys.steps({ userId: 'user_123' }); // ['onboarding', 'detail', 'user_123', 'steps']
+ * // Get detail key for specific user
+ * const detailKey = onboardingKeys.detail({ userId: '123' })
+ *
+ * // Get steps key for specific user
+ * const stepsKey = onboardingKeys.steps({ userId: '123' })
  * ```
  */
 export const onboardingKeys = {
-  all: () => ['onboarding'] as const,
+  all: (): BaseKey => ['onboarding'],
   lists: () => [...onboardingKeys.all(), 'list'] as const,
-  list: ({ filters }: { filters: Record<string, unknown> }) =>
-    [...onboardingKeys.lists(), { filters }] as const,
+  list: ({ filters }: { filters: Record<string, unknown> }): ListKey => [
+    ...onboardingKeys.lists(),
+    { filters },
+  ],
   details: () => [...onboardingKeys.all(), 'detail'] as const,
-  detail: ({ userId }: { userId: string }) =>
-    [...onboardingKeys.details(), userId] as const,
-  steps: ({ userId }: { userId: string }) =>
-    [...onboardingKeys.detail({ userId }), 'steps'] as const,
-}
+  detail: ({ userId }: { userId: string }): DetailKey => [
+    ...onboardingKeys.details(),
+    userId,
+  ],
+  steps: ({ userId }: { userId: string }): StepsKey => [
+    ...onboardingKeys.detail({ userId }),
+    'steps',
+  ],
+} as const
 
-type OnboardingQueryParams = {
-  supabase: SupabaseClient<Database>
+type OnboardingQueryParams = SupabaseProps & {
   userId: string
 }
 
@@ -83,19 +114,21 @@ type OnboardingQueryParams = {
  * Query options factory for onboarding queries with error handling
  *
  * @example
- * ```typescript
- * // Get options for user onboarding query
- * const onboardingOptions = onboardingQueries.detail({ supabase, userId: 'user_123' });
- *
+ * ```ts
  * // Use in a custom query
- * const { data } = useQuery(onboardingOptions);
+ * const { data } = useQuery({
+ *   ...onboardingQueries.detail({
+ *     supabase,
+ *     userId: '123'
+ *   })
+ * })
  * ```
  */
 export const onboardingQueries = {
   detail: ({ supabase, userId }: OnboardingQueryParams) =>
     queryOptions({
       queryKey: onboardingKeys.detail({ userId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<UserOnboarding> => {
         try {
           const data = await getUserOnboarding({ supabase, userId })
           if (!data) {
@@ -103,70 +136,51 @@ export const onboardingQueries = {
           }
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new OnboardingError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof OnboardingError ? err.status : 500,
-            )
-          }
-          throw err
+          throw OnboardingError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
-type GetUserOnboardingParams = {
-  supabase: SupabaseClient<Database>
-  userId: string
-  enabled?: boolean
-}
+type GetUserOnboardingParams = OnboardingQueryParams & QueryEnabledProps
 
 /**
  * React hook to fetch a user's onboarding status with type safety and error handling
  *
  * @example
- * ```typescript
- * const OnboardingProgress = ({ userId }: { userId: string }) => {
- *   const { data: onboarding, isLoading } = useGetUserOnboarding({
- *     supabase,
- *     userId,
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetUserOnboarding({
+ *   supabase,
+ *   userId: '123'
+ * })
  *
- *   if (isLoading) return <div>Loading onboarding status...</div>;
+ * // With enabled flag
+ * const { data, error } = useGetUserOnboarding({
+ *   supabase,
+ *   userId: '123',
+ *   enabled: isReady
+ * })
  *
- *   return (
- *     <div>
- *       <h2>Onboarding Progress</h2>
- *       <p>Current Step: {onboarding.current_step}</p>
- *       <div className="steps">
- *         {onboarding.completed_steps.map((step) => (
- *           <div key={step} className="step completed">
- *             {step}
- *           </div>
- *         ))}
- *       </div>
- *       {onboarding.is_completed && (
- *         <div className="badge success">Onboarding Completed!</div>
- *       )}
- *     </div>
- *   );
- * };
+ * if (error) {
+ *   console.error('Failed to fetch onboarding:', error.message)
+ * }
  * ```
  */
 export const useGetUserOnboarding = ({
   supabase,
   userId,
   enabled = true,
-}: GetUserOnboardingParams) => {
-  return useQuery({
+}: GetUserOnboardingParams): OnboardingResponse<UserOnboarding | null> => {
+  const { data, error } = useQuery<UserOnboarding, OnboardingError>({
     ...onboardingQueries.detail({ supabase, userId }),
     enabled: Boolean(userId) && enabled,
   })
-}
 
-type UpdateOnboardingStepParams = {
-  supabase: SupabaseClient<Database>
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
 }
 
 type UpdateOnboardingStepRequest = {
@@ -180,60 +194,28 @@ type UpdateOnboardingStepRequest = {
  * React hook to update onboarding progress with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const OnboardingStep = ({ userId }: { userId: string }) => {
- *   const { mutate: updateStep, isLoading } = useUpdateOnboardingStep({
- *     supabase,
- *   });
+ * ```ts
+ * // Basic usage
+ * const mutation = useUpdateOnboardingStep({ supabase })
  *
- *   const handleGoogleConnection = async () => {
- *     // After successful Google OAuth
- *     updateStep({
- *       userId,
- *       currentStep: 'google_connected',
- *       metadata: {
- *         accountEmail: 'user@example.com',
- *         scopes: ['analytics.readonly']
- *       }
- *     }, {
- *       onSuccess: () => {
- *         toast.success('Google account connected successfully!');
- *       },
- *       onError: (error) => {
- *         toast.error(error.message);
- *       }
- *     });
- *   };
+ * // Update current step
+ * mutation.mutate({
+ *   userId: '123',
+ *   currentStep: 'PROFILE_SETUP',
+ *   isCompleted: true,
+ *   metadata: { completedAt: new Date().toISOString() }
+ * })
  *
- *   const completeOnboarding = () => {
- *     updateStep({
- *       userId,
- *       currentStep: 'subscription_selected',
- *       isCompleted: true,
- *       metadata: { plan: 'pro' }
- *     }, {
- *       onSuccess: () => {
- *         router.push('/dashboard');
- *       }
- *     });
- *   };
- *
- *   return (
- *     <div>
- *       <button onClick={handleGoogleConnection} disabled={isLoading}>
- *         Connect Google Account
- *       </button>
- *       <button onClick={completeOnboarding} disabled={isLoading}>
- *         Complete & Subscribe
- *       </button>
- *     </div>
- *   );
- * };
+ * // Handle success/error
+ * if (mutation.isSuccess) {
+ *   console.log('Successfully updated onboarding')
+ * }
+ * if (mutation.error) {
+ *   console.error('Failed to update:', mutation.error.message)
+ * }
  * ```
  */
-export const useUpdateOnboardingStep = ({
-  supabase,
-}: UpdateOnboardingStepParams) => {
+export const useUpdateOnboardingStep = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
@@ -259,14 +241,7 @@ export const useUpdateOnboardingStep = ({
         }
         return data
       } catch (err) {
-        if (err instanceof Error) {
-          throw new OnboardingError(
-            err.message,
-            'UPDATE_ERROR',
-            err instanceof OnboardingError ? err.status : 500,
-          )
-        }
-        throw err
+        throw OnboardingError.fromError(err, 'UPDATE_ERROR')
       }
     },
     onMutate: async ({ userId, currentStep, isCompleted, metadata }) => {
@@ -314,10 +289,10 @@ export const useUpdateOnboardingStep = ({
       }
     },
     onSuccess: (data, { userId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: onboardingKeys.detail({ userId }),
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: onboardingKeys.lists(),
       })
     },

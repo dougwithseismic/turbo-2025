@@ -17,20 +17,27 @@ import {
 } from './organizations'
 import type { Json, Role } from '../types'
 
+// Common Types
+import type { SupabaseProps, QueryEnabledProps } from '../types/react-query'
+
+type OrganizationResponse<T> = {
+  data: T
+  error: OrganizationError | null
+}
+
 /**
  * Custom error class for handling organization-related errors with additional context
  *
  * @example
- * ```typescript
- * throw new OrganizationError('Organization not found', 'NOT_FOUND', 404);
+ * ```ts
+ * // Create a new error
+ * const error = new OrganizationError('Failed to fetch organization', 'FETCH_ERROR', 500)
  *
+ * // Convert from unknown error
  * try {
- *   // Some organization operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof OrganizationError) {
- *     console.log(err.code); // 'NOT_FOUND'
- *     console.log(err.status); // 404
- *   }
+ *   throw OrganizationError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -43,61 +50,96 @@ export class OrganizationError extends Error {
     super(message)
     this.name = 'OrganizationError'
   }
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): OrganizationError {
+    if (err instanceof Error) {
+      return new OrganizationError(
+        err.message,
+        err instanceof OrganizationError ? err.code : code,
+        err instanceof OrganizationError ? err.status : status,
+      )
+    }
+    return new OrganizationError('An unknown error occurred', code, status)
+  }
 }
+
+// Query Key Types
+type BaseKey = ['organizations']
+type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
+type DetailKey = [...BaseKey, 'detail', string]
+type MembersKey = [...DetailKey, 'members']
 
 /**
  * Query key factory for organizations with proper type safety
  *
  * @example
- * ```typescript
- * // Get base key for all organization queries
- * const allKey = organizationKeys.all(); // ['organizations']
+ * ```ts
+ * // Get base key
+ * const baseKey = organizationKeys.all()
  *
- * // Get key for a specific organization
- * const orgKey = organizationKeys.detail('org_123'); // ['organizations', 'detail', 'org_123']
+ * // Get list key with filters
+ * const listKey = organizationKeys.list({ filters: { status: 'active' } })
  *
- * // Get key for organization members
- * const membersKey = organizationKeys.members('org_123'); // ['organizations', 'detail', 'org_123', 'members']
+ * // Get detail key
+ * const detailKey = organizationKeys.detail({ orgId: '123' })
+ *
+ * // Get members key
+ * const membersKey = organizationKeys.members({ orgId: '123' })
  * ```
  */
 export const organizationKeys = {
-  all: () => ['organizations'] as const,
+  all: (): BaseKey => ['organizations'],
   lists: () => [...organizationKeys.all(), 'list'] as const,
-  list: ({ filters }: { filters: Record<string, unknown> }) =>
-    [...organizationKeys.lists(), { filters }] as const,
+  list: ({ filters }: { filters: Record<string, unknown> }): ListKey => [
+    ...organizationKeys.lists(),
+    { filters },
+  ],
   details: () => [...organizationKeys.all(), 'detail'] as const,
-  detail: ({ orgId }: { orgId: string }) =>
-    [...organizationKeys.details(), orgId] as const,
-  members: ({ orgId }: { orgId: string }) =>
-    [...organizationKeys.detail({ orgId }), 'members'] as const,
+  detail: ({ orgId }: { orgId: string }): DetailKey => [
+    ...organizationKeys.details(),
+    orgId,
+  ],
+  members: ({ orgId }: { orgId: string }): MembersKey => [
+    ...organizationKeys.detail({ orgId }),
+    'members',
+  ],
+} as const
+
+type OrganizationQueryParams = SupabaseProps & {
+  orgId: string
 }
 
 /**
  * Query options factory for organization queries with error handling
  *
  * @example
- * ```typescript
- * // Get options for organization detail query
- * const detailOptions = organizationQueries.detail({ supabase, orgId: 'org_123' });
- *
+ * ```ts
  * // Use in a custom query
- * const { data } = useQuery(detailOptions);
+ * const { data } = useQuery({
+ *   ...organizationQueries.detail({
+ *     supabase,
+ *     orgId: '123'
+ *   })
+ * })
  *
- * // Get options for organization members
- * const memberOptions = organizationQueries.members({ supabase, orgId: 'org_123' });
+ * // Get members query options
+ * const { data } = useQuery({
+ *   ...organizationQueries.members({
+ *     supabase,
+ *     orgId: '123'
+ *   })
+ * })
  * ```
  */
 export const organizationQueries = {
-  detail: ({
-    supabase,
-    orgId,
-  }: {
-    supabase: SupabaseClient<Database>
-    orgId: string
-  }) =>
+  detail: ({ supabase, orgId }: OrganizationQueryParams) =>
     queryOptions({
       queryKey: organizationKeys.detail({ orgId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<Organization> => {
         try {
           const data = await getOrganization({ supabase, orgId })
           if (!data) {
@@ -109,194 +151,149 @@ export const organizationQueries = {
           }
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new OrganizationError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof OrganizationError ? err.status : 500,
-            )
-          }
-          throw err
+          throw OrganizationError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 
-  members: ({
-    supabase,
-    orgId,
-  }: {
-    supabase: SupabaseClient<Database>
-    orgId: string
-  }) =>
+  members: ({ supabase, orgId }: OrganizationQueryParams) =>
     queryOptions({
       queryKey: organizationKeys.members({ orgId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<OrganizationMember[]> => {
         try {
           const data = await getOrganizationMembers({ supabase, orgId })
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new OrganizationError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof OrganizationError ? err.status : 500,
-            )
-          }
-          throw err
+          throw OrganizationError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
+type GetOrganizationParams = OrganizationQueryParams & QueryEnabledProps
+
 /**
  * React hook to fetch an organization's details with type safety and error handling
  *
  * @example
- * ```typescript
- * const OrganizationDetails = ({ orgId }: { orgId: string }) => {
- *   const { data: org, isLoading, error } = useGetOrganization({
- *     supabase,
- *     orgId,
- *     enabled: true
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetOrganization({
+ *   supabase,
+ *   orgId: '123'
+ * })
  *
- *   if (isLoading) return <div>Loading...</div>;
- *   if (error) return <div>Error: {error.message}</div>;
+ * // With enabled flag
+ * const { data, error } = useGetOrganization({
+ *   supabase,
+ *   orgId: '123',
+ *   enabled: isReady
+ * })
  *
- *   return (
- *     <div>
- *       <h1>{org.name}</h1>
- *       <div className="settings">
- *         <h3>Settings</h3>
- *         <pre>{JSON.stringify(org.settings, null, 2)}</pre>
- *       </div>
- *     </div>
- *   );
- * };
+ * if (error) {
+ *   console.error('Failed to fetch organization:', error.message)
+ * }
  * ```
  */
 export const useGetOrganization = ({
   supabase,
   orgId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  orgId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetOrganizationParams): OrganizationResponse<Organization | null> => {
+  const { data, error } = useQuery<Organization, OrganizationError>({
     ...organizationQueries.detail({ supabase, orgId }),
     enabled: Boolean(orgId) && enabled,
   })
+
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
 }
 
 /**
  * React hook to fetch organization members with type safety and error handling
  *
  * @example
- * ```typescript
- * const OrganizationMembers = ({ orgId }: { orgId: string }) => {
- *   const { data: members, isLoading } = useGetOrganizationMembers({
- *     supabase,
- *     orgId,
- *     enabled: true
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetOrganizationMembers({
+ *   supabase,
+ *   orgId: '123'
+ * })
  *
- *   if (isLoading) return <div>Loading members...</div>;
+ * // With enabled flag
+ * const { data, error } = useGetOrganizationMembers({
+ *   supabase,
+ *   orgId: '123',
+ *   enabled: isReady
+ * })
  *
- *   return (
- *     <div>
- *       <h2>Members</h2>
- *       <div className="members-grid">
- *         {members?.map((member) => (
- *           <div key={member.id} className="member-card">
- *             <img src={member.profiles.avatar_url} alt="" />
- *             <h3>{member.profiles.full_name}</h3>
- *             <span className="role">{member.role}</span>
- *             <span className="email">{member.profiles.email}</span>
- *           </div>
- *         ))}
- *       </div>
- *     </div>
- *   );
- * };
+ * // Map through members
+ * data.map(member => (
+ *   <div key={member.id}>
+ *     {member.user.email} - {member.role}
+ *   </div>
+ * ))
  * ```
  */
 export const useGetOrganizationMembers = ({
   supabase,
   orgId,
   enabled = true,
-}: {
-  supabase: SupabaseClient<Database>
-  orgId: string
-  enabled?: boolean
-}) => {
-  return useQuery({
+}: GetOrganizationParams): OrganizationResponse<OrganizationMember[]> => {
+  const { data, error } = useQuery<OrganizationMember[], OrganizationError>({
     ...organizationQueries.members({ supabase, orgId }),
     enabled: Boolean(orgId) && enabled,
   })
+
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
+}
+
+type UpdateOrganizationRequest = {
+  orgId: string
+  updates: OrganizationUpdate
 }
 
 /**
  * React hook to update an organization with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const OrganizationSettings = ({ orgId }: { orgId: string }) => {
- *   const { mutate: updateOrg, isLoading } = useUpdateOrganization({
- *     supabase,
- *   });
+ * ```ts
+ * // Basic usage
+ * const mutation = useUpdateOrganization({ supabase })
  *
- *   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
- *     e.preventDefault();
- *     const formData = new FormData(e.currentTarget);
+ * // Update organization
+ * mutation.mutate({
+ *   orgId: '123',
+ *   updates: {
+ *     name: 'New Name',
+ *     settings: { theme: 'dark' }
+ *   }
+ * })
  *
- *     updateOrg({
- *       orgId,
- *       updates: {
- *         name: formData.get('name') as string,
- *         settings: {
- *           defaultQuota: Number(formData.get('quota')),
- *           allowExternalMembers: formData.get('external') === 'true',
- *         },
- *       },
- *     }, {
- *       onSuccess: () => {
- *         toast.success('Organization updated successfully');
- *       },
- *       onError: (error) => {
- *         toast.error(error.message);
- *       },
- *     });
- *   };
- *
- *   return (
- *     <form onSubmit={handleSubmit}>
- *       <input name="name" placeholder="Organization Name" />
- *       <input name="quota" type="number" placeholder="Default Quota" />
- *       <label>
- *         <input type="checkbox" name="external" value="true" />
- *         Allow External Members
- *       </label>
- *       <button type="submit" disabled={isLoading}>
- *         {isLoading ? 'Updating...' : 'Update Organization'}
- *       </button>
- *     </form>
- *   );
- * };
+ * // With error handling
+ * try {
+ *   await mutation.mutateAsync({
+ *     orgId: '123',
+ *     updates: { name: 'New Name' }
+ *   })
+ *   console.log('Organization updated successfully')
+ * } catch (error) {
+ *   console.error('Failed to update:', error.message)
+ * }
  * ```
  */
-export const useUpdateOrganization = ({
-  supabase,
-}: {
-  supabase: SupabaseClient<Database>
-}) => {
+export const useUpdateOrganization = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     Organization,
     OrganizationError,
-    { orgId: string; updates: OrganizationUpdate },
+    UpdateOrganizationRequest,
     { previousData: Organization | undefined }
   >({
     mutationFn: async ({ orgId, updates }) => {
@@ -310,14 +307,7 @@ export const useUpdateOrganization = ({
         }
         return data
       } catch (err) {
-        if (err instanceof Error) {
-          throw new OrganizationError(
-            err.message,
-            'UPDATE_ERROR',
-            err instanceof OrganizationError ? err.status : 500,
-          )
-        }
-        throw err
+        throw OrganizationError.fromError(err, 'UPDATE_ERROR')
       }
     },
     onMutate: async ({ orgId, updates }) => {
@@ -358,82 +348,63 @@ export const useUpdateOrganization = ({
       }
     },
     onSuccess: (data, { orgId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: organizationKeys.detail({ orgId }),
       })
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: organizationKeys.lists(),
       })
     },
   })
 }
 
+type AddOrganizationMemberRequest = {
+  orgId: string
+  userId: string
+  role?: Role
+}
+
 /**
  * React hook to add a member to an organization with error handling
  *
  * @example
- * ```typescript
- * const AddMember = ({ orgId }: { orgId: string }) => {
- *   const { mutate: addMember, isLoading } = useAddOrganizationMember({
- *     supabase,
- *   });
+ * ```ts
+ * // Basic usage
+ * const mutation = useAddOrganizationMember({ supabase })
  *
- *   const handleInvite = async (email: string) => {
- *     const { data: user } = await supabase
- *       .from('profiles')
- *       .select('id')
- *       .eq('email', email)
- *       .single();
+ * // Add member with default role
+ * mutation.mutate({
+ *   orgId: '123',
+ *   userId: 'user-456'
+ * })
  *
- *     if (user) {
- *       addMember({
- *         orgId,
- *         userId: user.id,
- *         role: 'member',
- *       }, {
- *         onSuccess: () => {
- *           toast.success('Member added successfully');
- *         },
- *         onError: (error) => {
- *           toast.error(error.message);
- *         },
- *       });
- *     }
- *   };
+ * // Add member with specific role
+ * mutation.mutate({
+ *   orgId: '123',
+ *   userId: 'user-456',
+ *   role: 'ADMIN'
+ * })
  *
- *   return (
- *     <div>
- *       <h3>Add Member</h3>
- *       <form onSubmit={(e) => {
- *         e.preventDefault();
- *         const email = new FormData(e.currentTarget).get('email') as string;
- *         handleInvite(email);
- *       }}>
- *         <input name="email" type="email" placeholder="member@example.com" />
- *         <button type="submit" disabled={isLoading}>
- *           {isLoading ? 'Adding...' : 'Add Member'}
- *         </button>
- *       </form>
- *     </div>
- *   );
- * };
+ * // With async/await and error handling
+ * try {
+ *   const member = await mutation.mutateAsync({
+ *     orgId: '123',
+ *     userId: 'user-456',
+ *     role: 'MEMBER'
+ *   })
+ *   console.log('Member added:', member)
+ * } catch (error) {
+ *   console.error('Failed to add member:', error.message)
+ * }
  * ```
  */
-export const useAddOrganizationMember = ({
-  supabase,
-}: {
-  supabase: SupabaseClient<Database>
-}) => {
+export const useAddOrganizationMember = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     OrganizationMember,
     OrganizationError,
-    {
-      orgId: string
-      userId: string
-      role?: Role
-    }
+    AddOrganizationMemberRequest
   >({
     mutationFn: async ({ orgId, userId, role }) => {
       try {
@@ -451,18 +422,11 @@ export const useAddOrganizationMember = ({
         }
         return data as unknown as OrganizationMember
       } catch (err) {
-        if (err instanceof Error) {
-          throw new OrganizationError(
-            err.message,
-            'ADD_MEMBER_ERROR',
-            err instanceof OrganizationError ? err.status : 500,
-          )
-        }
-        throw err
+        throw OrganizationError.fromError(err, 'ADD_MEMBER_ERROR')
       }
     },
-    onSuccess: (data, { orgId }) => {
-      queryClient.invalidateQueries({
+    onSuccess: (_, { orgId }) => {
+      void queryClient.invalidateQueries({
         queryKey: organizationKeys.members({ orgId }),
       })
     },

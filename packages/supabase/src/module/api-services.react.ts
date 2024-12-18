@@ -1,33 +1,38 @@
-import { SupabaseClient } from '@supabase/supabase-js'
 import {
   queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import type { Database } from '../database.types'
 import {
-  ApiService,
-  ApiQuotaAllocation,
+  type ApiQuotaAllocation,
+  type ApiService,
   getApiServices,
   getUserApiQuotas,
   updateApiQuota,
 } from './api-services'
 
+// Common Types
+import type { QueryEnabledProps, SupabaseProps } from '../types/react-query'
+
+type ApiServiceResponse<T> = {
+  data: T
+  error: ApiServiceError | null
+}
+
 /**
  * Custom error class for handling API service-related errors with additional context
  *
  * @example
- * ```typescript
- * throw new ApiServiceError('Service not found', 'NOT_FOUND', 404);
+ * ```ts
+ * // Create a new error
+ * const error = new ApiServiceError('Service not found', 'NOT_FOUND', 404)
  *
+ * // Convert from unknown error
  * try {
- *   // Some API service operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof ApiServiceError) {
- *     console.log(err.code); // 'NOT_FOUND'
- *     console.log(err.status); // 404
- *   }
+ *   throw ApiServiceError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -40,37 +45,67 @@ export class ApiServiceError extends Error {
     super(message)
     this.name = 'ApiServiceError'
   }
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): ApiServiceError {
+    if (err instanceof Error) {
+      return new ApiServiceError(
+        err.message,
+        err instanceof ApiServiceError ? err.code : code,
+        err instanceof ApiServiceError ? err.status : status,
+      )
+    }
+    return new ApiServiceError('An unknown error occurred', code, status)
+  }
 }
 
-type ApiServiceKeysParams = {
-  filters?: Record<string, unknown>
-  userId?: string
-}
+// Query Key Types
+type BaseKey = ['api-services']
+type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
+type DetailKey = [...BaseKey, 'detail', string]
+type QuotasKey = [...BaseKey, 'quotas', string]
 
 /**
  * Query key factory for API services with proper type safety
  *
  * @example
- * ```typescript
- * // Get base key for all API service queries
- * const allKey = apiServiceKeys.all(); // ['api-services']
+ * ```ts
+ * // Get base key
+ * const baseKey = apiServiceKeys.all() // ['api-services']
  *
- * // Get key for user quotas
- * const quotasKey = apiServiceKeys.userQuotas({ userId: 'user_123' }); // ['api-services', 'quotas', 'user_123']
+ * // Get list key with filters
+ * const listKey = apiServiceKeys.list({ filters: { status: 'active' } })
+ *
+ * // Get detail key
+ * const detailKey = apiServiceKeys.detail({ id: '123' })
+ *
+ * // Get quotas key
+ * const quotasKey = apiServiceKeys.userQuotas({ userId: '123' })
  * ```
  */
 export const apiServiceKeys = {
-  all: () => ['api-services'] as const,
+  all: (): BaseKey => ['api-services'],
   lists: () => [...apiServiceKeys.all(), 'list'] as const,
-  list: ({ filters }: ApiServiceKeysParams) =>
-    [...apiServiceKeys.lists(), { filters }] as const,
+  list: ({ filters }: { filters: Record<string, unknown> }): ListKey => [
+    ...apiServiceKeys.lists(),
+    { filters },
+  ],
+  details: () => [...apiServiceKeys.all(), 'detail'] as const,
+  detail: ({ id }: { id: string }): DetailKey => [
+    ...apiServiceKeys.details(),
+    id,
+  ],
   quotas: () => [...apiServiceKeys.all(), 'quotas'] as const,
-  userQuotas: ({ userId }: ApiServiceKeysParams) =>
-    [...apiServiceKeys.quotas(), userId] as const,
-}
+  userQuotas: ({ userId }: { userId: string }): QuotasKey => [
+    ...apiServiceKeys.quotas(),
+    userId,
+  ],
+} as const
 
-type ApiServiceQueryParams = {
-  supabase: SupabaseClient<Database>
+type ApiServiceQueryParams = SupabaseProps & {
   userId?: string
 }
 
@@ -78,31 +113,23 @@ type ApiServiceQueryParams = {
  * Query options factory for API service queries with error handling
  *
  * @example
- * ```typescript
- * // Get options for API services list query
- * const servicesOptions = apiServiceQueries.list({ supabase });
- *
- * // Get options for user quotas query
- * const quotasOptions = apiServiceQueries.userQuotas({ supabase, userId: 'user_123' });
+ * ```ts
+ * // Use in a custom query
+ * const { data } = useQuery({
+ *   ...apiServiceQueries.list({ supabase })
+ * })
  * ```
  */
 export const apiServiceQueries = {
   list: ({ supabase }: ApiServiceQueryParams) =>
     queryOptions({
       queryKey: apiServiceKeys.lists(),
-      queryFn: async () => {
+      queryFn: async (): Promise<ApiService[]> => {
         try {
           const data = await getApiServices({ supabase })
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ApiServiceError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof ApiServiceError ? err.status : 500,
-            )
-          }
-          throw err
+          throw ApiServiceError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
@@ -110,121 +137,79 @@ export const apiServiceQueries = {
   userQuotas: ({ supabase, userId }: Required<ApiServiceQueryParams>) =>
     queryOptions({
       queryKey: apiServiceKeys.userQuotas({ userId }),
-      queryFn: async () => {
+      queryFn: async (): Promise<ApiQuotaAllocation[]> => {
         try {
           const data = await getUserApiQuotas({ supabase, userId })
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ApiServiceError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof ApiServiceError ? err.status : 500,
-            )
-          }
-          throw err
+          throw ApiServiceError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
-type GetApiServicesParams = {
-  supabase: SupabaseClient<Database>
-  enabled?: boolean
-}
+type GetApiServicesParams = ApiServiceQueryParams & QueryEnabledProps
 
 /**
  * React hook to fetch all available API services with type safety and error handling
  *
  * @example
- * ```typescript
- * const ApiServicesList = () => {
- *   const { data: services, isLoading } = useGetApiServices({
- *     supabase,
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetApiServices({
+ *   supabase
+ * })
  *
- *   if (isLoading) return <div>Loading services...</div>;
- *
- *   return (
- *     <div>
- *       <h2>Available API Services</h2>
- *       <div className="services-grid">
- *         {services?.map((service) => (
- *           <div key={service.id} className="service-card">
- *             <h3>{service.name}</h3>
- *             <p>{service.description}</p>
- *             <div className="pricing">
- *               <span>Base Cost: ${service.base_cost_per_request}</span>
- *             </div>
- *           </div>
- *         ))}
- *       </div>
- *     </div>
- *   );
- * };
+ * // With enabled flag
+ * const { data, error } = useGetApiServices({
+ *   supabase,
+ *   enabled: isReady
+ * })
  * ```
  */
 export const useGetApiServices = ({
   supabase,
   enabled = true,
-}: GetApiServicesParams) => {
-  return useQuery({
+}: GetApiServicesParams): ApiServiceResponse<ApiService[]> => {
+  const { data, error } = useQuery<ApiService[], ApiServiceError>({
     ...apiServiceQueries.list({ supabase }),
     enabled,
   })
+
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
 }
 
-type GetUserApiQuotasParams = {
-  supabase: SupabaseClient<Database>
-  userId: string
-  enabled?: boolean
-}
+type GetUserApiQuotasParams = Required<ApiServiceQueryParams> &
+  QueryEnabledProps
 
 /**
  * React hook to fetch API quota allocations for a user with type safety and error handling
  *
  * @example
- * ```typescript
- * const UserQuotas = ({ userId }: { userId: string }) => {
- *   const { data: quotas, isLoading } = useGetUserApiQuotas({
- *     supabase,
- *     userId,
- *   });
- *
- *   if (isLoading) return <div>Loading quotas...</div>;
- *
- *   return (
- *     <div>
- *       <h2>Your API Quotas</h2>
- *       <div className="quotas-grid">
- *         {quotas?.map((quota) => (
- *           <div key={quota.service_id} className="quota-card">
- *             <h3>{quota.service.name}</h3>
- *             <div className="limits">
- *               <div>Daily Quota: {quota.daily_quota}</div>
- *               <div>Rate Limit: {quota.queries_per_second} req/s</div>
- *             </div>
- *           </div>
- *         ))}
- *       </div>
- *     </div>
- *   );
- * };
+ * ```ts
+ * const { data, error } = useGetUserApiQuotas({
+ *   supabase,
+ *   userId: '123'
+ * })
  * ```
  */
 export const useGetUserApiQuotas = ({
   supabase,
   userId,
   enabled = true,
-}: GetUserApiQuotasParams) => {
-  return useQuery({
+}: GetUserApiQuotasParams): ApiServiceResponse<ApiQuotaAllocation[]> => {
+  const { data, error } = useQuery<ApiQuotaAllocation[], ApiServiceError>({
     ...apiServiceQueries.userQuotas({ supabase, userId }),
     enabled: Boolean(userId) && enabled,
   })
-}
 
-type UpdateApiQuotaParams = {
-  supabase: SupabaseClient<Database>
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
 }
 
 type UpdateApiQuotaRequest = {
@@ -238,66 +223,26 @@ type UpdateApiQuotaRequest = {
  * React hook to update API quota allocations with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const QuotaManager = ({ userId, serviceId }: { userId: string, serviceId: string }) => {
- *   const { mutate: updateQuota, isLoading } = useUpdateApiQuota({
- *     supabase,
- *   });
+ * ```ts
+ * const mutation = useUpdateApiQuota({ supabase })
  *
- *   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
- *     e.preventDefault();
- *     const formData = new FormData(e.currentTarget);
- *
- *     updateQuota({
- *       userId,
- *       serviceId,
- *       dailyQuota: Number(formData.get('dailyQuota')),
- *       queriesPerSecond: Number(formData.get('rateLimit')),
- *     }, {
- *       onSuccess: () => {
- *         toast.success('API quota updated successfully');
- *       },
- *       onError: (error) => {
- *         toast.error(error.message);
- *       },
- *     });
- *   };
- *
- *   return (
- *     <form onSubmit={handleSubmit}>
- *       <div>
- *         <label>Daily Quota</label>
- *         <input
- *           name="dailyQuota"
- *           type="number"
- *           min="0"
- *           placeholder="Requests per day"
- *         />
- *       </div>
- *       <div>
- *         <label>Rate Limit</label>
- *         <input
- *           name="rateLimit"
- *           type="number"
- *           min="1"
- *           placeholder="Requests per second"
- *         />
- *       </div>
- *       <button type="submit" disabled={isLoading}>
- *         {isLoading ? 'Updating...' : 'Update Quota'}
- *       </button>
- *     </form>
- *   );
- * };
+ * // Update quota
+ * mutation.mutate({
+ *   userId: '123',
+ *   serviceId: '456',
+ *   dailyQuota: 1000,
+ *   queriesPerSecond: 10
+ * })
  * ```
  */
-export const useUpdateApiQuota = ({ supabase }: UpdateApiQuotaParams) => {
+export const useUpdateApiQuota = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     ApiQuotaAllocation,
     ApiServiceError,
-    UpdateApiQuotaRequest
+    UpdateApiQuotaRequest,
+    { previousData: ApiQuotaAllocation | undefined }
   >({
     mutationFn: async ({ userId, serviceId, dailyQuota, queriesPerSecond }) => {
       try {
@@ -313,19 +258,44 @@ export const useUpdateApiQuota = ({ supabase }: UpdateApiQuotaParams) => {
         }
         return data
       } catch (err) {
-        if (err instanceof Error) {
-          throw new ApiServiceError(
-            err.message,
-            'UPDATE_ERROR',
-            err instanceof ApiServiceError ? err.status : 500,
-          )
-        }
-        throw err
+        throw ApiServiceError.fromError(err, 'UPDATE_ERROR')
+      }
+    },
+    onMutate: async ({ userId, serviceId, dailyQuota, queriesPerSecond }) => {
+      await queryClient.cancelQueries({
+        queryKey: apiServiceKeys.userQuotas({ userId }),
+      })
+      const previousData = queryClient.getQueryData<ApiQuotaAllocation>(
+        apiServiceKeys.userQuotas({ userId }),
+      )
+
+      if (previousData) {
+        queryClient.setQueryData<ApiQuotaAllocation>(
+          apiServiceKeys.userQuotas({ userId }),
+          {
+            ...previousData,
+            daily_quota: dailyQuota,
+            queries_per_second: queriesPerSecond,
+          },
+        )
+      }
+
+      return { previousData }
+    },
+    onError: (err, { userId }, context) => {
+      if (context?.previousData) {
+        queryClient.setQueryData(
+          apiServiceKeys.userQuotas({ userId }),
+          context.previousData,
+        )
       }
     },
     onSuccess: (data, { userId }) => {
-      queryClient.invalidateQueries({
+      void queryClient.invalidateQueries({
         queryKey: apiServiceKeys.userQuotas({ userId }),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: apiServiceKeys.lists(),
       })
     },
   })

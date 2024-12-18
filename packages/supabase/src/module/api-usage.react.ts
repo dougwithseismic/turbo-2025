@@ -7,30 +7,42 @@ import {
 } from '@tanstack/react-query'
 import type { Database } from '../database.types'
 import {
-  ApiUsage,
-  ApiQuota,
-  ApiUsageStats,
-  trackApiUsage,
+  type ApiUsage,
+  type ApiQuota,
+  type ApiUsageStats,
+  getApiUsageStats,
   checkApiQuota,
   resetDailyUsage,
-  getApiUsageStats,
+  trackApiUsage,
 } from './api-usage'
-import type { Json } from '../types'
+
+// Common Types
+type SupabaseProps = {
+  supabase: SupabaseClient<Database>
+}
+
+type QueryEnabledProps = {
+  enabled?: boolean
+}
+
+type ApiUsageResponse<T> = {
+  data: T
+  error: ApiUsageError | null
+}
 
 /**
  * Custom error class for handling API usage-related errors with additional context
  *
  * @example
- * ```typescript
- * throw new ApiUsageError('Quota exceeded', 'QUOTA_EXCEEDED', 429);
+ * ```ts
+ * // Create a new error
+ * const error = new ApiUsageError('Usage limit exceeded', 'QUOTA_EXCEEDED', 429)
  *
+ * // Convert from unknown error
  * try {
- *   // Some API usage operation
+ *   await someOperation()
  * } catch (err) {
- *   if (err instanceof ApiUsageError) {
- *     console.log(err.code); // 'QUOTA_EXCEEDED'
- *     console.log(err.status); // 429
- *   }
+ *   throw ApiUsageError.fromError(err, 'OPERATION_ERROR')
  * }
  * ```
  */
@@ -43,141 +55,96 @@ export class ApiUsageError extends Error {
     super(message)
     this.name = 'ApiUsageError'
   }
+
+  static fromError(
+    err: unknown,
+    code = 'UNKNOWN_ERROR',
+    status = 500,
+  ): ApiUsageError {
+    if (err instanceof Error) {
+      return new ApiUsageError(
+        err.message,
+        err instanceof ApiUsageError ? err.code : code,
+        err instanceof ApiUsageError ? err.status : status,
+      )
+    }
+    return new ApiUsageError('An unknown error occurred', code, status)
+  }
 }
 
 // Query Key Types
 type BaseKey = ['api-usage']
-type QuotaKeyRequest = { userId: string; serviceId: string }
-type UsageKeyRequest = { userId: string; serviceId: string }
-type StatsKeyRequest = {
-  userId: string
-  serviceId: string
-  startDate: string
-  endDate: string
-}
-
+type StatsKey = [...BaseKey, 'stats', string]
 type QuotaKey = [...BaseKey, 'quota', string, string]
-type UsageKey = [...BaseKey, 'usage', string, string]
-type StatsKey = [...BaseKey, 'stats', string, string, string, string]
 
 /**
  * Query key factory for API usage with proper type safety
  *
  * @example
- * ```typescript
- * // Get base key for all API usage queries
- * const allKey = apiUsageKeys.all(); // ['api-usage']
+ * ```ts
+ * // Get base key
+ * const baseKey = apiUsageKeys.all() // ['api-usage']
  *
- * // Get key for user quota check
- * const quotaKey = apiUsageKeys.quota({ userId: 'user_123', serviceId: 'gpt4' });
+ * // Get stats key
+ * const statsKey = apiUsageKeys.stats({ userId: '123' })
  *
- * // Get key for usage stats
- * const statsKey = apiUsageKeys.stats({
- *   userId: 'user_123',
- *   serviceId: 'gpt4',
- *   startDate: '2024-01',
- *   endDate: '2024-02'
- * });
+ * // Get quota key
+ * const quotaKey = apiUsageKeys.quota({ userId: '123', serviceId: '456' })
  * ```
  */
 export const apiUsageKeys = {
   all: (): BaseKey => ['api-usage'],
-  quota: ({ userId, serviceId }: QuotaKeyRequest): QuotaKey => [
-    ...apiUsageKeys.all(),
-    'quota',
-    userId,
-    serviceId,
-  ],
-  usage: ({ userId, serviceId }: UsageKeyRequest): UsageKey => [
-    ...apiUsageKeys.all(),
-    'usage',
-    userId,
-    serviceId,
-  ],
-  stats: ({
-    userId,
-    serviceId,
-    startDate,
-    endDate,
-  }: StatsKeyRequest): StatsKey => [
+  stats: ({ userId }: { userId: string }): StatsKey => [
     ...apiUsageKeys.all(),
     'stats',
     userId,
-    serviceId,
-    startDate,
-    endDate,
   ],
+  quota: ({
+    userId,
+    serviceId,
+  }: {
+    userId: string
+    serviceId: string
+  }): QuotaKey => [...apiUsageKeys.all(), 'quota', userId, serviceId],
 } as const
 
-// Request/Response Types
-type CheckQuotaRequest = {
-  supabase: SupabaseClient<Database>
+type ApiUsageQueryParams = SupabaseProps & {
   userId: string
-  serviceId: string
-  enabled?: boolean
 }
 
-type GetStatsRequest = {
-  supabase: SupabaseClient<Database>
-  userId: string
-  serviceId: string
-  startDate: string
-  endDate: string
-  enabled?: boolean
-}
-
-type TrackUsageRequest = {
-  supabase: SupabaseClient<Database>
-  userId: string
-  serviceId: string
-  requestCount?: number
-  metadata?: Json
-}
-
-type ResetUsageRequest = {
-  supabase: SupabaseClient<Database>
-  userId: string
+type ApiQuotaQueryParams = ApiUsageQueryParams & {
   serviceId: string
 }
 
 /**
  * Query options factory for API usage queries with error handling
+ *
+ * @example
+ * ```ts
+ * // Use in a custom query
+ * const { data } = useQuery({
+ *   ...apiUsageQueries.stats({
+ *     supabase,
+ *     userId: '123'
+ *   })
+ * })
+ * ```
  */
 export const apiUsageQueries = {
-  quota: ({
-    supabase,
-    userId,
-    serviceId,
-  }: Omit<CheckQuotaRequest, 'enabled'>) =>
-    queryOptions({
-      queryKey: apiUsageKeys.quota({ userId, serviceId }),
-      queryFn: async () => {
-        try {
-          const data = await checkApiQuota({ supabase, userId, serviceId })
-          return data
-        } catch (err) {
-          if (err instanceof Error) {
-            throw new ApiUsageError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof ApiUsageError ? err.status : 500,
-            )
-          }
-          throw err
-        }
-      },
-    }),
-
   stats: ({
     supabase,
     userId,
     serviceId,
     startDate,
     endDate,
-  }: Omit<GetStatsRequest, 'enabled'>) =>
+  }: ApiUsageQueryParams & {
+    serviceId: string
+    startDate: string
+    endDate: string
+  }) =>
     queryOptions({
-      queryKey: apiUsageKeys.stats({ userId, serviceId, startDate, endDate }),
-      queryFn: async () => {
+      queryKey: apiUsageKeys.stats({ userId }),
+      queryFn: async (): Promise<ApiUsageStats> => {
         try {
           const data = await getApiUsageStats({
             supabase,
@@ -188,110 +155,48 @@ export const apiUsageQueries = {
           })
           return data
         } catch (err) {
-          if (err instanceof Error) {
-            throw new ApiUsageError(
-              err.message,
-              'FETCH_ERROR',
-              err instanceof ApiUsageError ? err.status : 500,
-            )
-          }
-          throw err
+          throw ApiUsageError.fromError(err, 'FETCH_ERROR')
+        }
+      },
+    }),
+
+  quota: ({ supabase, userId, serviceId }: ApiQuotaQueryParams) =>
+    queryOptions({
+      queryKey: apiUsageKeys.quota({ userId, serviceId }),
+      queryFn: async (): Promise<ApiQuota> => {
+        try {
+          const data = await checkApiQuota({ supabase, userId, serviceId })
+          return data
+        } catch (err) {
+          throw ApiUsageError.fromError(err, 'FETCH_ERROR')
         }
       },
     }),
 }
 
-/**
- * React hook to check API quota for a user and service with type safety and error handling
- *
- * @example
- * ```typescript
- * const ApiQuotaCheck = ({ userId, serviceId }: { userId: string, serviceId: string }) => {
- *   const { data: quota, isLoading } = useCheckApiQuota({
- *     supabase,
- *     userId,
- *     serviceId,
- *   });
- *
- *   if (isLoading) return <div>Checking quota...</div>;
- *
- *   return (
- *     <div className="quota-status">
- *       <h3>API Quota Status</h3>
- *       {quota.has_quota ? (
- *         <div className="success">
- *           <span>Remaining: {quota.remaining}</span>
- *           <span>Rate Limit: {quota.rate_limit} req/s</span>
- *         </div>
- *       ) : (
- *         <div className="error">
- *           <span>Quota Exceeded</span>
- *           <span>Resets in: {quota.reset_in} hours</span>
- *         </div>
- *       )}
- *     </div>
- *   );
- * };
- * ```
- */
-export const useCheckApiQuota = ({
-  supabase,
-  userId,
-  serviceId,
-  enabled = true,
-}: CheckQuotaRequest) => {
-  return useQuery({
-    ...apiUsageQueries.quota({ supabase, userId, serviceId }),
-    enabled: Boolean(userId) && Boolean(serviceId) && enabled,
-  })
-}
+type GetApiUsageStatsParams = ApiUsageQueryParams & {
+  serviceId: string
+  startDate: string
+  endDate: string
+} & QueryEnabledProps
 
 /**
- * React hook to get API usage statistics with type safety and error handling
+ * React hook to fetch API usage statistics with type safety and error handling
  *
  * @example
- * ```typescript
- * const ApiUsageStats = ({
- *   userId,
- *   serviceId,
- *   startDate,
- *   endDate,
- * }: {
- *   userId: string
- *   serviceId: string
- *   startDate: string
- *   endDate: string
- * }) => {
- *   const { data: stats, isLoading } = useGetApiUsageStats({
- *     supabase,
- *     userId,
- *     serviceId,
- *     startDate,
- *     endDate,
- *   });
+ * ```ts
+ * // Basic usage
+ * const { data, error } = useGetApiUsageStats({
+ *   supabase,
+ *   userId: '123'
+ * })
  *
- *   if (isLoading) return <div>Loading usage stats...</div>;
- *
- *   return (
- *     <div className="usage-stats">
- *       <h3>API Usage Statistics</h3>
- *       <div className="stats-grid">
- *         <div className="stat">
- *           <label>Total Requests</label>
- *           <span>{stats.total_requests}</span>
- *         </div>
- *         <div className="stat">
- *           <label>Daily Average</label>
- *           <span>{stats.average_daily}</span>
- *         </div>
- *         <div className="stat">
- *           <label>Peak Usage</label>
- *           <span>{stats.peak_daily} (on {stats.peak_date})</span>
- *         </div>
- *       </div>
- *     </div>
- *   );
- * };
+ * // With enabled flag
+ * const { data, error } = useGetApiUsageStats({
+ *   supabase,
+ *   userId: '123',
+ *   enabled: isReady
+ * })
  * ```
  */
 export const useGetApiUsageStats = ({
@@ -301,8 +206,8 @@ export const useGetApiUsageStats = ({
   startDate,
   endDate,
   enabled = true,
-}: GetStatsRequest) => {
-  return useQuery({
+}: GetApiUsageStatsParams): ApiUsageResponse<ApiUsageStats | null> => {
+  const { data, error } = useQuery<ApiUsageStats, ApiUsageError>({
     ...apiUsageQueries.stats({
       supabase,
       userId,
@@ -310,175 +215,221 @@ export const useGetApiUsageStats = ({
       startDate,
       endDate,
     }),
-    enabled:
-      Boolean(userId) &&
-      Boolean(serviceId) &&
-      Boolean(startDate) &&
-      Boolean(endDate) &&
-      enabled,
+    enabled: Boolean(userId) && Boolean(serviceId) && enabled,
   })
+
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
+}
+
+type GetApiQuotaParams = ApiQuotaQueryParams & QueryEnabledProps
+
+/**
+ * React hook to check API quota status with type safety and error handling
+ *
+ * @example
+ * ```ts
+ * const { data, error } = useGetApiQuota({
+ *   supabase,
+ *   userId: '123',
+ *   serviceId: '456'
+ * })
+ * ```
+ */
+export const useGetApiQuota = ({
+  supabase,
+  userId,
+  serviceId,
+  enabled = true,
+}: GetApiQuotaParams): ApiUsageResponse<ApiQuota | null> => {
+  const { data, error } = useQuery<ApiQuota, ApiUsageError>({
+    ...apiUsageQueries.quota({ supabase, userId, serviceId }),
+    enabled: Boolean(userId) && Boolean(serviceId) && enabled,
+  })
+
+  return {
+    data: data ?? null,
+    error: error ?? null,
+  }
+}
+
+type TrackApiUsageRequest = {
+  userId: string
+  serviceId: string
+  requestCount: number
 }
 
 /**
- * React hook to track API usage with error handling
+ * React hook to track API usage with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const ApiUsageTracker = ({ userId, serviceId }: { userId: string, serviceId: string }) => {
- *   const { mutate: trackUsage, isLoading } = useTrackApiUsage({
- *     supabase,
- *   });
+ * ```ts
+ * const mutation = useTrackApiUsage({ supabase })
  *
- *   const handleApiCall = async () => {
- *     try {
- *       // Make your API call here
- *       const result = await someApiCall();
- *
- *       // Track the usage
- *       trackUsage({
- *         userId,
- *         serviceId,
- *         requestCount: 1,
- *         metadata: {
- *           model: 'gpt-4',
- *           tokens: result.usage.total_tokens,
- *           duration_ms: result.duration,
- *         },
- *       }, {
- *         onError: (error) => {
- *           toast.error('Failed to track API usage: ' + error.message);
- *         },
- *       });
- *
- *       return result;
- *     } catch (error) {
- *       console.error('API call failed:', error);
- *     }
- *   };
- *
- *   return (
- *     <button onClick={handleApiCall} disabled={isLoading}>
- *       Make API Call
- *     </button>
- *   );
- * };
+ * // Track usage
+ * mutation.mutate({
+ *   userId: '123',
+ *   serviceId: '456',
+ *   requestCount: 1
+ * })
  * ```
  */
-export const useTrackApiUsage = ({
-  supabase,
-}: Pick<TrackUsageRequest, 'supabase'>) => {
+export const useTrackApiUsage = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
     ApiUsage,
     ApiUsageError,
-    Omit<TrackUsageRequest, 'supabase'>
+    TrackApiUsageRequest,
+    { previousStats: ApiUsageStats | undefined }
   >({
-    mutationFn: async ({ userId, serviceId, requestCount, metadata }) => {
+    mutationFn: async ({ userId, serviceId, requestCount }) => {
       try {
-        const data = await trackApiUsage({
+        const result = await trackApiUsage({
           supabase,
           userId,
           serviceId,
           requestCount,
-          metadata,
         })
-        if (!data) {
+        if (!result) {
           throw new ApiUsageError('Failed to track usage', 'TRACK_FAILED')
         }
-        return data
-      } catch (err) {
-        if (err instanceof Error) {
-          throw new ApiUsageError(
-            err.message,
-            'TRACK_ERROR',
-            err instanceof ApiUsageError ? err.status : 500,
-          )
+        const usage: ApiUsage = {
+          service_id: serviceId,
+          user_id: userId,
+          daily_usage: requestCount,
+          last_request_at: new Date().toISOString(),
+          requests_per_minute: 0, // This will be updated by the server
         }
-        throw err
+        return usage
+      } catch (err) {
+        throw ApiUsageError.fromError(err, 'TRACK_ERROR')
+      }
+    },
+    onMutate: async ({ userId, serviceId, requestCount }) => {
+      await queryClient.cancelQueries({
+        queryKey: apiUsageKeys.stats({ userId }),
+      })
+      const previousStats = queryClient.getQueryData<ApiUsageStats>(
+        apiUsageKeys.stats({ userId }),
+      )
+
+      if (previousStats) {
+        const currentStats = {
+          ...previousStats,
+          total_requests: previousStats.total_requests + requestCount,
+          daily_average: Math.round(
+            (previousStats.daily_average * previousStats.total_requests +
+              requestCount) /
+              (previousStats.total_requests + 1),
+          ),
+          peak_usage: Math.max(previousStats.peak_usage, requestCount),
+        }
+
+        queryClient.setQueryData<ApiUsageStats>(
+          apiUsageKeys.stats({ userId }),
+          currentStats,
+        )
+      }
+
+      return { previousStats }
+    },
+    onError: (err, { userId }, context) => {
+      if (context?.previousStats) {
+        queryClient.setQueryData(
+          apiUsageKeys.stats({ userId }),
+          context.previousStats,
+        )
       }
     },
     onSuccess: (data, { userId, serviceId }) => {
-      queryClient.invalidateQueries({
-        queryKey: apiUsageKeys.quota({ userId, serviceId }),
+      void queryClient.invalidateQueries({
+        queryKey: apiUsageKeys.stats({ userId }),
       })
-      queryClient.invalidateQueries({
-        queryKey: apiUsageKeys.usage({ userId, serviceId }),
+      void queryClient.invalidateQueries({
+        queryKey: apiUsageKeys.quota({ userId, serviceId }),
       })
     },
   })
 }
 
+type ResetDailyUsageRequest = {
+  userId: string
+  serviceId: string
+}
+
 /**
- * React hook to reset daily API usage with error handling
+ * React hook to reset daily API usage with optimistic updates and error handling
  *
  * @example
- * ```typescript
- * const ApiUsageReset = ({ userId, serviceId }: { userId: string, serviceId: string }) => {
- *   const { mutate: reset, isLoading } = useResetDailyUsage({
- *     supabase,
- *   });
+ * ```ts
+ * const mutation = useResetDailyUsage({ supabase })
  *
- *   const handleReset = () => {
- *     reset({
- *       userId,
- *       serviceId,
- *     }, {
- *       onSuccess: () => {
- *         toast.success('Daily usage reset successfully');
- *       },
- *       onError: (error) => {
- *         toast.error('Failed to reset usage: ' + error.message);
- *       },
- *     });
- *   };
- *
- *   return (
- *     <button
- *       onClick={handleReset}
- *       disabled={isLoading}
- *       className="danger"
- *     >
- *       {isLoading ? 'Resetting...' : 'Reset Daily Usage'}
- *     </button>
- *   );
- * };
+ * // Reset usage
+ * mutation.mutate({
+ *   userId: '123',
+ *   serviceId: '456'
+ * })
  * ```
  */
-export const useResetDailyUsage = ({
-  supabase,
-}: Pick<ResetUsageRequest, 'supabase'>) => {
+export const useResetDailyUsage = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    undefined,
+    null,
     ApiUsageError,
-    Omit<ResetUsageRequest, 'supabase'>
+    ResetDailyUsageRequest,
+    { previousStats: ApiUsageStats | undefined }
   >({
     mutationFn: async ({ userId, serviceId }) => {
       try {
-        await resetDailyUsage({
-          supabase,
-          userId,
-          serviceId,
-        })
+        await resetDailyUsage({ supabase, userId, serviceId })
+        return null
       } catch (err) {
-        if (err instanceof Error) {
-          throw new ApiUsageError(
-            err.message,
-            'RESET_ERROR',
-            err instanceof ApiUsageError ? err.status : 500,
-          )
+        throw ApiUsageError.fromError(err, 'RESET_ERROR')
+      }
+    },
+    onMutate: async ({ userId, serviceId }) => {
+      await queryClient.cancelQueries({
+        queryKey: apiUsageKeys.stats({ userId }),
+      })
+      const previousStats = queryClient.getQueryData<ApiUsageStats>(
+        apiUsageKeys.stats({ userId }),
+      )
+
+      if (previousStats) {
+        const currentStats = {
+          ...previousStats,
+          daily_average: Math.round(
+            (previousStats.daily_average * (previousStats.total_requests - 1)) /
+              previousStats.total_requests,
+          ),
         }
-        throw err
+
+        queryClient.setQueryData<ApiUsageStats>(
+          apiUsageKeys.stats({ userId }),
+          currentStats,
+        )
+      }
+
+      return { previousStats }
+    },
+    onError: (err, { userId }, context) => {
+      if (context?.previousStats) {
+        queryClient.setQueryData(
+          apiUsageKeys.stats({ userId }),
+          context.previousStats,
+        )
       }
     },
     onSuccess: (_, { userId, serviceId }) => {
-      queryClient.invalidateQueries({
-        queryKey: apiUsageKeys.quota({ userId, serviceId }),
+      void queryClient.invalidateQueries({
+        queryKey: apiUsageKeys.stats({ userId }),
       })
-      queryClient.invalidateQueries({
-        queryKey: apiUsageKeys.usage({ userId, serviceId }),
+      void queryClient.invalidateQueries({
+        queryKey: apiUsageKeys.quota({ userId, serviceId }),
       })
     },
   })
