@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "@repo/stripe": "workspace:*",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-core": "^0.11.1",
     "@tanstack/react-query": "^5.62.7",
@@ -48,8 +47,8 @@
     "dev": "pnpm run build:watch",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
-    "lint": "eslint src --ext .ts,.tsx --cache",
-    "lint:fix": "eslint src --ext .ts,.tsx --fix --cache",
+    "lint": "set TIMING=1 && eslint .",
+    "lint:fix": "set TIMING=1 && eslint . --fix",
     "prepack": "pnpm run build",
     "prepublishOnly": "pnpm run lint && pnpm run typecheck && pnpm run format:check",
     "test:types": "tsc --noEmit",

@@ -17,7 +17,7 @@
   "main": "./src/index.js",
   "name": "@repo/queue-manager",
   "scripts": {
-    "lint": "eslint .",
+    "lint": "eslint",
     "type-check": "tsc --noEmit"
   },
   "version": "0.1.0"

@@ -1,8 +1,8 @@
-import { Router, Request, Response } from 'express';
-import { Queue } from 'bullmq';
-import { z } from 'zod';
-import { validateRequest } from './middleware';
-import { generateRoomToken } from './utils/generate-room-token';
+import { Router, Request, Response, RequestHandler } from 'express'
+import { Queue, Job } from 'bullmq'
+import { z } from 'zod'
+import { validateRequest } from './middleware'
+import { generateRoomToken } from './utils/generate-room-token'
 import {
   queryParamsSchema,
   createJobSchema,
@@ -12,7 +12,33 @@ import {
   type CreateBulkJobsBody,
   type BulkJobIds,
   type QueryParams,
-} from './schemas';
+} from './schemas'
+
+type EmptyObject = Record<string, never>
+
+type AsyncRequestHandler<
+  P = EmptyObject,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = EmptyObject,
+> = (
+  req: Request<P, ResBody, ReqBody, ReqQuery>,
+  res: Response<ResBody>,
+) => Promise<void>
+
+// Type-safe wrapper for async request handlers
+const asyncHandler = <
+  P = EmptyObject,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = EmptyObject,
+>(
+  handler: AsyncRequestHandler<P, ResBody, ReqBody, ReqQuery>,
+): RequestHandler<P, ResBody, ReqBody, ReqQuery> => {
+  return (req, res, next): void => {
+    Promise.resolve(handler(req, res)).catch(next)
+  }
+}
 
 /**
  * Creates an Express router for managing Bull queue operations
@@ -128,176 +154,176 @@ import {
  * @returns Express router with queue management endpoints
  */
 const createQueueRouter = <TData>(queue: Queue<TData>): Router => {
-  const router = Router();
+  const router = Router()
 
   // Get all jobs with pagination and filters
   router.get(
     '/',
     validateRequest(z.object({ query: queryParamsSchema })),
-    async (req: Request<{}, {}, {}, QueryParams>, res: Response) => {
-      try {
-        const { start = 0, end = 100, status = 'active' } = req.query;
-        let jobs;
+    asyncHandler<EmptyObject, Job<TData>[], EmptyObject, QueryParams>(
+      async (req, res) => {
+        const { start = 0, end = 100, status = 'active' } = req.query
+        let jobs: Job<TData>[]
 
         switch (status) {
           case 'completed':
-            jobs = await queue.getCompleted(start, end);
-            break;
+            jobs = await queue.getCompleted(start, end)
+            break
           case 'failed':
-            jobs = await queue.getFailed(start, end);
-            break;
+            jobs = await queue.getFailed(start, end)
+            break
           case 'delayed':
-            jobs = await queue.getDelayed(start, end);
-            break;
+            jobs = await queue.getDelayed(start, end)
+            break
           case 'waiting':
-            jobs = await queue.getWaiting(start, end);
-            break;
+            jobs = await queue.getWaiting(start, end)
+            break
           default:
-            jobs = await queue.getActive(start, end);
+            jobs = await queue.getActive(start, end)
         }
 
-        res.json(jobs);
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to fetch jobs' });
-      }
-    },
-  );
+        res.json(jobs)
+      },
+    ),
+  )
 
   // Add a new job with secure room token
   router.post(
     '/',
     validateRequest(z.object({ body: createJobSchema })),
-    async (req: Request<{}, {}, CreateJobBody>, res: Response) => {
-      try {
-        const { data, opts = {} } = req.body;
-        const roomToken = generateRoomToken();
+    asyncHandler<
+      EmptyObject,
+      { jobId: string; roomToken: string; job: Job<TData> },
+      CreateJobBody
+    >(async (req, res) => {
+      const { data, opts = {} } = req.body
+      const roomToken = generateRoomToken()
 
-        // Add the room token to the job data
-        const jobData: TData = {
-          ...data,
-          _secureRoomToken: roomToken,
-        };
+      // Add the room token to the job data
+      const jobData = {
+        ...data,
+        _secureRoomToken: roomToken,
+      } as TData
 
-        const job = await queue.add(queue.name, jobData, opts);
+      const job = await queue.add(queue.name, jobData, opts)
 
-        // Return both job ID and room token
-        res.status(201).json({
-          jobId: job.id,
-          roomToken,
-          job, // Include full job data if needed
-        });
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to create job' });
-      }
-    },
-  );
+      res.status(201).json({
+        jobId: String(job.id),
+        roomToken,
+        job,
+      })
+    }),
+  )
 
   // Add bulk jobs with secure room tokens
   router.post(
     '/bulk',
     validateRequest(z.object({ body: createBulkJobsSchema })),
-    async (req: Request<{}, {}, CreateBulkJobsBody>, res: Response) => {
-      try {
-        const { jobs } = req.body;
+    asyncHandler<
+      EmptyObject,
+      Array<{ jobId: string; roomToken: string; job: Job<TData> }>,
+      CreateBulkJobsBody
+    >(async (req, res) => {
+      const { jobs } = req.body
 
-        const jobsWithTokens = jobs.map((job) => {
-          const roomToken = generateRoomToken();
-          return {
-            name: queue.name,
-            data: {
-              ...job.data,
-              _secureRoomToken: roomToken,
-            },
-            opts: job.opts,
-            roomToken,
-          };
-        });
+      const jobsWithTokens = jobs.map((jobRequest) => {
+        const roomToken = generateRoomToken()
+        return {
+          name: queue.name,
+          data: {
+            ...jobRequest.data,
+            _secureRoomToken: roomToken,
+          } as TData,
+          opts: jobRequest.opts,
+          roomToken,
+        }
+      })
 
-        const bulkJobs = await queue.addBulk(
-          jobsWithTokens.map(({ name, data, opts }) => ({
-            name,
-            data,
-            opts,
-          })),
-        );
+      const bulkJobs = await queue.addBulk(
+        jobsWithTokens.map(({ name, data, opts }) => ({
+          name,
+          data,
+          opts,
+        })),
+      )
 
-        // Add null check for jobsWithTokens[index]
-        const response = bulkJobs.map((job, index) => {
-          const token = jobsWithTokens[index]?.roomToken;
-          if (!token) {
-            throw new Error(`Missing token for job at index ${index}`);
-          }
-          return {
-            jobId: job.id,
-            roomToken: token,
-            job,
-          };
-        });
+      const response = bulkJobs.map((job, index) => {
+        const token = jobsWithTokens[index]?.roomToken
+        if (!token) {
+          throw new Error(`Missing token for job at index ${index}`)
+        }
+        return {
+          jobId: String(job.id),
+          roomToken: token,
+          job,
+        }
+      })
 
-        res.status(201).json(response);
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to create bulk jobs' });
-      }
-    },
-  );
+      res.status(201).json(response)
+    }),
+  )
 
   // Remove bulk jobs
   router.delete(
     '/bulk',
     validateRequest(z.object({ body: bulkJobIdsSchema })),
-    async (req: Request<{}, {}, BulkJobIds>, res: Response) => {
-      try {
-        const { ids } = req.body;
+    asyncHandler<EmptyObject, { status: string }, BulkJobIds>(
+      async (req, res) => {
+        const { ids } = req.body
         await Promise.all(
           ids.map(async (id) => {
-            const job = await queue.getJob(id);
-            if (job) await job.remove();
+            const job = await queue.getJob(id)
+            if (job) await job.remove()
           }),
-        );
-        res.json({ status: 'success' });
-      } catch (error) {
-        res.status(500).json({ error: 'Failed to remove jobs' });
-      }
-    },
-  );
+        )
+        res.json({ status: 'success' })
+      },
+    ),
+  )
 
   // Remove a job
-  router.delete('/:id', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({ error: 'Job ID is required' });
-      }
-      const job = await queue.getJob(id);
-      if (!job) {
-        return res.status(404).json({ error: 'Job not found' });
-      }
-      await job.remove();
-      res.json({ status: 'success' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to remove job' });
-    }
-  });
+  router.delete(
+    '/:id',
+    asyncHandler<{ id: string }, { status: string } | { error: string }>(
+      async (req, res) => {
+        const { id } = req.params
+        if (!id) {
+          res.status(400).json({ error: 'Job ID is required' })
+          return
+        }
+        const job = await queue.getJob(id)
+        if (!job) {
+          res.status(404).json({ error: 'Job not found' })
+          return
+        }
+        await job.remove()
+        res.json({ status: 'success' })
+      },
+    ),
+  )
 
   // Retry a failed job
-  router.post('/:id/retry', async (req: Request, res: Response) => {
-    try {
-      const { id } = req.params;
-      if (!id) {
-        return res.status(400).json({ error: 'Job ID is required' });
-      }
-      const job = await queue.getJob(id);
-      if (!job) {
-        return res.status(404).json({ error: 'Job not found' });
-      }
-      await job.retry();
-      res.json({ status: 'success' });
-    } catch (error) {
-      res.status(500).json({ error: 'Failed to retry job' });
-    }
-  });
+  router.post(
+    '/:id/retry',
+    asyncHandler<{ id: string }, { status: string } | { error: string }>(
+      async (req, res) => {
+        const { id } = req.params
+        if (!id) {
+          res.status(400).json({ error: 'Job ID is required' })
+          return
+        }
+        const job = await queue.getJob(id)
+        if (!job) {
+          res.status(404).json({ error: 'Job not found' })
+          return
+        }
+        await job.retry()
+        res.json({ status: 'success' })
+      },
+    ),
+  )
 
-  return router;
-};
+  return router
+}
 
-export default createQueueRouter;
+export default createQueueRouter

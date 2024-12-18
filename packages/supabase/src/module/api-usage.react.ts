@@ -450,7 +450,11 @@ export const useResetDailyUsage = ({
 }: Pick<ResetUsageRequest, 'supabase'>) => {
   const queryClient = useQueryClient()
 
-  return useMutation<void, ApiUsageError, Omit<ResetUsageRequest, 'supabase'>>({
+  return useMutation<
+    undefined,
+    ApiUsageError,
+    Omit<ResetUsageRequest, 'supabase'>
+  >({
     mutationFn: async ({ userId, serviceId }) => {
       try {
         await resetDailyUsage({

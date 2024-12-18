@@ -16,9 +16,21 @@ const eslintConfig = [
     plugins: ['@typescript-eslint'],
 
     parserOptions: {
-      projectService: true,
+      project: ['./tsconfig.json', '../../tsconfig.json'],
       tsconfigRootDir: import.meta.dirname,
     },
+
+    // Only lint src directory
+    ignorePatterns: [
+      'node_modules/',
+      'dist/',
+      'build/',
+      'coverage/',
+      '*.config.js',
+      '*.config.ts',
+      '*.config.mjs',
+      '!src/**/*',
+    ],
 
     rules: {
       'react/no-unescaped-entities': 'off',
