@@ -1,6 +1,6 @@
-import { ArticleMetadata } from '@/features/article/utility/get-articles'
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
+import { Article, ArticleMetadata } from '../utility/types'
 
 interface ArticleCardProps {
   article: ArticleMetadata

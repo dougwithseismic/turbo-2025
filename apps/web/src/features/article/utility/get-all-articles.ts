@@ -4,6 +4,7 @@ import matter from 'gray-matter'
 import { ArticleMetadata } from './types'
 
 const articlesDirectory = path.join(process.cwd(), '_articles')
+const DEFAULT_PAGE_SIZE = 10
 
 interface ArticleFrontmatter {
   title: string
@@ -17,7 +18,27 @@ interface ArticleFrontmatter {
   readingTime: string
 }
 
-export const getAllArticles = async (): Promise<ArticleMetadata[]> => {
+interface GetArticlesParams {
+  page?: number
+  pageSize?: number
+}
+
+interface PaginatedArticles {
+  articles: ArticleMetadata[]
+  pagination: {
+    currentPage: number
+    totalPages: number
+    pageSize: number
+    totalItems: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
+
+export const getAllArticles = async ({
+  page = 1,
+  pageSize = DEFAULT_PAGE_SIZE,
+}: GetArticlesParams = {}): Promise<PaginatedArticles> => {
   const files = await fs.readdir(articlesDirectory)
   const articles = await Promise.all(
     files
@@ -44,9 +65,28 @@ export const getAllArticles = async (): Promise<ArticleMetadata[]> => {
       }),
   )
 
-  return articles.sort((a, b) => {
+  const sortedArticles = articles.sort((a, b) => {
     const dateA = new Date(a.date).getTime()
     const dateB = new Date(b.date).getTime()
     return dateB - dateA
   })
+
+  const totalItems = sortedArticles.length
+  const totalPages = Math.ceil(totalItems / pageSize)
+  const normalizedPage = Math.max(1, Math.min(page, totalPages))
+  const startIndex = (normalizedPage - 1) * pageSize
+  const endIndex = startIndex + pageSize
+  const paginatedArticles = sortedArticles.slice(startIndex, endIndex)
+
+  return {
+    articles: paginatedArticles,
+    pagination: {
+      currentPage: normalizedPage,
+      totalPages,
+      pageSize,
+      totalItems,
+      hasNextPage: normalizedPage < totalPages,
+      hasPreviousPage: normalizedPage > 1,
+    },
+  }
 }

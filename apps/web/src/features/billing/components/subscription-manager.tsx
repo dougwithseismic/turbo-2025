@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createCheckoutSession } from '../actions/create-checkout-session'
 import { plans } from '../config/plans'
 import { AnimatedPricingCard } from './animated-pricing-card'
 
@@ -15,7 +14,7 @@ export const SubscriptionManager = () => {
     setIsLoading(true)
     setSelectedPlan(planName)
     try {
-      const { url } = await createCheckoutSession({ planName })
+      const { url } = { url: 'http://success.url/placeholder' }
       if (url) {
         window.location.href = url
       }

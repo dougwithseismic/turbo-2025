@@ -1,4 +1,5 @@
 import { ArrowUpRight } from 'lucide-react'
+import Link from 'next/link'
 
 type Article = {
   title: string
@@ -131,13 +132,13 @@ export const ArticleList = () => {
 
         {/* View All Articles Link */}
         <div className="mt-16 flex justify-center">
-          <a
+          <Link
             href="/blog"
             className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground hover:bg-primary/90"
           >
             View all articles
             <ArrowUpRight className="h-5 w-5" />
-          </a>
+          </Link>
         </div>
       </div>
     </div>

@@ -45,6 +45,9 @@ export * from './module/onboarding.react'
 export * from './module/invitations'
 export * from './module/invitations.react'
 
+// Payment Providers
+export * from './module/payment-providers/stripe'
+
 // Environment Configuration
 const env = createEnv({
   server: {

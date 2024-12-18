@@ -4,7 +4,9 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion, Variants } from 'framer-motion'
 import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react'
-import { Article, ArticleCard } from '../../article/components/article-card'
+import { ArticleCard } from '../../article/components/article-card'
+import { Article, ArticleMetadata } from '../../article/utility/types'
+import Link from 'next/link'
 
 type FeatureDetailsProps = {
   feature: {
@@ -69,48 +71,48 @@ const featuredTestimonial = {
   },
 }
 
-const articles: Article[] = [
+const articles: ArticleMetadata[] = [
   {
     title: 'Maximizing ROI with SEO Automation',
     description:
       'Learn how to leverage automation to scale your SEO efforts and achieve better results with less manual work.',
-    author: {
-      name: 'Michael Torres',
-      role: 'SEO Strategist',
-      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5',
-    },
+    author: 'Michael Torres',
+    authorRole: 'SEO Strategist',
+    authorAvatar:
+      'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5',
     date: 'Mar 16, 2024',
     readingTime: '8 min read',
-    href: '/blog/seo-automation-roi',
-    category: 'Technical SEO',
+    slug: 'seo-automation-roi',
+    tags: ['Technical SEO'],
+    featuredImage: '',
   },
   {
     title: 'The Future of Technical SEO',
     description:
       'Discover emerging trends and technologies that will shape the future of technical SEO and how to prepare for them.',
-    author: {
-      name: 'Emma Watson',
-      role: 'Technical SEO Lead',
-      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
-    },
+    author: 'Emma Watson',
+    authorRole: 'Technical SEO Lead',
+    authorAvatar:
+      'https://images.unsplash.com/photo-1517841905240-472988babdf9',
     date: 'Mar 14, 2024',
     readingTime: '10 min read',
-    href: '/blog/future-of-technical-seo',
-    category: 'Strategy',
+    slug: 'future-of-technical-seo',
+    tags: ['Strategy'],
+    featuredImage: '',
   },
   {
     title: 'Building an SEO-First Content Strategy',
     description:
       'A comprehensive guide to creating content that ranks well and drives meaningful organic traffic to your site.',
-    author: {
-      name: 'James Liu',
-      role: 'Content Strategist',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
-    },
+    author: 'James Liu',
+    authorRole: 'Content Strategist',
+    authorAvatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e',
     date: 'Mar 12, 2024',
     readingTime: '12 min read',
-    href: '/blog/seo-first-content-strategy',
-    category: 'Content',
+    slug: 'seo-first-content-strategy',
+    tags: ['Content'],
+    featuredImage: '',
   },
 ]
 
@@ -472,13 +474,13 @@ export const FeatureDetails = ({ feature }: FeatureDetailsProps) => {
             </motion.div>
 
             <motion.div variants={animations.fadeInUp}>
-              <a
+              <Link
                 href="/blog"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 View all articles
                 <ArrowUpRight className="h-5 w-5" />
-              </a>
+              </Link>
             </motion.div>
           </motion.div>
         </div>

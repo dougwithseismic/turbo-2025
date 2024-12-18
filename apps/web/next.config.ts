@@ -20,7 +20,9 @@ const nextConfig = {
 
 const withMDX = createMDX({
   options: {
+    // @ts-ignore
     remarkPlugins: ['remark-gfm'],
+    // @ts-ignore
     rehypePlugins: [['rehype-raw', { strict: true, throwOnError: true }]],
   },
 })

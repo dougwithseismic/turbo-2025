@@ -21,7 +21,7 @@ type ArticleData = {
 
 type GetArticleResult = {
   data: ArticleData | null
-  error: unknown | null
+  error: Error | null
 }
 
 export const getArticleBySlug = async ({
@@ -62,6 +62,6 @@ export const getArticleBySlug = async ({
       error: null,
     }
   } catch (err: unknown) {
-    return { data: null, error: err }
+    return { data: null, error: err as Error }
   }
 }
