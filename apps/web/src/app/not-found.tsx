@@ -1,15 +1,8 @@
 'use client'
-import { ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { NavMenu } from '@/features/home/components/nav-menu'
-import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links'
+import { Header, MarketingFooter } from '@/features/home/components'
 import { FooterCTA } from '@/features/home/components/footer-cta'
-import {
-  Header,
-  MarketingFooter,
-  NewsletterSignup,
-} from '@/features/home/components'
-import { NewsletterForm } from '@/features/newsletter/components/newsletter-form'
+import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
 const links = [
@@ -173,7 +166,6 @@ export default function NotFound() {
         </main>
       </div>
       <FooterCTA />
-      <MarketingFooterLinks />
       <MarketingFooter />
     </div>
   )

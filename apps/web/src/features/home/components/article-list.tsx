@@ -1,107 +1,143 @@
-import { Badge } from '@/components/ui/badge'
+import { ArrowUpRight } from 'lucide-react'
 
-const posts = [
+type Article = {
+  title: string
+  description: string
+  author: {
+    name: string
+    role: string
+    avatar: string
+  }
+  readingTime: string
+  category: string
+  date: string
+  href: string
+}
+
+const articles: Article[] = [
   {
-    id: 1,
-    title: 'Building Type-Safe APIs with tRPC',
-    href: '#',
-    description: `Learn how to create end-to-end type-safe APIs using tRPC in your Next.js applications. We'll cover setup, best practices, and advanced patterns.`,
-    date: 'Mar 16, 2024',
-    datetime: '2024-03-16',
-    category: { title: 'Development', href: '#' },
-    author: {
-      name: 'Michael Foster',
-      role: 'Senior Developer',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
-    },
-  },
-  {
-    id: 2,
-    title: 'Mastering Server Components in Next.js 14',
-    href: '#',
-    description: `Dive deep into React Server Components and learn how they can improve your application's performance and user experience.`,
-    date: 'Mar 14, 2024',
-    datetime: '2024-03-14',
-    category: { title: 'Performance', href: '#' },
+    title: 'How to Improve Core Web Vitals for Better Rankings',
+    description:
+      'Learn how to optimize your Core Web Vitals to improve user experience and boost your search rankings. Step-by-step guide with real examples.',
     author: {
       name: 'Sarah Chen',
-      role: 'Lead Architect',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      role: 'Technical SEO Lead',
+      avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9',
     },
+    readingTime: '8 min read',
+    category: 'Technical SEO',
+    date: 'Mar 16, 2024',
+    href: '/blog/improve-core-web-vitals',
   },
   {
-    id: 3,
-    title: 'Building Beautiful UIs with Tailwind and shadcn/ui',
-    href: '#',
+    title: 'The Complete Guide to JavaScript SEO',
     description:
-      'Explore how to create stunning user interfaces by combining the power of Tailwind CSS with the beautiful components from shadcn/ui.',
-    date: 'Mar 12, 2024',
-    datetime: '2024-03-12',
-    category: { title: 'Design', href: '#' },
+      'Master JavaScript SEO with our comprehensive guide. Learn how to ensure your JavaScript-heavy site is fully crawlable and indexable by search engines.',
     author: {
-      name: 'Tom Wilson',
-      role: 'UI Designer',
-      href: '#',
-      imageUrl:
-        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+      name: 'Michael Torres',
+      role: 'Senior Developer',
+      avatar: 'https://images.unsplash.com/photo-1519244703995-f4e0f30006d5',
     },
+    readingTime: '12 min read',
+    category: 'Development',
+    date: 'Mar 14, 2024',
+    href: '/blog/javascript-seo-guide',
+  },
+  {
+    title: 'E-E-A-T: What It Means for Your SEO Strategy',
+    description:
+      'Understand how Experience, Expertise, Authoritativeness, and Trustworthiness impact your search rankings and learn how to improve your E-E-A-T signals.',
+    author: {
+      name: 'Emily Watson',
+      role: 'Content Strategist',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80',
+    },
+    readingTime: '10 min read',
+    category: 'Strategy',
+    date: 'Mar 12, 2024',
+    href: '/blog/eeat-seo-strategy',
   },
 ]
 
 export const ArticleList = () => {
   return (
-    <div className="py-24 sm:py-32">
+    <div className="bg-muted/5 py-24 sm:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mx-auto mt-10 grid max-w-2xl grid-cols-1 gap-x-8 gap-y-16 border-t border-border pt-10 sm:mt-16 sm:pt-16 lg:mx-0 lg:max-w-none lg:grid-cols-3">
-          {posts.map((post) => (
+        <div className="mx-auto max-w-2xl text-center">
+          <h2 className="text-base/7 font-semibold text-primary">
+            Latest Insights
+          </h2>
+          <p className="mt-2 text-pretty text-4xl font-semibold tracking-tight sm:text-5xl">
+            Expert SEO strategies and tips
+          </p>
+          <p className="mt-6 text-lg text-muted-foreground">
+            Stay ahead of the curve with our latest articles, guides, and case
+            studies on technical SEO, content optimization, and more.
+          </p>
+        </div>
+
+        <div className="mx-auto mt-16 grid max-w-2xl auto-rows-fr grid-cols-1 gap-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+          {articles.map((article) => (
             <article
-              key={post.id}
-              className="flex max-w-xl flex-col items-start justify-between"
+              key={article.title}
+              className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-background px-8 pb-8 pt-80 sm:pt-48 lg:pt-80"
             >
-              <div className="flex items-center gap-x-4 text-xs">
-                <time
-                  dateTime={post.datetime}
-                  className="text-muted-foreground"
-                >
-                  {post.date}
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/50 via-background/25 to-background/0" />
+
+              {/* Category Badge */}
+              <div className="mb-2">
+                <span className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-sm font-medium text-primary">
+                  {article.category}
+                </span>
+              </div>
+
+              {/* Article Title & Description */}
+              <h3 className="mt-3 text-lg font-semibold leading-6">
+                <a href={article.href}>
+                  <span className="absolute inset-0" />
+                  {article.title}
+                </a>
+              </h3>
+              <p className="mt-2 text-sm/6 text-muted-foreground">
+                {article.description}
+              </p>
+
+              {/* Article Metadata */}
+              <div className="mt-6 flex items-center gap-x-4 text-xs">
+                <time dateTime={article.date} className="text-muted-foreground">
+                  {article.date}
                 </time>
-                <Badge variant="secondary">
-                  <a href={post.category.href}>{post.category.title}</a>
-                </Badge>
+                <span className="text-muted-foreground">
+                  {article.readingTime}
+                </span>
               </div>
-              <div className="group relative">
-                <h3 className="mt-3 text-lg/6 font-semibold group-hover:text-muted-foreground">
-                  <a href={post.href}>
-                    <span className="absolute inset-0" />
-                    {post.title}
-                  </a>
-                </h3>
-                <p className="mt-5 line-clamp-3 text-sm/6 text-muted-foreground">
-                  {post.description}
-                </p>
-              </div>
-              <div className="relative mt-8 flex items-center gap-x-4">
+
+              {/* Author Info */}
+              <div className="mt-6 flex items-center gap-x-4">
                 <img
-                  alt=""
-                  src={post.author.imageUrl}
+                  src={article.author.avatar}
+                  alt={article.author.name}
                   className="size-10 rounded-full bg-muted"
                 />
-                <div className="text-sm/6">
-                  <p className="font-semibold">
-                    <a href={post.author.href}>
-                      <span className="absolute inset-0" />
-                      {post.author.name}
-                    </a>
-                  </p>
-                  <p className="text-muted-foreground">{post.author.role}</p>
+                <div className="text-sm leading-6">
+                  <p className="font-semibold">{article.author.name}</p>
+                  <p className="text-muted-foreground">{article.author.role}</p>
                 </div>
               </div>
             </article>
           ))}
+        </div>
+
+        {/* View All Articles Link */}
+        <div className="mt-16 flex justify-center">
+          <a
+            href="/blog"
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-8 py-3 text-base font-semibold text-primary-foreground hover:bg-primary/90"
+          >
+            View all articles
+            <ArrowUpRight className="h-5 w-5" />
+          </a>
         </div>
       </div>
     </div>

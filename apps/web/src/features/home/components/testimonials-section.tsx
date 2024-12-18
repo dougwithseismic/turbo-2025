@@ -1,13 +1,21 @@
 import { cn } from '@/lib/utils'
+import { ArrowUpRight } from 'lucide-react'
 
 const featuredTestimonial = {
-  body: 'Onsite completely transformed how we handle technical SEO. We went from scattered spreadsheets and manual checks to a streamlined process that catches issues before they impact rankings.',
+  body: 'Within 2 weeks of using Onsite, we identified and fixed critical indexing issues that were hurting our rankings. Our organic traffic increased by 150% in the following month.',
   author: {
     name: 'Sarah Chen',
     handle: 'sarahchen_seo',
+    role: 'Head of SEO at TechCorp',
     imageUrl:
       'https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=1024&h=1024&q=80',
-    logoUrl: 'https://tailwindui.com/plus/img/logos/savvycal-logo-gray-900.svg',
+    companyLogo:
+      'https://tailwindui.com/plus/img/logos/savvycal-logo-gray-900.svg',
+    metrics: {
+      traffic: '+150%',
+      rankings: '32 keywords to top 3',
+      timeframe: '30 days',
+    },
   },
 }
 
@@ -15,12 +23,17 @@ const testimonials = [
   [
     [
       {
-        body: 'The automated technical audits saved us countless hours. Issues that would have taken weeks to discover are now flagged instantly.',
+        body: 'The automated technical audits saved us countless hours. We identified and fixed mobile usability issues that boosted our mobile rankings by 45%.',
         author: {
           name: 'Marcus Rodriguez',
+          role: 'SEO Manager at E-commerce Plus',
           handle: 'marcusrodriguez',
           imageUrl:
             'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          metrics: {
+            improvement: '+45%',
+            type: 'mobile rankings',
+          },
         },
       },
     ],
@@ -29,9 +42,14 @@ const testimonials = [
         body: 'The keyword research tools helped us identify opportunities we were completely missing. Our organic traffic increased by 150% in 3 months.',
         author: {
           name: 'Emma Watson',
+          role: 'Digital Marketing Director',
           handle: 'emmawatson_seo',
           imageUrl:
             'https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          metrics: {
+            improvement: '+150%',
+            type: 'organic traffic',
+          },
         },
       },
     ],
@@ -42,20 +60,30 @@ const testimonials = [
         body: 'The site crawling feature caught critical indexing issues that were hurting our rankings. Within weeks of fixing them, we saw significant improvements.',
         author: {
           name: 'James Liu',
+          role: 'Technical SEO Lead',
           handle: 'jamesliu',
           imageUrl:
             'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          metrics: {
+            improvement: '85%',
+            type: 'indexing issues resolved',
+          },
         },
       },
     ],
     [
       {
-        body: "The backlink analysis helped us identify and disavow toxic links we didn't even know existed. Our domain authority improved almost immediately.",
+        body: 'The backlink analysis helped us identify and disavow toxic links. Our domain authority improved by 12 points in just two months.',
         author: {
           name: 'Rachel Park',
+          role: 'SEO Consultant',
           handle: 'rachelpark_seo',
           imageUrl:
             'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80',
+          metrics: {
+            improvement: '+12',
+            type: 'domain authority',
+          },
         },
       },
     ],
@@ -92,10 +120,10 @@ export const TestimonialsSection = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-base/7 font-semibold text-primary">
-            Real Results
+            Proven Results
           </h2>
           <p className="mt-2 text-balance text-3xl font-semibold tracking-tight sm:text-4xl lg:text-5xl">
-            See how teams are improving their rankings with Onsite
+            See how teams are transforming their SEO with Onsite
           </p>
         </div>
         <div className="mx-auto mt-8 flex flex-col gap-4 text-sm/6 sm:mt-12 lg:mt-16 lg:max-w-none lg:grid lg:grid-flow-col lg:grid-cols-4 lg:grid-rows-1">
@@ -113,16 +141,42 @@ export const TestimonialsSection = () => {
                 <div className="font-semibold">
                   {featuredTestimonial.author.name}
                 </div>
-                <div className="text-muted-foreground">{`@${featuredTestimonial.author.handle}`}</div>
+                <div className="text-muted-foreground">
+                  {featuredTestimonial.author.role}
+                </div>
               </div>
-              {featuredTestimonial.author.logoUrl && (
+              {featuredTestimonial.author.companyLogo && (
                 <img
                   alt=""
-                  src={featuredTestimonial.author.logoUrl}
+                  src={featuredTestimonial.author.companyLogo}
                   className="h-8 w-auto sm:h-10"
                 />
               )}
             </figcaption>
+            <div className="mt-4 grid grid-cols-3 gap-4 border-t border-muted-foreground/10 pt-4">
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {featuredTestimonial.author.metrics.traffic}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Organic Traffic
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {featuredTestimonial.author.metrics.rankings}
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Rankings Improved
+                </div>
+              </div>
+              <div>
+                <div className="text-2xl font-bold text-primary">
+                  {featuredTestimonial.author.metrics.timeframe}
+                </div>
+                <div className="text-sm text-muted-foreground">Timeframe</div>
+              </div>
+            </div>
           </figure>
           {testimonials.map((columnGroup, columnGroupIdx) => (
             <div
@@ -160,10 +214,26 @@ export const TestimonialsSection = () => {
                             {testimonial.author.name}
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            {`@${testimonial.author.handle}`}
+                            {testimonial.author.role}
                           </div>
                         </div>
                       </figcaption>
+                      <div className="mt-4 flex items-center justify-between border-t border-muted-foreground/10 pt-4">
+                        <div>
+                          <div className="text-xl font-bold text-primary">
+                            {testimonial.author.metrics.improvement}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {testimonial.author.metrics.type}
+                          </div>
+                        </div>
+                        <a
+                          href="#case-studies"
+                          className="text-primary hover:text-primary/90"
+                        >
+                          <ArrowUpRight className="h-5 w-5" />
+                        </a>
+                      </div>
                     </figure>
                   ))}
                 </div>

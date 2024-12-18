@@ -1,6 +1,5 @@
 import { Header, MarketingFooter } from '@/features/home/components'
 import { FooterCTA } from '@/features/home/components/footer-cta'
-import { MarketingFooterLinks } from '@/features/home/components/marketing-footer-links'
 import React from 'react'
 
 const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
@@ -11,7 +10,6 @@ const MarketingLayout = ({ children }: { children: React.ReactNode }) => {
       </div>
       {children}
       <FooterCTA />
-      <MarketingFooterLinks />
       <MarketingFooter />
     </div>
   )

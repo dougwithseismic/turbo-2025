@@ -5,7 +5,6 @@ import { ContentCard, ContentCardProvider } from '@/components/content-card'
 import { ActionField } from '@/components/action-field'
 import { CreditCard, Package, Receipt } from 'lucide-react'
 import Link from 'next/link'
-import { SubscriptionManager } from './subscription-manager'
 import toast from 'react-hot-toast'
 import { useEffect, useRef } from 'react'
 import { CardTitle, CardDescription } from '@/components/ui/card'
@@ -121,7 +120,11 @@ export const BillingSettings = ({ searchParams }: BillingSettingsProps) => {
             </div>
           </ContentCard.Header>
           <ContentCard.Body>
-            <SubscriptionManager />
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Subscription plans coming soon...
+              </p>
+            </div>
           </ContentCard.Body>
         </ContentCard>
       </div>

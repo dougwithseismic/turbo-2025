@@ -4,53 +4,81 @@ export const StatsSection = () => {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl lg:mx-0">
           <h2 className="text-pretty text-4xl font-semibold tracking-tight sm:text-5xl">
-            We approach work as a place to make the world better
+            Trusted by leading brands worldwide
           </h2>
           <p className="mt-6 text-base/7 text-muted-foreground">
-            Building the future of web development with modern tools and
-            frameworks. Our platform enables developers to create amazing
-            products faster than ever.
+            Join thousands of successful companies using Onsite to improve their
+            technical SEO and drive sustainable organic growth.
           </p>
         </div>
         <div className="mx-auto mt-16 flex max-w-2xl flex-col gap-8 lg:mx-0 lg:mt-20 lg:max-w-none lg:flex-row lg:items-end">
           <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-muted/50 p-8 sm:w-3/4 sm:max-w-md sm:flex-row-reverse sm:items-end lg:w-72 lg:max-w-none lg:flex-none lg:flex-col lg:items-start">
-            <p className="flex-none text-3xl font-bold tracking-tight">250k</p>
+            <p className="flex-none text-3xl font-bold tracking-tight">
+              50,000+
+            </p>
             <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
               <p className="text-lg font-semibold tracking-tight">
-                Users on the platform
+                Active users
               </p>
               <p className="mt-2 text-base/7 text-muted-foreground">
-                Trusted by developers and teams worldwide.
+                From startups to enterprise teams, improving their SEO daily.
               </p>
             </div>
           </div>
           <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-foreground p-8 sm:flex-row-reverse sm:items-end lg:w-full lg:max-w-sm lg:flex-auto lg:flex-col lg:items-start lg:gap-y-44">
             <p className="flex-none text-3xl font-bold tracking-tight text-background">
-              $8.9 billion
+              2.8M+
             </p>
             <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
               <p className="text-lg font-semibold tracking-tight text-background">
-                We're proud that our customers have made over $8 billion in
-                total revenue.
+                Technical issues identified and resolved across our platform.
               </p>
               <p className="mt-2 text-base/7 text-background/80">
-                Empowering businesses to achieve their goals.
+                Helping teams catch and fix problems before they impact
+                rankings.
               </p>
             </div>
           </div>
           <div className="flex flex-col-reverse justify-between gap-x-16 gap-y-8 rounded-2xl bg-primary p-8 sm:w-11/12 sm:max-w-xl sm:flex-row-reverse sm:items-end lg:w-full lg:max-w-none lg:flex-auto lg:flex-col lg:items-start lg:gap-y-28">
             <p className="flex-none text-3xl font-bold tracking-tight text-primary-foreground">
-              401,093
+              93%
             </p>
             <div className="sm:w-80 sm:shrink lg:w-auto lg:flex-none">
               <p className="text-lg font-semibold tracking-tight text-primary-foreground">
-                Transactions this year
+                Success rate in improving rankings
               </p>
               <p className="mt-2 text-base/7 text-primary-foreground/80">
-                Secure, fast, and reliable transactions processed through our
-                platform.
+                Our users see measurable improvements within 30 days.
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Additional Trust Elements */}
+        <div className="mt-16 grid grid-cols-1 gap-8 sm:mt-20 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="rounded-2xl bg-muted/50 p-8">
+            <p className="text-3xl font-bold tracking-tight">150%</p>
+            <p className="mt-2 text-base/7 text-muted-foreground">
+              Average increase in organic traffic within 90 days
+            </p>
+          </div>
+          <div className="rounded-2xl bg-muted/50 p-8">
+            <p className="text-3xl font-bold tracking-tight">4.9/5</p>
+            <p className="mt-2 text-base/7 text-muted-foreground">
+              Customer satisfaction rating from over 10,000 reviews
+            </p>
+          </div>
+          <div className="rounded-2xl bg-muted/50 p-8">
+            <p className="text-3xl font-bold tracking-tight">24/7</p>
+            <p className="mt-2 text-base/7 text-muted-foreground">
+              Continuous monitoring and real-time alerts
+            </p>
+          </div>
+          <div className="rounded-2xl bg-muted/50 p-8">
+            <p className="text-3xl font-bold tracking-tight">5min</p>
+            <p className="mt-2 text-base/7 text-muted-foreground">
+              Average setup time to start seeing insights
+            </p>
           </div>
         </div>
       </div>

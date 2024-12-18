@@ -1,16 +1,28 @@
-import type { NextConfig } from 'next'
+import createMDX from '@next/mdx'
 
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  pageExtensions: ['js', 'jsx', 'md', 'mdx', 'ts', 'tsx'],
   reactStrictMode: true,
-  // transpilePackages: ['motion/react'],
   images: {
     remotePatterns: [
       {
-        protocol: 'https',
+        protocol: 'https' as const,
+        hostname: 'placehold.co',
+      },
+      {
+        protocol: 'https' as const,
         hostname: '**',
       },
     ],
   },
 }
 
-module.exports = nextConfig
+const withMDX = createMDX({
+  options: {
+    remarkPlugins: ['remark-gfm'],
+    rehypePlugins: [['rehype-raw', { strict: true, throwOnError: true }]],
+  },
+})
+
+export default withMDX(nextConfig)

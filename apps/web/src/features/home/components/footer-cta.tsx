@@ -1,6 +1,13 @@
 import { env } from '@/config/app-config'
 import { cn } from '@/lib/utils'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
+
+const benefits = [
+  'Start improving rankings in 5 minutes',
+  'Join 50,000+ successful teams',
+  'ROI tracking built-in',
+]
 
 export const FooterCTA = () => {
   return (
@@ -50,28 +57,61 @@ export const FooterCTA = () => {
         />
       </div>
 
-      <div className="flex max-w-7xl mx-auto flex-col items-center gap-12 px-4 py-16 md:flex-row md:py-24">
-        {/* Content */}
-        <div className="flex flex-col items-center text-center md:items-start md:text-left">
-          <h2 className="text-4xl md:text-6xl font-medium text-foreground mb-4">
-            Start building your
-            <br />
-            future today
-          </h2>
-          <p className="text-base md:text-lg text-muted-foreground mb-8">
-            Create powerful tools and shape tomorrow with Seismic.
-            <br />
-            The future of development starts here.
-          </p>
-          <div className="flex flex-col gap-4 w-full sm:flex-row sm:w-auto">
+      <div className="mx-auto max-w-7xl px-6 py-24 sm:py-32 lg:px-8">
+        <div className="flex flex-col items-center text-center">
+          {/* Content */}
+          <div className="max-w-2xl">
+            <h2 className="text-balance text-3xl font-medium text-foreground sm:text-4xl">
+              Ready to transform your SEO strategy?
+            </h2>
+            <p className="mt-4 text-lg text-muted-foreground">
+              Join thousands of successful teams already using Onsite to improve
+              their rankings and drive more organic traffic.
+            </p>
+          </div>
+
+          {/* Benefits */}
+          <div className="mt-8 flex flex-wrap justify-center gap-6">
+            {benefits.map((benefit) => (
+              <div key={benefit} className="flex items-center gap-2">
+                <CheckCircle2 className="h-5 w-5 flex-shrink-0 text-primary" />
+                <span className="text-base text-muted-foreground">
+                  {benefit}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Trust Elements */}
+          <div className="mt-8 flex items-center gap-6">
+            <div className="flex -space-x-2">
+              {[...Array(5)].map((_, i) => (
+                <img
+                  key={i}
+                  className="inline-block h-8 w-8 rounded-full ring-2 ring-background"
+                  src={`https://images.unsplash.com/photo-${i + 1}?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80`}
+                  alt=""
+                />
+              ))}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              <span className="font-semibold text-primary">93%</span> of users
+              report ranking improvements within 30 days
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="mt-8 flex flex-col sm:flex-row items-center gap-4">
             <Link
               href="/register"
               className={cn(
-                'flex h-12 items-center justify-center rounded-full bg-primary px-8 text-sm font-bold uppercase',
-                'text-primary-foreground transition-colors hover:bg-primary/90',
+                'flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8',
+                'text-base font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+                'w-full sm:w-auto',
               )}
             >
-              Start now
+              Start free trial
+              <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href={`${env.NEXT_PUBLIC_BASE_URL}/slack`}
@@ -79,11 +119,12 @@ export const FooterCTA = () => {
               rel="noopener noreferrer"
               className={cn(
                 'flex h-12 items-center justify-center gap-2 rounded-full border border-border/10',
-                'bg-background px-8 text-sm font-bold uppercase text-foreground transition-colors hover:border-border/20',
+                'bg-background px-8 text-base font-semibold text-foreground transition-colors hover:border-border/20',
+                'w-full sm:w-auto',
               )}
             >
               <img src="/icons/slack.svg" alt="" className="h-5 w-5" />
-              Join our Slack
+              Join our community
             </a>
           </div>
         </div>

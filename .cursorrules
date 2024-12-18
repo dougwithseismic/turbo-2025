@@ -16,6 +16,7 @@ Generate code, corrections, and refactorings that comply with the basic principl
 - Don't leave blank lines within a function.
 - One export per file.
 - Use Fat Arrow Functions and named object params
+- When styling with Tailwind, favor flex and gap instead of margin bumps and space-*
 
 ### Nomenclature
 

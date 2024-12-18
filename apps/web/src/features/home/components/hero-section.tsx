@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import { CheckCircle2 } from 'lucide-react'
 
 export const HeroSection = () => {
   return (
@@ -20,19 +21,34 @@ export const HeroSection = () => {
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="row flex flex-col gap-5 max-w-xl py-8 sm:py-12 md:py-16">
             <h1 className="bg-gradient-to-br from-foreground from-30% via-muted-foreground via-80% to-muted bg-clip-text font-title text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-transparent">
-              Tick off your technical SEO checklist
+              Turn Technical SEO Issues Into Ranking <br /> Wins
             </h1>
             <p className="max-w-md text-base sm:text-lg md:text-xl leading-snug tracking-tight text-grey-90">
-              Onsite, a technical SEO platform built for the modern SEM team, by
-              technical SEO experts that need more.
+              Catch and fix SEO problems in 3 seconds flat. Your site gets
+              healthier, you get better rankings.
             </p>
+
+            {/* Trust Building Elements */}
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 text-primary" />
+                <span>5-minute setup • No credit card required</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <span className="text-primary font-semibold">50,000+</span>{' '}
+                sites monitored •
+                <span className="text-primary font-semibold">93%</span> report
+                ranking improvements
+              </div>
+            </div>
+
             <Button
               asChild
               variant="default"
               className="grid grid-cols-[1fr_auto] justify-between items-center w-fit px-8 sm:px-12 md:px-16 transition-all duration-200 uppercase font-bold h-8 sm:h-9 md:h-10 text-sm sm:text-base text-foreground rounded-full border border-border bg-muted gap-x-1"
             >
               <Link href="/register">
-                <span className="justify-self-center">Try it Free</span>
+                <span className="justify-self-center">Start Free Trial</span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -49,20 +65,21 @@ export const HeroSection = () => {
               </Link>
             </Button>
           </div>
+
           <div className="flex flex-col gap-3 text-sm tracking-tightxs:mx-0">
-            <p className="font-light leading-none text-foreground/60 will-change-transform">
-              Everything you need to start ranking better:
+            <p className="font-medium leading-none text-foreground/80 will-change-transform">
+              Comprehensive SEO toolkit in one place:
             </p>
             <div className="w-full xs:flex xs:overflow-hidden">
               <ul className="flex flex-col gap-2 md:flex-row flex-shrink-0 font-semibold leading-dense text-foreground will-change-transform xs:animate-infinityScroll">
                 {[
-                  'Onsite Analysis',
-                  'Keyword Research',
+                  'Technical Audits',
+                  'Keyword Tracking',
                   'Backlink Analysis',
                   'Site Crawling',
-                  'Technical Audits',
-                  'Content Analysis',
-                ].map((item, index) => (
+                  'Content Optimization',
+                  'Rank Monitoring',
+                ].map((item) => (
                   <li
                     key={item}
                     className="relative sm:shrink-0 before:relative before:mx-2.5 before:inline-block before:aspect-square before:w-[3px] before:rounded-full before:bg-foreground/30 before:align-middle sm:before:mx-2"
@@ -71,30 +88,14 @@ export const HeroSection = () => {
                   </li>
                 ))}
               </ul>
-              <ul className="hidden flex-shrink-0 font-semibold leading-dense text-foreground will-change-transform xs:flex xs:animate-infinityScroll">
-                {[
-                  'Team Planner',
-                  'Project Management',
-                  'Virtual Office',
-                  'Chat',
-                  'Documents',
-                  'Inbox',
-                ].map((item) => (
-                  <li
-                    key={item}
-                    className="relative before:relative before:mx-2.5 before:inline-block before:aspect-square before:w-[3px] before:rounded-full before:bg-foreground/30 before:align-middle sm:shrink-0 sm:before:mx-2"
-                  >
-                    {item}
-                  </li>
-                ))}
-              </ul>
             </div>
-          </div>{' '}
+          </div>
+
           <div className="mt-16 flow-root sm:mt-24">
             <div className="-m-2 rounded-xl bg-muted/10 p-2 ring-1 ring-inset ring-muted/10 lg:-m-4 lg:rounded-2xl lg:p-4">
               <img
                 src="https://tailwindui.com/plus/img/component-images/dark-project-app-screenshot.png"
-                alt="App screenshot"
+                alt="Onsite SEO dashboard showing technical audit results and ranking improvements"
                 width={2432}
                 height={1442}
                 className="rounded-md shadow-2xl ring-1 ring-muted/10"

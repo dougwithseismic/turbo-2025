@@ -7,95 +7,179 @@ import {
   DiscordIcon,
 } from '@/components/icons/social-icons'
 
+const footerSections = [
+  {
+    title: 'Product',
+    links: [
+      { label: 'Features', href: '/features' },
+      { label: 'Technical Audits', href: '/features/technical-audits' },
+      { label: 'Keyword Research', href: '/features/keyword-research' },
+      { label: 'Backlink Analysis', href: '/features/backlink-analysis' },
+      { label: 'Pricing', href: '/pricing' },
+      { label: 'Changelog', href: '/changelog' },
+    ],
+  },
+  {
+    title: 'Resources',
+    links: [
+      { label: 'Documentation', href: '/docs' },
+      { label: 'API Reference', href: '/api' },
+      { label: 'SEO Guides', href: '/guides' },
+      { label: 'Case Studies', href: '/case-studies' },
+      { label: 'Blog', href: '/blog' },
+      { label: 'Community', href: '/community' },
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      { label: 'About Us', href: '/about' },
+      { label: 'Careers', href: '/careers' },
+      { label: 'Press Kit', href: '/press' },
+      { label: 'Contact', href: '/contact' },
+    ],
+  },
+  {
+    title: 'Legal',
+    links: [
+      { label: 'Privacy Policy', href: '/legal/privacy' },
+      { label: 'Terms of Service', href: '/legal/terms' },
+      { label: 'Cookie Policy', href: '/legal/cookies' },
+      { label: 'DPA', href: '/legal/dpa' },
+    ],
+  },
+]
+
+const socialLinks = [
+  {
+    name: 'Twitter',
+    href: 'https://twitter.com/seismic_io',
+    icon: TwitterIcon,
+  },
+  {
+    name: 'LinkedIn',
+    href: 'https://www.linkedin.com/company/withseismic/',
+    icon: LinkedInIcon,
+  },
+  {
+    name: 'GitHub',
+    href: 'https://github.com/dougwithseismic',
+    icon: GithubIcon,
+  },
+  {
+    name: 'YouTube',
+    href: 'https://www.youtube.com/@dougsilkstone',
+    icon: YoutubeIcon,
+  },
+  {
+    name: 'Slack',
+    href: 'https://seismic.link/slack',
+    icon: SlackIcon,
+  },
+  {
+    name: 'Discord',
+    href: 'https://discord.gg/seismic',
+    icon: DiscordIcon,
+  },
+]
+
 export const MarketingFooter = () => {
   return (
-    <footer className="w-full bg-black border-t border-border/40 z-50">
-      <div className="mx-auto flex max-w-7xl flex-col items-center space-y-6 px-6 py-8 md:flex-row md:items-center md:justify-between md:space-y-0 md:py-4">
-        {/* Copyright - Left */}
-        <div className="text-center text-sm text-gray-400 md:text-left">
-          Copyright © {new Date().getFullYear()} Seismic Labs. All rights
-          reserved.
+    <footer className="w-full border-t border-border/40 bg-black">
+      <div className="mx-auto max-w-7xl px-6 pb-8 pt-16 sm:pt-24 lg:px-8">
+        {/* Logo and Description */}
+        <div className="xl:grid xl:grid-cols-3 xl:gap-8">
+          <div className="space-y-8">
+            <img src="/logo.svg" alt="Onsite" className="h-7 w-auto" />
+            <p className="text-sm leading-6 text-gray-400">
+              Empowering teams to improve their technical SEO and drive organic
+              growth.
+            </p>
+            <div className="flex space-x-6">
+              {socialLinks.map((item) => (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-400 hover:text-white"
+                  aria-label={item.name}
+                >
+                  <item.icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Sections */}
+          <div className="mt-16 grid grid-cols-2 gap-8 xl:col-span-2 xl:mt-0">
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              {footerSections.slice(0, 2).map((section) => (
+                <div key={section.title}>
+                  <h3 className="text-sm font-semibold text-white">
+                    {section.title}
+                  </h3>
+                  <ul role="list" className="mt-6 space-y-4">
+                    {section.links.map((link) => (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          className="text-sm text-gray-400 hover:text-white"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className="md:grid md:grid-cols-2 md:gap-8">
+              {footerSections.slice(2).map((section) => (
+                <div key={section.title}>
+                  <h3 className="text-sm font-semibold text-white">
+                    {section.title}
+                  </h3>
+                  <ul role="list" className="mt-6 space-y-4">
+                    {section.links.map((link) => (
+                      <li key={link.label}>
+                        <a
+                          href={link.href}
+                          className="text-sm text-gray-400 hover:text-white"
+                        >
+                          {link.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Terms and Privacy - Center */}
-        <div className="flex space-x-6">
-          <a
-            href="/legal/terms"
-            className="text-sm text-gray-400 hover:text-white"
-          >
-            Terms of Service
-          </a>
-          <a
-            href="/legal/privacy"
-            className="text-sm text-gray-400 hover:text-white"
-          >
-            Privacy Policy
-          </a>
-        </div>
-
-        {/* Social Icons - Center */}
-        <div className="flex items-center space-x-4">
-          <a
-            href="https://twitter.com/seismic_io"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="Twitter"
-          >
-            <TwitterIcon className="h-4 w-4" />
-          </a>
-          <a
-            href="https://www.linkedin.com/company/withseismic/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="LinkedIn"
-          >
-            <LinkedInIcon className="h-4 w-4" />
-          </a>
-          <a
-            href="https://github.com/dougwithseismic"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="GitHub"
-          >
-            <GithubIcon className="h-4 w-4" />
-          </a>
-          <a
-            href="https://www.youtube.com/@dougsilkstone"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="YouTube"
-          >
-            <YoutubeIcon className="h-4 w-4" />
-          </a>
-          <a
-            href="https://seismic.link/slack"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="Slack"
-          >
-            <SlackIcon className="h-4 w-4" />
-          </a>
-          <a
-            href="https://discord.gg/seismic"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-400 hover:text-white"
-            aria-label="Discord"
-          >
-            <DiscordIcon className="h-4 w-4" />
-          </a>
-        </div>
-
-        {/* Made with passion - Right */}
-        <div className="flex items-center gap-2">
-          <span className="bg-gradient-to-r from-chart-1 to-chart-2 bg-clip-text text-sm text-transparent">
-            Made with passion, and Seismic
-          </span>
+        {/* Bottom Section */}
+        <div className="mt-16 border-t border-white/10 pt-8 sm:mt-20 lg:mt-24">
+          <div className="flex flex-col items-center justify-between gap-y-4 md:flex-row">
+            <p className="text-xs leading-5 text-gray-400">
+              &copy; {new Date().getFullYear()} Seismic Labs. All rights
+              reserved.
+            </p>
+            <div className="flex items-center gap-x-4 text-xs text-gray-400">
+              <span className="flex items-center gap-x-1">
+                <span className="font-medium text-primary">50,000+</span> teams
+              </span>
+              <span className="h-4 w-px bg-gray-700" aria-hidden="true" />
+              <span className="flex items-center gap-x-1">
+                <span className="font-medium text-primary">93%</span> success
+                rate
+              </span>
+              <span className="h-4 w-px bg-gray-700" aria-hidden="true" />
+              <span className="flex items-center gap-x-1">
+                Made with passion in SF
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </footer>

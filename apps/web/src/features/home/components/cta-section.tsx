@@ -1,4 +1,5 @@
 import { cn } from '@/lib/utils'
+import { CheckCircle2 } from 'lucide-react'
 
 export const CTASection = () => {
   return (
@@ -46,33 +47,64 @@ export const CTASection = () => {
       </div>
       <div className="mx-auto max-w-2xl text-center">
         <h2 className="text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-          Stop guessing your SEO strategy.
-          <br />
-          Start ranking better today.
+          Start catching SEO issues before they hurt your rankings
         </h2>
         <p className="mx-auto mt-6 max-w-xl text-lg/8 text-muted-foreground">
-          Get everything you need to optimize your site's technical SEO: from
-          crawling and audits to keyword research and backlink analysis. Built
-          by SEO experts who understand what modern teams need.
+          Join 50,000+ companies already using Onsite to improve their technical
+          SEO. Set up in minutes, see results in hours.
         </p>
+
+        {/* Trust Building Elements */}
+        <div className="mt-8 flex flex-col items-center gap-4">
+          <div className="flex flex-wrap justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <span>5-minute setup</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <span>No credit card required</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="h-5 w-5 text-primary" />
+              <span>Cancel anytime</span>
+            </div>
+          </div>
+        </div>
+
         <div className="mt-10 flex items-center justify-center gap-x-6">
           <a
             href="/register"
             className={cn(
-              'rounded-md bg-primary px-3.5 py-2.5 text-sm font-semibold',
+              'rounded-full bg-primary px-8 py-3 text-base font-semibold',
               'text-primary-foreground shadow-sm hover:bg-primary/90',
               'focus-visible:outline focus-visible:outline-2',
               'focus-visible:outline-offset-2 focus-visible:outline-primary',
             )}
           >
-            Try it Free
+            Start Free Trial
           </a>
           <a
             href="#features"
-            className="text-sm/6 font-semibold hover:text-muted-foreground"
+            className="text-base font-semibold hover:text-muted-foreground flex items-center gap-2"
           >
-            See all features <span aria-hidden="true">→</span>
+            See live demo
+            <span aria-hidden="true" className="text-primary">
+              →
+            </span>
           </a>
+        </div>
+
+        {/* Social Proof */}
+        <div className="mt-10 flex justify-center gap-x-8 text-sm text-muted-foreground">
+          <p>
+            <span className="font-semibold text-primary">93%</span> report
+            ranking improvements
+          </p>
+          <p>
+            <span className="font-semibold text-primary">4.9/5</span> average
+            rating
+          </p>
         </div>
       </div>
     </div>
