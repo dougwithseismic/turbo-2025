@@ -30,9 +30,6 @@
   ],
   "main": "./src/index.ts",
   "name": "@repo/supabase",
-  "peerDependencies": {
-    "@supabase/supabase-js": "^2.0.0"
-  },
   "private": true,
   "scripts": {
     "build": "tsc",
