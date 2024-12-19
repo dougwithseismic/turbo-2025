@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -113,6 +113,10 @@ type OrganizationQueryParams = SupabaseProps & {
   orgId: string
 }
 
+type OrganizationQueryKey = ReturnType<typeof organizationKeys.all>
+type OrganizationDetailKey = ReturnType<typeof organizationKeys.detail>
+type OrganizationMembersKey = ReturnType<typeof organizationKeys.members>
+
 /**
  * Query options factory for organization queries with error handling
  *
@@ -136,38 +140,48 @@ type OrganizationQueryParams = SupabaseProps & {
  * ```
  */
 export const organizationQueries = {
-  detail: ({ supabase, orgId }: OrganizationQueryParams) =>
-    queryOptions({
-      queryKey: organizationKeys.detail({ orgId }),
-      queryFn: async (): Promise<Organization> => {
-        try {
-          const data = await getOrganization({ supabase, orgId })
-          if (!data) {
-            throw new OrganizationError(
-              'Organization not found',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw OrganizationError.fromError(err, 'FETCH_ERROR')
+  detail: ({
+    supabase,
+    orgId,
+  }: OrganizationQueryParams): UseQueryOptions<
+    Organization,
+    OrganizationError
+  > => ({
+    queryKey: organizationKeys.detail({ orgId }),
+    queryFn: async () => {
+      try {
+        const data = await getOrganization({ supabase, orgId })
+        if (!data) {
+          throw new OrganizationError(
+            'Organization not found',
+            'NOT_FOUND',
+            404,
+          )
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw OrganizationError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  members: ({ supabase, orgId }: OrganizationQueryParams) =>
-    queryOptions({
-      queryKey: organizationKeys.members({ orgId }),
-      queryFn: async (): Promise<OrganizationMember[]> => {
-        try {
-          const data = await getOrganizationMembers({ supabase, orgId })
-          return data
-        } catch (err) {
-          throw OrganizationError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  members: ({
+    supabase,
+    orgId,
+  }: OrganizationQueryParams): UseQueryOptions<
+    OrganizationMember[],
+    OrganizationError
+  > => ({
+    queryKey: organizationKeys.members({ orgId }),
+    queryFn: async () => {
+      try {
+        const data = await getOrganizationMembers({ supabase, orgId })
+        return data
+      } catch (err) {
+        throw OrganizationError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetOrganizationParams = OrganizationQueryParams & QueryEnabledProps

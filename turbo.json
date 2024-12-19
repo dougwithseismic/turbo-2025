@@ -28,6 +28,7 @@
     },
     "dev": {
       "cache": false,
+      "dependsOn": ["^build"],
       "env": ["NODE_ENV", "SUPABASE_URL", "SUPABASE_ANON_KEY"],
       "persistent": true
     },

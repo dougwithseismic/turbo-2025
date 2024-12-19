@@ -1,5 +1,5 @@
 import {
-  queryOptions,
+  type QueryFunction,
   useMutation,
   useQuery,
   useQueryClient,
@@ -121,31 +121,39 @@ type ApiServiceQueryParams = SupabaseProps & {
  * ```
  */
 export const apiServiceQueries = {
-  list: ({ supabase }: ApiServiceQueryParams) =>
-    queryOptions({
-      queryKey: apiServiceKeys.lists(),
-      queryFn: async (): Promise<ApiService[]> => {
-        try {
-          const data = await getApiServices({ supabase })
-          return data
-        } catch (err) {
-          throw ApiServiceError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  list: ({ supabase }: ApiServiceQueryParams) => {
+    const queryKey = apiServiceKeys.lists()
+    const queryFn: QueryFunction<ApiService[]> = async () => {
+      try {
+        const data = await getApiServices({ supabase })
+        return data
+      } catch (err) {
+        throw ApiServiceError.fromError(err, 'FETCH_ERROR')
+      }
+    }
 
-  userQuotas: ({ supabase, userId }: Required<ApiServiceQueryParams>) =>
-    queryOptions({
-      queryKey: apiServiceKeys.userQuotas({ userId }),
-      queryFn: async (): Promise<ApiQuotaAllocation[]> => {
-        try {
-          const data = await getUserApiQuotas({ supabase, userId })
-          return data
-        } catch (err) {
-          throw ApiServiceError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+    return {
+      queryKey,
+      queryFn,
+    }
+  },
+
+  userQuotas: ({ supabase, userId }: Required<ApiServiceQueryParams>) => {
+    const queryKey = apiServiceKeys.userQuotas({ userId })
+    const queryFn: QueryFunction<ApiQuotaAllocation[]> = async () => {
+      try {
+        const data = await getUserApiQuotas({ supabase, userId })
+        return data
+      } catch (err) {
+        throw ApiServiceError.fromError(err, 'FETCH_ERROR')
+      }
+    }
+
+    return {
+      queryKey,
+      queryFn,
+    }
+  },
 }
 
 type GetApiServicesParams = ApiServiceQueryParams & QueryEnabledProps
@@ -171,8 +179,9 @@ export const useGetApiServices = ({
   supabase,
   enabled = true,
 }: GetApiServicesParams): ApiServiceResponse<ApiService[]> => {
+  const query = apiServiceQueries.list({ supabase })
   const { data, error } = useQuery<ApiService[], ApiServiceError>({
-    ...apiServiceQueries.list({ supabase }),
+    ...query,
     enabled,
   })
 
@@ -201,8 +210,9 @@ export const useGetUserApiQuotas = ({
   userId,
   enabled = true,
 }: GetUserApiQuotasParams): ApiServiceResponse<ApiQuotaAllocation[]> => {
+  const query = apiServiceQueries.userQuotas({ supabase, userId })
   const { data, error } = useQuery<ApiQuotaAllocation[], ApiServiceError>({
-    ...apiServiceQueries.userQuotas({ supabase, userId }),
+    ...query,
     enabled: Boolean(userId) && enabled,
   })
 
@@ -244,7 +254,12 @@ export const useUpdateApiQuota = ({ supabase }: SupabaseProps) => {
     UpdateApiQuotaRequest,
     { previousData: ApiQuotaAllocation | undefined }
   >({
-    mutationFn: async ({ userId, serviceId, dailyQuota, queriesPerSecond }) => {
+    mutationFn: async ({
+      userId,
+      serviceId,
+      dailyQuota,
+      queriesPerSecond,
+    }): Promise<ApiQuotaAllocation> => {
       try {
         const data = await updateApiQuota({
           supabase,
@@ -261,42 +276,27 @@ export const useUpdateApiQuota = ({ supabase }: SupabaseProps) => {
         throw ApiServiceError.fromError(err, 'UPDATE_ERROR')
       }
     },
-    onMutate: async ({ userId, serviceId, dailyQuota, queriesPerSecond }) => {
-      await queryClient.cancelQueries({
-        queryKey: apiServiceKeys.userQuotas({ userId }),
-      })
+    onMutate: async ({
+      userId,
+    }): Promise<{ previousData: ApiQuotaAllocation | undefined }> => {
+      const query = apiServiceQueries.userQuotas({ supabase, userId })
+      await queryClient.cancelQueries({ queryKey: query.queryKey })
       const previousData = queryClient.getQueryData<ApiQuotaAllocation>(
-        apiServiceKeys.userQuotas({ userId }),
+        query.queryKey,
       )
-
-      if (previousData) {
-        queryClient.setQueryData<ApiQuotaAllocation>(
-          apiServiceKeys.userQuotas({ userId }),
-          {
-            ...previousData,
-            daily_quota: dailyQuota,
-            queries_per_second: queriesPerSecond,
-          },
-        )
-      }
-
       return { previousData }
     },
     onError: (err, { userId }, context) => {
       if (context?.previousData) {
-        queryClient.setQueryData(
-          apiServiceKeys.userQuotas({ userId }),
-          context.previousData,
-        )
+        const query = apiServiceQueries.userQuotas({ supabase, userId })
+        queryClient.setQueryData(query.queryKey, context.previousData)
       }
     },
     onSuccess: (data, { userId }) => {
-      void queryClient.invalidateQueries({
-        queryKey: apiServiceKeys.userQuotas({ userId }),
-      })
-      void queryClient.invalidateQueries({
-        queryKey: apiServiceKeys.lists(),
-      })
+      const quotasQuery = apiServiceQueries.userQuotas({ supabase, userId })
+      const listQuery = apiServiceQueries.list({ supabase })
+      void queryClient.invalidateQueries({ queryKey: quotasQuery.queryKey })
+      void queryClient.invalidateQueries({ queryKey: listQuery.queryKey })
     },
   })
 }

@@ -1,6 +1,8 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type QueryFunction,
+  type QueryKey,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -110,6 +112,9 @@ type OnboardingQueryParams = SupabaseProps & {
   userId: string
 }
 
+type OnboardingQueryKey = ReturnType<typeof onboardingKeys.all>
+type OnboardingDetailKey = ReturnType<typeof onboardingKeys.detail>
+
 /**
  * Query options factory for onboarding queries with error handling
  *
@@ -125,21 +130,26 @@ type OnboardingQueryParams = SupabaseProps & {
  * ```
  */
 export const onboardingQueries = {
-  detail: ({ supabase, userId }: OnboardingQueryParams) =>
-    queryOptions({
-      queryKey: onboardingKeys.detail({ userId }),
-      queryFn: async (): Promise<UserOnboarding> => {
-        try {
-          const data = await getUserOnboarding({ supabase, userId })
-          if (!data) {
-            throw new OnboardingError('Onboarding not found', 'NOT_FOUND', 404)
-          }
-          return data
-        } catch (err) {
-          throw OnboardingError.fromError(err, 'FETCH_ERROR')
+  detail: ({
+    supabase,
+    userId,
+  }: OnboardingQueryParams): UseQueryOptions<
+    UserOnboarding,
+    OnboardingError
+  > => ({
+    queryKey: onboardingKeys.detail({ userId }),
+    queryFn: async () => {
+      try {
+        const data = await getUserOnboarding({ supabase, userId })
+        if (!data) {
+          throw new OnboardingError('Onboarding not found', 'NOT_FOUND', 404)
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw OnboardingError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetUserOnboardingParams = OnboardingQueryParams & QueryEnabledProps

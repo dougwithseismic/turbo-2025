@@ -1,5 +1,5 @@
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -115,6 +115,10 @@ export const invitationKeys = {
   ],
 } as const
 
+type InvitationQueryKey = ReturnType<typeof invitationKeys.all>
+type InvitationPendingKey = ReturnType<typeof invitationKeys.pending>
+type InvitationSentKey = ReturnType<typeof invitationKeys.sent>
+
 /**
  * Query options factory for invitation queries with error handling
  *
@@ -136,32 +140,41 @@ export const invitationKeys = {
  * ```
  */
 export const invitationQueries = {
-  pending: ({ supabase }: SupabaseProps) =>
-    queryOptions({
-      queryKey: invitationKeys.pending(),
-      queryFn: async (): Promise<PendingInvitationRPCResponse[]> => {
-        try {
-          return await getPendingInvitations({ supabase })
-        } catch (err) {
-          throw InvitationError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  pending: ({
+    supabase,
+  }: SupabaseProps): UseQueryOptions<
+    PendingInvitationRPCResponse[],
+    InvitationError
+  > => ({
+    queryKey: invitationKeys.pending(),
+    queryFn: async () => {
+      try {
+        return await getPendingInvitations({ supabase })
+      } catch (err) {
+        throw InvitationError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  sent: ({ supabase, ...props }: SupabaseProps & ResourceProps) =>
-    queryOptions({
-      queryKey: invitationKeys.sent(props),
-      queryFn: async (): Promise<SentInvitationRPCResponse[]> => {
-        try {
-          return await getSentInvitations({
-            supabase,
-            ...props,
-          })
-        } catch (err) {
-          throw InvitationError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  sent: ({
+    supabase,
+    ...props
+  }: SupabaseProps & ResourceProps): UseQueryOptions<
+    SentInvitationRPCResponse[],
+    InvitationError
+  > => ({
+    queryKey: invitationKeys.sent(props),
+    queryFn: async () => {
+      try {
+        return await getSentInvitations({
+          supabase,
+          ...props,
+        })
+      } catch (err) {
+        throw InvitationError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 /**

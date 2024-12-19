@@ -3,7 +3,7 @@
  */
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -102,6 +102,9 @@ type ProfileQueryParams = SupabaseProps & {
   userId: string
 }
 
+type ProfileQueryKey = ReturnType<typeof profileKeys.all>
+type ProfileDetailKey = ReturnType<typeof profileKeys.detail>
+
 /**
  * Query options factory for profile queries with error handling
  *
@@ -117,21 +120,23 @@ type ProfileQueryParams = SupabaseProps & {
  * ```
  */
 export const profileQueries = {
-  detail: ({ supabase, userId }: ProfileQueryParams) =>
-    queryOptions({
-      queryKey: profileKeys.detail({ id: userId }),
-      queryFn: async (): Promise<Profile> => {
-        try {
-          const data = await getProfile({ supabase, userId })
-          if (!data) {
-            throw new ProfileError('Profile not found', 'NOT_FOUND', 404)
-          }
-          return data
-        } catch (err) {
-          throw ProfileError.fromError(err, 'FETCH_ERROR')
+  detail: ({
+    supabase,
+    userId,
+  }: ProfileQueryParams): UseQueryOptions<Profile, ProfileError> => ({
+    queryKey: profileKeys.detail({ id: userId }),
+    queryFn: async () => {
+      try {
+        const data = await getProfile({ supabase, userId })
+        if (!data) {
+          throw new ProfileError('Profile not found', 'NOT_FOUND', 404)
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw ProfileError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetProfileParams = ProfileQueryParams & QueryEnabledProps

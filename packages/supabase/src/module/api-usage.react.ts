@@ -1,17 +1,17 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
 import type { Database } from '../database.types'
 import {
-  type ApiUsage,
   type ApiQuota,
+  type ApiUsage,
   type ApiUsageStats,
-  getApiUsageStats,
   checkApiQuota,
+  getApiUsageStats,
   resetDailyUsage,
   trackApiUsage,
 } from './api-usage'
@@ -116,6 +116,10 @@ type ApiQuotaQueryParams = ApiUsageQueryParams & {
   serviceId: string
 }
 
+type ApiUsageQueryKey = ReturnType<typeof apiUsageKeys.all>
+type ApiUsageStatsKey = ReturnType<typeof apiUsageKeys.stats>
+type ApiUsageQuotaKey = ReturnType<typeof apiUsageKeys.quota>
+
 /**
  * Query options factory for API usage queries with error handling
  *
@@ -141,37 +145,41 @@ export const apiUsageQueries = {
     serviceId: string
     startDate: string
     endDate: string
-  }) =>
-    queryOptions({
-      queryKey: apiUsageKeys.stats({ userId }),
-      queryFn: async (): Promise<ApiUsageStats> => {
-        try {
-          const data = await getApiUsageStats({
-            supabase,
-            userId,
-            serviceId,
-            startDate,
-            endDate,
-          })
-          return data
-        } catch (err) {
-          throw ApiUsageError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  }): UseQueryOptions<ApiUsageStats, ApiUsageError> => ({
+    queryKey: apiUsageKeys.stats({ userId }),
+    queryFn: async () => {
+      try {
+        const data = await getApiUsageStats({
+          supabase,
+          userId,
+          serviceId,
+          startDate,
+          endDate,
+        })
+        return data
+      } catch (err) {
+        throw ApiUsageError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  quota: ({ supabase, userId, serviceId }: ApiQuotaQueryParams) =>
-    queryOptions({
-      queryKey: apiUsageKeys.quota({ userId, serviceId }),
-      queryFn: async (): Promise<ApiQuota> => {
-        try {
-          const data = await checkApiQuota({ supabase, userId, serviceId })
-          return data
-        } catch (err) {
-          throw ApiUsageError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  quota: ({
+    supabase,
+    userId,
+    serviceId,
+  }: ApiUsageQueryParams & {
+    serviceId: string
+  }): UseQueryOptions<ApiQuota, ApiUsageError> => ({
+    queryKey: apiUsageKeys.quota({ userId, serviceId }),
+    queryFn: async () => {
+      try {
+        const data = await checkApiQuota({ supabase, userId, serviceId })
+        return data
+      } catch (err) {
+        throw ApiUsageError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetApiUsageStatsParams = ApiUsageQueryParams & {

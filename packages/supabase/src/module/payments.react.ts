@@ -1,5 +1,7 @@
 import {
-  queryOptions,
+  type QueryFunction,
+  type QueryKey,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -136,6 +138,10 @@ type GetPaymentAccountParams = SupabaseProps & {
   providerName?: string
 } & QueryEnabledProps
 
+type PaymentQueryKey = ReturnType<typeof paymentKeys.all>
+type PaymentAccountKey = ReturnType<typeof paymentKeys.account>
+type PaymentMethodsKey = ReturnType<typeof paymentKeys.methods>
+
 /**
  * Query options factory for payment queries with error handling
  *
@@ -157,72 +163,72 @@ export const paymentQueries = {
     ownerType,
     ownerId,
     providerName,
-  }: Omit<GetPaymentAccountParams, 'enabled'>) =>
-    queryOptions({
-      queryKey: paymentKeys.account({ ownerType, ownerId }),
-      queryFn: async (): Promise<PaymentProviderAccount> => {
-        try {
-          const data = await getPaymentAccount({
-            supabase,
-            ownerType,
-            ownerId,
-            providerName,
-          })
-          if (!data) {
-            throw new PaymentError(
-              'Payment account not found',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw PaymentError.fromError(err, 'FETCH_ERROR')
+  }: Omit<GetPaymentAccountParams, 'enabled'>): UseQueryOptions<
+    PaymentProviderAccount,
+    PaymentError
+  > => ({
+    queryKey: paymentKeys.account({ ownerType, ownerId }),
+    queryFn: async () => {
+      try {
+        const data = await getPaymentAccount({
+          supabase,
+          ownerType,
+          ownerId,
+          providerName,
+        })
+        if (!data) {
+          throw new PaymentError('Payment account not found', 'NOT_FOUND', 404)
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw PaymentError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  methods: ({ supabase, accountId }: SupabaseProps & { accountId: string }) =>
-    queryOptions({
-      queryKey: paymentKeys.methods({ accountId }),
-      queryFn: async (): Promise<PaymentMethod[]> => {
-        try {
-          return await getPaymentMethods({ supabase, accountId })
-        } catch (err) {
-          throw PaymentError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  methods: ({
+    supabase,
+    accountId,
+  }: SupabaseProps & {
+    accountId: string
+  }): UseQueryOptions<PaymentMethod[], PaymentError> => ({
+    queryKey: paymentKeys.methods({ accountId }),
+    queryFn: async () => {
+      try {
+        return await getPaymentMethods({ supabase, accountId })
+      } catch (err) {
+        throw PaymentError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
   accountWithMethods: ({
     supabase,
     ownerType,
     ownerId,
     providerName,
-  }: Omit<GetPaymentAccountParams, 'enabled'>) =>
-    queryOptions({
-      queryKey: paymentKeys.accountWithMethods({ ownerType, ownerId }),
-      queryFn: async (): Promise<PaymentAccountWithMethods> => {
-        try {
-          const data = await getPaymentAccountWithMethods({
-            supabase,
-            ownerType,
-            ownerId,
-            providerName,
-          })
-          if (!data) {
-            throw new PaymentError(
-              'Payment account not found',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw PaymentError.fromError(err, 'FETCH_ERROR')
+  }: Omit<GetPaymentAccountParams, 'enabled'>): UseQueryOptions<
+    PaymentAccountWithMethods,
+    PaymentError
+  > => ({
+    queryKey: paymentKeys.accountWithMethods({ ownerType, ownerId }),
+    queryFn: async () => {
+      try {
+        const data = await getPaymentAccountWithMethods({
+          supabase,
+          ownerType,
+          ownerId,
+          providerName,
+        })
+        if (!data) {
+          throw new PaymentError('Payment account not found', 'NOT_FOUND', 404)
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw PaymentError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 /**

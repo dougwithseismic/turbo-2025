@@ -1,5 +1,5 @@
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -122,6 +122,10 @@ type GetCurrentSubscriptionParams = SupabaseProps & {
   subscriberId: string
 } & QueryEnabledProps
 
+type SubscriptionQueryKey = ReturnType<typeof subscriptionKeys.all>
+type SubscriptionCurrentKey = ReturnType<typeof subscriptionKeys.current>
+type SubscriptionProviderKey = ReturnType<typeof subscriptionKeys.provider>
+
 /**
  * Query options factory for subscription queries with error handling
  *
@@ -142,55 +146,58 @@ export const subscriptionQueries = {
     supabase,
     subscriberType,
     subscriberId,
-  }: Omit<GetCurrentSubscriptionParams, 'enabled'>) =>
-    queryOptions({
-      queryKey: subscriptionKeys.current({ subscriberType, subscriberId }),
-      queryFn: async (): Promise<SubscriptionWithPlan> => {
-        try {
-          const data = await getCurrentSubscription({
-            supabase,
-            subscriberType,
-            subscriberId,
-          })
-          if (!data) {
-            throw new SubscriptionError(
-              'No active subscription found',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw SubscriptionError.fromError(err, 'FETCH_ERROR')
+  }: Omit<GetCurrentSubscriptionParams, 'enabled'>): UseQueryOptions<
+    SubscriptionWithPlan,
+    SubscriptionError
+  > => ({
+    queryKey: subscriptionKeys.current({ subscriberType, subscriberId }),
+    queryFn: async () => {
+      try {
+        const data = await getCurrentSubscription({
+          supabase,
+          subscriberType,
+          subscriberId,
+        })
+        if (!data) {
+          throw new SubscriptionError(
+            'No active subscription found',
+            'NOT_FOUND',
+            404,
+          )
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw SubscriptionError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
   provider: ({
     supabase,
     providerSubscriptionId,
-  }: SupabaseProps & { providerSubscriptionId: string }) =>
-    queryOptions({
-      queryKey: subscriptionKeys.provider({ providerSubscriptionId }),
-      queryFn: async (): Promise<Subscription> => {
-        try {
-          const data = await getSubscriptionByProviderId({
-            supabase,
-            providerSubscriptionId,
-          })
-          if (!data) {
-            throw new SubscriptionError(
-              'Subscription not found for provider ID',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw SubscriptionError.fromError(err, 'FETCH_ERROR')
+  }: SupabaseProps & {
+    providerSubscriptionId: string
+  }): UseQueryOptions<Subscription, SubscriptionError> => ({
+    queryKey: subscriptionKeys.provider({ providerSubscriptionId }),
+    queryFn: async () => {
+      try {
+        const data = await getSubscriptionByProviderId({
+          supabase,
+          providerSubscriptionId,
+        })
+        if (!data) {
+          throw new SubscriptionError(
+            'Subscription not found for provider ID',
+            'NOT_FOUND',
+            404,
+          )
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw SubscriptionError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 /**

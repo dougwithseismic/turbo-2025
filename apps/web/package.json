@@ -38,7 +38,7 @@
     "input-otp": "^1.4.1",
     "lucide-react": "^0.462.0",
     "motion": "11.14.4",
-    "next": "15.1.0",
+    "next": "15.1.1-canary.13",
     "next-mdx-remote": "^5.0.0",
     "next-themes": "^0.4.3",
     "react": "19.1.0-canary-e06c72fc-20241215",

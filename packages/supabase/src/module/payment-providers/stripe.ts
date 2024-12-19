@@ -20,7 +20,7 @@ import Stripe from 'stripe'
  */
 export const createStripeClient = ({
   apiKey,
-  apiVersion = '2024-11-20.acacia',
+  apiVersion = '2024-12-18.acacia',
 }: {
   apiKey: string
   apiVersion?: Stripe.LatestApiVersion

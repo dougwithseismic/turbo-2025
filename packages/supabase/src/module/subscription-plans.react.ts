@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -132,63 +132,73 @@ type GetSubscriptionPlansParams = SupabaseProps & {
  * ```
  */
 export const subscriptionPlanQueries = {
-  list: ({ supabase, type }: Omit<GetSubscriptionPlansParams, 'enabled'>) =>
-    queryOptions({
-      queryKey: subscriptionPlanKeys.list({ type }),
-      queryFn: async (): Promise<SubscriptionPlan[]> => {
-        try {
-          return await getSubscriptionPlans({ supabase, type })
-        } catch (err) {
-          throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  list: ({
+    supabase,
+    type,
+  }: Omit<GetSubscriptionPlansParams, 'enabled'>): UseQueryOptions<
+    SubscriptionPlan[],
+    SubscriptionPlanError
+  > => ({
+    queryKey: subscriptionPlanKeys.list({ type }),
+    queryFn: async () => {
+      try {
+        return await getSubscriptionPlans({ supabase, type })
+      } catch (err) {
+        throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  detail: ({ supabase, planId }: SupabaseProps & { planId: string }) =>
-    queryOptions({
-      queryKey: subscriptionPlanKeys.detail({ planId }),
-      queryFn: async (): Promise<SubscriptionPlan> => {
-        try {
-          const data = await getSubscriptionPlan({ supabase, planId })
-          if (!data) {
-            throw new SubscriptionPlanError(
-              'Subscription plan not found',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
+  detail: ({
+    supabase,
+    planId,
+  }: SupabaseProps & {
+    planId: string
+  }): UseQueryOptions<SubscriptionPlan, SubscriptionPlanError> => ({
+    queryKey: subscriptionPlanKeys.detail({ planId }),
+    queryFn: async () => {
+      try {
+        const data = await getSubscriptionPlan({ supabase, planId })
+        if (!data) {
+          throw new SubscriptionPlanError(
+            'Subscription plan not found',
+            'NOT_FOUND',
+            404,
+          )
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
   stripePrice: ({
     supabase,
     stripePriceId,
-  }: SupabaseProps & { stripePriceId: string }) =>
-    queryOptions({
-      queryKey: subscriptionPlanKeys.stripePrice({ priceId: stripePriceId }),
-      queryFn: async (): Promise<SubscriptionPlan> => {
-        try {
-          const data = await getSubscriptionPlanByStripePrice({
-            supabase,
-            stripePriceId,
-          })
-          if (!data) {
-            throw new SubscriptionPlanError(
-              'Subscription plan not found for Stripe price',
-              'NOT_FOUND',
-              404,
-            )
-          }
-          return data
-        } catch (err) {
-          throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
+  }: SupabaseProps & {
+    stripePriceId: string
+  }): UseQueryOptions<SubscriptionPlan, SubscriptionPlanError> => ({
+    queryKey: subscriptionPlanKeys.stripePrice({ priceId: stripePriceId }),
+    queryFn: async () => {
+      try {
+        const data = await getSubscriptionPlanByStripePrice({
+          supabase,
+          stripePriceId,
+        })
+        if (!data) {
+          throw new SubscriptionPlanError(
+            'Subscription plan not found for Stripe price',
+            'NOT_FOUND',
+            404,
+          )
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw SubscriptionPlanError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 /**

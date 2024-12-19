@@ -1,6 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
-  queryOptions,
+  type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
@@ -146,6 +146,11 @@ type OrgProjectsQueryParams = SupabaseProps & {
   organizationId: string
 }
 
+type ProjectQueryKey = ReturnType<typeof projectKeys.all>
+type ProjectDetailKey = ReturnType<typeof projectKeys.detail>
+type ProjectMembersKey = ReturnType<typeof projectKeys.members>
+type ProjectOrgKey = ReturnType<typeof projectKeys.organizationProjects>
+
 /**
  * Query options factory for project queries with error handling
  *
@@ -161,72 +166,77 @@ type OrgProjectsQueryParams = SupabaseProps & {
  * ```
  */
 export const projectQueries = {
-  detail: ({ supabase, projectId }: ProjectQueryParams) =>
-    queryOptions({
-      queryKey: projectKeys.detail({ id: projectId }),
-      queryFn: async (): Promise<Project> => {
-        try {
-          const data = await getProject({ supabase, projectId })
-          if (!data) {
-            throw new ProjectError({
-              message: 'Project not found',
-              code: 'NOT_FOUND',
-              status: 404,
-            })
-          }
-          return data
-        } catch (err) {
-          throw ProjectError.fromError(err, 'FETCH_ERROR')
+  detail: ({
+    supabase,
+    projectId,
+  }: ProjectQueryParams): UseQueryOptions<Project, ProjectError> => ({
+    queryKey: projectKeys.detail({ id: projectId }),
+    queryFn: async () => {
+      try {
+        const data = await getProject({ supabase, projectId })
+        if (!data) {
+          throw new ProjectError({
+            message: 'Project not found',
+            code: 'NOT_FOUND',
+            status: 404,
+          })
         }
-      },
-    }),
+        return data
+      } catch (err) {
+        throw ProjectError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
-  members: ({ supabase, projectId }: ProjectQueryParams) =>
-    queryOptions({
-      queryKey: projectKeys.members({ projectId }),
-      queryFn: async (): Promise<ProjectMember[]> => {
-        try {
-          const data = await getProjectMembers({ supabase, projectId })
-          return data
-        } catch (err) {
-          throw ProjectError.fromError(err, 'FETCH_ERROR')
-        }
-      },
-    }),
+  members: ({
+    supabase,
+    projectId,
+  }: ProjectQueryParams): UseQueryOptions<ProjectMember[], ProjectError> => ({
+    queryKey: projectKeys.members({ projectId }),
+    queryFn: async () => {
+      try {
+        const data = await getProjectMembers({ supabase, projectId })
+        return data
+      } catch (err) {
+        throw ProjectError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 
   organizationProjects: ({
     supabase,
     organizationId,
-  }: OrgProjectsQueryParams) =>
-    queryOptions({
-      queryKey: projectKeys.organizationProjects({ organizationId }),
-      queryFn: async (): Promise<ProjectWithOrg[]> => {
-        try {
-          const data = await getOrganizationProjects({
-            supabase,
-            organizationId,
-          })
-          if (!data) {
-            return []
-          }
-          // Transform the data to match ProjectWithOrg type
-          return data
-            .filter(
-              (project): project is Project & { organization_id: string } =>
-                project.organization_id !== null,
-            )
-            .map((project) => ({
-              ...project,
-              organization: {
-                id: project.organization_id,
-                name: project.name,
-              },
-            })) as ProjectWithOrg[]
-        } catch (err) {
-          throw ProjectError.fromError(err, 'FETCH_ERROR')
+  }: OrgProjectsQueryParams): UseQueryOptions<
+    ProjectWithOrg[],
+    ProjectError
+  > => ({
+    queryKey: projectKeys.organizationProjects({ organizationId }),
+    queryFn: async () => {
+      try {
+        const data = await getOrganizationProjects({
+          supabase,
+          organizationId,
+        })
+        if (!data) {
+          return []
         }
-      },
-    }),
+        return data
+          .filter(
+            (project): project is Project & { organization_id: string } =>
+              project.organization_id !== null,
+          )
+          .map((project) => ({
+            ...project,
+            organization: {
+              id: project.organization_id,
+              name: project.name,
+            },
+          })) as ProjectWithOrg[]
+      } catch (err) {
+        throw ProjectError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetProjectParams = ProjectQueryParams & QueryEnabledProps
