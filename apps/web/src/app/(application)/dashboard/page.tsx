@@ -3,7 +3,6 @@ import { PageHeader } from '@/features/page-layout/components/page-header'
 import { DashboardStats } from '@/features/dashboard/components/dashboard-stats'
 import { DashboardTable } from '@/features/dashboard/components/dashboard-table'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { RecentActivity } from '@/features/dashboard/components/recent-activity'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import DashboardCharts from '@/features/dashboard/components/dashboard-charts'
 
@@ -42,14 +41,7 @@ const Page = () => {
               <Card className="col-span-12 lg:col-span-8">
                 <DashboardTable />
               </Card>
-              <Card className="col-span-12 h-fit lg:col-span-4">
-                <CardHeader>
-                  <CardTitle>Recent Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <RecentActivity />
-                </CardContent>
-              </Card>
+
               <Card className="col-span-12 lg:col-span-8">
                 <DashboardCharts />
               </Card>

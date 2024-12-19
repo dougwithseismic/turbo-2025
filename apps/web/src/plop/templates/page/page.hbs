@@ -1,0 +1,51 @@
+import { Metadata } from 'next'
+import {
+  QueryClient,
+  dehydrate,
+  HydrationBoundary,
+} from '@tanstack/react-query'
+
+export const metadata: Metadata = {
+  title: '{{pascalCase name}}',
+  robots: {
+    index: false,
+    follow: false,
+  },
+}
+
+interface {{pascalCase name}}Data {
+  id: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+const fetch{{pascalCase name}}Data = async (): Promise<{{pascalCase name}}Data[]> => {
+  const response = await fetch('/api/{{dashCase name}}')
+  if (!response.ok) {
+    throw new Error('Failed to fetch {{name}} data')
+  }
+  const data: {{pascalCase name}}Data[] = await response.json()
+  return data
+}
+
+const Page = async () => {
+  const queryClient = new QueryClient()
+
+  await queryClient.prefetchQuery({
+    queryKey: ['{{camelCase name}}Data'],
+    queryFn: fetch{{pascalCase name}}Data,
+  })
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <section>
+        <div className="container mx-auto px-4 py-8 flex items-center justify-center min-h-96">
+          <h1 className="text-2xl font-bold text-foreground">{{pascalCase name}}</h1>
+        </div>
+      </section>
+    </HydrationBoundary>
+  )
+}
+
+export default Page

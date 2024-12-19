@@ -1,6 +1,6 @@
 'use server'
 import { executeResetPasswordRequest } from '@/features/auth/actions/auth-actions'
-import { AuthResponse } from '@/features/auth/types'
+import { AuthResponse } from '@/features/auth/types/response'
 
 export const handleResetPassword = async ({
   email,

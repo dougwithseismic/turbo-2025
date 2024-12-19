@@ -1,0 +1,33 @@
+import { z } from 'zod';
+
+/**
+ * Form schemas for the {{pascalCase name}} feature
+ */
+
+export const {{camelCase name}}FormSchema = z.object({
+  /** Title field */
+  title: z.string().min(1, 'Title is required').max(100, 'Title is too long'),
+  /** Description field */
+  description: z.string().optional(),
+  /** Status field */
+  status: z.enum(['draft', 'published', 'archived']),
+  /** Settings field */
+  settings: z.object({
+    /** Notifications enabled */
+    notificationsEnabled: z.boolean(),
+    /** Display mode */
+    displayMode: z.enum(['list', 'grid']),
+  }),
+});
+
+export type {{pascalCase name}}FormData = z.infer<typeof {{camelCase name}}FormSchema>;
+
+export const initial{{pascalCase name}}FormValues: {{pascalCase name}}FormData = {
+  title: '',
+  description: '',
+  status: 'draft',
+  settings: {
+    notificationsEnabled: false,
+    displayMode: 'list',
+  },
+};

@@ -3,7 +3,7 @@
 import { cn } from '@/lib/utils'
 import { Slot } from '@radix-ui/react-slot'
 import React, { useState, Children, isValidElement, Fragment } from 'react'
-import { createSlottedComponent } from '@/features/slots'
+import { createSlottedComponent } from '@/features/slots/utils/create-slotted-component'
 
 /**
  * Default status type for ActionField if none is provided

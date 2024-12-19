@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { FeaturesOverview } from '@/features/features/components/features-overview'
+import { FeaturesOverview } from '@/features/marketing/features/components/features-overview'
 
 export const metadata: Metadata = {
   title: 'Features - Complete SEO Platform',

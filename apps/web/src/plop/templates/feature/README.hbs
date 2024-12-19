@@ -1,0 +1,79 @@
+# {{pascalCase name}} Feature
+
+## Overview
+
+Brief description of the {{name}} feature and its purpose.
+
+## Components
+
+- `{{pascalCase name}}` - Main component
+{{#if needsContext}}
+- `{{pascalCase name}}Provider` - Context provider
+{{/if}}
+{{#if needsForms}}
+- Form components
+{{/if}}
+
+## Usage
+
+```tsx
+import { {{pascalCase name}} } from '@features/{{name}}';
+
+function App() {
+  return <{{pascalCase name}} />;
+}
+```
+
+## Configuration
+
+### Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| id | string | undefined | Unique identifier |
+| className | string | undefined | Custom CSS class |
+
+{{#if needsContext}}
+## Context
+
+The feature provides a context for state management. Wrap your components with `{{pascalCase name}}Provider`:
+
+```tsx
+import { {{pascalCase name}}Provider } from '@features/{{name}}';
+
+function App() {
+  return (
+    <{{pascalCase name}}Provider>
+      <{{pascalCase name}} />
+    </{{pascalCase name}}Provider>
+  );
+}
+```
+{{/if}}
+
+## Testing
+
+Run tests:
+```bash
+pnpm test
+```
+
+## Error Handling
+
+The feature includes error boundaries and custom error types. See `errors.ts` for details.
+
+{{#if needsStore}}
+## State Management
+
+Uses Zustand for state management. See `store.ts` for implementation details.
+{{/if}}
+
+## Contributing
+
+1. Create a new branch
+2. Make your changes
+3. Submit a PR
+
+## License
+
+MIT

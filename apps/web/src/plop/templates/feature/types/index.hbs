@@ -1,0 +1,26 @@
+/**
+ * Types for the {{pascalCase name}} feature
+ */
+
+export interface {{pascalCase name}}Data {
+  /** Unique identifier */
+  id: string;
+  /** Creation timestamp */
+  createdAt: Date;
+  /** Last update timestamp */
+  updatedAt: Date;
+  /** Feature status */
+  status: '{{constantCase name}}_ACTIVE' | '{{constantCase name}}_INACTIVE';
+}
+
+export interface {{pascalCase name}}Config {
+  /** Enable/disable feature */
+  enabled: boolean;
+  /** Feature settings */
+  settings: {
+    /** Timeout in milliseconds */
+    timeout: number;
+    /** Maximum retries */
+    maxRetries: number;
+  };
+}

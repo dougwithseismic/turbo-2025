@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { motion, Variants } from 'framer-motion'
 import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react'
-import { ArticleCard } from '../../article/components/article-card'
-import { Article, ArticleMetadata } from '../../article/utility/types'
+import { ArticleCard } from '@/features/article/components/article-card'
+import { ArticleMetadata } from '@/features/article/utility/types'
 import Link from 'next/link'
 
 type FeatureDetailsProps = {

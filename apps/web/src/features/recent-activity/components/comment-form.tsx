@@ -3,8 +3,7 @@ import { Paperclip } from 'lucide-react'
 import { cva } from 'class-variance-authority'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
-import { cn } from '@/lib/utils'
-import { itemVariants, itemContentVariants } from './animations'
+import { itemVariants, itemContentVariants } from '../animations'
 
 type CommentFormProps = {
   newComment: string

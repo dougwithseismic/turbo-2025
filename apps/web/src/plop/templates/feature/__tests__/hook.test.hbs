@@ -1,0 +1,41 @@
+import { describe, expect, it, vi } from 'vitest';
+import { use{{pascalCase name}} } from '../hooks/use-{{dashCase name}}';
+
+describe('use{{pascalCase name}}', () => {
+  it('should be defined', () => {
+    expect(use{{pascalCase name}}).toBeDefined();
+  });
+
+  it('should return the correct structure', () => {
+    const result = use{{pascalCase name}}();
+    
+    expect(result).toEqual({
+      isLoading: expect.any(Boolean),
+      error: null,
+      reset: expect.any(Function),
+    });
+  });
+
+  it('should handle config options', () => {
+    const config = {
+      enabled: true,
+      timeout: 1000,
+    };
+    
+    const result = use{{pascalCase name}}({ config });
+    expect(result.isLoading).toBe(false);
+  });
+
+  it('should handle reset', () => {
+    const spy = vi.fn();
+    vi.stubGlobal('console', { log: spy });
+
+    const { reset } = use{{pascalCase name}}();
+    reset();
+    
+    expect(spy).toHaveBeenCalledWith('Reset implementation');
+    vi.unstubGlobal('console');
+  });
+
+  // Add more test cases here
+});

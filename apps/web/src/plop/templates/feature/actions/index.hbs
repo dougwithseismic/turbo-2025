@@ -1,0 +1,47 @@
+/**
+ * Actions for the {{pascalCase name}} feature
+ */
+
+export type {{pascalCase name}}ActionType = 
+  | '{{constantCase name}}_INITIALIZE'
+  | '{{constantCase name}}_UPDATE'
+  | '{{constantCase name}}_RESET';
+
+export interface {{pascalCase name}}ActionPayload {
+  /** Data associated with the action */
+  data?: {
+    /** Unique identifier */
+    id?: string;
+    /** Action timestamp */
+    timestamp?: Date;
+    /** Additional metadata */
+    metadata?: Record<string, unknown>;
+  };
+  /** Action options */
+  options?: {
+    /** Silent mode - don't trigger side effects */
+    silent?: boolean;
+    /** Action priority */
+    priority?: 'low' | 'medium' | 'high';
+  };
+}
+
+export interface {{pascalCase name}}Action {
+  /** Action type */
+  type: {{pascalCase name}}ActionType;
+  /** Action payload */
+  payload?: {{pascalCase name}}ActionPayload;
+}
+
+export const initialize{{pascalCase name}} = (): {{pascalCase name}}Action => ({
+  type: '{{constantCase name}}_INITIALIZE',
+});
+
+export const update{{pascalCase name}} = (payload: {{pascalCase name}}ActionPayload): {{pascalCase name}}Action => ({
+  type: '{{constantCase name}}_UPDATE',
+  payload,
+});
+
+export const reset{{pascalCase name}} = (): {{pascalCase name}}Action => ({
+  type: '{{constantCase name}}_RESET',
+});

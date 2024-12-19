@@ -1,7 +1,9 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { Header, MarketingFooter } from '@/features/home/components'
+import { MarketingFooter } from '@/features/home/components/footer'
+
 import { FooterCTA } from '@/features/home/components/footer-cta'
+import { Header } from '@/features/home/components/header'
 import { ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 

@@ -1,10 +1,9 @@
-import { motion } from 'motion/react'
-import { X } from 'lucide-react'
 import { cva } from 'class-variance-authority'
-import { cn } from '@/lib/utils'
-import { ActivityItemProps } from './types'
-import { itemVariants, itemContentVariants } from './animations'
+import { X } from 'lucide-react'
+import { motion } from 'motion/react'
 import Link from 'next/link'
+import { itemContentVariants, itemVariants } from '../animations'
+import { ActivityItemProps } from '../types'
 
 const activityItemVariants = cva(
   'relative flex gap-x-4 w-full group transition-opacity duration-200',

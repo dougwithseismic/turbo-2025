@@ -1,0 +1,16 @@
+import { type FC } from 'react';
+
+interface {{pascalCase name}}Props {
+  /** Unique identifier for the {{name}} component */
+  id?: string;
+  /** Optional className for custom styling */
+  className?: string;
+}
+
+export const {{pascalCase name}}: FC<{{pascalCase name}}Props> = ({ id, className }) => {
+  return (
+    <div id={id} className={className}>
+      <h1>{{pascalCase name}} Component</h1>
+    </div>
+  );
+};

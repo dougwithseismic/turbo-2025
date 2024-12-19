@@ -1,0 +1,18 @@
+/**
+ * {{pascalCase name}} feature
+ */
+
+export * from './actions';
+export * from './components';
+export * from './hooks';
+export * from './types';
+export * from './utils';
+{{#if needsContext}}
+export * from './context';
+{{/if}}
+{{#if needsAnimations}}
+export * from './animations';
+{{/if}}
+{{#if needsForms}}
+export * from './forms';
+{{/if}}

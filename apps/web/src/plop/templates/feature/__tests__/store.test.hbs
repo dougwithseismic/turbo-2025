@@ -1,0 +1,89 @@
+import { describe, expect, it, beforeEach } from 'vitest';
+import { use{{pascalCase name}}Store } from '../store';
+
+describe('{{pascalCase name}}Store', () => {
+  beforeEach(() => {
+    use{{pascalCase name}}Store.setState({
+      data: null,
+      isLoading: false,
+      error: null,
+      config: {
+        enabled: true,
+        settings: {
+          timeout: 5000,
+          maxRetries: 3,
+        },
+      },
+    });
+  });
+
+  it('should initialize with default state', () => {
+    const state = use{{pascalCase name}}Store.getState();
+    expect(state).toEqual({
+      data: null,
+      isLoading: false,
+      error: null,
+      config: {
+        enabled: true,
+        settings: {
+          timeout: 5000,
+          maxRetries: 3,
+        },
+      },
+      setData: expect.any(Function),
+      setLoading: expect.any(Function),
+      setError: expect.any(Function),
+      updateConfig: expect.any(Function),
+      reset: expect.any(Function),
+    });
+  });
+
+  it('should update loading state', () => {
+    use{{pascalCase name}}Store.getState().setLoading(true);
+    expect(use{{pascalCase name}}Store.getState().isLoading).toBe(true);
+  });
+
+  it('should update config', () => {
+    use{{pascalCase name}}Store.getState().updateConfig({
+      enabled: false,
+      settings: { timeout: 1000 },
+    });
+
+    const { config } = use{{pascalCase name}}Store.getState();
+    expect(config.enabled).toBe(false);
+    expect(config.settings.timeout).toBe(1000);
+    // Original values should be preserved
+    expect(config.settings.maxRetries).toBe(3);
+  });
+
+  it('should reset to initial state', () => {
+    // Set some values
+    use{{pascalCase name}}Store.setState({
+      data: { test: true },
+      isLoading: true,
+      error: new Error('test'),
+    });
+
+    // Reset
+    use{{pascalCase name}}Store.getState().reset();
+
+    // Verify reset
+    expect(use{{pascalCase name}}Store.getState()).toEqual({
+      data: null,
+      isLoading: false,
+      error: null,
+      config: {
+        enabled: true,
+        settings: {
+          timeout: 5000,
+          maxRetries: 3,
+        },
+      },
+      setData: expect.any(Function),
+      setLoading: expect.any(Function),
+      setError: expect.any(Function),
+      updateConfig: expect.any(Function),
+      reset: expect.any(Function),
+    });
+  });
+});

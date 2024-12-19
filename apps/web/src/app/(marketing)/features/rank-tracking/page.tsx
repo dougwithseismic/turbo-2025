@@ -1,5 +1,5 @@
 import { Metadata } from 'next'
-import { FeatureDetails } from '@/features/features/components/feature-details'
+import { FeatureDetails } from '@/features/marketing/features/components/feature-details'
 
 export const metadata: Metadata = {
   title: 'Rank Tracking - Complete SEO Platform',

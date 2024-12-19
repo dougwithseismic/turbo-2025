@@ -4,13 +4,9 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabaseClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
-import type {
-  LoadingState,
-  AuthFormData,
-  AuthResponse,
-  AuthResponseWithSession,
-} from '../types'
+
 import { AuthContext } from '../context/auth-context'
+import { LoadingState } from '../types/loading-state'
 import {
   executeSignIn,
   executeSignOut,
@@ -18,6 +14,8 @@ import {
   executeResetPasswordRequest,
   executeUpdatePassword,
 } from '../actions/auth-actions'
+import { AuthFormData, AuthResponseWithSession } from '../types'
+import { AuthResponse } from '../types/response'
 
 interface AuthProviderProps {
   children: React.ReactNode

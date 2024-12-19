@@ -2,8 +2,7 @@ import path from 'path'
 import fs from 'fs/promises'
 import matter from 'gray-matter'
 import { compileMDX } from 'next-mdx-remote/rsc'
-import { mdxComponents } from '@/features/markdown/renderer'
-import { Article } from './types'
+import { mdxComponents } from '@/features/markdown/types/renderer'
 
 type ArticleData = {
   slug: string

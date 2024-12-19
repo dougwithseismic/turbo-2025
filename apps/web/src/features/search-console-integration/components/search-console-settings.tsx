@@ -22,10 +22,7 @@ import {
 import { Plus } from 'lucide-react'
 import * as React from 'react'
 import { Area, AreaChart, CartesianGrid, XAxis } from 'recharts'
-import {
-  fetchSearchConsoleSites,
-  GoogleSite,
-} from '../actions/fetch-search-console-sites'
+import { fetchSearchConsoleSites } from '../actions/fetch-search-console-sites'
 import { useQuery } from '@tanstack/react-query'
 
 interface SiteMetrics {

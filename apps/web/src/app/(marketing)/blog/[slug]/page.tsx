@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Separator } from '@/components/ui/separator'
 import { notFound } from 'next/navigation'
-import { getArticleBySlug } from '@/features/article/utility'
+import { getArticleBySlug } from '@/features/article/utility/get-article-by-slug'
 import type { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
 
@@ -28,6 +28,7 @@ export async function generateMetadata({
       },
     }
   } catch (err: unknown) {
+    console.error(err)
     return {
       title: 'Article Not Found',
       description: 'The requested article could not be found.',

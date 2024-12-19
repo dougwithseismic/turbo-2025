@@ -1,0 +1,62 @@
+import { create } from 'zustand';
+import { devtools } from 'zustand/middleware';
+import type { {{pascalCase name}}Data, {{pascalCase name}}Config } from './types';
+
+interface {{pascalCase name}}State {
+  /** Feature data */
+  data: {{pascalCase name}}Data | null;
+  /** Loading state */
+  isLoading: boolean;
+  /** Error state */
+  error: Error | null;
+  /** Feature configuration */
+  config: {{pascalCase name}}Config;
+}
+
+interface {{pascalCase name}}Actions {
+  /** Set feature data */
+  setData: (data: {{pascalCase name}}Data) => void;
+  /** Set loading state */
+  setLoading: (isLoading: boolean) => void;
+  /** Set error state */
+  setError: (error: Error | null) => void;
+  /** Update configuration */
+  updateConfig: (config: Partial<{{pascalCase name}}Config>) => void;
+  /** Reset store to initial state */
+  reset: () => void;
+}
+
+const initialState: {{pascalCase name}}State = {
+  data: null,
+  isLoading: false,
+  error: null,
+  config: {
+    enabled: true,
+    settings: {
+      timeout: 5000,
+      maxRetries: 3,
+    },
+  },
+};
+
+export const use{{pascalCase name}}Store = create<{{pascalCase name}}State & {{pascalCase name}}Actions>()(
+  devtools(
+    (set) => ({
+      ...initialState,
+
+      setData: (data) => set({ data }),
+
+      setLoading: (isLoading) => set({ isLoading }),
+
+      setError: (error) => set({ error }),
+
+      updateConfig: (config) =>
+        set((state) => ({
+          config: { ...state.config, ...config },
+        })),
+
+      reset: () => set(initialState),
+    }),
+    { name: '{{pascalCase name}}Store' }
+  )
+);

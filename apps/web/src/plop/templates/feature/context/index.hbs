@@ -1,0 +1,51 @@
+import { createContext, useContext, type FC, type PropsWithChildren } from 'react';
+
+interface {{pascalCase name}}ContextValue {
+  /** Current state */
+  state: {
+    /** Loading state */
+    isLoading: boolean;
+    /** Error state */
+    error: Error | null;
+  };
+  /** Actions */
+  actions: {
+    /** Reset the context state */
+    reset: () => void;
+  };
+}
+
+const {{pascalCase name}}Context = createContext<{{pascalCase name}}ContextValue | undefined>(undefined);
+
+interface {{pascalCase name}}ProviderProps extends PropsWithChildren {
+  /** Initial state */
+  initialState?: Partial<{{pascalCase name}}ContextValue['state']>;
+}
+
+export const {{pascalCase name}}Provider: FC<{{pascalCase name}}ProviderProps> = ({ children, initialState }) => {
+  const value: {{pascalCase name}}ContextValue = {
+    state: {
+      isLoading: initialState?.isLoading ?? false,
+      error: initialState?.error ?? null,
+    },
+    actions: {
+      reset: () => {
+        // Reset implementation
+      },
+    },
+  };
+
+  return (
+    <{{pascalCase name}}Context.Provider value={value}>
+      {children}
+    </{{pascalCase name}}Context.Provider>
+  );
+};
+
+export const use{{pascalCase name}}Context = (): {{pascalCase name}}ContextValue => {
+  const context = useContext({{pascalCase name}}Context);
+  if (!context) {
+    throw new Error('use{{pascalCase name}}Context must be used within a {{pascalCase name}}Provider');
+  }
+  return context;
+};

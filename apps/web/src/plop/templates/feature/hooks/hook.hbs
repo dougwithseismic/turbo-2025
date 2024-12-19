@@ -1,0 +1,28 @@
+interface Use{{pascalCase name}}Options {
+  /** Optional configuration for the {{name}} hook */
+  config?: {
+    /** Enable/disable feature */
+    enabled?: boolean;
+    /** Timeout in milliseconds */
+    timeout?: number;
+  };
+}
+
+interface Use{{pascalCase name}}Result {
+  /** Loading state */
+  isLoading: boolean;
+  /** Error state */
+  error: Error | null;
+  /** Reset the hook state */
+  reset: () => void;
+}
+
+export const use{{pascalCase name}} = ({ config }: Use{{pascalCase name}}Options = {}): Use{{pascalCase name}}Result => {
+  return {
+    isLoading: false,
+    error: null,
+    reset: () => {
+      // Reset implementation
+    },
+  };
+};
