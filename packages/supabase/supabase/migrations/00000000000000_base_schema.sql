@@ -196,7 +196,7 @@ CREATE TABLE credit_transactions (
 -- Onboarding system
 CREATE TABLE user_onboarding (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid REFERENCES auth.users ON DELETE CASCADE,
+    user_id uuid REFERENCES auth.users ON DELETE CASCADE UNIQUE,
     current_step onboarding_step NOT NULL,
     completed_steps onboarding_step[] DEFAULT '{}',
     is_completed boolean DEFAULT false,
@@ -234,7 +234,6 @@ CREATE TABLE invitations (
 -- Indexes
 CREATE INDEX IF NOT EXISTS idx_subscriptions_subscriber ON subscriptions(subscriber_type, subscriber_id);
 
-
 -- Enable RLS
 ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_oauth_tokens ENABLE ROW LEVEL SECURITY;
@@ -251,6 +250,71 @@ ALTER TABLE api_quota_allocations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE user_onboarding ENABLE ROW LEVEL SECURITY;
 ALTER TABLE oauth_states ENABLE ROW LEVEL SECURITY;
 ALTER TABLE invitations ENABLE ROW LEVEL SECURITY;
+
+-- Basic RLS Policies
+-- Profiles
+CREATE POLICY "Profiles are viewable by authenticated users" ON profiles
+    FOR SELECT TO authenticated
+    USING (true);
+
+CREATE POLICY "Users can update own profile" ON profiles
+    FOR UPDATE TO authenticated
+    USING (auth.uid() = id);
+
+-- Organizations
+CREATE POLICY "Organizations are viewable by authenticated users" ON organizations
+    FOR SELECT TO authenticated
+    USING (true);
+
+CREATE POLICY "Organizations are insertable by authenticated users" ON organizations
+    FOR INSERT TO authenticated
+    WITH CHECK (auth.uid() = owner_id);
+
+-- Projects
+CREATE POLICY "Projects are viewable by authenticated users" ON projects
+    FOR SELECT TO authenticated
+    USING (true);
+
+-- Memberships
+CREATE POLICY "Memberships are viewable by authenticated users" ON memberships
+    FOR SELECT TO authenticated
+    USING (true);
+
+CREATE POLICY "Memberships are modifiable by authenticated users" ON memberships
+    FOR ALL TO authenticated
+    USING (true);
+
+-- User OAuth Tokens
+CREATE POLICY "OAuth tokens are viewable by token owner" ON user_oauth_tokens
+    FOR SELECT TO authenticated
+    USING (user_id = auth.uid());
+
+CREATE POLICY "OAuth tokens are modifiable by token owner" ON user_oauth_tokens
+    FOR ALL TO authenticated
+    USING (user_id = auth.uid());
+
+-- User Onboarding
+CREATE POLICY "Onboarding is viewable by user" ON user_onboarding
+    FOR SELECT TO authenticated
+    USING (user_id = auth.uid());
+
+CREATE POLICY "Onboarding is modifiable by user" ON user_onboarding
+    FOR ALL TO authenticated
+    USING (user_id = auth.uid());
+
+-- OAuth States
+CREATE POLICY "OAuth states are viewable by user" ON oauth_states
+    FOR SELECT TO authenticated
+    USING (user_id = auth.uid());
+
+CREATE POLICY "OAuth states are modifiable by user" ON oauth_states
+    FOR ALL TO authenticated
+    USING (user_id = auth.uid());
+
+-- Invitations
+CREATE POLICY "Invitations are viewable by authenticated users" ON invitations
+    FOR SELECT TO authenticated
+    USING (true);
 
 -- Enable Realtime
 DROP PUBLICATION IF EXISTS supabase_realtime;

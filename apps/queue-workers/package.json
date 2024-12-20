@@ -42,6 +42,7 @@
   "private": true,
   "scripts": {
     "build": "tsc",
+    "check:deps": "depcheck --ignores=\"@types/*,tsx\" --ignore-patterns=\"dist/**,*.config.*\"",
     "dev": "pnpm run load-env tsx watch src/app.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

@@ -1,24 +1,24 @@
-import { SupabaseClient } from '@supabase/supabase-js'
 import {
   type UseQueryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import type { Database } from '../database.types'
+import type { Json, Role } from '../types'
 import {
   Organization,
-  OrganizationUpdate,
   OrganizationMember,
-  getOrganization,
-  updateOrganization,
-  getOrganizationMembers,
+  OrganizationUpdate,
   addOrganizationMember,
+  createOrganization,
+  deleteOrganization,
+  getOrganization,
+  getOrganizationMembers,
+  updateOrganization,
 } from './organizations'
-import type { Json, Role } from '../types'
 
 // Common Types
-import type { SupabaseProps, QueryEnabledProps } from '../types/react-query'
+import type { QueryEnabledProps, SupabaseProps } from '../types/react-query'
 
 type OrganizationResponse<T> = {
   data: T
@@ -442,6 +442,114 @@ export const useAddOrganizationMember = ({ supabase }: SupabaseProps) => {
     onSuccess: (_, { orgId }) => {
       void queryClient.invalidateQueries({
         queryKey: organizationKeys.members({ orgId }),
+      })
+    },
+  })
+}
+
+type CreateOrganizationRequest = {
+  name: string
+  ownerId: string
+  settings?: Json
+}
+
+/**
+ * React hook to create a new organization with error handling and cache updates
+ *
+ * @example
+ * ```ts
+ * const mutation = useCreateOrganization({ supabase })
+ *
+ * // Create organization
+ * mutation.mutate({
+ *   name: 'New Organization',
+ *   settings: { theme: 'dark' }
+ * })
+ *
+ * // With async/await and error handling
+ * try {
+ *   const org = await mutation.mutateAsync({
+ *     name: 'New Organization'
+ *   })
+ *   console.log('Created:', org.name)
+ * } catch (error) {
+ *   console.error('Failed to create:', error.message)
+ * }
+ * ```
+ */
+export const useCreateOrganization = ({ supabase }: SupabaseProps) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    Organization,
+    OrganizationError,
+    CreateOrganizationRequest
+  >({
+    mutationFn: async ({ name, ownerId, settings = {} }) => {
+      try {
+        const data = await createOrganization({
+          supabase,
+          name,
+          ownerId,
+          settings,
+        })
+        if (!data) {
+          throw new OrganizationError(
+            'Failed to create organization',
+            'CREATE_FAILED',
+          )
+        }
+        return data
+      } catch (err) {
+        throw OrganizationError.fromError(err, 'CREATE_ERROR')
+      }
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({
+        queryKey: organizationKeys.lists(),
+      })
+    },
+  })
+}
+
+/**
+ * React hook to delete an organization with error handling and cache updates
+ *
+ * @example
+ * ```ts
+ * const mutation = useDeleteOrganization({ supabase })
+ *
+ * // Delete organization
+ * mutation.mutate('org_123')
+ *
+ * // With async/await and error handling
+ * try {
+ *   await mutation.mutateAsync('org_123')
+ *   console.log('Organization deleted')
+ * } catch (error) {
+ *   console.error('Failed to delete:', error.message)
+ * }
+ * ```
+ */
+export const useDeleteOrganization = ({ supabase }: SupabaseProps) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<boolean, OrganizationError, string>({
+    mutationFn: async (orgId) => {
+      try {
+        return await deleteOrganization({ supabase, orgId })
+      } catch (err) {
+        throw OrganizationError.fromError(err, 'DELETE_ERROR')
+      }
+    },
+    onSuccess: (_, orgId) => {
+      // Remove the organization from the cache
+      queryClient.removeQueries({
+        queryKey: organizationKeys.detail({ orgId }),
+      })
+      // Invalidate the list to reflect the deletion
+      void queryClient.invalidateQueries({
+        queryKey: organizationKeys.lists(),
       })
     },
   })

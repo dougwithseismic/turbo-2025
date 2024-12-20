@@ -1,17 +1,17 @@
-import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../database.types';
-import type { Json, ResourceType, Role } from '../types';
+import { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '../database.types'
+import type { Json, ResourceType, Role } from '../types'
+import { Membership } from './memberships'
 
-type Organization = Database['public']['Tables']['organizations']['Row'];
+type Organization = Database['public']['Tables']['organizations']['Row']
 type OrganizationUpdate =
-  Database['public']['Tables']['organizations']['Update'];
-type Membership = Database['public']['Tables']['memberships']['Row'];
-type Profile = Database['public']['Tables']['profiles']['Row'];
+  Database['public']['Tables']['organizations']['Update']
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 type OrganizationMember = Omit<Membership, 'user_id'> & {
-  user_id: string;
-  profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>;
-};
+  user_id: string
+  profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>
+}
 
 /**
  * Creates a new organization and assigns the creator as owner.
@@ -36,18 +36,18 @@ const createOrganization = async ({
   ownerId,
   settings = {},
 }: {
-  supabase: SupabaseClient<Database>;
-  name: string;
-  ownerId: string;
-  settings?: Json;
+  supabase: SupabaseClient<Database>
+  name: string
+  ownerId: string
+  settings?: Json
 }) => {
   const { data: org, error: orgError } = await supabase
     .from('organizations')
     .insert({ name, owner_id: ownerId, settings })
     .select()
-    .single();
+    .single()
 
-  if (orgError) throw orgError;
+  if (orgError) throw orgError
 
   // Create owner membership
   const { error: memberError } = await supabase.from('memberships').insert({
@@ -55,11 +55,11 @@ const createOrganization = async ({
     resource_type: 'organization' as ResourceType,
     resource_id: org.id,
     role: 'owner' as Role,
-  });
+  })
 
-  if (memberError) throw memberError;
-  return org;
-};
+  if (memberError) throw memberError
+  return org
+}
 
 /**
  * Retrieves an organization by ID.
@@ -77,18 +77,18 @@ const getOrganization = async ({
   supabase,
   orgId,
 }: {
-  supabase: SupabaseClient<Database>;
-  orgId: string;
+  supabase: SupabaseClient<Database>
+  orgId: string
 }) => {
   const { data, error } = await supabase
     .from('organizations')
     .select()
     .eq('id', orgId)
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Updates an organization's properties.
@@ -113,20 +113,20 @@ const updateOrganization = async ({
   orgId,
   updates,
 }: {
-  supabase: SupabaseClient<Database>;
-  orgId: string;
-  updates: OrganizationUpdate;
+  supabase: SupabaseClient<Database>
+  orgId: string
+  updates: OrganizationUpdate
 }) => {
   const { data, error } = await supabase
     .from('organizations')
     .update(updates)
     .eq('id', orgId)
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Retrieves all members of an organization with their profiles.
@@ -144,8 +144,8 @@ const getOrganizationMembers = async ({
   supabase,
   orgId,
 }: {
-  supabase: SupabaseClient<Database>;
-  orgId: string;
+  supabase: SupabaseClient<Database>
+  orgId: string
 }): Promise<OrganizationMember[]> => {
   const { data, error } = await supabase
     .from('memberships')
@@ -167,11 +167,11 @@ const getOrganizationMembers = async ({
     `,
     )
     .eq('resource_type', 'organization')
-    .eq('resource_id', orgId);
+    .eq('resource_id', orgId)
 
-  if (error) throw error;
-  return data as unknown as OrganizationMember[];
-};
+  if (error) throw error
+  return data as unknown as OrganizationMember[]
+}
 
 /**
  * Adds a new member to an organization.
@@ -200,10 +200,10 @@ const addOrganizationMember = async ({
   userId,
   role = 'member',
 }: {
-  supabase: SupabaseClient<Database>;
-  orgId: string;
-  userId: string;
-  role?: Role;
+  supabase: SupabaseClient<Database>
+  orgId: string
+  userId: string
+  role?: Role
 }) => {
   const { data, error } = await supabase
     .from('memberships')
@@ -214,23 +214,46 @@ const addOrganizationMember = async ({
       role,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
+
+/**
+ * Deletes an organization and all associated data.
+ *
+ * @example
+ * ```typescript
+ * await deleteOrganization({
+ *   supabase,
+ *   orgId: 'org_123'
+ * });
+ * ```
+ */
+const deleteOrganization = async ({
+  supabase,
+  orgId,
+}: {
+  supabase: SupabaseClient<Database>
+  orgId: string
+}) => {
+  const { error } = await supabase
+    .from('organizations')
+    .delete()
+    .eq('id', orgId)
+
+  if (error) throw error
+  return true
+}
 
 export {
-  createOrganization,
-  getOrganization,
-  updateOrganization,
-  getOrganizationMembers,
   addOrganizationMember,
-};
+  createOrganization,
+  deleteOrganization,
+  getOrganization,
+  getOrganizationMembers,
+  updateOrganization,
+}
 
-export type {
-  Organization,
-  OrganizationUpdate,
-  Membership,
-  OrganizationMember,
-};
+export type { Organization, OrganizationMember, OrganizationUpdate }

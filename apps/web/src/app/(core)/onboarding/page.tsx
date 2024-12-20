@@ -1,19 +1,13 @@
 import { protectedRoute } from '@/lib/auth'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getUserOnboarding } from '@repo/supabase'
+import { OnboardingFlow } from '@/features/onboarding/components/onboarding-flow'
 
 const OnboardingPage = async (): Promise<React.ReactNode> => {
   const { id: userId } = await protectedRoute()
 
-  const supabase = await createSupabaseServerClient()
-  const onboarding = await getUserOnboarding({
-    supabase,
-    userId,
-  })
+  // TODO: Get organization ID from user's profile or context
+  // For now, using a placeholder
 
-  console.log(onboarding)
-
-  return <>wow</>
+  return <OnboardingFlow userId={userId} />
 }
 
 export default OnboardingPage

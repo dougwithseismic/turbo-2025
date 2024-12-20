@@ -16,7 +16,6 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { SidebarTrigger } from '@/components/ui/sidebar'
 import { Check } from 'lucide-react'
 import { Metadata } from 'next'
 import Link from 'next/link'
@@ -89,27 +88,7 @@ const pricingTiers: PricingTier[] = [
 const PricingPage = () => {
   return (
     <>
-      <header className="flex h-16 shrink-0 items-center gap-2">
-        <div className="flex items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator orientation="vertical" className="mr-2 h-4" />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem>
-                <BreadcrumbLink asChild>
-                  <Link href="/account">Account</Link>
-                </BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Plans</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </div>
-      </header>
-
-      <div className="flex flex-1 flex-col justify-center items-center px-4 py-8">
+      <div className="flex flex-1 flex-col justify-center items-center px-4 py-8 m-auto">
         <div className="mx-auto max-w-5xl text-center">
           <h1 className="text-4xl font-bold tracking-tight">
             Simple, transparent pricing

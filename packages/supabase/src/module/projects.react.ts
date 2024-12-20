@@ -1,3 +1,5 @@
+'use client'
+
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   type UseQueryOptions,
@@ -5,7 +7,8 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query'
-import type { Database } from '../database.types'
+import type { Database, Json } from '../database.types'
+import type { Role } from '../types'
 import {
   Project,
   ProjectUpdate,
@@ -15,6 +18,8 @@ import {
   updateProject,
   getProjectMembers,
   getOrganizationProjects,
+  createProject,
+  addProjectMember,
 } from './projects'
 
 // Common Types
@@ -33,23 +38,6 @@ type ProjectResponse<T> = {
 
 /**
  * Custom error class for handling project-related errors with additional context
- *
- * @example
- * ```ts
- * // Create a new error
- * const error = new ProjectError({
- *   message: 'Project not found',
- *   code: 'NOT_FOUND',
- *   status: 404
- * })
- *
- * // Convert from unknown error
- * try {
- *   await someOperation()
- * } catch (err) {
- *   throw ProjectError.fromError(err, 'OPERATION_ERROR')
- * }
- * ```
  */
 export class ProjectError extends Error {
   constructor({
@@ -97,27 +85,6 @@ type DetailKey = [...BaseKey, 'detail', string]
 type MembersKey = [...DetailKey, 'members']
 type OrgProjectsKey = [...BaseKey, 'list', { organizationId: string }]
 
-/**
- * Query key factory for projects with proper type safety
- *
- * @example
- * ```ts
- * // Get base key
- * const baseKey = projectKeys.all() // ['projects']
- *
- * // Get list key with filters
- * const listKey = projectKeys.list({ filters: { status: 'active' } })
- *
- * // Get detail key
- * const detailKey = projectKeys.detail({ id: '123' })
- *
- * // Get members key
- * const membersKey = projectKeys.members({ projectId: '123' })
- *
- * // Get org projects key
- * const orgKey = projectKeys.organizationProjects({ organizationId: '123' })
- * ```
- */
 export const projectKeys = {
   all: (): BaseKey => ['projects'],
   lists: () => [...projectKeys.all(), 'list'] as const,
@@ -151,20 +118,6 @@ type ProjectDetailKey = ReturnType<typeof projectKeys.detail>
 type ProjectMembersKey = ReturnType<typeof projectKeys.members>
 type ProjectOrgKey = ReturnType<typeof projectKeys.organizationProjects>
 
-/**
- * Query options factory for project queries with error handling
- *
- * @example
- * ```ts
- * // Use in a custom query
- * const { data } = useQuery({
- *   ...projectQueries.detail({
- *     supabase,
- *     projectId: '123'
- *   })
- * })
- * ```
- */
 export const projectQueries = {
   detail: ({
     supabase,
@@ -241,25 +194,6 @@ export const projectQueries = {
 
 type GetProjectParams = ProjectQueryParams & QueryEnabledProps
 
-/**
- * React hook to fetch a project's details with type safety and error handling
- *
- * @example
- * ```ts
- * // Basic usage
- * const { data, error } = useGetProject({
- *   supabase,
- *   projectId: '123'
- * })
- *
- * // With enabled flag
- * const { data, error } = useGetProject({
- *   supabase,
- *   projectId: '123',
- *   enabled: isReady
- * })
- * ```
- */
 export const useGetProject = ({
   supabase,
   projectId,
@@ -276,17 +210,6 @@ export const useGetProject = ({
   }
 }
 
-/**
- * React hook to fetch a project's members with type safety and error handling
- *
- * @example
- * ```ts
- * const { data, error } = useGetProjectMembers({
- *   supabase,
- *   projectId: '123'
- * })
- * ```
- */
 export const useGetProjectMembers = ({
   supabase,
   projectId,
@@ -305,17 +228,6 @@ export const useGetProjectMembers = ({
 
 type GetOrgProjectsParams = OrgProjectsQueryParams & QueryEnabledProps
 
-/**
- * React hook to fetch all projects in an organization
- *
- * @example
- * ```ts
- * const { data, error } = useGetOrganizationProjects({
- *   supabase,
- *   organizationId: '123'
- * })
- * ```
- */
 export const useGetOrganizationProjects = ({
   supabase,
   organizationId,
@@ -337,23 +249,6 @@ type UpdateProjectRequest = {
   updates: ProjectUpdate
 }
 
-/**
- * React hook to update a project with optimistic updates and error handling
- *
- * @example
- * ```ts
- * const mutation = useUpdateProject({ supabase })
- *
- * // Update project
- * mutation.mutate({
- *   projectId: '123',
- *   updates: {
- *     name: 'New Name',
- *     settings: { feature: true }
- *   }
- * })
- * ```
- */
 export const useUpdateProject = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
@@ -389,7 +284,6 @@ export const useUpdateProject = ({ supabase }: SupabaseProps) => {
         const updatedData: ProjectWithOrg = {
           ...previousData,
           ...updates,
-          // Ensure organization_id and organization are preserved from previous data
           organization_id: previousData.organization_id,
           organization: previousData.organization,
         }
@@ -415,6 +309,98 @@ export const useUpdateProject = ({ supabase }: SupabaseProps) => {
       })
       void queryClient.invalidateQueries({
         queryKey: projectKeys.lists(),
+      })
+    },
+  })
+}
+
+type CreateProjectRequest = {
+  name: string
+  organizationId: string
+  settings?: Record<string, unknown>
+}
+
+export const useCreateProject = ({ supabase }: SupabaseProps) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<Project, ProjectError, CreateProjectRequest>({
+    mutationFn: async ({ name, organizationId, settings }) => {
+      try {
+        const data = await createProject({
+          supabase,
+          name,
+          organizationId,
+          settings: settings as Json,
+        })
+        if (!data) {
+          throw new ProjectError({
+            message: 'Failed to create project',
+            code: 'CREATE_FAILED',
+          })
+        }
+        return data
+      } catch (err) {
+        throw ProjectError.fromError(err, 'CREATE_ERROR')
+      }
+    },
+    onSuccess: (data, { organizationId }) => {
+      void queryClient.invalidateQueries({
+        queryKey: projectKeys.organizationProjects({ organizationId }),
+      })
+      void queryClient.invalidateQueries({
+        queryKey: projectKeys.lists(),
+      })
+    },
+  })
+}
+
+type AddProjectMemberRequest = {
+  projectId: string
+  userId: string
+  role?: Role
+}
+
+/**
+ * React hook to add a member to a project with error handling
+ *
+ * @example
+ * ```ts
+ * const mutation = useAddProjectMember({ supabase })
+ *
+ * // Add a member
+ * mutation.mutate({
+ *   projectId: '123',
+ *   userId: 'user_456',
+ *   role: 'member'
+ * })
+ * ```
+ */
+export const useAddProjectMember = ({ supabase }: SupabaseProps) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ProjectMember, ProjectError, AddProjectMemberRequest>({
+    mutationFn: async ({ projectId, userId, role }) => {
+      try {
+        const data = await addProjectMember({
+          supabase,
+          projectId,
+          userId,
+          role,
+        })
+        if (!data) {
+          throw new ProjectError({
+            message: 'Failed to add project member',
+            code: 'ADD_MEMBER_FAILED',
+          })
+        }
+        return data as ProjectMember
+      } catch (err) {
+        throw ProjectError.fromError(err, 'ADD_MEMBER_ERROR')
+      }
+    },
+    onSuccess: (_, { projectId }) => {
+      void queryClient.invalidateQueries({
+        queryKey: projectKeys.members({ projectId }),
       })
     },
   })

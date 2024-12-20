@@ -654,6 +654,86 @@ BEGIN
 END;
 $$;
 
+-- Function to create a project with automatic owner membership
+CREATE OR REPLACE FUNCTION create_project(
+    organization_id_param uuid,
+    name_param text,
+    settings_param jsonb DEFAULT '{}',
+    client_name_param text DEFAULT NULL,
+    client_email_param text DEFAULT NULL,
+    is_client_portal_param boolean DEFAULT false
+)
+RETURNS uuid
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+    project_id uuid;
+    org_owner_id uuid;
+BEGIN
+    -- Check org access
+    IF NOT has_organization_access(organization_id_param) THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    -- Get org owner
+    SELECT owner_id INTO org_owner_id
+    FROM organizations
+    WHERE id = organization_id_param;
+
+    -- Create project
+    INSERT INTO projects (
+        organization_id,
+        name,
+        settings,
+        client_name,
+        client_email,
+        is_client_portal
+    )
+    VALUES (
+        organization_id_param,
+        name_param,
+        settings_param,
+        client_name_param,
+        client_email_param,
+        is_client_portal_param
+    )
+    RETURNING id INTO project_id;
+
+    -- Create membership for owner
+    INSERT INTO memberships (
+        user_id,
+        resource_type,
+        resource_id,
+        role
+    )
+    VALUES (
+        org_owner_id,
+        'project',
+        project_id,
+        'owner'
+    );
+
+    -- Also create membership for current user if different from org owner
+    IF auth.uid() != org_owner_id THEN
+        INSERT INTO memberships (
+            user_id,
+            resource_type,
+            resource_id,
+            role
+        )
+        VALUES (
+            auth.uid(),
+            'project',
+            project_id,
+            'admin'
+        );
+    END IF;
+
+    RETURN project_id;
+END;
+$$;
+
 -- Grant necessary permissions
 GRANT EXECUTE ON FUNCTION has_organization_access TO authenticated;
 GRANT EXECUTE ON FUNCTION has_project_access TO authenticated;
@@ -669,4 +749,5 @@ GRANT EXECUTE ON FUNCTION create_invitation TO authenticated;
 GRANT EXECUTE ON FUNCTION accept_invitation TO authenticated;
 GRANT EXECUTE ON FUNCTION decline_invitation TO authenticated;
 GRANT EXECUTE ON FUNCTION get_pending_invitations TO authenticated;
-GRANT EXECUTE ON FUNCTION get_sent_invitations TO authenticated; 
+GRANT EXECUTE ON FUNCTION get_sent_invitations TO authenticated;
+GRANT EXECUTE ON FUNCTION create_project TO authenticated; 
