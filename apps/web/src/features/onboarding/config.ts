@@ -65,7 +65,7 @@ export const STEPS: Record<StepKey, StepConfig> = {
     description: 'Review your setup and confirm to complete the onboarding.',
     Component: ConfirmationStep,
     getProps: ({ state, handlers, onBack }) => ({
-      projectDetails: state.projectDetails!,
+      projectDetails: state.projectDetails,
       onConfirm: handlers.handleConfirmComplete,
       isGoogleConnected: state.isGoogleConnected,
       selectedSite: state.selectedSite,

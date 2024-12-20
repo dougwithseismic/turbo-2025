@@ -6,9 +6,8 @@ const OnboardingPage = async (): Promise<React.ReactNode> => {
 
   // TODO: Get organization ID from user's profile or context
   // For now, using a placeholder
-  const organizationId = 'default-org'
 
-  return <OnboardingFlow userId={userId} organizationId={organizationId} />
+  return <OnboardingFlow userId={userId} />
 }
 
 export default OnboardingPage

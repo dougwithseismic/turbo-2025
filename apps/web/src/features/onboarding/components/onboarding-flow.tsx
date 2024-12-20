@@ -9,7 +9,6 @@ import { STEPS, STEP_SEQUENCE } from '../config'
 import { useOnboardingHandlers } from '../hooks/use-onboarding-handlers'
 import { useGetUserMemberships } from '@repo/supabase'
 import { supabaseClient } from '@/lib/supabase/client'
-import { useAuth } from '@/features/auth/hooks/use-auth'
 
 const onboardingSchema = z.object({
   orgDetails: z
@@ -39,11 +38,9 @@ interface OnboardingFlowProps {
 }
 
 export const OnboardingFlow = ({ userId }: OnboardingFlowProps) => {
-  const { user } = useAuth()
-
   const { data: memberships = [] } = useGetUserMemberships({
     supabase: supabaseClient,
-    userId: user?.id ?? '',
+    userId: userId,
     resourceType: 'organization',
   })
 
@@ -100,7 +97,7 @@ export const OnboardingFlow = ({ userId }: OnboardingFlowProps) => {
     }
   }
 
-  const currentStep = STEPS[currentStepKey as keyof typeof STEPS]
+  const currentStep = STEPS[currentStepKey]
   const showBackButton = STEP_SEQUENCE.indexOf(currentStepKey) > 0
 
   const getStepProps = () => {
