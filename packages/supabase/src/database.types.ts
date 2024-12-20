@@ -1436,6 +1436,17 @@ export type Database = {
         }
         Returns: string
       }
+      create_project: {
+        Args: {
+          organization_id_param: string
+          name_param: string
+          settings_param?: Json
+          client_name_param?: string
+          client_email_param?: string
+          is_client_portal_param?: boolean
+        }
+        Returns: string
+      }
       decline_invitation: {
         Args: {
           invitation_id_param: string

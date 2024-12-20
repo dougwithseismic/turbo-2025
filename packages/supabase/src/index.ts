@@ -38,6 +38,8 @@ export * from './module/projects'
 export * from './module/projects.react'
 
 // User Management
+export * from './module/memberships'
+export * from './module/memberships.react'
 export * from './module/profiles'
 export * from './module/profiles.react'
 export * from './module/onboarding'

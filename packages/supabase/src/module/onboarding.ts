@@ -105,7 +105,7 @@ const updateOnboardingStep = async ({
         metadata,
       },
       {
-        onConflict: 'user_id,current_step',
+        onConflict: 'user_id',
       },
     )
     .select()
