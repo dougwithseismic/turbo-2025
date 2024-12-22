@@ -42,12 +42,14 @@ export class ValidationMiddleware implements Plugin {
   async track<T extends EventName>(event: AnalyticsEvent<T>): Promise<void> {
     try {
       const validatedEvent = analyticsEventSchema.parse(event)
+      console.log('validatedEvent', validatedEvent)
       if (this.nextPlugin.track) {
         await this.nextPlugin.track(validatedEvent)
       }
     } catch (error) {
       if (error instanceof ZodError) {
-        throw this.createValidationError(error)
+        const validationError = this.createValidationError(error)
+        throw validationError
       }
       throw error
     }

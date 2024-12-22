@@ -1,10 +1,5 @@
-import type {
-  Plugin,
-  EventName,
-  AnalyticsEvent,
-  PageView,
-  Identity,
-} from '../types'
+import type { AnalyticsEvent, PageView, Identity } from '../types'
+import type { PluginMethodData } from '../core/analytics'
 import type { SessionStore, SessionStoreConfig } from './session-store'
 import { createSessionStore } from './session-store'
 
@@ -24,26 +19,28 @@ interface SessionProperties extends Record<string, unknown> {
 
 export type WithSession<T> = T & SessionProperties
 
-export class SessionMiddleware implements Plugin {
-  name = 'session-middleware'
-  private nextPlugin: Plugin
+export class SessionMiddleware {
+  name = 'session'
   private store: SessionStore
   private trackSessionEvents: boolean
+  private activityHandler: () => void
+  private visibilityHandler: () => void
 
-  constructor(nextPlugin: Plugin, config: SessionConfig = {}) {
-    this.nextPlugin = nextPlugin
+  constructor(config: SessionConfig = {}) {
     this.trackSessionEvents = config.trackSessionEvents ?? true
-
-    // Use provided store or create a new one
     this.store = config.store ?? createSessionStore(config)
 
+    // Bind handlers to preserve this context
+    this.activityHandler = () => this.store.handleActivity()
+    this.visibilityHandler = () => {
+      if (document.visibilityState === 'visible') {
+        this.store.handleActivity()
+      }
+    }
+
     if (typeof window !== 'undefined') {
-      window.addEventListener('focus', () => this.store.handleActivity())
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          this.store.handleActivity()
-        }
-      })
+      window.addEventListener('focus', this.activityHandler)
+      document.addEventListener('visibilitychange', this.visibilityHandler)
     }
   }
 
@@ -69,47 +66,12 @@ export class SessionMiddleware implements Plugin {
     }
   }
 
-  async initialize(): Promise<void> {
-    if (this.nextPlugin.initialize) {
-      await this.nextPlugin.initialize()
-    }
-  }
-
-  async track<T extends EventName>(
-    event: AnalyticsEvent<T>,
-    isSessionEvent = false,
+  async process<M extends keyof PluginMethodData>(
+    method: M,
+    data: PluginMethodData[M],
+    next: (data: PluginMethodData[M]) => Promise<void>,
   ): Promise<void> {
     try {
-      if (!isSessionEvent) {
-        this.store.handleActivity()
-      }
-
-      const session = this.store.getSession()
-      if (!session) {
-        throw new Error('No active session')
-      }
-
-      // Track session events if enabled
-      if (this.trackSessionEvents && !isSessionEvent) {
-        session.events++
-        this.store.setSession(session)
-      }
-
-      if (this.nextPlugin.track) {
-        const enrichedEvent = {
-          ...event,
-          properties: this.enrichProperties(event.properties),
-        } as AnalyticsEvent<T>
-
-        await this.nextPlugin.track(enrichedEvent)
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
-
-  async page(pageView: PageView): Promise<void> {
-    try {
       this.store.handleActivity()
 
       const session = this.store.getSession()
@@ -117,96 +79,64 @@ export class SessionMiddleware implements Plugin {
         throw new Error('No active session')
       }
 
-      session.pageViews++
-      this.store.setSession(session)
+      let enrichedData: PluginMethodData[M]
 
-      if (this.nextPlugin.page) {
-        const enrichedPageView: PageView = {
-          ...pageView,
-          properties: this.enrichProperties(pageView.properties),
-        }
-        await this.nextPlugin.page(enrichedPageView)
+      switch (method) {
+        case 'track':
+          if (this.trackSessionEvents) {
+            session.events++
+            this.store.setSession(session)
+          }
+          enrichedData = {
+            ...(data as AnalyticsEvent),
+            properties: this.enrichProperties(
+              (data as AnalyticsEvent).properties,
+            ),
+          } as PluginMethodData[M]
+          break
+
+        case 'page':
+          session.pageViews++
+          this.store.setSession(session)
+          enrichedData = {
+            ...(data as PageView),
+            properties: this.enrichProperties((data as PageView).properties),
+          } as PluginMethodData[M]
+          break
+
+        case 'identify':
+          session.userId = (data as Identity).userId
+          this.store.setSession(session)
+          enrichedData = {
+            ...(data as Identity),
+            traits: this.enrichProperties((data as Identity).traits),
+          } as PluginMethodData[M]
+          break
+
+        default:
+          enrichedData = data
       }
+
+      await next(enrichedData)
     } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
+      console.error(`Error in session middleware: ${String(error)}`)
+      // Continue chain even if session tracking fails
+      await next(data)
     }
   }
 
-  async identify(identity: Identity): Promise<void> {
-    try {
-      this.store.handleActivity()
-
-      const session = this.store.getSession()
-      if (!session) {
-        throw new Error('No active session')
-      }
-
-      session.userId = identity.userId
-      this.store.setSession(session)
-
-      if (this.nextPlugin.identify) {
-        const enrichedIdentity: Identity = {
-          ...identity,
-          traits: this.enrichProperties(identity.traits),
-        }
-        await this.nextPlugin.identify(enrichedIdentity)
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
-
-  loaded(): boolean {
-    return this.nextPlugin.loaded ? this.nextPlugin.loaded() : true
-  }
-
-  async destroy(): Promise<void> {
+  destroy(): void {
     if (typeof window !== 'undefined') {
-      window.removeEventListener('focus', () => this.store.handleActivity())
-      document.removeEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-          this.store.handleActivity()
-        }
-      })
+      window.removeEventListener('focus', this.activityHandler)
+      document.removeEventListener('visibilitychange', this.visibilityHandler)
     }
 
     this.store.destroy()
-
-    if (this.nextPlugin.destroy) {
-      await this.nextPlugin.destroy()
-    }
   }
 }
 
-/**
- * Creates a session middleware that wraps another plugin
- * @param plugin The plugin to wrap with session tracking
- * @param config Configuration options for session tracking
- * @returns A new plugin that tracks user sessions
- *
- * @example
- * ```typescript
- * // Create a shared session store
- * const sessionStore = createSessionStore({
- *   timeout: 30 * 60 * 1000,
- *   persistSession: true
- * });
- *
- * // Use the store with multiple plugins
- * const analytics = new Analytics({
- *   plugins: [
- *     withSession(
- *       new GoogleAnalytics4Plugin({ measurementId: 'G-XXXXXXXXXX' }),
- *       { store: sessionStore }
- *     ),
- *     withSession(
- *       new MixpanelPlugin({ token: 'YOUR_TOKEN' }),
- *       { store: sessionStore }
- *     )
- *   ]
- * });
- * ```
- */
-export function withSession(plugin: Plugin, config?: SessionConfig): Plugin {
-  return new SessionMiddleware(plugin, config)
+export const createSessionMiddleware = (
+  config?: SessionConfig,
+): SessionMiddleware => {
+  return new SessionMiddleware(config)
 }

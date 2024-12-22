@@ -1,255 +1,192 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { SessionMiddleware } from './session'
-import { createSessionStore, StoreType } from './session-store'
-import type {
-  Plugin,
-  AnalyticsEvent,
-  PageView,
-  Identity,
-  EventProperties,
-} from '../types'
+import { SessionMiddleware, createSessionMiddleware } from './session'
+import { createSessionStore } from './session-store'
+import type { SessionStore, SessionData } from './session-store'
+import type { AnalyticsEvent, PageView, Identity, EventName } from '../types'
 
-class MockPlugin implements Plugin {
-  name = 'mock-plugin'
-  loaded = () => true
-  initialize = vi.fn().mockResolvedValue(undefined)
-  track = vi.fn().mockResolvedValue(undefined)
-  page = vi.fn().mockResolvedValue(undefined)
-  identify = vi.fn().mockResolvedValue(undefined)
-  destroy = vi.fn().mockResolvedValue(undefined)
+// Mock session store
+const mockSession: SessionData = {
+  id: 'test-session-id',
+  startedAt: Date.now(),
+  lastActivityAt: Date.now(),
+  pageViews: 0,
+  events: 0,
+  userId: undefined,
 }
 
-describe('SessionMiddleware', () => {
-  let mockPlugin: MockPlugin
-  let sessionMiddleware: SessionMiddleware
-  let mockDate: number
+const createMockStore = (): SessionStore => ({
+  getSession: vi.fn().mockReturnValue(mockSession),
+  setSession: vi.fn(),
+  handleActivity: vi.fn(),
+  destroy: vi.fn(),
+  clearSession: vi.fn(),
+  isExpired: vi.fn().mockReturnValue(false),
+})
 
-  const createTestEvent = (): AnalyticsEvent<'page_view'> => ({
-    name: 'page_view',
-    properties: {
-      path: '/test',
-      url: 'https://example.com/test',
-      title: 'Test Page',
-      referrer: 'https://example.com',
-      timestamp: mockDate,
-    } as EventProperties['page_view'],
-    timestamp: mockDate,
-  })
+describe('Session', () => {
+  let middleware: SessionMiddleware
+  let mockStore: SessionStore
+  let mockWindow: Window & typeof globalThis
+  let mockDocument: Document
 
   beforeEach(() => {
-    vi.useFakeTimers()
-    mockDate = Date.now()
-    vi.setSystemTime(mockDate)
-
     // Mock window and document
-    const mockWindow = {
-      location: { pathname: '/test-path' },
+    mockWindow = {
       addEventListener: vi.fn(),
       removeEventListener: vi.fn(),
-    }
+      focus: vi.fn(),
+      name: '',
+      dataLayer: [],
+    } as unknown as Window & typeof globalThis
 
-    const mockDocument = {
+    mockDocument = {
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
       visibilityState: 'visible',
-      referrer: 'https://example.com',
-      addEventListener: vi.fn(),
-      removeEventListener: vi.fn(),
-    }
+    } as unknown as Document
 
-    vi.stubGlobal('window', mockWindow)
-    vi.stubGlobal('document', mockDocument)
+    global.window = mockWindow
+    global.document = mockDocument
 
-    // Create fresh instances for each test
-    mockPlugin = new MockPlugin()
-    const sessionStore = createSessionStore({
-      storeType: StoreType.Memory,
-      environment: { isTest: true },
-    })
+    // Create mock store
+    mockStore = createMockStore()
+    middleware = new SessionMiddleware({ store: mockStore })
 
-    sessionMiddleware = new SessionMiddleware(mockPlugin, {
-      store: sessionStore,
-      trackSessionEvents: true,
-    })
+    // Mock console.error to keep test output clean
+    vi.spyOn(console, 'error').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
-    vi.clearAllTimers()
-    vi.useRealTimers()
-    vi.unstubAllGlobals()
+    vi.restoreAllMocks()
   })
 
-  describe('Plugin Chain', () => {
-    it('should initialize the next plugin', async () => {
-      await sessionMiddleware.initialize()
-      expect(mockPlugin.initialize).toHaveBeenCalled()
+  describe('initialization', () => {
+    it('should initialize with default options', () => {
+      const middleware = createSessionMiddleware()
+      expect(middleware.name).toBe('session')
     })
 
-    it('should handle plugin initialization failure', async () => {
-      const error = new Error('Plugin initialization failed')
-      mockPlugin.initialize.mockRejectedValueOnce(error)
-
-      await expect(sessionMiddleware.initialize()).rejects.toThrow(error)
-    })
-  })
-
-  describe('Event Tracking', () => {
-    it('should enrich events with session data', async () => {
-      const event = createTestEvent()
-      await sessionMiddleware.track(event)
-
-      expect(mockPlugin.track).toHaveBeenCalledWith(
-        expect.objectContaining({
-          properties: expect.objectContaining({
-            session_id: expect.any(String),
-            session_page_views: 0,
-            session_events: 1,
-            session_duration: expect.any(Number),
-          }),
-        }),
-      )
+    it('should initialize with custom store', () => {
+      const store = createSessionStore()
+      const middleware = createSessionMiddleware({ store })
+      expect(middleware.name).toBe('session')
     })
 
-    it('should track page views with session data', async () => {
-      const pageView: PageView = {
-        path: '/test',
-        title: 'Test Page',
-      }
-
-      await sessionMiddleware.page(pageView)
-
-      expect(mockPlugin.page).toHaveBeenCalledWith(
-        expect.objectContaining({
-          properties: expect.objectContaining({
-            session_id: expect.any(String),
-            session_page_views: 1,
-          }),
-        }),
-      )
-    })
-
-    it('should track identity with session data', async () => {
-      const identity: Identity = {
-        userId: 'test-user',
-        traits: { plan: 'premium' },
-      }
-
-      await sessionMiddleware.identify(identity)
-
-      expect(mockPlugin.identify).toHaveBeenCalledWith(
-        expect.objectContaining({
-          traits: expect.objectContaining({
-            session_id: expect.any(String),
-          }),
-        }),
-      )
-    })
-
-    it('should increment event count', async () => {
-      const event = createTestEvent()
-      await sessionMiddleware.track(event)
-      await sessionMiddleware.track(event)
-
-      expect(mockPlugin.track).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          properties: expect.objectContaining({
-            session_events: 2,
-          }),
-        }),
-      )
-    })
-
-    it('should increment page view count', async () => {
-      const pageView: PageView = {
-        path: '/test',
-        title: 'Test Page',
-      }
-
-      await sessionMiddleware.page(pageView)
-      await sessionMiddleware.page(pageView)
-
-      expect(mockPlugin.page).toHaveBeenLastCalledWith(
-        expect.objectContaining({
-          properties: expect.objectContaining({
-            session_page_views: 2,
-          }),
-        }),
-      )
-    })
-  })
-
-  describe('Session Management', () => {
-    it('should handle activity on window focus', () => {
-      const focusHandler = (
-        window.addEventListener as jest.Mock
-      ).mock.calls.find(([event]) => event === 'focus')?.[1]
-
-      expect(focusHandler).toBeDefined()
-      focusHandler()
-
-      // Verify session was updated by checking the next track call
-      return sessionMiddleware.track(createTestEvent()).then(() => {
-        expect(mockPlugin.track).toHaveBeenCalledWith(
-          expect.objectContaining({
-            properties: expect.objectContaining({
-              session_duration: expect.any(Number),
-            }),
-          }),
-        )
-      })
-    })
-
-    it('should handle activity on document visibility change', () => {
-      const visibilityHandler = (
-        document.addEventListener as jest.Mock
-      ).mock.calls.find(([event]) => event === 'visibilitychange')?.[1]
-
-      expect(visibilityHandler).toBeDefined()
-
-      // Re-stub document with new visibilityState
-      vi.stubGlobal('document', {
-        ...document,
-        visibilityState: 'visible',
-      })
-
-      visibilityHandler()
-
-      // Verify session was updated
-      return sessionMiddleware.track(createTestEvent()).then(() => {
-        expect(mockPlugin.track).toHaveBeenCalledWith(
-          expect.objectContaining({
-            properties: expect.objectContaining({
-              session_duration: expect.any(Number),
-            }),
-          }),
-        )
-      })
-    })
-  })
-
-  describe('Cleanup', () => {
-    it('should clean up event listeners on destroy', async () => {
-      await sessionMiddleware.destroy()
-
-      expect(window.removeEventListener).toHaveBeenCalledWith(
+    it('should set up activity listeners', () => {
+      expect(mockWindow.addEventListener).toHaveBeenCalledWith(
         'focus',
         expect.any(Function),
       )
-      expect(document.removeEventListener).toHaveBeenCalledWith(
+      expect(mockDocument.addEventListener).toHaveBeenCalledWith(
         'visibilitychange',
         expect.any(Function),
       )
     })
+  })
 
-    it('should destroy the next plugin', async () => {
-      await sessionMiddleware.destroy()
-      expect(mockPlugin.destroy).toHaveBeenCalled()
+  describe('event processing', () => {
+    const next = vi.fn()
+
+    beforeEach(() => {
+      next.mockClear()
     })
 
-    it('should handle plugin destroy failure', async () => {
-      const error = new Error('Plugin destroy failed')
-      mockPlugin.destroy.mockRejectedValueOnce(error)
+    it('should enrich track events with session data', async () => {
+      const event = {
+        name: 'test_event' as EventName,
+        properties: { foo: 'bar' },
+      } satisfies AnalyticsEvent<EventName>
 
-      await expect(sessionMiddleware.destroy()).rejects.toThrow(error)
+      await middleware.process('track', event, next)
+
+      expect(next).toHaveBeenCalledWith({
+        name: 'test_event',
+        properties: {
+          foo: 'bar',
+          session_id: mockSession.id,
+          session_page_views: mockSession.pageViews,
+          session_events: mockSession.events,
+          session_duration: expect.any(Number),
+        },
+      })
+      expect(mockStore.handleActivity).toHaveBeenCalled()
+    })
+
+    it('should enrich page views with session data', async () => {
+      const pageView = {
+        path: '/test',
+        properties: { referrer: 'google.com' },
+      } satisfies PageView
+
+      await middleware.process('page', pageView, next)
+
+      expect(next).toHaveBeenCalledWith({
+        path: '/test',
+        properties: {
+          referrer: 'google.com',
+          session_id: mockSession.id,
+          session_page_views: mockSession.pageViews,
+          session_events: mockSession.events,
+          session_duration: expect.any(Number),
+        },
+      })
+      expect(mockStore.handleActivity).toHaveBeenCalled()
+      expect(mockStore.setSession).toHaveBeenCalled()
+    })
+
+    it('should enrich identify calls with session data', async () => {
+      const identity: Identity = {
+        userId: 'user123',
+        traits: { email: 'test@example.com' },
+      }
+
+      await middleware.process('identify', identity, next)
+
+      expect(next).toHaveBeenCalledWith({
+        userId: 'user123',
+        traits: {
+          email: 'test@example.com',
+          session_id: mockSession.id,
+          session_page_views: mockSession.pageViews,
+          session_events: mockSession.events,
+          session_duration: expect.any(Number),
+        },
+      })
+      expect(mockStore.handleActivity).toHaveBeenCalled()
+      expect(mockStore.setSession).toHaveBeenCalled()
+    })
+
+    it('should handle missing session gracefully', async () => {
+      ;(mockStore.getSession as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+        null,
+      )
+      const event = {
+        name: 'test_event' as EventName,
+        properties: {},
+      } satisfies AnalyticsEvent<EventName>
+
+      await middleware.process('track', event, next)
+
+      expect(next).toHaveBeenCalledWith(event)
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringContaining('Error in session middleware'),
+      )
+    })
+  })
+
+  describe('cleanup', () => {
+    it('should remove event listeners and destroy store on cleanup', () => {
+      middleware.destroy()
+
+      expect(mockWindow.removeEventListener).toHaveBeenCalledWith(
+        'focus',
+        expect.any(Function),
+      )
+      expect(mockDocument.removeEventListener).toHaveBeenCalledWith(
+        'visibilitychange',
+        expect.any(Function),
+      )
+      expect(mockStore.destroy).toHaveBeenCalled()
     })
   })
 })

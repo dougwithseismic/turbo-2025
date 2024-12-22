@@ -74,6 +74,7 @@ describe('Analytics', () => {
           button_id: '123',
           button_text: 'Click me',
         },
+        timestamp: new Date().getTime(),
       }
       await analytics.track(event.name, event.properties)
       expect(mockPlugin.track).toHaveBeenCalledWith({
@@ -112,12 +113,21 @@ describe('Analytics', () => {
       const event: AnalyticsEvent<'page_view'> = {
         name: 'page_view',
         properties: { path: '/test', title: 'Test Page' },
+        timestamp: new Date().getTime(),
       }
 
       await expect(analytics.track(event.name)).resolves.not.toThrow()
       expect(consoleError).toHaveBeenCalledWith(
-        'Error in plugin mock-plugin:',
-        error,
+        '[plugin] PluginOperationError:',
+        {
+          message: `Plugin "mock-plugin" failed during track: ${error.message}`,
+          context: {
+            pluginName: 'mock-plugin',
+            operation: 'track',
+            originalError: error,
+          },
+          timestamp: expect.any(String),
+        },
       )
 
       consoleError.mockRestore()

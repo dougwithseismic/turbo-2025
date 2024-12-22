@@ -1,10 +1,10 @@
 import type {
-  Plugin,
   AnalyticsEvent,
   PageView,
   Identity,
   BaseProperties,
 } from '../types'
+import type { PluginMethodData } from '../core/analytics'
 
 export interface ValidationOptions {
   strict?: boolean
@@ -12,47 +12,43 @@ export interface ValidationOptions {
   maxEventNameLength?: number
 }
 
-export class ValidationMiddleware implements Plugin {
+export class ValidationMiddleware {
   name = 'validation'
-  private plugin: Plugin
   private readonly strict: boolean
   private readonly minEventNameLength: number
   private readonly maxEventNameLength: number
 
-  constructor(plugin: Plugin, options: ValidationOptions = {}) {
-    this.plugin = plugin
+  constructor(options: ValidationOptions = {}) {
     this.strict = options.strict ?? true
     this.minEventNameLength = options.minEventNameLength ?? 1
     this.maxEventNameLength = options.maxEventNameLength ?? 100
   }
 
-  async initialize(): Promise<void> {
-    await this.plugin.initialize()
-  }
-
-  async track(event: AnalyticsEvent): Promise<void> {
-    this.validateEvent(event)
-    if (this.plugin.track) {
-      return this.plugin.track(event)
+  async process<M extends keyof PluginMethodData>(
+    method: M,
+    data: PluginMethodData[M],
+    next: (data: PluginMethodData[M]) => Promise<void>,
+  ): Promise<void> {
+    try {
+      switch (method) {
+        case 'track':
+          this.validateEvent(data as AnalyticsEvent)
+          break
+        case 'page':
+          this.validatePageView(data as PageView)
+          break
+        case 'identify':
+          this.validateIdentity(data as Identity)
+          break
+      }
+      await next(data)
+    } catch (error) {
+      if (this.strict) {
+        throw error
+      }
+      console.warn(`Validation error (non-strict mode): ${String(error)}`)
+      await next(data)
     }
-  }
-
-  async page(pageView: PageView): Promise<void> {
-    this.validatePageView(pageView)
-    if (this.plugin.page) {
-      return this.plugin.page(pageView)
-    }
-  }
-
-  async identify(identity: Identity): Promise<void> {
-    this.validateIdentity(identity)
-    if (this.plugin.identify) {
-      return this.plugin.identify(identity)
-    }
-  }
-
-  loaded(): boolean {
-    return this.plugin.loaded()
   }
 
   private validateEvent(event: AnalyticsEvent): void {
@@ -124,9 +120,8 @@ export class ValidationMiddleware implements Plugin {
   }
 }
 
-export const withValidation = (
-  plugin: Plugin,
+export const createValidationMiddleware = (
   options?: ValidationOptions,
 ): ValidationMiddleware => {
-  return new ValidationMiddleware(plugin, options)
+  return new ValidationMiddleware(options)
 }

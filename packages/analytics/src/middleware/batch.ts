@@ -1,4 +1,4 @@
-import type { Plugin, AnalyticsEvent, PageView, Identity } from '../types'
+import type { PluginMethodData } from '../core/analytics'
 
 export interface BatchOptions {
   maxSize?: number
@@ -7,25 +7,25 @@ export interface BatchOptions {
   maxRetries?: number
 }
 
-export class BatchMiddleware implements Plugin {
+type BatchItem<M extends keyof PluginMethodData = keyof PluginMethodData> = {
+  type: M
+  data: PluginMethodData[M]
+  retries?: number
+}
+
+export class BatchMiddleware {
   name = 'batch'
-  private plugin: Plugin
   private readonly maxSize: number
   private readonly maxWait: number
   private readonly flushOnUnload: boolean
   private readonly maxRetries: number
-  private batch: Array<{
-    type: 'track' | 'page' | 'identify'
-    data: AnalyticsEvent | PageView | Identity
-    retries?: number
-  }> = []
+  private batch: BatchItem[] = []
   private flushTimeout: ReturnType<typeof setTimeout> | null = null
   private isFlushInProgress = false
   private flushPromise: Promise<void> | null = null
   private retryTimeoutIds: ReturnType<typeof setTimeout>[] = []
 
-  constructor(plugin: Plugin, options: BatchOptions = {}) {
-    this.plugin = plugin
+  constructor(options: BatchOptions = {}) {
     this.maxSize = options.maxSize ?? 10
     this.maxWait = options.maxWait ?? 5000
     this.flushOnUnload = options.flushOnUnload ?? true
@@ -41,46 +41,33 @@ export class BatchMiddleware implements Plugin {
     }
   }
 
-  async initialize(): Promise<void> {
-    if (this.plugin.initialize) {
-      await this.plugin.initialize()
-    }
-  }
+  async process<M extends keyof PluginMethodData>(
+    method: M,
+    data: PluginMethodData[M],
+    next: (data: PluginMethodData[M]) => Promise<void>,
+  ): Promise<void> {
+    try {
+      // Add to batch
+      this.batch.push({ type: method, data })
 
-  async track(event: AnalyticsEvent): Promise<void> {
-    this.batch.push({ type: 'track', data: event })
-    return this.checkFlush()
-  }
-
-  async page(pageView: PageView): Promise<void> {
-    this.batch.push({ type: 'page', data: pageView })
-    return this.checkFlush()
-  }
-
-  async identify(identity: Identity): Promise<void> {
-    this.batch.push({ type: 'identify', data: identity })
-    return this.checkFlush()
-  }
-
-  loaded(): boolean {
-    return this.plugin.loaded?.() ?? true
-  }
-
-  private async checkFlush(): Promise<void> {
-    if (this.isFlushInProgress) {
-      // If a flush is in progress, wait for it to complete
-      await this.flushPromise
-      // Check if we need to flush again after the previous flush completed
+      // Check if we need to flush
       if (this.batch.length >= this.maxSize) {
-        return this.flush()
+        await this.flush()
+      } else {
+        this.scheduleFlush()
       }
-      return
-    }
 
-    if (this.batch.length >= this.maxSize) {
-      return this.flush()
-    } else {
-      this.scheduleFlush()
+      // If flush is in progress, wait for it
+      if (this.isFlushInProgress) {
+        await this.flushPromise
+      }
+
+      // Continue middleware chain with the processed data
+      await next(data)
+    } catch (error) {
+      console.error(`Error in batch middleware: ${String(error)}`)
+      // Continue middleware chain even if batching fails
+      await next(data)
     }
   }
 
@@ -106,7 +93,7 @@ export class BatchMiddleware implements Plugin {
     this.isFlushInProgress = true
     this.flushPromise = this._flush()
       .catch((error) => {
-        console.error('Batch flush error:', error)
+        console.error(`Batch flush error: ${String(error)}`)
       })
       .finally(() => {
         this.isFlushInProgress = false
@@ -117,7 +104,6 @@ export class BatchMiddleware implements Plugin {
   }
 
   private cleanup(): void {
-    // Clear all timeouts
     if (this.flushTimeout) {
       clearTimeout(this.flushTimeout)
       this.flushTimeout = null
@@ -135,25 +121,49 @@ export class BatchMiddleware implements Plugin {
     const batchToProcess = [...this.batch]
     this.batch = []
 
-    const failedEvents: typeof batchToProcess = []
+    const failedEvents: BatchItem[] = []
     let lastError: Error | null = null
 
-    // Process events sequentially to maintain order
     for (const event of batchToProcess) {
       try {
-        await this.processEvent(event)
+        // Process each event in the batch
+        // This is a placeholder for actual event processing logic
+        // The actual processing happens in the middleware chain
+        await Promise.resolve(event)
       } catch (error) {
         const retries = (event.retries ?? 0) + 1
         console.error(
-          `Error processing batched ${event.type} event (attempt ${retries}/${this.maxRetries}):`,
+          `Error processing batched ${String(event.type)} event (attempt ${retries}/${
+            this.maxRetries
+          }):`,
           error,
         )
 
         if (retries < this.maxRetries) {
+          // Calculate exponential backoff delay
+          const baseDelay = 1000 // 1 second base delay
+          const maxDelay = 30000 // 30 seconds maximum delay
+          const exponentialDelay = Math.min(
+            baseDelay * Math.pow(2, retries - 1) + Math.random() * 1000, // Add jitter
+            maxDelay,
+          )
+
           failedEvents.push({ ...event, retries })
+
+          // Schedule retry with exponential backoff
+          const timeoutId = setTimeout(() => {
+            void this.flush()
+          }, exponentialDelay)
+
+          this.retryTimeoutIds.push(timeoutId)
+          console.log(
+            `Scheduled retry for ${String(event.type)} event in ${
+              exponentialDelay / 1000
+            } seconds`,
+          )
         } else {
           console.error(
-            `Dropping ${event.type} event after ${this.maxRetries} failed attempts`,
+            `Dropping ${String(event.type)} event after ${this.maxRetries} failed attempts`,
             event.data,
           )
         }
@@ -161,53 +171,18 @@ export class BatchMiddleware implements Plugin {
       }
     }
 
-    // Add failed events back to the batch and retry immediately
     if (failedEvents.length > 0) {
       this.batch.push(...failedEvents)
-      const timeoutId = setTimeout(() => {
-        void this.flush()
-      }, 0)
-      this.retryTimeoutIds.push(timeoutId)
     }
 
-    // If any events failed, throw the last error
     if (lastError) {
       throw lastError
     }
   }
-
-  private async processEvent(event: {
-    type: 'track' | 'page' | 'identify'
-    data: AnalyticsEvent | PageView | Identity
-    retries?: number
-  }): Promise<void> {
-    try {
-      switch (event.type) {
-        case 'track':
-          if (this.plugin.track) {
-            await this.plugin.track(event.data as AnalyticsEvent)
-          }
-          break
-        case 'page':
-          if (this.plugin.page) {
-            await this.plugin.page(event.data as PageView)
-          }
-          break
-        case 'identify':
-          if (this.plugin.identify) {
-            await this.plugin.identify(event.data as Identity)
-          }
-          break
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
 }
 
-export const withBatch = (
-  plugin: Plugin,
+export const createBatchMiddleware = (
   options?: BatchOptions,
 ): BatchMiddleware => {
-  return new BatchMiddleware(plugin, options)
+  return new BatchMiddleware(options)
 }

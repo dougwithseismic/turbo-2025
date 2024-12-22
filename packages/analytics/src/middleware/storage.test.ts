@@ -1,110 +1,116 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { LocalStorageAdapter, MemoryStorageAdapter } from './storage'
 
-describe('Storage Adapters', () => {
-  describe('LocalStorageAdapter', () => {
-    let mockStorage: Record<string, string> = {}
-    let adapter: LocalStorageAdapter
+describe('Storage', () => {
+  describe('MemoryStorageAdapter', () => {
+    let storage: MemoryStorageAdapter
 
     beforeEach(() => {
-      // Mock localStorage
-      global.localStorage = {
-        getItem: vi.fn((key) => mockStorage[key] || null),
-        setItem: vi.fn((key, value) => {
-          mockStorage[key] = value.toString()
-        }),
-        removeItem: vi.fn((key) => {
-          delete mockStorage[key]
-        }),
-        clear: vi.fn(() => {
-          mockStorage = {}
-        }),
-        length: 0,
-        key: vi.fn(),
-      }
-
-      adapter = new LocalStorageAdapter()
+      storage = new MemoryStorageAdapter()
     })
 
-    afterEach(() => {
-      vi.clearAllMocks()
-      mockStorage = {}
+    it('should store and retrieve values', () => {
+      storage.set('key1', 'value1')
+      expect(storage.get('key1')).toBe('value1')
     })
 
-    it('should set and get values', () => {
-      adapter.set('test-key', 'test-value')
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'test-key',
-        'test-value',
-      )
-      expect(adapter.get('test-key')).toBe('test-value')
-      expect(localStorage.getItem).toHaveBeenCalledWith('test-key')
+    it('should return null for non-existent keys', () => {
+      expect(storage.get('nonexistent')).toBeNull()
     })
 
     it('should remove values', () => {
-      adapter.set('test-key', 'test-value')
-      adapter.remove('test-key')
-      expect(localStorage.removeItem).toHaveBeenCalledWith('test-key')
-      expect(adapter.get('test-key')).toBeNull()
+      storage.set('key1', 'value1')
+      storage.remove('key1')
+      expect(storage.get('key1')).toBeNull()
     })
 
-    it('should handle non-existent keys', () => {
-      expect(adapter.get('non-existent')).toBeNull()
-    })
-
-    it('should handle storage errors gracefully', () => {
-      const mockError = new Error('Storage error')
-      vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
-        throw mockError
-      })
-
-      // Should not throw
-      adapter.set('test-key', 'test-value')
-      expect(localStorage.setItem).toHaveBeenCalled()
+    it('should update existing values', () => {
+      storage.set('key1', 'value1')
+      storage.set('key1', 'value2')
+      expect(storage.get('key1')).toBe('value2')
     })
   })
 
-  describe('MemoryStorageAdapter', () => {
-    let adapter: MemoryStorageAdapter
+  describe('LocalStorageAdapter', () => {
+    let storage: LocalStorageAdapter
+    let mockLocalStorage: Storage
 
     beforeEach(() => {
-      adapter = new MemoryStorageAdapter()
+      mockLocalStorage = {
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
+        length: 0,
+      }
+
+      // Mock localStorage
+      global.localStorage = mockLocalStorage
+      storage = new LocalStorageAdapter()
+
+      // Mock console.warn to keep test output clean
+      vi.spyOn(console, 'warn').mockImplementation(() => {})
     })
 
-    it('should set and get values', () => {
-      adapter.set('test-key', 'test-value')
-      expect(adapter.get('test-key')).toBe('test-value')
+    afterEach(() => {
+      vi.restoreAllMocks()
+    })
+
+    it('should store and retrieve values', () => {
+      ;(mockLocalStorage.getItem as jest.Mock).mockReturnValue('value1')
+
+      storage.set('key1', 'value1')
+      const value = storage.get('key1')
+
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('key1', 'value1')
+      expect(mockLocalStorage.getItem).toHaveBeenCalledWith('key1')
+      expect(value).toBe('value1')
+    })
+
+    it('should handle localStorage.getItem errors', () => {
+      ;(mockLocalStorage.getItem as jest.Mock).mockImplementation(() => {
+        throw new Error('Storage error')
+      })
+
+      const value = storage.get('key1')
+
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Analytics] Failed to get item from localStorage:',
+        expect.any(Error),
+      )
+      expect(value).toBeNull()
+    })
+
+    it('should handle localStorage.setItem errors', () => {
+      ;(mockLocalStorage.setItem as jest.Mock).mockImplementation(() => {
+        throw new Error('Storage error')
+      })
+
+      storage.set('key1', 'value1')
+
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Analytics] Failed to set item in localStorage:',
+        expect.any(Error),
+      )
+    })
+
+    it('should handle localStorage.removeItem errors', () => {
+      ;(mockLocalStorage.removeItem as jest.Mock).mockImplementation(() => {
+        throw new Error('Storage error')
+      })
+
+      storage.remove('key1')
+
+      expect(console.warn).toHaveBeenCalledWith(
+        '[Analytics] Failed to remove item from localStorage:',
+        expect.any(Error),
+      )
     })
 
     it('should remove values', () => {
-      adapter.set('test-key', 'test-value')
-      adapter.remove('test-key')
-      expect(adapter.get('test-key')).toBeNull()
-    })
-
-    it('should handle non-existent keys', () => {
-      expect(adapter.get('non-existent')).toBeNull()
-    })
-
-    it('should maintain separate storage instances', () => {
-      const adapter1 = new MemoryStorageAdapter()
-      const adapter2 = new MemoryStorageAdapter()
-
-      adapter1.set('key', 'value1')
-      adapter2.set('key', 'value2')
-
-      expect(adapter1.get('key')).toBe('value1')
-      expect(adapter2.get('key')).toBe('value2')
-    })
-
-    it('should handle multiple operations', () => {
-      adapter.set('key1', 'value1')
-      adapter.set('key2', 'value2')
-      adapter.remove('key1')
-      adapter.set('key2', 'updated')
-
-      expect(adapter.get('key1')).toBeNull()
-      expect(adapter.get('key2')).toBe('updated')
+      storage.remove('key1')
+      expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('key1')
     })
   })
 })

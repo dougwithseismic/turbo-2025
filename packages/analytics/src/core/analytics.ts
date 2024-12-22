@@ -3,12 +3,28 @@ import type {
   AnalyticsEvent,
   PageView,
   Identity,
-  AnalyticsOptions,
   EventName,
   EventProperties,
 } from '../types'
+import {
+  AnalyticsError,
+  DefaultErrorHandler,
+  ErrorCategory,
+  ErrorHandler,
+  PluginInitializationError,
+  PluginOperationError,
+  MiddlewareError,
+  ConfigurationError,
+} from '../errors'
 
-type PluginMethodData = {
+interface AnalyticsOptions {
+  plugins?: Plugin[]
+  middleware?: Middleware[]
+  debug?: boolean
+  errorHandler?: ErrorHandler
+}
+
+export type PluginMethodData = {
   track: AnalyticsEvent
   page: PageView
   identify: Identity
@@ -37,9 +53,20 @@ type PluginMethodData = {
  * });
  * ```
  */
+type Middleware = {
+  name: string
+  process: <T extends keyof PluginMethodData>(
+    method: T,
+    data: PluginMethodData[T],
+    next: (data: PluginMethodData[T]) => Promise<void>,
+  ) => Promise<void>
+}
+
 export class Analytics {
   private readonly _plugins: Plugin[]
-  private readonly debug: boolean
+  private readonly _pluginMap: Map<string, Plugin>
+  private readonly _middleware: Middleware[]
+  private readonly _errorHandler: ErrorHandler
   private initialized = false
 
   /**
@@ -47,11 +74,54 @@ export class Analytics {
    *
    * @param options - Configuration options for the Analytics instance
    * @param options.plugins - Array of analytics plugins to use
+   * @param options.middleware - Array of middleware to process events before reaching plugins
    * @param options.debug - Enable debug logging for plugin errors
    */
-  constructor(options: AnalyticsOptions = {}) {
+  constructor(options: AnalyticsOptions & { middleware?: Middleware[] } = {}) {
+    // Validate plugins
+    if (options.plugins) {
+      for (const plugin of options.plugins) {
+        if (!plugin.name || typeof plugin.initialize !== 'function') {
+          throw new ConfigurationError('Invalid plugin configuration', {
+            plugin,
+            reason: !plugin.name
+              ? 'Missing plugin name'
+              : 'Missing initialize method',
+          })
+        }
+      }
+    }
+
+    // Validate middleware
+    if (options.middleware) {
+      for (const middleware of options.middleware) {
+        if (!middleware.name || typeof middleware.process !== 'function') {
+          throw new ConfigurationError('Invalid middleware configuration', {
+            middleware: middleware.name || 'unnamed',
+            reason: !middleware.name
+              ? 'Missing middleware name'
+              : 'Missing process method',
+          })
+        }
+      }
+    }
+
     this._plugins = [...(options.plugins || [])]
-    this.debug = options.debug || false
+    this._middleware = [...(options.middleware || [])]
+    this._pluginMap = new Map(this._plugins.map((p) => [p.name, p]))
+    this._errorHandler =
+      options.errorHandler || new DefaultErrorHandler(options.debug || false)
+
+    // Check for duplicate plugin names
+    const pluginNames = new Set<string>()
+    for (const plugin of this._plugins) {
+      if (pluginNames.has(plugin.name)) {
+        throw new ConfigurationError('Duplicate plugin name detected', {
+          pluginName: plugin.name,
+        })
+      }
+      pluginNames.add(plugin.name)
+    }
   }
 
   /**
@@ -68,10 +138,14 @@ export class Analytics {
 
     await Promise.all(
       this._plugins.map(async (plugin) => {
+        if (!plugin.initialize) {
+          return
+        }
         try {
           await plugin.initialize()
         } catch (error) {
-          this.handleError(plugin, error)
+          const initError = new PluginInitializationError(plugin, error)
+          this.handleError(initError)
         }
       }),
     )
@@ -86,10 +160,19 @@ export class Analytics {
    * @param plugin - The plugin to add
    */
   use(plugin: Plugin): void {
-    // Remove any existing plugin with the same name
+    // Validate plugin configuration
+    if (!plugin.name || typeof plugin.initialize !== 'function') {
+      throw new ConfigurationError('Invalid plugin configuration', {
+        plugin,
+        reason: !plugin.name
+          ? 'Missing plugin name'
+          : 'Missing initialize method',
+      })
+    }
+
     this.remove(plugin.name)
-    // Add the new plugin
     this._plugins.push(plugin)
+    this._pluginMap.set(plugin.name, plugin)
   }
 
   /**
@@ -101,6 +184,7 @@ export class Analytics {
     const index = this._plugins.findIndex((p) => p.name === pluginName)
     if (index !== -1) {
       this._plugins.splice(index, 1)
+      this._pluginMap.delete(pluginName)
     }
   }
 
@@ -210,18 +294,65 @@ export class Analytics {
     method: M,
     data: PluginMethodData[M],
   ): Promise<void> {
-    await Promise.all(
-      this._plugins.map(async (plugin) => {
-        try {
-          const pluginMethod = plugin[method] as (
-            data: PluginMethodData[M],
-          ) => Promise<void>
-          await pluginMethod.call(plugin, data)
-        } catch (error) {
-          this.handleError(plugin, error)
-        }
-      }),
-    )
+    // Function to execute all plugins with the final data
+    const executePlugins = async (
+      finalData: PluginMethodData[M],
+    ): Promise<void> => {
+      await Promise.all(
+        this._plugins.map(async (plugin) => {
+          try {
+            const pluginMethod = plugin[method] as (
+              data: PluginMethodData[M],
+            ) => Promise<void>
+            await pluginMethod.call(plugin, finalData)
+          } catch (error) {
+            const opError = new PluginOperationError(plugin, method, error)
+            this.handleError(opError)
+          }
+        }),
+      )
+    }
+
+    // If no middleware, execute plugins directly
+    if (!this._middleware?.length) {
+      await executePlugins(data)
+      return
+    }
+
+    // Create the middleware chain
+    const executeMiddlewareChain = async (
+      index: number,
+      currentData: PluginMethodData[M],
+    ): Promise<void> => {
+      // If we've processed all middleware, execute plugins
+      if (index >= this._middleware.length) {
+        await executePlugins(currentData)
+        return
+      }
+
+      // Get the current middleware
+      const middleware = this._middleware[index]
+      if (!middleware) {
+        // Skip to next middleware if current one doesn't exist
+        await executeMiddlewareChain(index + 1, currentData)
+        return
+      }
+
+      try {
+        // Process through current middleware
+        await middleware.process(method, currentData, async (nextData) => {
+          await executeMiddlewareChain(index + 1, nextData)
+        })
+      } catch (error) {
+        const middlewareError = new MiddlewareError(middleware.name, error)
+        this.handleError(middlewareError)
+        // Continue chain even if middleware fails
+        await executeMiddlewareChain(index + 1, currentData)
+      }
+    }
+
+    // Start processing through middleware chain
+    await executeMiddlewareChain(0, data)
   }
 
   /**
@@ -232,18 +363,39 @@ export class Analytics {
    * @param plugin - The plugin that generated the error
    * @param error - The error that occurred
    */
-  private handleError(plugin: Plugin, error: unknown): void {
-    if (this.debug) {
-      console.error(`Error in plugin ${plugin.name}:`, error)
+  private handleError(error: Error | AnalyticsError): void {
+    if (error instanceof AnalyticsError) {
+      this._errorHandler.handleError(error)
+    } else {
+      this._errorHandler.handleError(
+        new AnalyticsError(
+          error.message || String(error),
+          ErrorCategory.PLUGIN,
+          { originalError: error },
+        ),
+      )
     }
   }
 
   /**
-   * Gets a copy of the current plugins array.
+   * Gets access to the configured plugins.
    *
-   * @returns Array of configured plugins
+   * Provides both array access and named access to plugins:
+   * - Use as array: analytics.plugins.forEach(plugin => ...)
+   * - Use by name: analytics.plugins.sessionMiddleware
+   *
+   * @returns A proxy that provides both array and named access to plugins
    */
-  get plugins(): Plugin[] {
-    return [...this._plugins]
+  get plugins(): Plugin[] & Record<string, Plugin> {
+    const pluginsArray = [...this._plugins]
+
+    return new Proxy(pluginsArray, {
+      get: (target, prop) => {
+        if (typeof prop === 'string' && this._pluginMap.has(prop)) {
+          return this._pluginMap.get(prop)
+        }
+        return Reflect.get(target, prop)
+      },
+    }) as Plugin[] & Record<string, Plugin>
   }
 }

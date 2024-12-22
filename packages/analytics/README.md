@@ -23,13 +23,39 @@ pnpm add @repo/analytics
 ## Basic Usage
 
 ```typescript
-import { Analytics, GoogleAnalytics4Plugin } from '@repo/analytics';
+import {
+  Analytics,
+  GoogleAnalytics4Plugin,
+  createValidationMiddleware,
+  createBatchMiddleware,
+  createConsentMiddleware,
+  createSessionMiddleware,
+} from '@repo/analytics';
 
+// Create middleware instances
+const validationMiddleware = createValidationMiddleware({ strict: true });
+const batchMiddleware = createBatchMiddleware({ maxSize: 10, maxWait: 5000 });
+const consentMiddleware = createConsentMiddleware({
+  requiredCategories: ['analytics'],
+});
+const sessionMiddleware = createSessionMiddleware({
+  timeout: 30 * 60 * 1000, // 30 minutes
+  persistSession: true,
+});
+
+// Create analytics instance with plugins and middleware
 const analytics = new Analytics({
   plugins: [
     new GoogleAnalytics4Plugin({
       measurementId: 'G-XXXXXXXXXX',
     }),
+  ],
+  // Middleware is executed in order
+  middleware: [
+    validationMiddleware,  // Validates events first
+    consentMiddleware,     // Then checks consent
+    batchMiddleware,       // Then batches events
+    sessionMiddleware,     // Finally adds session data
   ],
 });
 
@@ -53,6 +79,41 @@ analytics.identify('user123', {
 ```
 
 ## Core Concepts
+
+### Middleware Architecture
+
+The analytics package uses a middleware architecture to process events before they reach plugins. Middleware can:
+
+- Validate events
+- Batch events
+- Manage user consent
+- Track sessions
+- And more...
+
+Each middleware has access to the event data and can:
+
+- Modify the event data
+- Block events (e.g., when consent is not given)
+- Queue events (e.g., for batching)
+- Add metadata (e.g., session information)
+
+The middleware chain is executed in the order specified in the middleware array, allowing for predictable event processing:
+
+```typescript
+const analytics = new Analytics({
+  plugins: [
+    new GoogleAnalytics4Plugin({
+      measurementId: 'G-XXXXXXXXXX',
+    }),
+  ],
+  middleware: [
+    validationMiddleware,  // 1. Validate events
+    consentMiddleware,     // 2. Check consent
+    batchMiddleware,       // 3. Batch events
+    sessionMiddleware,     // 4. Add session data
+  ],
+});
+```
 
 ### Event Tracking
 
@@ -344,35 +405,31 @@ Batching provides these key benefits:
 The batching middleware provides intelligent event handling through configurable options:
 
 ```typescript
+// Create batch middleware with configuration
+const batchMiddleware = createBatchMiddleware({
+  // Core batching configuration
+  maxSize: 10,        // Send batch when 10 events are collected
+  maxWait: 5000,      // Or when 5 seconds have passed
+  flushOnUnload: true, // Send remaining events before page closes
+
+  // Retry configuration for reliability
+  maxRetries: 3,      // Retry failed batches up to 3 times
+  backoffFactor: 2,   // Double delay between retry attempts
+  initialDelay: 1000, // Start with 1 second delay
+  maxDelay: 30000,    // Never wait more than 30 seconds
+
+  // Debug support
+  debug: true,        // Enable detailed logging
+});
+
+// Use the middleware with analytics
 const analytics = new Analytics({
   plugins: [
-    withBatch(
-      new GoogleAnalytics4Plugin({
-        measurementId: 'G-XXXXXXXXXX',
-      }),
-      {
-        // Core batching configuration
-        maxSize: 10,        // Send batch when 10 events are collected
-        maxWait: 5000,      // Or when 5 seconds have passed
-        flushOnUnload: true, // Send remaining events before page closes
-
-        // Retry configuration for reliability
-        maxRetries: 3,      // Retry failed batches up to 3 times
-        backoffFactor: 2,   // Double delay between retry attempts
-        initialDelay: 1000, // Start with 1 second delay
-        maxDelay: 30000,    // Never wait more than 30 seconds
-
-        // Debug support
-        debug: true,        // Enable detailed logging
-        onBatchSent: (batch) => {
-          console.log('Batch successfully sent:', batch);
-        },
-        onBatchError: (error, batch) => {
-          console.error('Batch failed:', error, batch);
-        }
-      }
-    ),
+    new GoogleAnalytics4Plugin({
+      measurementId: 'G-XXXXXXXXXX',
+    }),
   ],
+  middleware: [batchMiddleware],
 });
 ```
 
@@ -411,33 +468,60 @@ Batching features:
 
 ## Advanced Usage
 
-### Plugin Composition
+### Middleware Composition
 
-Plugins can be composed to add multiple features:
+Features can be added through middleware composition:
 
 ```typescript
+// Create middleware instances
+const validationMiddleware = createValidationMiddleware({
+  strict: true,
+});
+
+const consentMiddleware = createConsentMiddleware({
+  requiredCategories: ['analytics'],
+});
+
+const batchMiddleware = createBatchMiddleware({
+  maxSize: 10,
+  maxWait: 5000,
+});
+
+const sessionMiddleware = createSessionMiddleware({
+  timeout: 30 * 60 * 1000,
+  persistSession: true,
+});
+
+// Use middleware in desired order
 const analytics = new Analytics({
   plugins: [
-    withSession(       // Add session tracking
-      withConsent(     // Add consent management
-        withRetry(     // Add retry logic
-          withBatch(   // Add batching
-            withValidation( // Add validation
-              new GoogleAnalytics4Plugin({
-                measurementId: 'G-XXXXXXXXXX',
-              })
-            )
-          )
-        )
-      )
-    ),
+    new GoogleAnalytics4Plugin({
+      measurementId: 'G-XXXXXXXXXX',
+    }),
+  ],
+  middleware: [
+    validationMiddleware,  // Validate events first
+    consentMiddleware,     // Then check consent
+    batchMiddleware,       // Then batch events
+    sessionMiddleware,     // Finally add session data
   ],
 });
 ```
 
-### Creating Custom Plugins
+The order of middleware matters:
 
-Custom plugins must implement the Plugin interface:
+1. Validation runs first to ensure events are valid before processing
+2. Consent checks if the event should be processed
+3. Batching collects valid, consented events
+4. Session tracking adds user session data to events
+
+### Extending Analytics
+
+The analytics package can be extended in two ways: through plugins and middleware.
+
+#### Creating Custom Plugins
+
+Plugins handle the actual sending of events to analytics services. They must implement the Plugin interface:
 
 ```typescript
 interface Plugin {
@@ -449,11 +533,8 @@ interface Plugin {
   loaded(): boolean;
   destroy?(): Promise<void>;
 }
-```
 
-Example implementation:
-
-```typescript
+// Example custom plugin
 class CustomAnalyticsPlugin implements Plugin {
   name = 'custom-analytics';
 
@@ -478,7 +559,6 @@ class CustomAnalyticsPlugin implements Plugin {
   }
 
   loaded(): boolean {
-    // Return true if the plugin is ready to accept events
     return true;
   }
 
@@ -486,6 +566,62 @@ class CustomAnalyticsPlugin implements Plugin {
     // Clean up resources
   }
 }
+```
+
+#### Creating Custom Middleware
+
+Middleware processes events before they reach plugins. They must implement the Middleware interface:
+
+```typescript
+interface Middleware {
+  name: string;
+  process: <T extends keyof PluginMethodData>(
+    method: T,
+    data: PluginMethodData[T],
+    next: (data: PluginMethodData[T]) => Promise<void>,
+  ) => Promise<void>;
+}
+
+// Example custom middleware
+class CustomMiddleware implements Middleware {
+  name = 'custom-middleware';
+
+  async process<T extends keyof PluginMethodData>(
+    method: T,
+    data: PluginMethodData[T],
+    next: (data: PluginMethodData[T]) => Promise<void>,
+  ): Promise<void> {
+    try {
+      // Pre-process the event
+      console.log(`Processing ${method} event:`, data);
+
+      // Modify data if needed
+      const enrichedData = {
+        ...data,
+        properties: {
+          ...data.properties,
+          custom_field: 'custom value',
+        },
+      };
+
+      // Continue the middleware chain with modified data
+      await next(enrichedData);
+
+      // Optional: Post-process after other middleware and plugins
+      console.log(`Completed processing ${method} event`);
+    } catch (error) {
+      console.error(`Error in custom middleware: ${error}`);
+      // Continue the chain even if there's an error
+      await next(data);
+    }
+  }
+}
+
+// Use both custom plugin and middleware
+const analytics = new Analytics({
+  plugins: [new CustomAnalyticsPlugin()],
+  middleware: [new CustomMiddleware()],
+});
 ```
 
 ### Type Safety

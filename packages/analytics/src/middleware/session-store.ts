@@ -213,12 +213,7 @@ export class SharedSessionStore implements SessionStore {
 
   isExpired(): boolean {
     if (!this.currentSession) return true
-    console.log(
-      'date now - lastActivityAt > timeout',
-      Date.now() - this.currentSession.lastActivityAt,
-      this.timeout,
-      Date.now() - this.currentSession.lastActivityAt > this.timeout,
-    )
+
     return Date.now() - this.currentSession.lastActivityAt > this.timeout
   }
 

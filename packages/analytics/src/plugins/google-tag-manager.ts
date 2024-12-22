@@ -5,6 +5,7 @@ import type {
   PageView,
   Identity,
 } from '../types'
+import { scriptLoader } from '../utils/script-loader'
 
 type DataLayerObject = Record<string, unknown>
 type DataLayer = DataLayerObject[]
@@ -48,21 +49,25 @@ export class GoogleTagManagerPlugin implements Plugin {
     window[this.dataLayerName] = window[this.dataLayerName] || []
     this.dataLayer = window[this.dataLayerName] as DataLayer
 
-    // Load GTM script
-    const script = document.createElement('script')
-    script.async = true
-    script.src = `https://www.googletagmanager.com/gtm.js?id=${this.containerId}`
-
-    // Create a promise that resolves when the script loads
-    await new Promise<void>((resolve, reject) => {
-      script.onload = () => {
-        this.initialized = true
-        resolve()
-      }
-      script.onerror = () =>
-        reject(new Error('Failed to load Google Tag Manager script'))
-      document.head.appendChild(script)
-    })
+    // Load GTM script using script loader
+    try {
+      await scriptLoader.loadScript(
+        `https://www.googletagmanager.com/gtm.js?id=${this.containerId}`,
+        {
+          id: `gtm-${this.containerId}`,
+          async: true,
+          retries: 2,
+          retryDelay: 1000,
+          cleanup: true,
+        },
+      )
+      this.initialized = true
+    } catch (error) {
+      this.initialized = false
+      throw new Error(
+        `Failed to load Google Tag Manager script: ${error instanceof Error ? error.message : String(error)}`,
+      )
+    }
 
     // Push the GTM container ID to the dataLayer
     this.push({

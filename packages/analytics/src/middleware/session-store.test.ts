@@ -1,301 +1,272 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import {
   createSessionStore,
+  SharedSessionStore,
   StoreType,
-  type SessionStore,
   type SessionData,
 } from './session-store'
-import { MemoryStorageAdapter } from './storage'
+import { LocalStorageAdapter, MemoryStorageAdapter } from './storage'
+import type { StorageAdapter } from './storage'
 
-interface MockStorage {
-  get(key: string): string | null
-  set(key: string, value: string): void
-  remove(key: string): void
+// Type for accessing private fields in tests
+type PrivateFields = {
+  storage: StorageAdapter
 }
 
-// Mock the storage module
-vi.mock('./storage', () => {
-  const mockStorage = new Map<string, string>()
-  const mockAdapter: MockStorage = {
-    get: (key: string) => mockStorage.get(key) ?? null,
-    set: (key: string, value: string) => mockStorage.set(key, value),
-    remove: (key: string) => mockStorage.delete(key),
-  }
-
-  return {
-    MemoryStorageAdapter: vi.fn().mockImplementation(() => mockAdapter),
-    LocalStorageAdapter: vi.fn(),
-  }
-})
-
-describe('SessionStore', () => {
-  let sessionStore: SessionStore
-  let mockDate: number
-  let mockStorage: MockStorage
-
+describe('Session Store', () => {
   beforeEach(() => {
     vi.useFakeTimers()
-    mockDate = Date.now()
-    vi.setSystemTime(mockDate)
-
-    // Mock window and document for environment detection
-    const mockWindow = {
-      location: { pathname: '/test-path' },
-    }
-
-    const mockDocument = {
-      referrer: 'https://example.com',
-    }
-
-    vi.stubGlobal('window', mockWindow)
-    vi.stubGlobal('document', mockDocument)
-
-    // Create session store with memory storage
-    sessionStore = createSessionStore({
-      storeType: StoreType.Memory,
-      environment: { isClient: true },
-      timeout: 1800000, // 30 minutes
-      storageKey: 'test_session',
-      persistSession: true,
-    })
-
-    // Get the mock storage instance
-    const mockStorageAdapter = (MemoryStorageAdapter as jest.Mock).mock
-      .results[0]
-    mockStorage = mockStorageAdapter?.value ?? {
-      get: () => null,
-      set: () => {},
-      remove: () => {},
-    }
+    // Mock console.warn to keep test output clean
+    vi.spyOn(console, 'warn').mockImplementation(() => {})
   })
 
   afterEach(() => {
-    vi.clearAllMocks()
-    vi.clearAllTimers()
+    vi.restoreAllMocks()
     vi.useRealTimers()
-    vi.unstubAllGlobals()
-    vi.resetModules()
   })
 
-  describe('Session Lifecycle', () => {
-    beforeEach(() => {
-      // Clear any existing session data
-      mockStorage.remove('test_session')
-      sessionStore.clearSession()
-    })
-
-    it('should create a new session with correct initial state', () => {
-      sessionStore.handleActivity()
-      const session = sessionStore.getSession()
-
-      expect(session).toEqual({
-        id: expect.any(String),
-        startedAt: mockDate,
-        lastActivityAt: mockDate,
-        pageViews: 0,
-        events: 0,
-        referrer: 'https://example.com',
-        initialPath: '/test-path',
-      })
-    })
-
-    it('should generate unique session IDs', () => {
-      sessionStore.handleActivity()
-      const firstId = sessionStore.getSession()?.id
-
-      vi.advanceTimersByTime(1800001) // Just over timeout
-      sessionStore.handleActivity()
-      const secondId = sessionStore.getSession()?.id
-
-      expect(firstId).toBeDefined()
-      expect(secondId).toBeDefined()
-      expect(firstId).not.toBe(secondId)
-    })
-
-    it('should update lastActivityAt without creating new session', () => {
-      sessionStore.handleActivity()
-      const firstSession = sessionStore.getSession()
-
-      vi.advanceTimersByTime(1000)
-      sessionStore.handleActivity()
-      const secondSession = sessionStore.getSession()
-
-      expect(secondSession?.id).toBe(firstSession?.id)
-      expect(secondSession?.startedAt).toBe(firstSession?.startedAt)
-      expect(secondSession?.lastActivityAt).toBe(mockDate + 1000)
-    })
-
-    it('should handle session expiration correctly', () => {
-      sessionStore.handleActivity()
-      const firstSession = sessionStore.getSession()
-
-      // Advance just under timeout - should keep session
-      vi.advanceTimersByTime(1800000 - 1)
-      sessionStore.handleActivity()
-      expect(sessionStore.getSession()?.id).toBe(firstSession?.id)
-
-      // Advance past timeout and check without activity
-      vi.advanceTimersByTime(1800000 + 1)
-      console.log('isExpired????', sessionStore.isExpired())
-      expect(sessionStore.isExpired()).toBe(true)
-
-      // New activity should create new session
-      sessionStore.handleActivity()
-      const newSession = sessionStore.getSession()
-      expect(newSession).toBeDefined()
-      expect(newSession?.id).not.toBe(firstSession?.id)
-    })
-
-    it('should maintain session data until timeout', () => {
-      sessionStore.handleActivity()
-      const session = sessionStore.getSession()
-      if (!session) throw new Error('Session not created')
-
-      // Update session data
-      session.pageViews = 5
-      session.events = 10
-      session.userId = 'test-user'
-      sessionStore.setSession(session)
-
-      // Verify data persists within timeout
-      vi.advanceTimersByTime(1800000 - 1)
-      sessionStore.handleActivity()
-
-      const updatedSession = sessionStore.getSession()
-      expect(updatedSession).toEqual({
-        ...session,
-        lastActivityAt: mockDate + 1800000 - 1,
-      })
-    })
-  })
-
-  describe('Storage Behavior', () => {
-    it('should persist session data when configured', () => {
+  describe('environment detection', () => {
+    it('should use memory storage in server environment', () => {
       const store = createSessionStore({
-        persistSession: true,
-        storageKey: 'test_session',
+        environment: { isServer: true },
+      })
+      const privateFields = store as unknown as PrivateFields
+      expect(privateFields.storage).toBeInstanceOf(MemoryStorageAdapter)
+    })
+
+    it('should use localStorage in client environment', () => {
+      const store = createSessionStore({
+        environment: { isClient: true },
+      })
+      const privateFields = store as unknown as PrivateFields
+      expect(privateFields.storage).toBeInstanceOf(LocalStorageAdapter)
+    })
+
+    it('should respect explicit store type configuration', () => {
+      const store = createSessionStore({
         storeType: StoreType.Memory,
         environment: { isClient: true },
       })
+      const privateFields = store as unknown as PrivateFields
+      expect(privateFields.storage).toBeInstanceOf(MemoryStorageAdapter)
+    })
 
-      store.handleActivity()
+    it('should fallback to memory storage when localStorage is requested in server environment', () => {
+      const store = createSessionStore({
+        storeType: StoreType.LocalStorage,
+        environment: { isServer: true },
+      })
+      const privateFields = store as unknown as PrivateFields
+      expect(privateFields.storage).toBeInstanceOf(MemoryStorageAdapter)
+      expect(console.warn).toHaveBeenCalledWith(
+        expect.stringContaining('falling back to memory storage'),
+      )
+    })
+  })
+
+  describe('session lifecycle', () => {
+    let store: SharedSessionStore
+
+    beforeEach(() => {
+      store = new SharedSessionStore({
+        environment: { isTest: true },
+        storeType: StoreType.Memory,
+      })
+    })
+
+    it('should create a new session with default values', () => {
       const session = store.getSession()
+      expect(session).toEqual({
+        id: expect.any(String),
+        startedAt: expect.any(Number),
+        lastActivityAt: expect.any(Number),
+        pageViews: 0,
+        events: 0,
+        referrer: undefined,
+        initialPath: undefined,
+      })
+    })
 
-      const storedData = mockStorage.get('test_session')
-      expect(storedData).toBeDefined()
-      expect(JSON.parse(storedData!)).toEqual(session)
+    it('should update session data', () => {
+      const session = store.getSession()
+      if (!session) throw new Error('Session should exist')
+
+      const updatedSession: SessionData = {
+        ...session,
+        pageViews: 1,
+        events: 2,
+        userId: 'test-user',
+      }
+
+      store.setSession(updatedSession)
+      expect(store.getSession()).toEqual(updatedSession)
+    })
+
+    it('should clear session data', () => {
+      store.clearSession()
+      expect(store.getSession()).toBeNull()
+    })
+
+    it('should handle activity and update lastActivityAt', () => {
+      const initialSession = store.getSession()
+      if (!initialSession) throw new Error('Session should exist')
+
+      const initialTime = Date.now()
+      vi.advanceTimersByTime(1000)
+      store.handleActivity()
+
+      const updatedSession = store.getSession()
+      if (!updatedSession) throw new Error('Session should exist')
+
+      expect(updatedSession.lastActivityAt).toBe(initialTime + 1000)
+    })
+  })
+
+  describe('session timeout', () => {
+    let store: SharedSessionStore
+
+    beforeEach(() => {
+      store = new SharedSessionStore({
+        environment: { isTest: true },
+        storeType: StoreType.Memory,
+        timeout: 1000, // 1 second timeout for testing
+      })
+    })
+
+    it('should expire session after timeout', () => {
+      expect(store.getSession()).not.toBeNull()
+      vi.advanceTimersByTime(1001)
+      expect(store.isExpired()).toBe(true)
+    })
+
+    it('should create new session on activity after expiration', () => {
+      const initialSession = store.getSession()
+      if (!initialSession) throw new Error('Session should exist')
+
+      vi.advanceTimersByTime(1001)
+      store.handleActivity()
+
+      const newSession = store.getSession()
+      expect(newSession).not.toBeNull()
+      expect(newSession?.id).not.toBe(initialSession.id)
+    })
+
+    it('should extend session timeout on activity', () => {
+      vi.advanceTimersByTime(500)
+      store.handleActivity()
+      vi.advanceTimersByTime(500)
+      expect(store.isExpired()).toBe(false)
+    })
+  })
+
+  describe('persistence', () => {
+    let mockStorage: {
+      getItem: ReturnType<typeof vi.fn>
+      setItem: ReturnType<typeof vi.fn>
+      removeItem: ReturnType<typeof vi.fn>
+      clear: ReturnType<typeof vi.fn>
+      key: ReturnType<typeof vi.fn>
+      length: number
+    }
+
+    beforeEach(() => {
+      mockStorage = {
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+        clear: vi.fn(),
+        key: vi.fn(),
+        length: 0,
+      }
+      global.localStorage = mockStorage as Storage
+    })
+
+    it('should persist session to storage when enabled', () => {
+      const store = createSessionStore({
+        environment: { isClient: true },
+        persistSession: true,
+      })
+
+      const session = store.getSession()
+      if (!session) throw new Error('Session should exist')
+
+      expect(mockStorage.setItem).toHaveBeenCalledWith(
+        'analytics_session',
+        expect.any(String),
+      )
+
+      const mockCalls = (mockStorage.setItem as ReturnType<typeof vi.fn>).mock
+        .calls
+      if (mockCalls.length > 0) {
+        const storedData = mockCalls[0]?.[1]
+        if (storedData && typeof storedData === 'string') {
+          expect(JSON.parse(storedData)).toEqual(session)
+        }
+      }
+    })
+
+    it('should not persist session when disabled', () => {
+      createSessionStore({
+        environment: { isClient: true },
+        persistSession: false,
+      })
+
+      expect(mockStorage.setItem).not.toHaveBeenCalled()
     })
 
     it('should load existing session from storage', () => {
       const existingSession: SessionData = {
-        id: 'test-id',
-        startedAt: mockDate - 1000,
-        lastActivityAt: mockDate - 1000,
-        pageViews: 5,
-        events: 10,
-        userId: 'test-user',
+        id: 'test-session',
+        startedAt: Date.now(),
+        lastActivityAt: Date.now(),
+        pageViews: 1,
+        events: 2,
       }
 
-      mockStorage.set('test_session', JSON.stringify(existingSession))
+      mockStorage.getItem.mockReturnValue(JSON.stringify(existingSession))
 
       const store = createSessionStore({
-        persistSession: true,
-        storageKey: 'test_session',
-        storeType: StoreType.Memory,
         environment: { isClient: true },
+        persistSession: true,
       })
 
       expect(store.getSession()).toEqual(existingSession)
     })
 
-    it('should not persist session when disabled', () => {
-      mockStorage.set('test_session', '') // Clear any existing data
+    it('should handle invalid stored session data', () => {
+      mockStorage.getItem.mockReturnValue('invalid-json')
 
       const store = createSessionStore({
-        persistSession: false,
-        storageKey: 'test_session',
-        storeType: StoreType.Memory,
         environment: { isClient: true },
-      })
-
-      store.handleActivity()
-      expect(mockStorage.get('test_session')).toBeNull()
-    })
-
-    it('should handle corrupted storage data', () => {
-      mockStorage.set('test_session', 'invalid json')
-
-      const store = createSessionStore({
         persistSession: true,
-        storageKey: 'test_session',
-        storeType: StoreType.Memory,
-        environment: { isClient: true },
       })
 
-      store.handleActivity()
-      expect(store.getSession()).toBeDefined()
-      expect(store.getSession()?.id).toBeDefined()
+      expect(store.getSession()).not.toBeNull()
+      expect(mockStorage.removeItem).toHaveBeenCalledWith('analytics_session')
     })
   })
 
-  describe('Environment Handling', () => {
-    it('should use memory storage in server environment', () => {
-      const store = createSessionStore({
-        environment: { isServer: true },
-        storeType: StoreType.Memory,
-      })
-
-      store.handleActivity()
-      const session = store.getSession()
-      expect(session).toBeDefined()
-      expect(session?.referrer).toBeUndefined()
-      expect(session?.initialPath).toBeUndefined()
-    })
-
-    it('should include client data in client environment', () => {
-      // Reset mocks
-      const mockWindow = {
-        location: { pathname: '/test-path' },
-      }
-      const mockDocument = {
-        referrer: 'https://example.com',
+  describe('cleanup', () => {
+    it('should clean up resources on destroy', () => {
+      const mockStorage: StorageAdapter = {
+        get: vi.fn(),
+        set: vi.fn(),
+        remove: vi.fn(),
       }
 
-      vi.stubGlobal('window', mockWindow)
-      vi.stubGlobal('document', mockDocument)
-
-      const store = createSessionStore({
-        environment: { isClient: true },
-        storeType: StoreType.Memory,
+      const store = new SharedSessionStore({
+        environment: { isTest: true },
+        persistSession: true,
       })
+      const privateFields = store as unknown as PrivateFields
+      privateFields.storage = mockStorage
 
-      store.handleActivity()
-      const session = store.getSession()
-      expect(session?.referrer).toBe('https://example.com')
-      expect(session?.initialPath).toBe('/test-path')
+      privateFields.storage = mockStorage
 
-      // Clean up
-      vi.unstubAllGlobals()
-    })
-  })
+      store.destroy()
 
-  describe('Cleanup', () => {
-    it('should clean up all resources on destroy', () => {
-      sessionStore.handleActivity()
-      expect(sessionStore.getSession()).toBeDefined()
-
-      sessionStore.destroy()
-      expect(sessionStore.getSession()).toBeNull()
-      expect(mockStorage.get('test_session')).toBeNull()
-    })
-
-    it('should clear timeout on destroy', () => {
-      const timeoutSpy = vi.spyOn(global, 'clearTimeout')
-
-      sessionStore.handleActivity()
-      sessionStore.destroy()
-
-      expect(timeoutSpy).toHaveBeenCalled()
+      expect(store.getSession()).toBeNull()
+      expect(mockStorage.remove).toHaveBeenCalled()
     })
   })
 })

@@ -1,10 +1,4 @@
-import type {
-  Plugin,
-  EventName,
-  AnalyticsEvent,
-  PageView,
-  Identity,
-} from '../types'
+import type { PluginMethodData } from '../core/analytics'
 
 export type ConsentCategory =
   | 'necessary'
@@ -33,22 +27,21 @@ interface ConsentConfig {
 }
 
 interface QueuedEvent {
-  type: 'track' | 'page' | 'identify'
-  payload: unknown
+  method: keyof PluginMethodData
+  data: unknown
   timestamp: number
+  next: (data: unknown) => Promise<void>
 }
 
-export class ConsentMiddleware implements Plugin {
-  name = 'consent-middleware'
-  private nextPlugin: Plugin
+export class ConsentMiddleware {
+  name = 'consent'
   private requiredCategories: ConsentCategory[]
   private storageKey: string
   private preferences: ConsentPreferences
   private queueEvents: boolean
   private queue: QueuedEvent[] = []
 
-  constructor(nextPlugin: Plugin, config: ConsentConfig) {
-    this.nextPlugin = nextPlugin
+  constructor(config: ConsentConfig) {
     this.requiredCategories = config.requiredCategories
     this.storageKey = config.storageKey ?? 'analytics_consent'
     this.queueEvents = config.queueEvents ?? true
@@ -64,12 +57,6 @@ export class ConsentMiddleware implements Plugin {
     }
 
     this.preferences = this.loadPreferences() ?? defaultPreferences
-  }
-
-  async initialize(): Promise<void> {
-    if (this.nextPlugin.initialize) {
-      await this.nextPlugin.initialize()
-    }
   }
 
   private loadPreferences(): ConsentPreferences | null {
@@ -116,7 +103,7 @@ export class ConsentMiddleware implements Plugin {
 
     // If consent was granted, process queued events
     if (!oldConsent && newConsent && this.queue.length > 0) {
-      this.processQueue()
+      void this.processQueue()
     }
 
     return oldConsent !== newConsent
@@ -129,137 +116,51 @@ export class ConsentMiddleware implements Plugin {
     return { ...this.preferences }
   }
 
+  async process<M extends keyof PluginMethodData>(
+    method: M,
+    data: PluginMethodData[M],
+    next: (data: PluginMethodData[M]) => Promise<void>,
+  ): Promise<void> {
+    if (!this.hasConsent()) {
+      if (this.queueEvents) {
+        this.queue.push({
+          method,
+          data,
+          timestamp: Date.now(),
+          next: next as (data: unknown) => Promise<void>,
+        })
+      }
+      return
+    }
+
+    await next(data)
+  }
+
   private async processQueue(): Promise<void> {
     if (!this.hasConsent()) return
 
     const events = [...this.queue]
     this.queue = []
-    let lastError: Error | null = null
 
     for (const event of events) {
       try {
-        switch (event.type) {
-          case 'track':
-            if (this.nextPlugin.track) {
-              await this.nextPlugin.track(
-                event.payload as AnalyticsEvent<EventName>,
-              )
-            }
-            break
-          case 'page':
-            if (this.nextPlugin.page) {
-              await this.nextPlugin.page(event.payload as PageView)
-            }
-            break
-          case 'identify':
-            if (this.nextPlugin.identify) {
-              await this.nextPlugin.identify(event.payload as Identity)
-            }
-            break
-        }
+        await event.next(event.data)
+        console.log('Processing queued event:', {
+          method: event.method,
+          data: event.data,
+          timestamp: event.timestamp,
+        })
       } catch (error) {
-        lastError = error instanceof Error ? error : new Error(String(error))
+        console.error('Error processing queued event:', error)
         // Add failed event back to the queue
         this.queue.push(event)
       }
     }
-
-    if (lastError) {
-      throw lastError
-    }
-  }
-
-  private queueEvent(type: QueuedEvent['type'], payload: unknown): void {
-    if (!this.queueEvents) return
-
-    this.queue.push({
-      type,
-      payload,
-      timestamp: Date.now(),
-    })
-  }
-
-  async track<T extends EventName>(event: AnalyticsEvent<T>): Promise<void> {
-    if (!this.hasConsent()) {
-      this.queueEvent('track', event)
-      return
-    }
-
-    try {
-      if (this.nextPlugin.track) {
-        await this.nextPlugin.track(event)
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
-
-  async page(pageView: PageView): Promise<void> {
-    if (!this.hasConsent()) {
-      this.queueEvent('page', pageView)
-      return
-    }
-
-    try {
-      if (this.nextPlugin.page) {
-        await this.nextPlugin.page(pageView)
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
-
-  async identify(identity: Identity): Promise<void> {
-    if (!this.hasConsent()) {
-      this.queueEvent('identify', identity)
-      return
-    }
-
-    try {
-      if (this.nextPlugin.identify) {
-        await this.nextPlugin.identify(identity)
-      }
-    } catch (error) {
-      throw error instanceof Error ? error : new Error(String(error))
-    }
-  }
-
-  loaded(): boolean {
-    return this.nextPlugin.loaded ? this.nextPlugin.loaded() : true
   }
 }
 
-/**
- * Creates a consent middleware that wraps another plugin
- * @param plugin The plugin to wrap with consent management
- * @param config Configuration options for consent management
- * @returns A new plugin that respects user consent preferences
- * @example
- * ```typescript
- * const analytics = new Analytics({
- *   plugins: [
- *     withConsent(new GoogleAnalyticsPlugin({ ... }), {
- *       requiredCategories: ['analytics'],
- *       queueEvents: true,
- *     }),
- *     withConsent(new FacebookPixelPlugin({ ... }), {
- *       requiredCategories: ['advertising', 'social'],
- *       queueEvents: true,
- *     }),
- *   ],
- * });
- *
- * // Later, when user gives consent
- * analytics.plugins.forEach(plugin => {
- *   if (plugin instanceof ConsentMiddleware) {
- *     plugin.updateConsent({
- *       analytics: true,
- *       advertising: true,
- *     });
- *   }
- * });
- * ```
- */
-export function withConsent(plugin: Plugin, config: ConsentConfig): Plugin {
-  return new ConsentMiddleware(plugin, config)
+export const createConsentMiddleware = (
+  config: ConsentConfig,
+): ConsentMiddleware => {
+  return new ConsentMiddleware(config)
 }
