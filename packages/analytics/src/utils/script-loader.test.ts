@@ -7,6 +7,22 @@ describe('ScriptLoader', () => {
   let mockHead: { appendChild: (script: HTMLScriptElement) => void }
   let createElement: typeof document.createElement
 
+  beforeAll(() => {
+    // Handle expected rejections globally
+    vi.stubGlobal('onunhandledrejection', (event: PromiseRejectionEvent) => {
+      if (
+        event.reason instanceof Error &&
+        event.reason.message.includes('Failed to load script after')
+      ) {
+        event.preventDefault()
+      }
+    })
+  })
+
+  afterAll(() => {
+    vi.unstubAllGlobals()
+  })
+
   beforeEach(() => {
     // Reset script loader state
     scriptLoader['loadedScripts'].clear()
@@ -205,37 +221,152 @@ describe('ScriptLoader', () => {
     const retries = 2
     const retryDelay = 100
 
-    // Override default success behavior
+    mockEventHandlers.error = []
+    mockEventHandlers.load = []
+
+    scriptLoader.loadScript(src, { retries, retryDelay })
+
+    // Trigger initial error
+    mockEventHandlers.error[0]?.()
+    await vi.runAllTimersAsync()
+
+    // Trigger errors for each retry
+    for (let i = 0; i < retries; i++) {
+      await vi.advanceTimersByTimeAsync(retryDelay)
+      mockEventHandlers.error[0]?.()
+      await vi.runAllTimersAsync()
+    }
+
+    expect(mockScript.remove).toHaveBeenCalledTimes(retries + 1)
+    expect(mockHead.appendChild).toHaveBeenCalledTimes(retries + 1)
+  })
+
+  it('should clean up event listeners when cleanup is true', async () => {
+    const src = 'https://example.com/script.js'
+    const loadPromise = scriptLoader.loadScript(src, { cleanup: true })
+
+    // Advance timers to trigger load event
+    await vi.runAllTimersAsync()
+    await loadPromise
+
+    // Verify event listeners were removed after successful load
+    expect(mockScript.removeEventListener).toHaveBeenCalledWith(
+      'load',
+      expect.any(Function),
+    )
+    expect(mockScript.removeEventListener).toHaveBeenCalledWith(
+      'error',
+      expect.any(Function),
+    )
+  })
+
+  it('should clean up event listeners on error when cleanup is true', async () => {
+    const src = 'https://example.com/script.js'
+    const retries = 0
+    const loadPromise = scriptLoader.loadScript(src, {
+      cleanup: true,
+      retries,
+    })
+
+    // Override default success behavior to trigger error
+    const errorHandlers = mockEventHandlers.error
+    if (errorHandlers && errorHandlers[0]) {
+      errorHandlers[0]()
+    }
+
+    await expect(loadPromise).rejects.toThrow(
+      `Failed to load script after ${retries} retries: ${src}`,
+    )
+
+    // Verify event listeners were removed after error
+    expect(mockScript.removeEventListener).toHaveBeenCalledWith(
+      'load',
+      expect.any(Function),
+    )
+    expect(mockScript.removeEventListener).toHaveBeenCalledWith(
+      'error',
+      expect.any(Function),
+    )
+  })
+
+  it('should clean up failed script from DOM after max retries', async () => {
+    const src = 'https://example.com/script.js'
+    const retries = 2
+    const retryDelay = 100
+
+    // Start with empty error handlers
+    mockEventHandlers.error = []
+    mockEventHandlers.load = []
+
+    // Override default success behavior to always trigger error
     mockHead.appendChild = vi.fn((script: HTMLScriptElement) => {
       Object.assign(mockScript, script)
-      // Immediately trigger error event
-      const handlers = mockEventHandlers.error
-      if (handlers) {
-        handlers.forEach((handler) => handler())
+      // Trigger error on next tick to allow event listeners to be set up
+      setTimeout(() => {
+        const errorHandlers = mockEventHandlers.error
+        if (errorHandlers && errorHandlers[0]) {
+          errorHandlers[0]()
+        }
+      }, 0)
+    })
+
+    const loadPromise = scriptLoader.loadScript(src, { retries, retryDelay })
+
+    // Wait for initial error
+    await vi.runAllTimersAsync()
+
+    // Advance timers for each retry attempt
+    for (let i = 0; i < retries; i++) {
+      await vi.advanceTimersByTimeAsync(retryDelay)
+      await vi.runAllTimersAsync()
+    }
+
+    // Expect the promise to reject with the correct error
+    await expect(loadPromise).rejects.toThrow(
+      `Failed to load script after ${retries} retries: ${src}`,
+    )
+
+    // Verify script was removed from DOM after all retries failed
+    expect(mockScript.remove).toHaveBeenCalledTimes(retries + 1)
+  })
+
+  it('should create new script element for each retry attempt', async () => {
+    const src = 'https://example.com/script.js'
+    const retries = 2
+    const retryDelay = 100
+
+    // Override default success behavior to trigger error for first two attempts
+    let attemptCount = 0
+    mockHead.appendChild = vi.fn((script: HTMLScriptElement) => {
+      Object.assign(mockScript, script)
+      attemptCount++
+      if (attemptCount <= 2) {
+        const errorHandlers = mockEventHandlers.error
+        if (errorHandlers && errorHandlers[0]) {
+          errorHandlers[0]()
+        }
+      } else {
+        setTimeout(() => {
+          const loadHandlers = mockEventHandlers.load
+          if (loadHandlers && loadHandlers[0]) {
+            loadHandlers[0]()
+          }
+        }, 0)
       }
     })
 
     const loadPromise = scriptLoader.loadScript(src, { retries, retryDelay })
 
-    // Advance timers for each retry attempt
+    // Advance timers for retry attempts
     for (let i = 0; i < retries; i++) {
       await vi.advanceTimersByTimeAsync(retryDelay)
     }
+    await vi.runAllTimersAsync()
 
-    // We expect this promise to reject
-    await expect(loadPromise).rejects.toThrowError(
-      `Failed to load script after ${retries} retries: ${src}`,
-    )
+    await expect(loadPromise).resolves.toBeUndefined()
 
-    expect(mockScript.remove).toHaveBeenCalledTimes(retries + 1) // Initial attempt + retries
-    expect(mockHead.appendChild).toHaveBeenCalledTimes(retries + 1) // Initial attempt + retries
+    // Verify new script element was created for each attempt
+    expect(createElement).toHaveBeenCalledTimes(3) // Initial + 2 retries
+    expect(mockHead.appendChild).toHaveBeenCalledTimes(3)
   })
-
-  it('should clean up event listeners when cleanup is true')
-
-  it('should clean up event listeners on error when cleanup is true')
-
-  it('should clean up failed script from DOM after max retries')
-
-  it('should create new script element for each retry attempt')
 })
