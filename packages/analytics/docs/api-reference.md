@@ -233,15 +233,134 @@ class ValidationMiddleware implements Middleware {
 ```typescript
 class BatchMiddleware implements Middleware {
   constructor(options?: {
-    maxSize?: number;
-    maxWait?: number;
-    flushOnUnload?: boolean;
-    maxRetries?: number;
+    maxSize?: number;      // Maximum number of events in a batch (default: 10)
+    maxWait?: number;      // Maximum time to wait before sending a batch (default: 5000ms)
+    flushOnUnload?: boolean; // Whether to flush events when page unloads (default: true)
+    maxRetries?: number;   // Maximum number of retry attempts for failed batches (default: 3)
   });
 }
 ```
 
 ### SessionMiddleware
+
+## Batching & Offline Support
+
+The Analytics Platform provides robust event batching and offline support through the BatchMiddleware.
+
+### Batch Processing
+
+Events are automatically batched for efficient network usage:
+
+```typescript
+const analytics = new Analytics({
+  middleware: [
+    new BatchMiddleware({
+      maxSize: 10,        // Process in batches of 10 events
+      maxWait: 5000,      // Or every 5 seconds
+      flushOnUnload: true // Send remaining events before page unload
+    })
+  ]
+});
+```
+
+Configuration options:
+
+- `maxSize` (default: 10): Maximum number of events to batch before processing
+- `maxWait` (default: 5000): Maximum time in milliseconds to wait before processing a batch
+- `flushOnUnload` (default: true): Whether to process remaining events when the page unloads
+- `maxRetries` (default: 3): Maximum number of retry attempts for failed batches
+
+### Offline Support
+
+The BatchMiddleware includes built-in offline support with the following features:
+
+1. **Automatic Online/Offline Detection**
+   - Monitors browser's online/offline status
+   - Automatically switches between online/offline modes
+   - Handles rapid connection state changes
+
+2. **Event Persistence**
+   - Automatically stores events in localStorage when offline
+   - Uses 'analytics_queue' as the storage key
+   - Preserves complete event data and metadata
+   - Persists across page reloads and browser sessions
+
+3. **Queue Processing**
+   - Automatically processes stored events when connection is restored
+   - Maintains strict event ordering (FIFO)
+   - Processes offline queue before new events
+   - Clears queue after successful processing
+
+4. **Error Handling**
+   - Retries failed events up to maxRetries times
+   - Preserves events in queue if processing fails
+   - Handles errors during offline storage
+   - Provides graceful degradation
+
+Example usage with offline support:
+
+```typescript
+// Configure analytics with offline support
+const analytics = new Analytics({
+  middleware: [
+    new BatchMiddleware({
+      maxSize: 10,
+      maxWait: 5000,
+      flushOnUnload: true,
+      maxRetries: 3
+    })
+  ]
+});
+
+// Track events normally - they'll be queued if offline
+await analytics.track('button_click', {
+  button_id: 'signup',
+  timestamp: Date.now()
+});
+
+// Events are automatically stored when offline
+await analytics.track('purchase', {
+  product_id: 'prod_123',
+  amount: 99.99
+});
+
+// When back online:
+// 1. Stored events are processed in order
+// 2. New events are processed normally
+// 3. Queue is automatically cleared
+```
+
+### Handling Network Changes
+
+The BatchMiddleware automatically handles network state changes:
+
+```typescript
+// Events are queued while offline
+await analytics.track('form_submit', {
+  form_id: 'signup',
+  success: true
+});
+
+// Network restored - events are processed automatically
+// No manual intervention needed
+
+// New events are processed normally
+await analytics.track('page_view', {
+  path: '/dashboard'
+});
+```
+
+### Error Recovery
+
+The middleware includes built-in error recovery:
+
+```typescript
+// If processing fails, events are:
+// 1. Kept in queue
+// 2. Retried up to maxRetries times
+// 3. Preserved if retries fail
+// 4. Processed when conditions improve
+```
 
 ```typescript
 class SessionMiddleware implements Middleware {
