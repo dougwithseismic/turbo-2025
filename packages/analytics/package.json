@@ -1,0 +1,59 @@
+{
+  "dependencies": {
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@repo/config-eslint": "workspace:*",
+    "@repo/config-typescript": "workspace:*",
+    "@testing-library/dom": "^9.3.4",
+    "@testing-library/jest-dom": "^6.4.2",
+    "@types/node": "^20.17.6",
+    "@types/testing-library__jest-dom": "^5.14.9",
+    "@vitest/coverage-v8": "^1.2.2",
+    "@vitest/ui": "^1.2.2",
+    "jsdom": "^24.0.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.3.3",
+    "vitest": "^1.6.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "main": "./src/index.ts",
+  "name": "@repo/analytics",
+  "private": true,
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "build:watch": "tsc -p tsconfig.build.json --watch",
+    "clean": "rm -rf dist",
+    "clean:all": "rm -rf dist node_modules",
+    "dev": "pnpm run build:watch",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
+    "lint": "set TIMING=1 && eslint .",
+    "lint:fix": "set TIMING=1 && eslint . --fix",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run lint && pnpm run test:types && pnpm run format:check",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:run": "vitest run",
+    "test:types": "tsc --noEmit",
+    "test:ui": "vitest --ui",
+    "test:watch": "vitest",
+    "validate": "pnpm run lint && pnpm run test:run && pnpm run test:types && pnpm run format:check"
+  },
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "version": "0.0.0"
+}
