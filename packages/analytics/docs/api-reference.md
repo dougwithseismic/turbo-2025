@@ -29,6 +29,22 @@ async initialize(): Promise<void>
 
 Initializes all configured plugins. Must be called before tracking events.
 
+#### registerEvent
+
+```typescript
+registerEvent(name: string, schema: z.ZodSchema): void
+```
+
+Registers a custom event with a validation schema. The schema will be used to validate properties when tracking this event.
+
+#### getEventSchema
+
+```typescript
+getEventSchema(name: string): z.ZodSchema | undefined
+```
+
+Retrieves the validation schema for a registered custom event.
+
 #### track
 
 ```typescript
@@ -38,7 +54,7 @@ async track<T extends EventName>(
 ): Promise<void>
 ```
 
-Tracks a custom event with optional properties.
+Tracks a custom event with optional properties. Properties will be validated against the registered schema for custom events.
 
 #### page
 

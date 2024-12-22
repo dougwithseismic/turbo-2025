@@ -200,7 +200,45 @@ interface BaseProperties {
 
 ## Custom Events
 
-Track custom events with your own properties:
+The Analytics Platform supports two types of custom events:
+
+### Registered Custom Events
+
+Register custom events with validation schemas:
+
+```typescript
+import { z } from 'zod';
+
+// Define a schema for your custom event
+const productViewSchema = z.object({
+  product_id: z.string(),
+  product_name: z.string(),
+  category: z.string().optional(),
+  price: z.number().optional(),
+}).strict();
+
+// Register the custom event
+analytics.registerEvent('product_view', productViewSchema);
+
+// Track the custom event (properties will be validated)
+await analytics.track('product_view', {
+  product_id: 'prod_123',
+  product_name: 'Premium Widget',
+  category: 'Widgets',
+  price: 99.99
+});
+```
+
+Custom events are validated against their registered schemas:
+
+- Properties must match the schema exactly
+- Missing required properties will throw errors
+- Extra properties not in the schema will throw errors
+- Invalid property types will throw errors
+
+### Ad-hoc Custom Events
+
+Track custom events without pre-registration:
 
 ```typescript
 await analytics.track('custom_event', {
@@ -211,6 +249,12 @@ await analytics.track('custom_event', {
   array: [1, 2, 3]
 });
 ```
+
+Properties for ad-hoc custom events:
+
+- Can include any valid JSON data
+- No validation is performed
+- Use registered custom events for better type safety
 
 ## Type Safety
 

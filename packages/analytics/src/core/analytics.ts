@@ -15,7 +15,9 @@ import {
   PluginOperationError,
   MiddlewareError,
   ConfigurationError,
+  ValidationError,
 } from '../errors'
+import { z } from 'zod'
 
 interface AnalyticsOptions {
   plugins?: Plugin[]
@@ -67,6 +69,7 @@ export class Analytics {
   private readonly _pluginMap: Map<string, Plugin>
   private readonly _middleware: Middleware[]
   private readonly _errorHandler: ErrorHandler
+  private readonly _customEvents: Map<string, z.ZodSchema> = new Map()
   private initialized = false
 
   /**
@@ -215,6 +218,48 @@ export class Analytics {
       ? EventProperties[T]
       : Record<string, unknown>,
   ): Promise<void> {
+    // Check if this is a custom event (not in predefined EventProperties)
+    const predefinedEvents = new Set<string>([
+      'button_click',
+      'page_view',
+      'form_submit',
+      'signup',
+      'login',
+      'logout',
+      'purchase',
+      'error',
+    ])
+
+    const isCustomEvent = !predefinedEvents.has(name)
+
+    if (isCustomEvent) {
+      const schema = this.getEventSchema(name)
+
+      if (!schema) {
+        throw new ValidationError('Unregistered custom event', {
+          eventName: name,
+        })
+      }
+
+      if (!properties) {
+        throw new ValidationError('Properties required for custom event', {
+          eventName: name,
+        })
+      }
+
+      try {
+        schema.parse(properties)
+      } catch (error) {
+        if (error instanceof z.ZodError) {
+          throw new ValidationError('Custom event validation failed', {
+            eventName: name,
+            errors: error.errors,
+          })
+        }
+        throw error
+      }
+    }
+
     const event: AnalyticsEvent = {
       name,
       properties,
@@ -397,5 +442,18 @@ export class Analytics {
         return Reflect.get(target, prop)
       },
     }) as Plugin[] & Record<string, Plugin>
+  }
+
+  registerEvent(name: string, schema: z.ZodSchema): void {
+    if (this._customEvents.has(name)) {
+      throw new ConfigurationError('Custom event already registered', {
+        eventName: name,
+      })
+    }
+    this._customEvents.set(name, schema)
+  }
+
+  getEventSchema(name: string): z.ZodSchema | undefined {
+    return this._customEvents.get(name)
   }
 }

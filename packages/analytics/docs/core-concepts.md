@@ -62,10 +62,10 @@ Event → Middleware 1 → Middleware 2 → Plugin 1
 
 ## Event Types
 
-The platform supports several built-in event types:
+The platform supports several types of events:
 
 - **Page Views**: Track when users view pages
-- **Custom Events**: Track specific user actions
+- **Custom Events**: Track specific user actions with validation
 - **Identity Events**: Track user identification and traits
 
 Each event type has a defined schema that validates its properties:
@@ -77,8 +77,15 @@ analytics.page({
   title: 'Products Page'
 });
 
-// Custom Event
-analytics.track('button_click', {
+// Custom Event (with validation)
+const schema = z.object({
+  button_id: z.string(),
+  button_text: z.string(),
+}).strict();
+
+analytics.registerEvent('custom_button_click', schema);
+
+await analytics.track('custom_button_click', {
   button_id: 'signup',
   button_text: 'Sign Up'
 });
@@ -87,6 +94,33 @@ analytics.track('button_click', {
 analytics.identify('user123', {
   email: 'user@example.com',
   plan: 'premium'
+});
+```
+
+### Custom Event Validation
+
+Custom events can be registered with Zod schemas for validation:
+
+1. **Schema Registration**: Define and register event schemas
+2. **Property Validation**: Validate properties at runtime
+3. **Type Safety**: Get TypeScript types from schemas
+4. **Error Handling**: Detailed validation error messages
+
+```typescript
+// 1. Register schema
+const purchaseSchema = z.object({
+  product_id: z.string(),
+  amount: z.number(),
+  currency: z.string(),
+}).strict();
+
+analytics.registerEvent('product_purchase', purchaseSchema);
+
+// 2. Track event (properties are validated)
+await analytics.track('product_purchase', {
+  product_id: 'prod_123',
+  amount: 99.99,
+  currency: 'USD'
 });
 ```
 

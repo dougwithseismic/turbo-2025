@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { AnalyticsEvent, Plugin } from '../types'
 import { Analytics } from './analytics'
+import { z } from 'zod'
 
 // Mock plugin implementation
 class MockPlugin implements Plugin {
@@ -131,6 +132,86 @@ describe('Analytics', () => {
       )
 
       consoleError.mockRestore()
+    })
+
+    describe('custom events', () => {
+      it('should register and retrieve event schema', () => {
+        const schema = z.object({
+          customField: z.string(),
+        })
+
+        analytics.registerEvent('custom_event', schema)
+        const retrievedSchema = analytics.getEventSchema('custom_event')
+
+        expect(retrievedSchema).toBeDefined()
+        expect(retrievedSchema).toBe(schema)
+      })
+
+      it('should throw when registering duplicate event name', () => {
+        const schema = z.object({
+          customField: z.string(),
+        })
+
+        analytics.registerEvent('custom_event', schema)
+
+        expect(() => {
+          analytics.registerEvent('custom_event', schema)
+        }).toThrow('Custom event already registered')
+      })
+
+      it('should throw when tracking unregistered custom event with properties', async () => {
+        await expect(
+          analytics.track('unregistered_event', {
+            someField: 'value',
+          } as const),
+        ).rejects.toThrow('Unregistered custom event')
+      })
+
+      it('should throw when tracking custom event without required properties', async () => {
+        const schema = z.object({
+          customField: z.string(),
+        })
+
+        analytics.registerEvent('custom_event', schema)
+
+        await expect(analytics.track('custom_event')).rejects.toThrow(
+          'Properties required for custom event',
+        )
+      })
+
+      it('should throw when custom event properties fail validation', async () => {
+        const schema = z.object({
+          requiredField: z.string(),
+        })
+
+        analytics.registerEvent('custom_event', schema)
+
+        await expect(
+          analytics.track('custom_event', {
+            wrongField: 'value',
+          } as const),
+        ).rejects.toThrow('Custom event validation failed')
+      })
+
+      it('should track valid custom event', async () => {
+        const schema = z.object({
+          customField: z.string(),
+        })
+
+        analytics.registerEvent('custom_event', schema)
+
+        const eventData = {
+          customField: 'test value',
+        } as const
+
+        await analytics.track('custom_event', eventData)
+
+        expect(mockPlugin.track).toHaveBeenCalledWith({
+          name: 'custom_event',
+          properties: eventData,
+          timestamp: expect.any(Number),
+        })
+      })
     })
   })
 })
