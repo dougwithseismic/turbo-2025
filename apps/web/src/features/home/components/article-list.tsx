@@ -28,7 +28,7 @@ const articles: Article[] = [
     readingTime: '8 min read',
     category: 'Technical SEO',
     date: 'Mar 16, 2024',
-    href: '/blog/improve-core-web-vitals',
+    href: '/blog/writing-effective-articles',
   },
   {
     title: 'The Complete Guide to JavaScript SEO',
@@ -42,7 +42,7 @@ const articles: Article[] = [
     readingTime: '12 min read',
     category: 'Development',
     date: 'Mar 14, 2024',
-    href: '/blog/javascript-seo-guide',
+    href: '/blog/writing-effective-articles',
   },
   {
     title: 'E-E-A-T: What It Means for Your SEO Strategy',
@@ -56,7 +56,7 @@ const articles: Article[] = [
     readingTime: '10 min read',
     category: 'Strategy',
     date: 'Mar 12, 2024',
-    href: '/blog/eeat-seo-strategy',
+    href: '/blog/writing-effective-articles',
   },
 ]
 
@@ -81,7 +81,7 @@ export const ArticleList = () => {
           {articles.map((article) => (
             <article
               key={article.title}
-              className="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl bg-background px-8 pb-8 pt-80 sm:pt-48 lg:pt-80"
+              className="relative isolate flex flex-col justify-between overflow-hidden rounded-2xl bg-background p-8"
             >
               {/* Gradient Overlay */}
               <div className="absolute inset-0 -z-10 bg-gradient-to-t from-background/50 via-background/25 to-background/0" />

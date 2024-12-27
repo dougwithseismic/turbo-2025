@@ -1,5 +1,7 @@
 'use client'
 
+import { Button } from '@/components/ui/button'
+import { useAuth } from '@/features/auth/hooks/use-auth'
 import { cn } from '@/lib/utils'
 import { Menu, X, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
@@ -14,6 +16,7 @@ const navigation = [
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { user } = useAuth()
 
   return (
     <header className="absolute inset-x-0 top-0 z-50">
@@ -56,22 +59,35 @@ export const Header = () => {
 
         {/* Desktop CTA buttons */}
         <div className="hidden lg:flex lg:flex-1 lg:justify-end lg:gap-x-4">
-          <Link
-            href="/login"
-            className="text-sm/6 font-semibold text-foreground hover:text-muted-foreground"
-          >
-            Log in
-          </Link>
-          <Link
-            href="/register"
-            className={cn(
-              'flex items-center gap-2 rounded-full bg-primary px-4 py-2',
-              'text-sm/6 font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+          <div className="flex items-center gap-4">
+            {user ? (
+              <Button variant="outline" size="sm">
+                <Link href="/dashboard" className="text-sm/6">
+                  Go to Dashboard
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="text-sm/6 font-semibold text-foreground hover:text-muted-foreground"
+                >
+                  Log in
+                </Link>
+
+                <Link
+                  href="/register"
+                  className={cn(
+                    'flex items-center gap-2 rounded-full bg-primary px-4 py-2',
+                    'text-sm/6 font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+                  )}
+                >
+                  Start free trial
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </>
             )}
-          >
-            Start free trial
-            <ArrowRight className="h-4 w-4" />
-          </Link>
+          </div>
         </div>
       </nav>
 
@@ -116,22 +132,34 @@ export const Header = () => {
                 ))}
               </div>
               <div className="py-6">
-                <Link
-                  href="/login"
-                  className="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-foreground hover:bg-muted"
-                >
-                  Log in
-                </Link>
-                <Link
-                  href="/register"
-                  className={cn(
-                    'mt-4 flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5',
-                    'text-base/7 font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
-                  )}
-                >
-                  Start free trial
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
+                {user ? (
+                  <Button variant="outline" size="sm">
+                    <Link href="/dashboard" className="text-sm/6">
+                      Go to Dashboard
+                    </Link>
+                  </Button>
+                ) : (
+                  <>
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      className="w-full"
+                      asChild
+                    >
+                      <Link href="/login">Log in</Link>
+                    </Button>
+                    <Link
+                      href="/register"
+                      className={cn(
+                        'mt-4 flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5',
+                        'text-base/7 font-semibold text-primary-foreground transition-colors hover:bg-primary/90',
+                      )}
+                    >
+                      Start free trial
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
           </div>

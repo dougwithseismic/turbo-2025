@@ -20,7 +20,7 @@ export const HeroSection = () => {
       <div className="py-24 sm:py-32 lg:pb-40">
         <div className="mx-auto max-w-7xl px-6 lg:px-8">
           <div className="row flex flex-col gap-5 max-w-xl py-8 sm:py-12 md:py-16">
-            <h1 className="bg-gradient-to-br from-foreground from-30% via-muted-foreground via-80% to-muted bg-clip-text font-title text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-transparent">
+            <h1 className="bg-gradient-to-br from-foreground from-30% via-primary-foreground via-80% to-muted bg-clip-text font-title text-4xl sm:text-5xl md:text-6xl font-semibold tracking-tight text-transparent">
               Turn Technical SEO Issues Into Ranking <br /> Wins
             </h1>
             <p className="max-w-md text-base sm:text-lg md:text-xl leading-snug tracking-tight text-grey-90">
@@ -29,22 +29,29 @@ export const HeroSection = () => {
             </p>
 
             {/* Trust Building Elements */}
-            <div className="flex flex-col gap-2">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <CheckCircle2 className="h-4 w-4 text-primary" />
+            <div className="flex flex-col gap-2 sm:gap-3 md:gap-4">
+              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm md:text-base text-muted-foreground">
+                <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />
                 <span>5-minute setup • No credit card required</span>
               </div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <span className="text-primary font-semibold">50,000+</span>{' '}
-                sites monitored •
-                <span className="text-primary font-semibold">93%</span> report
-                ranking improvements
+              <div className="flex flex-wrap items-center gap-2 text-xs sm:text-sm md:text-base text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="text-primary font-semibold">50,000+</span>{' '}
+                  <span className="whitespace-nowrap">sites monitored</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-primary font-semibold">93%</span>{' '}
+                  <span className="whitespace-nowrap">
+                    report ranking improvements
+                  </span>
+                </div>
               </div>
             </div>
 
             <Button
               asChild
               variant="default"
+              size="lg"
               className="grid grid-cols-[1fr_auto] justify-between items-center w-fit px-8 sm:px-12 md:px-16 transition-all duration-200 uppercase font-bold h-8 sm:h-9 md:h-10 text-sm sm:text-base text-foreground rounded-full border border-border bg-muted gap-x-1"
             >
               <Link href="/register">

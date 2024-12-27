@@ -1,5 +1,7 @@
+import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { CheckCircle2 } from 'lucide-react'
+import { ArrowRight, CheckCircle2 } from 'lucide-react'
+import Link from 'next/link'
 
 export const CTASection = () => {
   return (
@@ -73,26 +75,22 @@ export const CTASection = () => {
         </div>
 
         <div className="mt-10 flex items-center justify-center gap-x-6">
-          <a
-            href="/register"
+          <Button
             className={cn(
-              'rounded-full bg-primary px-8 py-3 text-base font-semibold',
+              ' flex items-center justify-center rounded-full bg-primary px-8 py-3 text-base font-semibold',
               'text-primary-foreground shadow-sm hover:bg-primary/90',
               'focus-visible:outline focus-visible:outline-2',
               'focus-visible:outline-offset-2 focus-visible:outline-primary',
             )}
           >
-            Start Free Trial
-          </a>
-          <a
-            href="#features"
-            className="text-base font-semibold hover:text-muted-foreground flex items-center gap-2"
-          >
-            See live demo
-            <span aria-hidden="true" className="text-primary">
-              →
-            </span>
-          </a>
+            <Link href="/register">Start Free Trial</Link>
+          </Button>
+          <Button variant="ghost" className="text-base font-semibold" asChild>
+            <Link href="#features" className="flex items-center gap-2">
+              See live demo
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </Button>
         </div>
 
         {/* Social Proof */}

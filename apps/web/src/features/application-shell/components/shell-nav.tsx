@@ -30,7 +30,7 @@ interface ShellNavProps {
 
 export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
   const pathname = usePathname()
-  const { user } = useAuth()
+  const { user, signOut } = useAuth()
   const { isSidebarExpanded, isSidebarHovered, toggleSidebar } = useShell()
 
   // Use forced expanded state for mobile or regular state for desktop
@@ -112,7 +112,9 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
             <DropdownMenuItem>Settings</DropdownMenuItem>
             <DropdownMenuItem>Billing</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => signOut()}>
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
