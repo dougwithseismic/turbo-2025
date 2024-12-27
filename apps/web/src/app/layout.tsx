@@ -8,6 +8,7 @@ import { themes } from '@/features/theme/config/themes'
 import { Toaster } from 'react-hot-toast'
 import { FloatingThemeSelector } from '@/features/theme/components/floating-theme-selector'
 import { AppProvider } from './provider'
+import { ShellProvider } from '@/features/application-shell/context/shell-context'
 
 export const viewport: Viewport = {
   themeColor: [
@@ -49,7 +50,7 @@ export default function RootLayout({
             <AppProvider>
               <FloatingThemeSelector />
               <Toaster position="bottom-right" />
-              {children}
+              <ShellProvider>{children}</ShellProvider>
             </AppProvider>
           </AuthProvider>
         </ThemeProvider>
