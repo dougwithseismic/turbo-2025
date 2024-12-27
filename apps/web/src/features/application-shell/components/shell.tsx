@@ -2,13 +2,12 @@
 
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { cn } from '@/lib/utils'
 import { Menu } from 'lucide-react'
 import * as React from 'react'
 import { useEffect } from 'react'
-import { useShell } from '../context/shell-context'
-import { useShellBehavior } from '../hooks/use-shell-behavior'
+import { useShellStore } from '../store'
 import { ShellNav } from './shell-nav'
-import { cn } from '@/lib/utils'
 
 interface ShellProps {
   children: React.ReactNode
@@ -22,8 +21,7 @@ export function Shell({ children }: ShellProps) {
     setMobileSidebarOpen,
     setTeams,
     config,
-  } = useShell()
-  useShellBehavior()
+  } = useShellStore()
 
   useEffect(() => {
     setTeams([

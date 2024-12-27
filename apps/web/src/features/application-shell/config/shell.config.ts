@@ -7,9 +7,6 @@ export interface ShellConfig {
     enableLeftPadding: boolean
     enableHoverExpand?: boolean
     enableMobileDrawer?: boolean
-    // Persistence
-    persistState?: boolean
-    storageKey?: string
     // Behavior
     collapseOnNavigate?: boolean
     collapseOnMobileClick?: boolean
@@ -31,18 +28,9 @@ export const defaultShellConfig: ShellConfig = {
     enableLeftPadding: true,
     enableHoverExpand: true,
     enableMobileDrawer: true,
-    persistState: true,
-    storageKey: 'shell-sidebar-expanded',
     // Behavior
-    collapseOnNavigate: false,
+    collapseOnNavigate: true,
     collapseOnMobileClick: true,
     expandOnSearch: true,
-    // Sections
-    collapsibleSections: true,
-    rememberSectionState: true,
-    defaultExpandedSections: ['main', 'identity'],
-    // Appearance
-    showDividers: true,
-    showSectionTitles: true,
   },
 }
