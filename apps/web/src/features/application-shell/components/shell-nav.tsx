@@ -20,9 +20,9 @@ import {
   NavSection,
   projectsNav,
 } from './navigation'
-import { useShell } from '../context/shell-context'
 import { DesktopHeader } from './shell-nav/desktop-header'
 import { MobileHeader } from './shell-nav/mobile-header'
+import { useShellStore } from '../store'
 
 interface ShellNavProps {
   isForcedExpanded?: boolean
@@ -31,7 +31,7 @@ interface ShellNavProps {
 export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
   const pathname = usePathname()
   const { user } = useAuth()
-  const { isSidebarExpanded, isSidebarHovered, toggleSidebar } = useShell()
+  const { isSidebarExpanded, isSidebarHovered, toggleSidebar } = useShellStore()
 
   // Use forced expanded state for mobile or regular state for desktop
   const isExpanded = isForcedExpanded || isSidebarExpanded
