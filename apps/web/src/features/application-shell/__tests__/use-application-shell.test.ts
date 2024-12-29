@@ -27,14 +27,12 @@ describe('useApplicationShell', () => {
   })
 
   it('should handle reset', () => {
-    const spy = vi.fn()
-    vi.stubGlobal('console', { log: spy })
-
+    const consoleSpy = vi.spyOn(console, 'log')
     const { reset } = useApplicationShell()
     reset()
 
-    expect(spy).toHaveBeenCalledWith('Reset implementation')
-    vi.unstubGlobal('console')
+    expect(consoleSpy).toHaveBeenCalledWith('Reset implementation')
+    consoleSpy.mockRestore()
   })
 
   // Add more test cases here

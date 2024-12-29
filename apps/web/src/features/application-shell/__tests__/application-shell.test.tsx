@@ -1,15 +1,13 @@
 import { describe, expect, it } from 'vitest'
-import { ApplicationShell } from '../components/ApplicationShell'
+import { ApplicationShell } from '../components/application-shell'
 
 describe('ApplicationShell', () => {
   it('should be defined', () => {
     expect(ApplicationShell).toBeDefined()
   })
 
-  it('should have correct display name', () => {
-    expect(ApplicationShell.displayName ?? ApplicationShell.name).toBe(
-      'ApplicationShell',
-    )
+  it('should have correct name', () => {
+    expect(ApplicationShell.name).toBe('ApplicationShell')
   })
 
   it('should be a valid function component', () => {
@@ -18,14 +16,11 @@ describe('ApplicationShell', () => {
 
   it('should accept valid props', () => {
     const props = {
-      id: 'test-id',
-      className: 'test-class',
+      children: <div>Test Content</div>,
     }
 
     // Type check should pass
     const validProps: Parameters<typeof ApplicationShell>[0] = props
     expect(validProps).toEqual(props)
   })
-
-  // Add more test cases here
 })

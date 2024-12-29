@@ -1,6 +1,5 @@
 import { useCallback } from 'react'
 import { useAnalytics } from '../use-analytics'
-import type { OnboardingStepEvent } from '../types'
 
 export function useOnboardingAnalytics() {
   const { trackButtonClick, trackFormSubmit, trackError } = useAnalytics()
@@ -8,7 +7,7 @@ export function useOnboardingAnalytics() {
   const trackStepCompletion = useCallback(
     (step: string, success: boolean, error?: string) => {
       if (success) {
-        trackFormSubmit<OnboardingStepEvent>({
+        trackFormSubmit({
           form_id: `onboarding-${step}`,
           form_name: `Onboarding Step: ${step}`,
           success: true,
@@ -17,7 +16,7 @@ export function useOnboardingAnalytics() {
           },
         })
       } else {
-        trackFormSubmit<OnboardingStepEvent>({
+        trackFormSubmit({
           form_id: `onboarding-${step}`,
           form_name: `Onboarding Step: ${step}`,
           success: false,
@@ -46,7 +45,7 @@ export function useOnboardingAnalytics() {
 
   const trackOnboardingComplete = useCallback(
     (timeSpent: number, stepsCompleted: string[]) => {
-      trackFormSubmit<OnboardingStepEvent>({
+      trackFormSubmit({
         form_id: 'onboarding-complete',
         form_name: 'Onboarding Complete',
         success: true,

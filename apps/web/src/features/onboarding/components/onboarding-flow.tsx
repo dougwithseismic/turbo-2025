@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useAnalytics } from '@/lib/analytics'
+import { useOnboardingAnalytics } from '../../../lib/analytics/hooks/use-onboarding-analytics'
+import { useAnalytics } from '../../../lib/analytics/use-analytics'
 
 interface OnboardingStepProps {
   onComplete: () => void
@@ -63,25 +64,30 @@ function OnboardingStep({ onComplete, onError }: OnboardingStepProps) {
 }
 
 export function OnboardingFlow() {
-  const { trackOnboarding, trackFormSubmit, trackButtonClick } = useAnalytics()
+  const { trackFormSubmit, trackButtonClick } = useAnalytics()
+  const { trackStepCompletion, trackOnboardingStart, trackOnboardingComplete } =
+    useOnboardingAnalytics()
+  const [startTime] = useState(() => Date.now())
+  const [completedSteps, setCompletedSteps] = useState<string[]>([])
 
   // Track when onboarding starts
   useEffect(() => {
-    trackOnboarding('start', true)
-  }, [trackOnboarding])
+    trackOnboardingStart()
+  }, [trackOnboardingStart])
 
   const handleStepComplete = useCallback(
     (step: string) => {
-      trackOnboarding(step, true)
+      trackStepCompletion(step, true)
+      setCompletedSteps((prev) => [...prev, step])
     },
-    [trackOnboarding],
+    [trackStepCompletion],
   )
 
   const handleStepError = useCallback(
     (step: string, error: string) => {
-      trackOnboarding(step, false, error)
+      trackStepCompletion(step, false, error)
     },
-    [trackOnboarding],
+    [trackStepCompletion],
   )
 
   const handleFormSubmit = useCallback(
@@ -106,6 +112,11 @@ export function OnboardingFlow() {
     },
     [trackButtonClick],
   )
+
+  const handleComplete = useCallback(() => {
+    const timeSpent = Date.now() - startTime
+    trackOnboardingComplete(timeSpent, completedSteps)
+  }, [startTime, completedSteps, trackOnboardingComplete])
 
   return (
     <div className="space-y-8">
@@ -143,10 +154,7 @@ export function OnboardingFlow() {
       </div>
 
       <button
-        onClick={() => {
-          handleButtonClick('complete-onboarding', 'Complete Setup')
-          trackOnboarding('complete', true)
-        }}
+        onClick={handleComplete}
         className="w-full px-4 py-2 bg-primary text-white rounded-md"
       >
         Complete Setup

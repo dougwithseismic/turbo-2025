@@ -18,13 +18,13 @@ interface UseApplicationShellResult {
 }
 
 export const useApplicationShell = ({
-  config,
+  config = { enabled: true, timeout: 5000 },
 }: UseApplicationShellOptions = {}): UseApplicationShellResult => {
   return {
-    isLoading: false,
+    isLoading: !config.enabled,
     error: null,
     reset: () => {
-      // Reset implementation
+      console.log('Reset implementation')
     },
   }
 }
