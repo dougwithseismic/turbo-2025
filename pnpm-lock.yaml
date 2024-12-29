@@ -350,6 +350,9 @@ importers:
       '@radix-ui/react-tooltip':
         specifier: ^1.1.4
         version: 1.1.6(@types/react-dom@19.0.2(@types/react@19.0.2))(@types/react@19.0.2)(react-dom@19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)
+      '@repo/analytics':
+        specifier: workspace:*
+        version: link:../../packages/analytics
       '@repo/consts':
         specifier: workspace:*
         version: link:../../packages/consts

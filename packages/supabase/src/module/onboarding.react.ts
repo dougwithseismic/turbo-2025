@@ -181,16 +181,11 @@ export const useGetUserOnboarding = ({
   supabase,
   userId,
   enabled = true,
-}: GetUserOnboardingParams): OnboardingResponse<UserOnboarding | null> => {
-  const { data, error } = useQuery<UserOnboarding, OnboardingError>({
+}: GetUserOnboardingParams) => {
+  return useQuery<UserOnboarding, OnboardingError>({
     ...onboardingQueries.detail({ supabase, userId }),
     enabled: Boolean(userId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type UpdateOnboardingStepRequest = {

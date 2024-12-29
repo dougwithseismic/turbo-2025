@@ -230,16 +230,11 @@ export const useGetMembership = ({
   supabase,
   membershipId,
   enabled = true,
-}: GetMembershipParams): MembershipResponse<Membership | null> => {
-  const { data, error } = useQuery<Membership, MembershipError>({
+}: GetMembershipParams) => {
+  return useQuery<Membership, MembershipError>({
     ...membershipQueries.detail({ supabase, membershipId }),
     enabled: Boolean(membershipId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type ListMembershipsParams = ListMembershipsQueryParams & QueryEnabledProps
@@ -269,16 +264,11 @@ export const useListMemberships = ({
   resourceType,
   resourceId,
   enabled = true,
-}: ListMembershipsParams): MembershipResponse<Membership[]> => {
-  const { data, error } = useQuery<Membership[], MembershipError>({
+}: ListMembershipsParams) => {
+  return useQuery<Membership[], MembershipError>({
     ...membershipQueries.list({ supabase, resourceType, resourceId }),
     enabled: Boolean(resourceId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type CreateMembershipRequest = {
@@ -503,8 +493,8 @@ export const useGetUserMemberships = ({
   userId,
   resourceType,
   enabled = true,
-}: GetUserMembershipsParams): MembershipResponse<Membership[]> => {
-  const { data, error } = useQuery<Membership[], MembershipError>({
+}: GetUserMembershipsParams) => {
+  return useQuery<Membership[], MembershipError>({
     queryKey: membershipKeys.userMemberships({ userId, resourceType }),
     queryFn: async () => {
       try {
@@ -521,9 +511,4 @@ export const useGetUserMemberships = ({
     },
     enabled: Boolean(userId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }

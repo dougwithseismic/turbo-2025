@@ -20,6 +20,7 @@
     "@radix-ui/react-switch": "^1.1.1",
     "@radix-ui/react-tabs": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.4",
+    "@repo/analytics": "workspace:*",
     "@repo/consts": "workspace:*",
     "@repo/supabase": "workspace:*",
     "@supabase/ssr": "^0.5.2",

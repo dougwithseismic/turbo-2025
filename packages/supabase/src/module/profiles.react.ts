@@ -164,16 +164,11 @@ export const useGetProfile = ({
   supabase,
   userId,
   enabled = true,
-}: GetProfileParams): ProfileResponse<Profile | null> => {
-  const { data, error } = useQuery<Profile, ProfileError>({
+}: GetProfileParams) => {
+  return useQuery<Profile, ProfileError>({
     ...profileQueries.detail({ supabase, userId }),
     enabled: Boolean(userId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type UpdateProfileRequest = {

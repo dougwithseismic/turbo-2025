@@ -26,6 +26,7 @@ import {
   getReducedShakeAnimation,
 } from '@/features/auth/animations/form-animations'
 import { createProject } from '../actions/create-project'
+import { useAnalytics } from '@/lib/analytics'
 
 type FormSchema = {
   name: string
@@ -39,14 +40,16 @@ export function ProjectCreation() {
   const prefersReducedMotion = useReducedMotion()
   const [showConfirm, setShowConfirm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const { trackFormSubmit, trackButtonClick, trackError } = useAnalytics()
 
   const { data: organizations = [] } = useGetUserOrganizations({
     supabase: supabaseClient,
   })
 
-  const { data: projects = [] } = useGetUserProjects({
-    supabase: supabaseClient,
-  })
+  const { data: projects = [], isLoading: isLoadingProjects } =
+    useGetUserProjects({
+      supabase: supabaseClient,
+    })
 
   const validateProjectName = (
     name: string,
@@ -75,7 +78,7 @@ export function ProjectCreation() {
         validateProjectName(data.name, data.organizationId, existingProjects),
       {
         message: 'A project with this name already exists in this organization',
-        path: ['name'], // Show error on the name field
+        path: ['name'],
       },
     )
   }
@@ -99,17 +102,48 @@ export function ProjectCreation() {
   const onSubmit = async (data: FormSchema): Promise<boolean> => {
     try {
       setIsSubmitting(true)
+
+      // Track form submission attempt
+      trackFormSubmit({
+        form_id: 'project-creation',
+        form_name: 'Project Creation',
+        success: true,
+      })
+
       const project = await createProject({
         name: data.name.trim(),
         organizationId: data.organizationId,
       })
+
+      // Track successful project creation
+      trackButtonClick({
+        button_id: 'create-project-success',
+        button_text: 'Create Project',
+        page: 'project-creation',
+      })
+
       router.push(`/project/${project.id}`)
       return true
     } catch (error) {
-      form.setValue(
-        'error',
-        error instanceof Error ? error.message : 'An error occurred',
-      )
+      const errorMessage =
+        error instanceof Error ? error.message : 'An error occurred'
+
+      // Track form submission error
+      trackFormSubmit({
+        form_id: 'project-creation',
+        form_name: 'Project Creation',
+        success: false,
+        error: errorMessage,
+      })
+
+      // Track error details
+      trackError({
+        error_code: 'project_creation_error',
+        error_message: errorMessage,
+        path: window.location.pathname,
+      })
+
+      form.setValue('error', errorMessage)
       triggerShake()
       setShowConfirm(false)
       return false
@@ -120,15 +154,27 @@ export function ProjectCreation() {
 
   const handleFormSubmit = form.handleSubmit(
     () => {
-      // Only show confirm if form is valid and dirty
       if (isValid && isDirty) {
+        // Track validation success
+        trackButtonClick({
+          button_id: 'project-creation-continue',
+          button_text: 'Continue',
+          page: 'project-creation',
+        })
         setShowConfirm(true)
       }
     },
     (errors) => {
-      // On validation errors, trigger shake animation
       console.error('Validation errors:', errors)
-      // Set a generic error message
+
+      // Track validation errors
+      trackFormSubmit({
+        form_id: 'project-creation',
+        form_name: 'Project Creation',
+        success: false,
+        error: 'Validation errors',
+      })
+
       form.setValue(
         'error',
         'Please fix the validation errors before continuing',
@@ -146,6 +192,13 @@ export function ProjectCreation() {
   const isDirty = form.formState.isDirty
 
   const handleOrganizationChange = (value: string) => {
+    // Track organization selection
+    trackButtonClick({
+      button_id: 'select-organization',
+      button_text: 'Select Organization',
+      page: 'project-creation',
+    })
+
     form.setValue('organizationId', value)
     form.trigger('name')
     form.clearErrors()
@@ -192,7 +245,15 @@ export function ProjectCreation() {
           <Button
             variant="outline"
             className="w-full"
-            onClick={() => setShowConfirm(false)}
+            onClick={() => {
+              // Track cancellation
+              trackButtonClick({
+                button_id: 'cancel-project-creation',
+                button_text: 'Cancel',
+                page: 'project-creation',
+              })
+              setShowConfirm(false)
+            }}
             disabled={isSubmitting}
           >
             Cancel
@@ -274,7 +335,7 @@ export function ProjectCreation() {
       <motion.div whileTap={prefersReducedMotion ? {} : { scale: 0.98 }}>
         <Button
           type="submit"
-          disabled={isSubmitting || !isValid || !isDirty}
+          disabled={isSubmitting || !isValid || !isDirty || isLoadingProjects}
           className="w-full dark:bg-primary dark:text-primary-foreground dark:hover:bg-primary/90"
         >
           {isSubmitting ? (

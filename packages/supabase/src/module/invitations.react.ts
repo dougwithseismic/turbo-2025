@@ -206,21 +206,11 @@ export const invitationQueries = {
 export const useGetPendingInvitations = ({
   supabase,
   enabled = true,
-}: SupabaseProps & QueryEnabledProps): InvitationResponse<
-  PendingInvitationRPCResponse[]
-> => {
-  const { data, error } = useQuery<
-    PendingInvitationRPCResponse[],
-    InvitationError
-  >({
+}: SupabaseProps & QueryEnabledProps) => {
+  return useQuery<PendingInvitationRPCResponse[], InvitationError>({
     ...invitationQueries.pending({ supabase }),
     enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 /**
@@ -258,21 +248,11 @@ export const useGetSentInvitations = ({
   resourceType,
   resourceId,
   enabled = true,
-}: SupabaseProps & GetSentInvitationsRequest): InvitationResponse<
-  SentInvitationRPCResponse[]
-> => {
-  const { data, error } = useQuery<
-    SentInvitationRPCResponse[],
-    InvitationError
-  >({
+}: SupabaseProps & GetSentInvitationsRequest) => {
+  return useQuery<SentInvitationRPCResponse[], InvitationError>({
     ...invitationQueries.sent({ supabase, resourceType, resourceId }),
     enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 /**
