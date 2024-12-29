@@ -227,16 +227,11 @@ export const useGetProjectMembers = ({
   supabase,
   projectId,
   enabled = true,
-}: GetProjectParams): ProjectResponse<ProjectMember[]> => {
-  const { data, error } = useQuery<ProjectMember[], ProjectError>({
+}: GetProjectParams) => {
+  return useQuery<ProjectMember[], ProjectError>({
     ...projectQueries.members({ supabase, projectId }),
     enabled: Boolean(projectId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type GetOrgProjectsParams = OrgProjectsQueryParams & QueryEnabledProps
@@ -245,16 +240,11 @@ export const useGetOrganizationProjects = ({
   supabase,
   organizationId,
   enabled = true,
-}: GetOrgProjectsParams): ProjectResponse<ProjectWithOrg[]> => {
-  const { data, error } = useQuery<ProjectWithOrg[], ProjectError>({
+}: GetOrgProjectsParams) => {
+  return useQuery<ProjectWithOrg[], ProjectError>({
     ...projectQueries.organizationProjects({ supabase, organizationId }),
     enabled: Boolean(organizationId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type UpdateProjectRequest = {
@@ -436,14 +426,9 @@ export const useAddProjectMember = ({ supabase }: SupabaseProps) => {
 export const useGetUserProjects = ({
   supabase,
   enabled = true,
-}: SupabaseProps & QueryEnabledProps): ProjectResponse<UserProject[]> => {
-  const { data, error } = useQuery<UserProject[], ProjectError>({
+}: SupabaseProps & QueryEnabledProps) => {
+  return useQuery<UserProject[], ProjectError>({
     ...projectQueries.userProjects({ supabase }),
     enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }

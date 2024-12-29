@@ -226,16 +226,11 @@ export const useGetCurrentSubscription = ({
   subscriberType,
   subscriberId,
   enabled = true,
-}: GetCurrentSubscriptionParams): SubscriptionResponse<SubscriptionWithPlan | null> => {
-  const { data, error } = useQuery<SubscriptionWithPlan, SubscriptionError>({
+}: GetCurrentSubscriptionParams) => {
+  return useQuery<SubscriptionWithPlan, SubscriptionError>({
     ...subscriptionQueries.current({ supabase, subscriberType, subscriberId }),
     enabled: Boolean(subscriberId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type GetSubscriptionByProviderParams = SupabaseProps & {
@@ -257,16 +252,11 @@ export const useGetSubscriptionByProvider = ({
   supabase,
   providerSubscriptionId,
   enabled = true,
-}: GetSubscriptionByProviderParams): SubscriptionResponse<Subscription | null> => {
-  const { data, error } = useQuery<Subscription, SubscriptionError>({
+}: GetSubscriptionByProviderParams) => {
+  return useQuery<Subscription, SubscriptionError>({
     ...subscriptionQueries.provider({ supabase, providerSubscriptionId }),
     enabled: Boolean(providerSubscriptionId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type CreateSubscriptionRequest = {

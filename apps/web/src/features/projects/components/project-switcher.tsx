@@ -9,6 +9,7 @@ import {
   type EntityItem,
 } from '@/components/ui/entity-switcher'
 import { FolderGit2 } from 'lucide-react'
+import { useAnalytics } from '@/lib/analytics'
 
 interface ProjectSwitcherProps {
   isCollapsed?: boolean
@@ -31,15 +32,26 @@ export function ProjectSwitcher({
   organizationId,
 }: ProjectSwitcherProps) {
   const router = useRouter()
-  const { data: projects = [], error } = useGetUserProjects({
+  const { trackButtonClick, trackError } = useAnalytics()
+
+  const {
+    data: projects = [],
+    error,
+    isLoading,
+  } = useGetUserProjects({
     supabase: supabaseClient,
   })
 
-  const [isLoading, setIsLoading] = React.useState(true)
-
+  // Track any errors loading projects
   React.useEffect(() => {
-    setIsLoading(false)
-  }, [projects])
+    if (error) {
+      trackError({
+        error_code: 'project_load_error',
+        error_message: error.message,
+        path: window.location.pathname,
+      })
+    }
+  }, [error, trackError])
 
   const filteredProjects = React.useMemo(() => {
     if (!organizationId) return projects
@@ -71,18 +83,32 @@ export function ProjectSwitcher({
       const project = filteredProjects.find((p) => p.id === item.id)
       if (!project) return
 
+      // Track project switch
+      trackButtonClick({
+        button_id: `switch-project-${item.id}`,
+        button_text: `Switch to ${item.name}`,
+        page: 'project-switcher',
+      })
+
       setActiveProject(project as ProjectEntity)
       router.push(`/projects/${item.id}`)
     },
-    [router, filteredProjects],
+    [router, filteredProjects, trackButtonClick],
   )
 
   const handleCreateNew = React.useCallback(() => {
+    // Track new project creation
+    trackButtonClick({
+      button_id: 'create-new-project',
+      button_text: 'Create Project',
+      page: 'project-switcher',
+    })
+
     const path = organizationId
       ? `/organizations/${organizationId}/projects/new`
       : '/projects/new'
     router.push(path)
-  }, [router, organizationId])
+  }, [router, organizationId, trackButtonClick])
 
   const renderItemMeta = React.useCallback(
     (item: EntityItem) => {
@@ -111,7 +137,6 @@ export function ProjectSwitcher({
   )
 
   if (error) {
-    // Handle error state - you might want to show an error message or fallback UI
     return null
   }
 

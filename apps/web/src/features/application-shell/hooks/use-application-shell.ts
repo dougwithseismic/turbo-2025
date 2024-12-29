@@ -1,5 +1,15 @@
 'use client'
 
+interface UseApplicationShellOptions {
+  /** Configuration options */
+  config?: {
+    /** Whether the shell is enabled */
+    enabled: boolean
+    /** Timeout in milliseconds */
+    timeout: number
+  }
+}
+
 interface UseApplicationShellResult {
   /** Loading state */
   isLoading: boolean
@@ -9,12 +19,14 @@ interface UseApplicationShellResult {
   reset: () => void
 }
 
-export const useApplicationShell = (): UseApplicationShellResult => {
+export const useApplicationShell = ({
+  config = { enabled: true, timeout: 5000 },
+}: UseApplicationShellOptions = {}): UseApplicationShellResult => {
   return {
-    isLoading: false,
+    isLoading: !config.enabled,
     error: null,
     reset: () => {
-      // Reset implementation
+      console.log('Reset implementation')
     },
   }
 }

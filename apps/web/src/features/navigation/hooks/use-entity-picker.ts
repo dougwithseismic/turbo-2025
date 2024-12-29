@@ -54,11 +54,15 @@ export function useEntityPicker({
       supabase: supabaseClient,
     },
   )
-  const { data: projects = [], error: projectError } = useGetUserProjects({
+  const {
+    data: projects = [],
+    error: projectError,
+    isLoading: isLoadingProjects,
+  } = useGetUserProjects({
     supabase: supabaseClient,
   })
 
-  const [isLoading, setIsLoading] = React.useState(true)
+  const isLoading = isLoadingProjects
   const [activeItemId, setActiveItemId] = React.useState<string>()
 
   // Map data to ComboEntity format
@@ -148,13 +152,12 @@ export function useEntityPicker({
       )
 
     // Subscribe to all channels
-    Promise.all([
+    void Promise.all([
       orgChannel.subscribe(),
       projectChannel.subscribe(),
       membershipChannel.subscribe(),
     ]).then(() => {
       console.log('✅ All subscriptions active')
-      setIsLoading(false)
     })
 
     // Cleanup function
@@ -168,11 +171,7 @@ export function useEntityPicker({
 
   // Handle default selection based on route and props
   React.useEffect(() => {
-    if (isLoading && (organizations.length > 0 || projects.length > 0)) {
-      setIsLoading(false)
-    }
-
-    if (!activeItemId && items.length > 0) {
+    if (!isLoading && !activeItemId && items.length > 0) {
       // First try to get entity from current route
       const routeEntity = getEntityFromPath(pathname)
       if (routeEntity) {

@@ -25,3 +25,11 @@ export const camelCase = (str: string): string => {
   const pascal = pascalCase(str)
   return pascal.charAt(0).toLowerCase() + pascal.slice(1)
 }
+
+/**
+ * Capitalize the first letter of a string and convert the rest to lowercase
+ */
+export const capitalizeFirstLetter = ({ text }: { text: string }): string => {
+  if (!text) return text
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+}

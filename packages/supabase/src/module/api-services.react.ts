@@ -178,17 +178,12 @@ type GetApiServicesParams = ApiServiceQueryParams & QueryEnabledProps
 export const useGetApiServices = ({
   supabase,
   enabled = true,
-}: GetApiServicesParams): ApiServiceResponse<ApiService[]> => {
+}: GetApiServicesParams) => {
   const query = apiServiceQueries.list({ supabase })
-  const { data, error } = useQuery<ApiService[], ApiServiceError>({
+  return useQuery<ApiService[], ApiServiceError>({
     ...query,
     enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type GetUserApiQuotasParams = Required<ApiServiceQueryParams> &
@@ -209,17 +204,12 @@ export const useGetUserApiQuotas = ({
   supabase,
   userId,
   enabled = true,
-}: GetUserApiQuotasParams): ApiServiceResponse<ApiQuotaAllocation[]> => {
+}: GetUserApiQuotasParams) => {
   const query = apiServiceQueries.userQuotas({ supabase, userId })
-  const { data, error } = useQuery<ApiQuotaAllocation[], ApiServiceError>({
+  return useQuery<ApiQuotaAllocation[], ApiServiceError>({
     ...query,
     enabled: Boolean(userId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type UpdateApiQuotaRequest = {

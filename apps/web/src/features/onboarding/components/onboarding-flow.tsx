@@ -1,162 +1,164 @@
-'use client'
+import { useCallback, useEffect, useState } from 'react'
+import { useOnboardingAnalytics } from '../../../lib/analytics/hooks/use-onboarding-analytics'
+import { useAnalytics } from '../../../lib/analytics/use-analytics'
 
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { OnboardingState, StepKey } from '../types'
-import { STEPS, STEP_SEQUENCE } from '../config'
-import { useOnboardingHandlers } from '../hooks/use-onboarding-handlers'
-import { useGetUserMemberships } from '@repo/supabase'
-import { supabaseClient } from '@/lib/supabase/client'
-
-const onboardingSchema = z.object({
-  orgDetails: z
-    .object({
-      name: z.string().min(1, 'Organization name is required'),
-      id: z.string().optional(),
-    })
-    .nullable(),
-  projectDetails: z
-    .object({
-      name: z.string().min(1, 'Project name is required'),
-      url: z.string().url('Must be a valid URL'),
-    })
-    .nullable(),
-  isGoogleConnected: z.boolean(),
-  selectedSite: z.string(),
-  teamInvites: z.array(
-    z.object({
-      email: z.string().email('Invalid email address'),
-      role: z.enum(['admin', 'member']),
-    }),
-  ),
-})
-
-interface OnboardingFlowProps {
-  userId: string
+interface OnboardingStepProps {
+  onComplete: () => void
+  onError: (error: string) => void
 }
 
-export const OnboardingFlow = ({ userId }: OnboardingFlowProps) => {
-  const { data: memberships = [] } = useGetUserMemberships({
-    supabase: supabaseClient,
-    userId: userId,
-    resourceType: 'organization',
-  })
+interface OnboardingStep {
+  id: string
+  title: string
+  description: string
+}
 
-  const organizations = memberships.map((membership) => membership.resource_id)
+const ONBOARDING_STEPS: OnboardingStep[] = [
+  {
+    id: 'profile',
+    title: 'Profile Setup',
+    description: 'Set up your profile information',
+  },
+  {
+    id: 'organization',
+    title: 'Organization Details',
+    description: 'Set up your organization',
+  },
+  {
+    id: 'preferences',
+    title: 'Preferences',
+    description: 'Configure your preferences',
+  },
+]
 
-  const {
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm<OnboardingState>({
-    resolver: zodResolver(onboardingSchema),
-    defaultValues: {
-      orgDetails: null,
-      projectDetails: null,
-      isGoogleConnected: false,
-      selectedSite: '',
-      teamInvites: [],
-    },
-    mode: 'onChange',
-  })
+function OnboardingStep({ onComplete, onError }: OnboardingStepProps) {
+  const [isLoading, setIsLoading] = useState(false)
 
-  const formValues = watch()
-  const [currentStepKey, setCurrentStepKey] = useState<StepKey>(
-    STEP_SEQUENCE[0] as StepKey,
-  )
-
-  const handlers = useOnboardingHandlers({
-    userId,
-    state: formValues,
-    setState: (updater) => {
-      const newState =
-        typeof updater === 'function' ? updater(formValues) : updater
-      Object.entries(newState).forEach(([key, value]) => {
-        setValue(key as keyof OnboardingState, value)
-      })
-    },
-    currentStepKey,
-    setCurrentStepKey: (step) => {
-      if (typeof step === 'function') {
-        setCurrentStepKey(step(currentStepKey))
-      } else if (step) {
-        setCurrentStepKey(step)
-      }
-    },
-  })
-
-  const handleBack = () => {
-    const currentIndex = STEP_SEQUENCE.indexOf(currentStepKey)
-    if (currentIndex > 0) {
-      const previousStep = STEP_SEQUENCE[currentIndex - 1]
-      if (previousStep) {
-        setCurrentStepKey(previousStep)
-      }
+  const handleComplete = async () => {
+    setIsLoading(true)
+    try {
+      // Simulate async operation
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+      onComplete()
+    } catch (error) {
+      onError(
+        error instanceof Error ? error.message : 'Failed to complete step',
+      )
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const currentStep = STEPS[currentStepKey]
-  const showBackButton = STEP_SEQUENCE.indexOf(currentStepKey) > 0
-
-  const getStepProps = () => {
-    const baseProps = currentStep.getProps({
-      state: formValues,
-      handlers,
-      onBack: showBackButton ? handleBack : undefined,
-    })
-
-    // Add organizations to the org step props
-    if (currentStepKey === 'organization') {
-      return {
-        ...baseProps,
-        existingOrganizations: organizations,
-      }
-    }
-
-    return baseProps
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {currentStep.title}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-2">
-          {currentStep.description}
-        </p>
-      </div>
+    <div>
+      {/* Step content */}
+      <button
+        onClick={handleComplete}
+        disabled={isLoading}
+        className="px-4 py-2 bg-secondary text-white rounded-md disabled:opacity-50"
+      >
+        {isLoading ? 'Processing...' : 'Complete Step'}
+      </button>
+    </div>
+  )
+}
 
-      {/* Step Component */}
-      <div>
-        <currentStep.Component {...getStepProps()} />
-      </div>
+export function OnboardingFlow() {
+  const { trackFormSubmit, trackButtonClick } = useAnalytics()
+  const { trackStepCompletion, trackOnboardingStart, trackOnboardingComplete } =
+    useOnboardingAnalytics()
+  const [startTime] = useState(() => Date.now())
+  const [completedSteps, setCompletedSteps] = useState<string[]>([])
 
-      {/* Progress indicator */}
-      <div className="flex gap-2 justify-center">
-        {STEP_SEQUENCE.map((stepKey) => (
-          <div
-            key={stepKey}
-            className={`h-2 w-2 rounded-full transition-colors duration-200 ${
-              stepKey === currentStepKey
-                ? 'bg-primary'
-                : STEP_SEQUENCE.indexOf(currentStepKey) >
-                    STEP_SEQUENCE.indexOf(stepKey)
-                  ? 'bg-primary/50'
-                  : 'bg-muted'
-            }`}
-          />
+  // Track when onboarding starts
+  useEffect(() => {
+    trackOnboardingStart()
+  }, [trackOnboardingStart])
+
+  const handleStepComplete = useCallback(
+    (step: string) => {
+      trackStepCompletion(step, true)
+      setCompletedSteps((prev) => [...prev, step])
+    },
+    [trackStepCompletion],
+  )
+
+  const handleStepError = useCallback(
+    (step: string, error: string) => {
+      trackStepCompletion(step, false, error)
+    },
+    [trackStepCompletion],
+  )
+
+  const handleFormSubmit = useCallback(
+    (formId: string, formName: string, success: boolean, error?: string) => {
+      trackFormSubmit({
+        form_id: formId,
+        form_name: formName,
+        success,
+        error,
+      })
+    },
+    [trackFormSubmit],
+  )
+
+  const handleButtonClick = useCallback(
+    (buttonId: string, buttonText: string) => {
+      trackButtonClick({
+        button_id: buttonId,
+        button_text: buttonText,
+        page: 'onboarding',
+      })
+    },
+    [trackButtonClick],
+  )
+
+  const handleComplete = useCallback(() => {
+    const timeSpent = Date.now() - startTime
+    trackOnboardingComplete(timeSpent, completedSteps)
+  }, [startTime, completedSteps, trackOnboardingComplete])
+
+  return (
+    <div className="space-y-8">
+      <div className="space-y-4">
+        {ONBOARDING_STEPS.map((step) => (
+          <div key={step.id} className="p-4 border rounded-lg">
+            <h3 className="text-lg font-semibold">{step.title}</h3>
+            <p className="text-sm text-gray-500">{step.description}</p>
+
+            <OnboardingStep
+              onComplete={() => handleStepComplete(step.id)}
+              onError={(error) => handleStepError(step.id, error)}
+            />
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                handleFormSubmit(`${step.id}-form`, `${step.title} Form`, true)
+              }}
+              className="mt-4"
+            >
+              {/* Form fields specific to each step */}
+              <button
+                type="submit"
+                onClick={() =>
+                  handleButtonClick(`${step.id}-submit`, 'Continue')
+                }
+                className="px-4 py-2 bg-primary text-white rounded-md"
+              >
+                Continue
+              </button>
+            </form>
+          </div>
         ))}
       </div>
 
-      {/* Debug info in development */}
-      {process.env.NODE_ENV === 'development' && (
-        <pre className="mt-8 p-4 bg-muted rounded-lg text-xs">
-          {JSON.stringify({ values: formValues, errors }, null, 2)}
-        </pre>
-      )}
+      <button
+        onClick={handleComplete}
+        className="w-full px-4 py-2 bg-primary text-white rounded-md"
+      >
+        Complete Setup
+      </button>
     </div>
   )
 }

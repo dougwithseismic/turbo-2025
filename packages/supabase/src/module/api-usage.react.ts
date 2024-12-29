@@ -214,8 +214,8 @@ export const useGetApiUsageStats = ({
   startDate,
   endDate,
   enabled = true,
-}: GetApiUsageStatsParams): ApiUsageResponse<ApiUsageStats | null> => {
-  const { data, error } = useQuery<ApiUsageStats, ApiUsageError>({
+}: GetApiUsageStatsParams) => {
+  return useQuery<ApiUsageStats, ApiUsageError>({
     ...apiUsageQueries.stats({
       supabase,
       userId,
@@ -225,11 +225,6 @@ export const useGetApiUsageStats = ({
     }),
     enabled: Boolean(userId) && Boolean(serviceId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type GetApiQuotaParams = ApiQuotaQueryParams & QueryEnabledProps
@@ -251,16 +246,11 @@ export const useGetApiQuota = ({
   userId,
   serviceId,
   enabled = true,
-}: GetApiQuotaParams): ApiUsageResponse<ApiQuota | null> => {
-  const { data, error } = useQuery<ApiQuota, ApiUsageError>({
+}: GetApiQuotaParams) => {
+  return useQuery<ApiQuota, ApiUsageError>({
     ...apiUsageQueries.quota({ supabase, userId, serviceId }),
     enabled: Boolean(userId) && Boolean(serviceId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 type TrackApiUsageRequest = {
