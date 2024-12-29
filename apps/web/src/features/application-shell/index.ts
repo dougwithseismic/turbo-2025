@@ -1,4 +1,2 @@
 export { ApplicationShell } from './components/application-shell'
-export { useShellStore } from './store'
-
-export type { Team } from './store'
+export { useApplicationShellStore as useShellStore } from './store'

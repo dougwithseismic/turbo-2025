@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
+import Image from 'next/image'
 
 export interface EntityItem {
   id: string
@@ -125,7 +126,15 @@ export function EntitySwitcher<T extends EntityItem>({
             <CollapsibleItem.Trigger tooltip={displayValue}>
               <Avatar className="size-6 shrink-0">
                 {activeItem.avatarUrl ? (
-                  <img src={activeItem.avatarUrl} alt={displayValue} />
+                  <div className="relative size-full">
+                    <Image
+                      src={activeItem.avatarUrl}
+                      alt={displayValue}
+                      fill
+                      sizes="24px"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <AvatarFallback>
                     {getAvatarFallback(activeItem)}
@@ -161,7 +170,15 @@ export function EntitySwitcher<T extends EntityItem>({
             >
               <Avatar className="size-6 shrink-0">
                 {item.avatarUrl ? (
-                  <img src={item.avatarUrl} alt={getDisplayValue(item)} />
+                  <div className="relative size-full">
+                    <Image
+                      src={item.avatarUrl}
+                      alt={getDisplayValue(item)}
+                      fill
+                      sizes="24px"
+                      className="object-cover"
+                    />
+                  </div>
                 ) : (
                   <AvatarFallback>{getAvatarFallback(item)}</AvatarFallback>
                 )}

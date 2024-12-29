@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { getArticleBySlug } from '@/features/article/utility/get-article-by-slug'
 import type { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
+import Image from 'next/image'
 
 export async function generateMetadata({
   params,
@@ -57,10 +58,13 @@ export default async function Page({ params }: PageProps) {
               {article.title}
             </h1>
             <div className="relative aspect-[16/9] w-full overflow-hidden rounded-lg">
-              <img
+              <Image
                 src={article.featuredImage}
                 alt={article.title}
-                className="absolute inset-0 h-full w-full object-cover"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
             </div>
           </div>

@@ -14,8 +14,7 @@ const httpRequestsTotal = new Counter({
   registers: [register],
 })
 
-// Initialize metrics on first import
-export const initMetrics = () => {
+const executeInitMetrics = () => {
   try {
     httpRequestsTotal.reset()
   } catch (error) {
@@ -23,9 +22,9 @@ export const initMetrics = () => {
   }
 }
 
-initMetrics()
+executeInitMetrics()
 
-export async function GET() {
+export const GET = async () => {
   try {
     const metrics = await register.metrics()
     return new Response(metrics, {

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
+import Image from 'next/image'
 import { CheckCircle2 } from 'lucide-react'
 
 export const HeroSection = () => {
@@ -100,11 +101,12 @@ export const HeroSection = () => {
 
           <div className="mt-16 flow-root sm:mt-24">
             <div className="-m-2 rounded-xl bg-muted/10 p-2 ring-1 ring-inset ring-muted/10 lg:-m-4 lg:rounded-2xl lg:p-4">
-              <img
+              <Image
                 src="https://tailwindui.com/plus/img/component-images/dark-project-app-screenshot.png"
                 alt="Onsite SEO dashboard showing technical audit results and ranking improvements"
                 width={2432}
                 height={1442}
+                priority
                 className="rounded-md shadow-2xl ring-1 ring-muted/10"
               />
             </div>

@@ -1,6 +1,8 @@
+'use client'
+
 import { useCallback, useEffect, useState } from 'react'
-import { useOnboardingAnalytics } from '../../../lib/analytics/hooks/use-onboarding-analytics'
-import { useAnalytics } from '../../../lib/analytics/use-analytics'
+import { useOnboardingAnalytics } from '@/lib/analytics/hooks/use-onboarding-analytics'
+import { useAnalytics } from '@/lib/analytics/use-analytics'
 
 interface OnboardingStepProps {
   onComplete: () => void

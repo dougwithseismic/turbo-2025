@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils'
 import { ArrowUpRight } from 'lucide-react'
+import Image from 'next/image'
 
 const featuredTestimonial = {
   body: 'Within 2 weeks of using Onsite, we identified and fixed critical indexing issues that were hurting our rankings. Our organic traffic increased by 150% in the following month.',
@@ -132,10 +133,12 @@ export const TestimonialsSection = () => {
               <p>{`"${featuredTestimonial.body}"`}</p>
             </blockquote>
             <figcaption className="mt-6 flex flex-wrap items-center gap-x-4 gap-y-4 border-t border-muted-foreground/10 pt-6">
-              <img
-                alt=""
+              <Image
+                alt={`${featuredTestimonial.author.name}'s profile picture`}
                 src={featuredTestimonial.author.imageUrl}
-                className="size-10 rounded-full bg-muted"
+                width={40}
+                height={40}
+                className="rounded-full bg-muted object-cover"
               />
               <div className="flex-auto">
                 <div className="font-semibold">
@@ -146,9 +149,11 @@ export const TestimonialsSection = () => {
                 </div>
               </div>
               {featuredTestimonial.author.companyLogo && (
-                <img
-                  alt=""
+                <Image
+                  alt={`${featuredTestimonial.author.name}'s company logo`}
                   src={featuredTestimonial.author.companyLogo}
+                  width={158}
+                  height={48}
                   className="h-8 w-auto sm:h-10"
                 />
               )}
@@ -204,10 +209,12 @@ export const TestimonialsSection = () => {
                         <p className="text-sm sm:text-base">{`"${testimonial.body}"`}</p>
                       </blockquote>
                       <figcaption className="mt-6 flex items-center gap-x-4">
-                        <img
-                          alt=""
+                        <Image
+                          alt={`${testimonial.author.name}'s profile picture`}
                           src={testimonial.author.imageUrl}
-                          className="size-8 rounded-full bg-muted sm:size-10"
+                          width={40}
+                          height={40}
+                          className="size-8 rounded-full bg-muted object-cover sm:size-10"
                         />
                         <div>
                           <div className="text-sm font-semibold sm:text-base">

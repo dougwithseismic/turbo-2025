@@ -1,3 +1,5 @@
+# Vitest Coverage Patterns
+
 ---
 
 ## 2024-12-29 - Vitest Coverage Setup and Type-Safe Analytics
@@ -31,7 +33,7 @@ export default defineConfig({
 })
 ```
 
-2. Type-Safe Analytics Implementation:
+1. Type-Safe Analytics Implementation:
 
 ```typescript
 // Strongly typed event data
@@ -74,7 +76,7 @@ const trackFormSubmit = useCallback((event: FormEvent) => {
 - Proper exclusion patterns to avoid irrelevant files
 - Environment-specific configuration for accurate testing
 
-2. Type-Safe Analytics:
+1. Type-Safe Analytics:
 
 - Compile-time error detection for analytics events
 - Autocomplete support for event properties

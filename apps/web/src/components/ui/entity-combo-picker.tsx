@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { motion, AnimatePresence } from 'framer-motion'
+import Image from 'next/image'
 
 export interface ComboEntity {
   id: string
@@ -150,10 +151,15 @@ export function EntityComboPicker({
               ) : (
                 <Avatar className="size-6 shrink-0">
                   {selectedItem?.avatarUrl ? (
-                    <img
-                      src={selectedItem.avatarUrl}
-                      alt={getDisplayValue(selectedItem)}
-                    />
+                    <div className="relative size-full">
+                      <Image
+                        src={selectedItem.avatarUrl}
+                        alt={getDisplayValue(selectedItem)}
+                        fill
+                        sizes="24px"
+                        className="object-cover"
+                      />
+                    </div>
                   ) : (
                     <AvatarFallback>
                       {selectedItem ? getAvatarFallback(selectedItem) : '...'}
@@ -227,10 +233,15 @@ export function EntityComboPicker({
                           >
                             <Avatar className="size-5 shrink-0">
                               {org.avatarUrl ? (
-                                <img
-                                  src={org.avatarUrl}
-                                  alt={getDisplayValue(org)}
-                                />
+                                <div className="relative size-full">
+                                  <Image
+                                    src={org.avatarUrl}
+                                    alt={getDisplayValue(org)}
+                                    fill
+                                    sizes="20px"
+                                    className="object-cover"
+                                  />
+                                </div>
                               ) : (
                                 <AvatarFallback>
                                   {getAvatarFallback(org)}
@@ -278,10 +289,15 @@ export function EntityComboPicker({
                           >
                             <Avatar className="size-5 shrink-0">
                               {project.avatarUrl ? (
-                                <img
-                                  src={project.avatarUrl}
-                                  alt={getDisplayValue(project)}
-                                />
+                                <div className="relative size-full">
+                                  <Image
+                                    src={project.avatarUrl}
+                                    alt={getDisplayValue(project)}
+                                    fill
+                                    sizes="20px"
+                                    className="object-cover"
+                                  />
+                                </div>
                               ) : (
                                 <AvatarFallback>
                                   {getAvatarFallback(project)}

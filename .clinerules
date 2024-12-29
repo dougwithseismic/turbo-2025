@@ -194,7 +194,7 @@ When documenting learnings in `_project/learnings/[subject].md`, follow this tem
 
 {Brief description of the learning or technique}:
 
-```code
+```typescript
 {Example code or commands if applicable}
 ```
 
@@ -229,7 +229,7 @@ Guidelines for Learning Entries:
 - Add new entries at the top of the file
 - Maintain chronological order with newest entries first
 
-### Learning Documentation
+### Pattern Documentation Guidelines
 
 When documenting patterns in `_learnings/patterns/[pattern-name].md`:
 
@@ -247,7 +247,7 @@ Brief description of what this pattern accomplishes and when to use it.
 
    Description of the component's purpose
 
-2. **{Another Component}**
+1. **{Another Component}**
 
    ```typescript
    // Another example
@@ -282,3 +282,98 @@ Guidelines for Pattern Documentation:
 - Provide a complete implementation example
 - Include important notes and gotchas
 - Link to official documentation when relevant
+- Include important notes and gotchas
+- Link to official documentation when relevant
+
+### React Query Patterns
+
+- Return full query results from hooks
+- Use appropriate loading states
+- Handle errors using isError and error
+- Provide refetch capability
+- Use enabled prop for conditional fetching
+
+### Monorepo Dependencies
+
+- Follow Package-Based approach:
+  - Install dependencies where used
+  - Keep only tools in root
+  - Allow independent speeds
+- Use version management tools
+- Regular dependency audits
+- CI version mismatch checks
+
+### Component Architecture
+
+- Controlled over uncontrolled components
+- Composition over inheritance
+- Single-purpose components
+- Custom hooks for logic
+- React Query for data fetching
+- TypeScript generics for reuse
+- Error boundaries
+- Judicious React.memo/useCallback
+- JSDoc props documentation
+
+### Performance Patterns
+
+- Code-splitting with dynamic imports
+- React.lazy for components
+- Proper memoization
+- Proper list keys
+- Loading states and suspense
+- Image optimization
+- Caching strategies
+- Bundle size monitoring
+
+### Security Patterns
+
+- No client-side sensitive data
+- CSRF protection
+- Content Security Policy
+- Input sanitization
+- Auth and authorization
+- Rate limiting
+- Security monitoring
+- Regular audits
+
+### Testing Patterns
+
+- Consistent Vitest coverage setup
+- TDD workflow:
+  - Red: failing tests
+  - Green: minimal passing
+  - Refactor: maintain coverage
+- Focused test cases
+- Proper mocking
+- E2E critical paths
+
+### Monitoring and Analytics
+
+- Metrics collection:
+  - prom-client setup
+  - Custom metrics
+  - HTTP tracking
+- Monitoring config:
+  - Prometheus
+  - Grafana
+  - Data retention
+- Type-safe analytics:
+  - Event interfaces
+  - Type inference
+  - No assertions
+  - Event docs
+
+### Documentation Patterns
+
+- Clear structure:
+  - Proper directories
+  - Consistent format
+  - Working examples
+  - Edge cases
+- Use templates:
+  - Progress
+  - Learning
+  - Patterns
+- Keep docs current
+- Link resources

@@ -7,6 +7,7 @@ import { ArrowRight, ArrowUpRight, CheckCircle2, Sparkles } from 'lucide-react'
 import { ArticleCard } from '@/features/article/components/article-card'
 import { ArticleMetadata } from '@/features/article/utility/types'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type FeatureDetailsProps = {
   feature: {
@@ -416,10 +417,12 @@ export const FeatureDetails = ({ feature }: FeatureDetailsProps) => {
                   <p>"{featuredTestimonial.body}"</p>
                 </blockquote>
                 <figcaption className="flex items-center gap-x-6 border-t border-muted-foreground/10 pt-6">
-                  <img
-                    className="size-12 rounded-full bg-muted"
+                  <Image
                     src={featuredTestimonial.author.imageUrl}
-                    alt=""
+                    alt={`${featuredTestimonial.author.name}'s profile picture`}
+                    width={48}
+                    height={48}
+                    className="rounded-full bg-muted object-cover"
                   />
                   <div className="flex flex-col">
                     <div className="font-semibold">

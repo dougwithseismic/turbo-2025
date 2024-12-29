@@ -1,3 +1,5 @@
+# Monitoring Patterns
+
 ---
 
 ## 2024-12-29 - Next.js Monitoring with Prometheus and Grafana
@@ -66,7 +68,7 @@ export async function GET() {
 
 3. **Grafana Provisioning**
 
-   ```
+   ```yaml
    grafana-provisioning/
    ├── datasources/
    │   └── prometheus.yml    # Datasource config

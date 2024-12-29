@@ -5,9 +5,15 @@ import { useAuth } from '@/features/auth/hooks/use-auth'
 import { cn } from '@/lib/utils'
 import { Menu, X, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 
-const navigation = [
+interface NavigationItem {
+  name: string
+  href: string
+}
+
+const navigation: NavigationItem[] = [
   { name: 'Features', href: '/features' },
   { name: 'Pricing', href: '/pricing' },
   { name: 'Blog', href: '/blog' },
@@ -28,7 +34,14 @@ export const Header = () => {
         <div className="flex lg:flex-1">
           <Link href="/" className="-m-1.5 p-1.5">
             <span className="sr-only">Onsite</span>
-            <img className="size-8" src="/logo.svg" alt="Onsite logo" />
+            <Image
+              src="/logo.svg"
+              alt="Onsite logo"
+              width={32}
+              height={32}
+              className="size-8"
+              priority
+            />
           </Link>
         </div>
 
@@ -46,7 +59,7 @@ export const Header = () => {
 
         {/* Desktop navigation */}
         <div className="hidden lg:flex lg:gap-x-12">
-          {navigation.map((item) => (
+          {navigation.map((item: NavigationItem) => (
             <Link
               key={item.name}
               href={item.href}
@@ -105,7 +118,14 @@ export const Header = () => {
           <div className="flex items-center justify-between">
             <Link href="/" className="-m-1.5 p-1.5">
               <span className="sr-only">Onsite</span>
-              <img className="size-8" src="/logo.svg" alt="Onsite logo" />
+              <Image
+                src="/logo.svg"
+                alt="Onsite logo"
+                width={32}
+                height={32}
+                className="size-8"
+                priority
+              />
             </Link>
             <button
               type="button"
@@ -121,7 +141,7 @@ export const Header = () => {
           <div className="mt-6 flow-root">
             <div className="-my-6 divide-y divide-border/10">
               <div className="space-y-2 py-6">
-                {navigation.map((item) => (
+                {navigation.map((item: NavigationItem) => (
                   <Link
                     key={item.name}
                     href={item.href}

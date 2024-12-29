@@ -4,7 +4,7 @@ import { UserSwitcher } from '@/features/auth/components/user-switcher'
 import { useAuth } from '@/features/auth/hooks/use-auth'
 import { EntityPicker } from '@/features/navigation/components/entity-picker'
 import { usePathname } from 'next/navigation'
-import { useShellStore } from '../store'
+
 import {
   identityNav,
   leadsNav,
@@ -14,6 +14,7 @@ import {
 } from './navigation'
 import { DesktopHeader } from './shell-nav/desktop-header'
 import { MobileHeader } from './shell-nav/mobile-header'
+import { useShellStore } from '..'
 
 interface ShellNavProps {
   isForcedExpanded?: boolean

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
-import { useShellStore } from '../store'
+import { useShellStore } from '..'
 
 export function useShellBehavior() {
   const pathname = usePathname()

@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 type Article = {
   title: string
@@ -116,10 +117,12 @@ export const ArticleList = () => {
 
               {/* Author Info */}
               <div className="mt-6 flex items-center gap-x-4">
-                <img
+                <Image
                   src={article.author.avatar}
-                  alt={article.author.name}
-                  className="size-10 rounded-full bg-muted"
+                  alt={`${article.author.name}'s profile picture`}
+                  width={40}
+                  height={40}
+                  className="size-10 rounded-full bg-muted object-cover"
                 />
                 <div className="text-sm leading-6">
                   <p className="font-semibold">{article.author.name}</p>

@@ -123,9 +123,33 @@ These functions define how the AI agent interacts with project documentation and
 
 When asked to add a progress report, follow this template in `_project/progress/[number].md`:
 
+```markdown
+---
+
+## {Current Date} - {Commit Message / TL;DR Summary Sentence}
+
+{Author Name}
+
+### Summary
+{Brief overview of what was accomplished}
+
+### Completed Tasks
+- {List of completed tasks with links to relevant PRs/commits}
+
+### Learnings
+- {Key insights and learnings from the work}
+
+### Blockers
+[None or list of blocking issues]
+
+### Next Steps
+- {Prioritized list of upcoming tasks}
+
+### Technical Notes
+- {Any important technical decisions or architecture notes}
 ```
 
-### Learning Documentation
+### Pattern Documentation Guidelines
 
 When documenting patterns in `_learnings/patterns/[pattern-name].md`:
 
@@ -143,7 +167,7 @@ Brief description of what this pattern accomplishes and when to use it.
 
    Description of the component's purpose
 
-2. **{Another Component}**
+1. **{Another Component}**
 
    ```typescript
    // Another example
@@ -178,3 +202,105 @@ Guidelines for Pattern Documentation:
 - Provide a complete implementation example
 - Include important notes and gotchas
 - Link to official documentation when relevant
+
+### React Query Patterns
+
+- Return full query results from hooks for complete access to React Query features.
+- Use appropriate loading states:
+  - `isLoading` for initial loads
+  - `isFetching` for background refreshes
+- Handle errors using `isError` and `error` properties
+- Provide refetch capability when needed
+- Consider using `enabled` prop for conditional fetching
+
+### Monorepo Dependencies
+
+- Follow Package-Based approach (Turborepo recommended):
+  - Install dependencies where they're used
+  - Keep only repo management tools in root
+  - Allow teams to move at different speeds
+- Use tools for version management:
+  - syncpack for version synchronization
+  - manypkg for monorepo management
+  - sherif for dependency validation
+- Regular dependency audit and update cycles
+- Set up CI checks for major version mismatches
+
+### Component Architecture
+
+- Prefer controlled components over uncontrolled when state needs to be shared
+- Use composition over inheritance for component reuse
+- Keep components focused and single-purpose
+- Extract reusable logic into custom hooks
+- Follow React Query patterns for data fetching components
+- Use TypeScript generics for reusable components
+- Implement proper error boundaries
+- Use React.memo() and useCallback() judiciously
+- Document component props with JSDoc
+
+### Performance Patterns
+
+- Implement proper code-splitting using dynamic imports
+- Use React.lazy() for component-level code splitting
+- Implement proper memoization strategies
+- Use proper keys in lists to optimize reconciliation
+- Implement proper loading states and suspense boundaries
+- Use proper image optimization techniques
+- Implement proper caching strategies
+- Monitor and optimize bundle sizes
+
+### Security Patterns
+
+- Never store sensitive data in client-side storage
+- Implement proper CSRF protection
+- Use proper Content Security Policy headers
+- Implement proper input sanitization
+- Use proper authentication and authorization
+- Implement proper rate limiting
+- Monitor for security vulnerabilities
+- Regular security audits
+
+### Testing Patterns
+
+- Configure Vitest coverage consistently across monorepo:
+  - Use appropriate test environment per app (node/jsdom)
+  - Set up multiple report formats
+  - Define proper exclusion patterns
+  - Configure environment-specific settings
+- Follow Test-Driven Development (TDD):
+  - Write failing tests first
+  - Implement minimal passing code
+  - Refactor while maintaining test coverage
+- Write focused, isolated test cases
+- Use proper mocking strategies
+- Implement E2E tests for critical paths
+
+### Monitoring and Analytics
+
+- Implement proper metrics collection:
+  - Use prom-client for Node.js/Next.js
+  - Create custom metrics for business logic
+  - Track HTTP requests via middleware
+- Configure monitoring stack:
+  - Set up Prometheus scraping
+  - Configure Grafana dashboards
+  - Use proper data retention policies
+- Implement type-safe analytics:
+  - Define strongly typed event interfaces
+  - Use proper type inference in hooks
+  - Avoid type assertions
+  - Document analytics events
+
+### Documentation Patterns
+
+- Maintain clear documentation structure:
+  - Place patterns in appropriate directories
+  - Use consistent formatting
+  - Include working examples
+  - Document gotchas and edge cases
+- Follow documentation templates:
+  - Progress reports
+  - Learning captures
+  - Pattern documentation
+- Keep documentation up-to-date with code changes
+- Link to official resources and references

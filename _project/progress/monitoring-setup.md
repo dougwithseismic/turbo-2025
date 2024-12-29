@@ -1,3 +1,5 @@
+# Monitoring Setup Progress
+
 ---
 
 ## 2024-12-29 - Implemented Prometheus and Grafana Monitoring Stack

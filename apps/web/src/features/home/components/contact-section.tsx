@@ -1,4 +1,5 @@
 import { ContactForm } from '@/features/forms/components/contact-form'
+import Image from 'next/image'
 
 export const ContactSection = () => {
   return (
@@ -42,9 +43,11 @@ export const ContactSection = () => {
         <div className="mt-16 flex flex-col gap-16 sm:gap-y-20 lg:flex-row">
           <ContactForm />
           <div className="lg:mt-6 lg:w-80 lg:flex-none">
-            <img
-              alt=""
+            <Image
+              alt="Workcation logo"
               src="https://tailwindui.com/plus/img/logos/workcation-logo-indigo-600.svg"
+              width={156}
+              height={48}
               className="h-12 w-auto"
             />
             <figure className="mt-10">
@@ -56,10 +59,12 @@ export const ContactSection = () => {
                 </p>
               </blockquote>
               <figcaption className="mt-10 flex gap-x-6">
-                <img
-                  alt=""
+                <Image
+                  alt="Brenna Goyette profile picture"
                   src="https://images.unsplash.com/photo-1550525811-e5869dd03032?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=96&h=96&q=80"
-                  className="size-12 flex-none rounded-full bg-muted"
+                  width={48}
+                  height={48}
+                  className="size-12 flex-none rounded-full bg-muted object-cover"
                 />
                 <div>
                   <div className="text-base font-semibold">Brenna Goyette</div>

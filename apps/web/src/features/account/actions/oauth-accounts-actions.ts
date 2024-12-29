@@ -151,7 +151,12 @@ export const disconnectOAuthAccount = async ({
   }
 }
 
+/**
+ * Fetch list of OAuth providers that the user has connected.
+ * Currently returns empty array, but marked as async for future database integration.
+ * TODO: Implement fetching connected OAuth accounts from the database
+ */
 export const getConnectedOAuthAccounts = async (): Promise<OAuthProvider[]> => {
-  // TODO: Implement fetching connected OAuth accounts
+  // This will be replaced with an actual database call that requires await
   return []
 }

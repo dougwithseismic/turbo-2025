@@ -1,3 +1,5 @@
+# Infrastructure and Analytics Progress
+
 ---
 
 ## 2024-12-29 - Infrastructure Complete, Analytics In Progress

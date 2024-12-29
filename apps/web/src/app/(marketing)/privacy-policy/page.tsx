@@ -20,8 +20,13 @@ interface PrivacyPolicyData {
   updatedAt: string
 }
 
+/**
+ * Fetch privacy policy data from the API.
+ * Currently returns mock data, but marked as async for future API integration.
+ * TODO: Implement actual API endpoint
+ */
 const fetchPrivacyPolicyData = async (): Promise<PrivacyPolicyData[]> => {
-  // TODO: Implement actual API endpoint
+  // This will be replaced with an actual API call that requires await
   return [
     {
       id: '1',

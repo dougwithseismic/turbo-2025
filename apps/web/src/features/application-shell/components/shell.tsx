@@ -5,7 +5,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { Menu } from 'lucide-react'
 import * as React from 'react'
-import { useShellStore } from '../store'
+import { useShellStore } from '..'
 import { ShellNav } from './shell-nav'
 
 interface ShellProps {

@@ -6,6 +6,7 @@ import {
   SlackIcon,
   DiscordIcon,
 } from '@/components/icons/social-icons'
+import Image from 'next/image'
 
 const footerSections = [
   {
@@ -90,7 +91,14 @@ export const MarketingFooter = () => {
         {/* Logo and Description */}
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
-            <img src="/logo.svg" alt="Onsite" className="h-7 w-auto" />
+            <Image
+              src="/logo.svg"
+              alt="Onsite"
+              width={112}
+              height={28}
+              className="h-7 w-auto"
+              priority
+            />
             <p className="text-sm leading-6 text-gray-400">
               Empowering teams to improve their technical SEO and drive organic
               growth.

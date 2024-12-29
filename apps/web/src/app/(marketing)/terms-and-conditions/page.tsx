@@ -20,10 +20,15 @@ interface TermsAndConditionsData {
   updatedAt: string
 }
 
+/**
+ * Fetch terms and conditions data from the API.
+ * Currently returns mock data, but marked as async for future API integration.
+ * TODO: Implement actual API endpoint
+ */
 const fetchTermsAndConditionsData = async (): Promise<
   TermsAndConditionsData[]
 > => {
-  // TODO: Implement actual API endpoint
+  // This will be replaced with an actual API call that requires await
   return [
     {
       id: '1',

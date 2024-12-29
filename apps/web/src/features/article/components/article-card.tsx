@@ -1,6 +1,7 @@
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
-import { Article, ArticleMetadata } from '../utility/types'
+import Image from 'next/image'
+import type { ArticleMetadata } from '../utility/types'
 
 interface ArticleCardProps {
   article: ArticleMetadata
@@ -22,15 +23,20 @@ export function ArticleCard({ article, isHero = false }: ArticleCardProps) {
           !isHero && 'aspect-[16/9]',
         )}
       >
-        <img
-          src={article.featuredImage}
-          alt={article.title}
-          className={cn(
-            'rounded-2xl bg-muted object-cover',
-            isHero ? 'lg:aspect-[3/2]' : 'aspect-[16/9]',
-          )}
-        />
-        <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-muted/10" />
+        <div className="relative h-full w-full">
+          <Image
+            src={article.featuredImage}
+            alt={article.title}
+            fill
+            sizes={isHero ? '(min-width: 1024px) 50vw, 100vw' : '100vw'}
+            priority={isHero}
+            className={cn(
+              'rounded-2xl bg-muted object-cover',
+              isHero ? 'lg:aspect-[3/2]' : 'aspect-[16/9]',
+            )}
+          />
+          <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-muted/10" />
+        </div>
       </div>
 
       <div className={cn('max-w-xl', isHero && 'lg:mt-0', !isHero && 'mt-8')}>
@@ -81,10 +87,12 @@ export function ArticleCard({ article, isHero = false }: ArticleCardProps) {
         </div>
 
         <div className="relative mt-8 flex items-center gap-x-4">
-          <img
+          <Image
             src={article.authorAvatar}
             alt={article.author}
-            className="h-10 w-10 rounded-full bg-muted"
+            width={40}
+            height={40}
+            className="rounded-full bg-muted object-cover"
           />
           <div className="text-sm leading-6">
             <p className="font-semibold">
