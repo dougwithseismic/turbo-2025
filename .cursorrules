@@ -83,6 +83,30 @@ Generate code, corrections, and refactorings that comply with the basic principl
 
 - Follow XML Format
 
+### Test-Driven Development (TDD)
+
+- Follow the Red-Green-Refactor cycle for all new features to ensure code quality and maintainability.
+- Start with a todo.md file in the feature directory to plan development.
+  - Break down features into testable units for focused development.
+  - Prioritize test cases based on business value and dependencies.
+  - Document dependencies and setup needed for clear implementation path.
+- Write failing tests first (Red phase) to define expected behavior.
+  - One test at a time to maintain focus and simplicity.
+  - Verify test failure message clarity for better debugging.
+  - Commit failing tests to track development progress.
+- Write minimal code to pass tests (Green phase) to avoid over-engineering.
+  - Focus on making tests pass with the simplest solution.
+  - Avoid premature optimization to maintain development speed.
+  - Commit passing implementation to establish working checkpoints.
+- Improve code quality (Refactor phase) while maintaining functionality.
+  - Extract reusable functions to promote code reuse.
+  - Apply design patterns to improve code structure.
+  - Maintain passing tests to ensure refactoring safety.
+  - Commit refactored code to preserve improvements.
+- Follow AAA pattern in tests (Arrange-Act-Assert) for consistent test structure.
+- Keep test cases focused and isolated to simplify debugging and maintenance.
+- Update documentation alongside code to maintain project clarity.
+
 ### Exceptions
 
 - Use exceptions to handle errors you don't expect.
