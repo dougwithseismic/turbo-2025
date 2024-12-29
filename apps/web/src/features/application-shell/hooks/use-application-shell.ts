@@ -1,12 +1,4 @@
-interface UseApplicationShellOptions {
-  /** Optional configuration for the application-shell hook */
-  config?: {
-    /** Enable/disable feature */
-    enabled?: boolean
-    /** Timeout in milliseconds */
-    timeout?: number
-  }
-}
+'use client'
 
 interface UseApplicationShellResult {
   /** Loading state */
@@ -17,9 +9,7 @@ interface UseApplicationShellResult {
   reset: () => void
 }
 
-export const useApplicationShell = ({
-  config,
-}: UseApplicationShellOptions = {}): UseApplicationShellResult => {
+export const useApplicationShell = (): UseApplicationShellResult => {
   return {
     isLoading: false,
     error: null,
