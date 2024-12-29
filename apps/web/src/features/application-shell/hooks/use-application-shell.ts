@@ -1,10 +1,12 @@
+'use client'
+
 interface UseApplicationShellOptions {
-  /** Optional configuration for the application-shell hook */
+  /** Configuration options */
   config?: {
-    /** Enable/disable feature */
-    enabled?: boolean
+    /** Whether the shell is enabled */
+    enabled: boolean
     /** Timeout in milliseconds */
-    timeout?: number
+    timeout: number
   }
 }
 

@@ -1,3 +1,5 @@
+'use client'
+
 import { Children, type ReactElement, type ReactNode } from 'react'
 import { isSlottedComponent } from '../utils/is-slotted-component'
 

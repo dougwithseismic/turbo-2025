@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useCallback, useEffect } from 'react'
 
 export type HealthCheckState = 'checking' | 'maintenance' | 'restored'
