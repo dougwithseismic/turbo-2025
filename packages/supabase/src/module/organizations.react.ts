@@ -9,21 +9,18 @@ import {
   Organization,
   OrganizationMember,
   OrganizationUpdate,
+  UserOrganization,
   addOrganizationMember,
   createOrganization,
   deleteOrganization,
   getOrganization,
   getOrganizationMembers,
   updateOrganization,
+  getUserOrganizations,
 } from './organizations'
 
 // Common Types
 import type { QueryEnabledProps, SupabaseProps } from '../types/react-query'
-
-type OrganizationResponse<T> = {
-  data: T
-  error: OrganizationError | null
-}
 
 /**
  * Custom error class for handling organization-related errors with additional context
@@ -72,6 +69,7 @@ type BaseKey = ['organizations']
 type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
 type DetailKey = [...BaseKey, 'detail', string]
 type MembersKey = [...DetailKey, 'members']
+type UserOrgsKey = [...BaseKey, 'user']
 
 /**
  * Query key factory for organizations with proper type safety
@@ -107,6 +105,7 @@ export const organizationKeys = {
     ...organizationKeys.detail({ orgId }),
     'members',
   ],
+  userOrganizations: (): UserOrgsKey => [...organizationKeys.all(), 'user'],
 } as const
 
 type OrganizationQueryParams = SupabaseProps & {
@@ -182,6 +181,24 @@ export const organizationQueries = {
       }
     },
   }),
+
+  userOrganizations: ({
+    supabase,
+  }: SupabaseProps): UseQueryOptions<
+    UserOrganization[],
+    OrganizationError
+  > => ({
+    queryKey: organizationKeys.userOrganizations(),
+    queryFn: async () => {
+      try {
+        const { data, error } = await getUserOrganizations({ supabase })
+        if (error) throw error
+        return data
+      } catch (err) {
+        throw OrganizationError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetOrganizationParams = OrganizationQueryParams & QueryEnabledProps
@@ -213,16 +230,11 @@ export const useGetOrganization = ({
   supabase,
   orgId,
   enabled = true,
-}: GetOrganizationParams): OrganizationResponse<Organization | null> => {
-  const { data, error } = useQuery<Organization, OrganizationError>({
+}: GetOrganizationParams) => {
+  return useQuery<Organization, OrganizationError>({
     ...organizationQueries.detail({ supabase, orgId }),
     enabled: Boolean(orgId) && enabled,
   })
-
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
 }
 
 /**
@@ -255,16 +267,11 @@ export const useGetOrganizationMembers = ({
   supabase,
   orgId,
   enabled = true,
-}: GetOrganizationParams): OrganizationResponse<OrganizationMember[]> => {
-  const { data, error } = useQuery<OrganizationMember[], OrganizationError>({
+}: GetOrganizationParams) => {
+  return useQuery<OrganizationMember[], OrganizationError>({
     ...organizationQueries.members({ supabase, orgId }),
     enabled: Boolean(orgId) && enabled,
   })
-
-  return {
-    data: data ?? [],
-    error: error ?? null,
-  }
 }
 
 type UpdateOrganizationRequest = {
@@ -552,5 +559,30 @@ export const useDeleteOrganization = ({ supabase }: SupabaseProps) => {
         queryKey: organizationKeys.lists(),
       })
     },
+  })
+}
+
+/**
+ * React hook to fetch all organizations a user has access to
+ *
+ * @example
+ * ```ts
+ * const { data, error } = useGetUserOrganizations({ supabase })
+ *
+ * // Map through organizations
+ * data.map(org => (
+ *   <div key={org.id}>
+ *     {org.name} - {org.role}
+ *   </div>
+ * ))
+ * ```
+ */
+export const useGetUserOrganizations = ({
+  supabase,
+  enabled = true,
+}: SupabaseProps & QueryEnabledProps) => {
+  return useQuery<UserOrganization[], OrganizationError>({
+    ...organizationQueries.userOrganizations({ supabase }),
+    enabled,
   })
 }

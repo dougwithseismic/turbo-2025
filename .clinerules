@@ -204,3 +204,57 @@ Guidelines for Learning Entries:
 - Link to official documentation or helpful resources
 - Add new entries at the top of the file
 - Maintain chronological order with newest entries first
+
+### Learning Documentation
+
+When documenting patterns in `_learnings/patterns/[pattern-name].md`:
+
+```markdown
+# {Pattern Name}
+
+Brief description of what this pattern accomplishes and when to use it.
+
+## Key Components
+
+1. **{Component Name}**
+   ```typescript
+   // Code example
+   ```
+
+   Description of the component's purpose
+
+2. **{Another Component}**
+
+   ```typescript
+   // Another example
+   ```
+
+## Benefits
+
+- List of benefits
+- Why this pattern is useful
+- Problems it solves
+
+## Example Implementation
+
+```typescript
+// Complete working example
+```
+
+## Important Notes
+
+- List of crucial implementation details
+- Gotchas and best practices
+- Things to watch out for
+
+```
+
+Guidelines for Pattern Documentation:
+- Place patterns in `_learnings/patterns/`
+- Use kebab-case for filenames
+- Include working TypeScript examples
+- Document all key components separately
+- List concrete benefits
+- Provide a complete implementation example
+- Include important notes and gotchas
+- Link to official documentation when relevant

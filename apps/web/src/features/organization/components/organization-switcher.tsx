@@ -1,105 +1,113 @@
 'use client'
 
 import * as React from 'react'
-import { ChevronsUpDown, Plus } from 'lucide-react'
-import { CollapsibleItem } from '@/features/application-shell/components/navigation/collapsible-item'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { useGetUserMemberships } from '@repo/supabase'
+import { useRouter } from 'next/navigation'
+import { useGetUserOrganizations } from '@repo/supabase'
 import { supabaseClient } from '@/lib/supabase/client'
-import { useAuth } from '@/features/auth/hooks/use-auth'
+import { LoadingState } from './loading-state'
+import { EmptyState } from './empty-state'
+import {
+  EntitySwitcher,
+  type EntityItem,
+} from '@/components/ui/entity-switcher'
+import { User2Icon } from 'lucide-react'
 
 interface OrganizationSwitcherProps {
-  teams: {
-    name: string
-    logo: React.ElementType
-    plan: string
-  }[]
   isCollapsed?: boolean
 }
 
+type OrganizationEntity = Omit<EntityItem, 'isOwner'> & {
+  is_owner: boolean
+  role: string
+}
+
+const mapToEntityItem = (org: OrganizationEntity) => ({
+  id: org.id,
+  name: org.name,
+  role: org.role,
+  isOwner: org.is_owner,
+})
+
+const mapFromEntityItem = (item: EntityItem): OrganizationEntity => ({
+  id: item.id,
+  name: item.name,
+  role: item.role ?? 'member',
+  is_owner: item.isOwner ?? false,
+})
+
 export function OrganizationSwitcher({
-  teams,
   isCollapsed = false,
 }: OrganizationSwitcherProps) {
-  const [activeTeam, setActiveTeam] = React.useState(teams[0])
-
-  const { user } = useAuth()
-
-  const { data: memberships = [] } = useGetUserMemberships({
+  const router = useRouter()
+  const { data: organizations = [], isLoading } = useGetUserOrganizations({
     supabase: supabaseClient,
-    userId: String(user?.id),
-    resourceType: 'organization',
-    enabled: !!user?.id,
   })
 
-  console.log(memberships)
+  const [activeOrganization, setActiveOrganization] = React.useState<
+    OrganizationEntity | undefined
+  >()
 
-  if (!activeTeam) return null
+  React.useEffect(() => {
+    if (organizations.length > 0 && !activeOrganization) {
+      const org = organizations[0]
+      if (!org) return
+      setActiveOrganization({
+        id: org.id,
+        name: org.name,
+        role: org.role,
+        is_owner: org.is_owner,
+      })
+    }
+  }, [organizations, activeOrganization])
+
+  const items = React.useMemo(
+    () => organizations.map(mapToEntityItem),
+    [organizations],
+  )
+
+  const mappedActiveOrganization = React.useMemo(
+    () =>
+      activeOrganization ? mapToEntityItem(activeOrganization) : undefined,
+    [activeOrganization],
+  )
+
+  const handleItemSelect = React.useCallback(
+    (item: EntityItem) => {
+      setActiveOrganization(mapFromEntityItem(item))
+      router.push(`/organizations/${item.id}`)
+    },
+    [router],
+  )
+
+  const handleCreateNew = React.useCallback(
+    () => router.push('/organizations/new'),
+    [router],
+  )
+
+  const renderItemMeta = React.useCallback((item: EntityItem) => {
+    if (!item.role) return null
+    const roleText = item.isOwner ? 'Owner' : item.role
+    return (
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <User2Icon className="size-3" />
+        <span>{roleText}</span>
+      </div>
+    )
+  }, [])
 
   return (
-    <CollapsibleItem isCollapsed={isCollapsed}>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <div className="flex items-center gap-2 w-full">
-            <CollapsibleItem.Trigger tooltip={activeTeam.name}>
-              <Avatar className="size-6 shrink-0">
-                <AvatarFallback>{activeTeam.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </CollapsibleItem.Trigger>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <CollapsibleItem.Content className="ml-0">
-                  <motion.div className="flex items-center justify-between gap-2 pr-2">
-                    <span className="font-medium truncate">
-                      {activeTeam.name}
-                    </span>
-                    <ChevronsUpDown className="size-4 ml-auto shrink-0 opacity-50" />
-                  </motion.div>
-                </CollapsibleItem.Content>
-              )}
-            </AnimatePresence>
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg"
-          align="start"
-          sideOffset={4}
-        >
-          <DropdownMenuLabel className="text-xs text-muted-foreground">
-            Teams
-          </DropdownMenuLabel>
-          {teams.map((team, index) => (
-            <DropdownMenuItem
-              key={team.name}
-              onClick={() => setActiveTeam(team)}
-              className="gap-2 p-2"
-            >
-              <div className="flex size-6 items-center justify-center rounded-sm border">
-                <team.logo className="size-4 shrink-0" />
-              </div>
-              {team.name}
-              <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
-            </DropdownMenuItem>
-          ))}
-          <DropdownMenuSeparator />
-          <DropdownMenuItem className="gap-2 p-2">
-            <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-              <Plus className="size-4" />
-            </div>
-            <div className="font-medium text-muted-foreground">Add team</div>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </CollapsibleItem>
+    <EntitySwitcher
+      isCollapsed={isCollapsed}
+      items={items}
+      activeItem={mappedActiveOrganization}
+      isLoading={isLoading}
+      label="Organizations"
+      onItemSelect={handleItemSelect}
+      onCreateNew={handleCreateNew}
+      createNewLabel="Create Organization"
+      EmptyState={EmptyState}
+      LoadingState={LoadingState}
+      renderItemMeta={renderItemMeta}
+    />
   )
 }

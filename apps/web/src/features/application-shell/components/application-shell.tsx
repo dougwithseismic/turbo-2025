@@ -13,7 +13,7 @@ export function ApplicationShell({ children }: ApplicationShellProps) {
       <div className="flex h-full flex-col">
         {/* <SiteHeader /> */}
         <div className="flex-1 overflow-auto">
-          <div className="container py-6">{children}</div>
+          <div>{children}</div>
         </div>
       </div>
     </Shell>

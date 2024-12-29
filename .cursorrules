@@ -98,3 +98,59 @@ These functions define how the AI agent interacts with project documentation and
 #### Progress Reports
 
 When asked to add a progress report, follow this template in `_project/progress/[number].md`:
+
+```
+
+### Learning Documentation
+
+When documenting patterns in `_learnings/patterns/[pattern-name].md`:
+
+```markdown
+# {Pattern Name}
+
+Brief description of what this pattern accomplishes and when to use it.
+
+## Key Components
+
+1. **{Component Name}**
+   ```typescript
+   // Code example
+   ```
+
+   Description of the component's purpose
+
+2. **{Another Component}**
+
+   ```typescript
+   // Another example
+   ```
+
+## Benefits
+
+- List of benefits
+- Why this pattern is useful
+- Problems it solves
+
+## Example Implementation
+
+```typescript
+// Complete working example
+```
+
+## Important Notes
+
+- List of crucial implementation details
+- Gotchas and best practices
+- Things to watch out for
+
+```
+
+Guidelines for Pattern Documentation:
+- Place patterns in `_learnings/patterns/`
+- Use kebab-case for filenames
+- Include working TypeScript examples
+- Document all key components separately
+- List concrete benefits
+- Provide a complete implementation example
+- Include important notes and gotchas
+- Link to official documentation when relevant

@@ -5,10 +5,10 @@ export { Analytics } from './core/analytics'
 export { ConsolePlugin } from './plugins/console'
 
 // Middleware exports
-export { ValidationMiddleware, withValidation } from './middleware/validation'
+export { ValidationMiddleware } from './middleware/validation'
 export type { ValidationOptions } from './middleware/validation'
 
-export { BatchMiddleware, withBatch } from './middleware/batch'
+export { BatchMiddleware } from './middleware/batch'
 export type { BatchOptions } from './middleware/batch'
 
 // Type exports

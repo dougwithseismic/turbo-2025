@@ -1,9 +1,8 @@
 'use client'
 
-import { useAuth } from '@/features/auth/hooks/use-auth'
-import { OrganizationSwitcher } from '@/features/organization/components/organization-switcher'
 import { UserSwitcher } from '@/features/auth/components/user-switcher'
-import { GlobeIcon } from 'lucide-react'
+import { useAuth } from '@/features/auth/hooks/use-auth'
+import { EntityPicker } from '@/features/navigation/components/entity-picker'
 import { usePathname } from 'next/navigation'
 import { useShellStore } from '../store'
 import {
@@ -42,17 +41,10 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
       )}
 
       <div className="flex-1 py-3 flex flex-col items-center overflow-hidden">
-        <div className="w-full flex px-2">
-          <OrganizationSwitcher
-            isCollapsed={!isExpanded}
-            teams={[
-              {
-                name: 'Acme',
-                logo: GlobeIcon,
-                plan: 'Pro',
-              },
-            ]}
-          />
+        <div className="w-full flex flex-col px-2 gap-2">
+          {/* <OrganizationSwitcher isCollapsed={!isExpanded} />
+          <ProjectSwitcher isCollapsed={!isExpanded} /> */}
+          <EntityPicker />
         </div>
         <NavSection
           items={mainNav}

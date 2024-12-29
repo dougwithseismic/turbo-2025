@@ -1,27 +1,41 @@
-import { SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../database.types';
-import type { Json, ResourceType, Role } from '../types';
+import { SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '../database.types'
+import type { Json, ResourceType, Role } from '../types'
+import { ProjectError } from './projects.react'
 
-type Project = Database['public']['Tables']['projects']['Row'];
-type ProjectUpdate = Database['public']['Tables']['projects']['Update'];
-type Organization = Database['public']['Tables']['organizations']['Row'];
-type Profile = Database['public']['Tables']['profiles']['Row'];
+type Project = Database['public']['Tables']['projects']['Row']
+type ProjectUpdate = Database['public']['Tables']['projects']['Update']
+type Organization = Database['public']['Tables']['organizations']['Row']
+type Profile = Database['public']['Tables']['profiles']['Row']
 
 type ProjectWithOrg = Omit<Project, 'organization_id'> & {
-  organization_id: string;
-  organization: Pick<Organization, 'id' | 'name'>;
-};
+  organization_id: string
+  organization: Pick<Organization, 'id' | 'name'>
+}
+
+type UserProject = {
+  id: string
+  organization_id: string
+  organization_name: string
+  name: string
+  role: string
+  settings: Json
+  client_name: string | null
+  client_email: string | null
+  is_client_portal: boolean
+  created_at: string
+}
 
 type ProjectMember = {
-  id: string;
-  user_id: string;
-  resource_type: ResourceType;
-  resource_id: string;
-  role: Role;
-  created_at: string;
-  updated_at: string;
-  profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>;
-};
+  id: string
+  user_id: string
+  resource_type: ResourceType
+  resource_id: string
+  role: Role
+  created_at: string
+  updated_at: string
+  profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>
+}
 
 /**
  * Creates a new project within an organization.
@@ -59,13 +73,13 @@ const createProject = async ({
   clientEmail,
   isClientPortal = false,
 }: {
-  supabase: SupabaseClient<Database>;
-  organizationId: string;
-  name: string;
-  settings?: Json;
-  clientName?: string;
-  clientEmail?: string;
-  isClientPortal?: boolean;
+  supabase: SupabaseClient<Database>
+  organizationId: string
+  name: string
+  settings?: Json
+  clientName?: string
+  clientEmail?: string
+  isClientPortal?: boolean
 }) => {
   const { data, error } = await supabase
     .from('projects')
@@ -78,11 +92,11 @@ const createProject = async ({
       is_client_portal: isClientPortal,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Retrieves a project by ID, including its organization details.
@@ -101,8 +115,8 @@ const getProject = async ({
   supabase,
   projectId,
 }: {
-  supabase: SupabaseClient<Database>;
-  projectId: string;
+  supabase: SupabaseClient<Database>
+  projectId: string
 }): Promise<ProjectWithOrg> => {
   const { data, error } = await supabase
     .from('projects')
@@ -124,11 +138,12 @@ const getProject = async ({
     `,
     )
     .eq('id', projectId)
-    .single();
+    .select()
 
-  if (error) throw error;
-  return data as unknown as ProjectWithOrg;
-};
+  if (error) throw error
+
+  return data[0] as unknown as ProjectWithOrg
+}
 
 /**
  * Updates a project's properties.
@@ -153,20 +168,20 @@ const updateProject = async ({
   projectId,
   updates,
 }: {
-  supabase: SupabaseClient<Database>;
-  projectId: string;
-  updates: ProjectUpdate;
+  supabase: SupabaseClient<Database>
+  projectId: string
+  updates: ProjectUpdate
 }) => {
   const { data, error } = await supabase
     .from('projects')
     .update(updates)
     .eq('id', projectId)
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Retrieves all members of a project with their profiles.
@@ -184,8 +199,8 @@ const getProjectMembers = async ({
   supabase,
   projectId,
 }: {
-  supabase: SupabaseClient<Database>;
-  projectId: string;
+  supabase: SupabaseClient<Database>
+  projectId: string
 }): Promise<ProjectMember[]> => {
   const { data, error } = await supabase
     .from('memberships')
@@ -207,11 +222,11 @@ const getProjectMembers = async ({
     `,
     )
     .eq('resource_type', 'project')
-    .eq('resource_id', projectId);
+    .eq('resource_id', projectId)
 
-  if (error) throw error;
-  return data as unknown as ProjectMember[];
-};
+  if (error) throw error
+  return data as unknown as ProjectMember[]
+}
 
 /**
  * Adds a new member to a project.
@@ -240,10 +255,10 @@ const addProjectMember = async ({
   userId,
   role = 'member',
 }: {
-  supabase: SupabaseClient<Database>;
-  projectId: string;
-  userId: string;
-  role?: Role;
+  supabase: SupabaseClient<Database>
+  projectId: string
+  userId: string
+  role?: Role
 }) => {
   const { data, error } = await supabase
     .from('memberships')
@@ -254,11 +269,11 @@ const addProjectMember = async ({
       role,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Retrieves all projects belonging to an organization.
@@ -276,17 +291,38 @@ const getOrganizationProjects = async ({
   supabase,
   organizationId,
 }: {
-  supabase: SupabaseClient<Database>;
-  organizationId: string;
+  supabase: SupabaseClient<Database>
+  organizationId: string
 }) => {
   const { data, error } = await supabase
     .from('projects')
     .select()
-    .eq('organization_id', organizationId);
+    .eq('organization_id', organizationId)
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
+
+/**
+ * Gets all projects a user has access to across all organizations.
+ *
+ * @example
+ * ```typescript
+ * const projects = await getUserProjects({
+ *   supabase
+ * });
+ * console.log(projects); // [{ id: 'proj_1', name: 'Website', organization_name: 'Acme Corp', ... }]
+ * ```
+ */
+const getUserProjects = async ({
+  supabase,
+}: {
+  supabase: SupabaseClient<Database>
+}) => {
+  const { data, error } = await supabase.rpc('get_user_projects')
+  if (error) throw error
+  return data
+}
 
 export {
   createProject,
@@ -295,6 +331,13 @@ export {
   getProjectMembers,
   addProjectMember,
   getOrganizationProjects,
-};
+  getUserProjects,
+}
 
-export type { Project, ProjectUpdate, ProjectWithOrg, ProjectMember };
+export type {
+  Project,
+  ProjectUpdate,
+  ProjectWithOrg,
+  ProjectMember,
+  UserProject,
+}

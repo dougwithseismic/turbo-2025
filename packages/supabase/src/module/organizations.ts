@@ -8,6 +8,15 @@ type OrganizationUpdate =
   Database['public']['Tables']['organizations']['Update']
 type Profile = Database['public']['Tables']['profiles']['Row']
 
+type UserOrganization = {
+  id: string
+  name: string
+  is_owner: boolean
+  role: string
+  settings: Json
+  created_at: string
+}
+
 type OrganizationMember = Omit<Membership, 'user_id'> & {
   user_id: string
   profiles: Pick<Profile, 'id' | 'email' | 'full_name' | 'avatar_url'>
@@ -247,6 +256,32 @@ const deleteOrganization = async ({
   return true
 }
 
+/**
+ * Gets all organizations a user has access to.
+ *
+ * @example
+ * ```typescript
+ * const orgs = await getUserOrganizations({
+ *   supabase
+ * });
+ * console.log(orgs); // [{ id: 'org_1', name: 'Acme Corp', is_owner: true, ... }]
+ * ```
+ */
+const getUserOrganizations = async ({
+  supabase,
+}: {
+  supabase: SupabaseClient<Database>
+}): Promise<{ data: UserOrganization[]; error: Error | null }> => {
+  try {
+    const { data, error } = await supabase.rpc('get_user_organizations')
+    console.log('data', data)
+    if (error) throw error
+    return { data, error: null }
+  } catch (err) {
+    return { data: [], error: err as Error }
+  }
+}
+
 export {
   addOrganizationMember,
   createOrganization,
@@ -254,6 +289,12 @@ export {
   getOrganization,
   getOrganizationMembers,
   updateOrganization,
+  getUserOrganizations,
 }
 
-export type { Organization, OrganizationMember, OrganizationUpdate }
+export type {
+  Organization,
+  OrganizationMember,
+  OrganizationUpdate,
+  UserOrganization,
+}

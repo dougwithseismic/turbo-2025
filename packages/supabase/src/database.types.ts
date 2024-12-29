@@ -1558,6 +1558,36 @@ export type Database = {
           expires_at: string
         }[]
       }
+      get_user_organizations: {
+        Args: {
+          user_id_param?: string
+        }
+        Returns: {
+          id: string
+          name: string
+          is_owner: boolean
+          role: string
+          settings: Json
+          created_at: string
+        }[]
+      }
+      get_user_projects: {
+        Args: {
+          user_id_param?: string
+        }
+        Returns: {
+          id: string
+          organization_id: string
+          organization_name: string
+          name: string
+          role: string
+          settings: Json
+          client_name: string
+          client_email: string
+          is_client_portal: boolean
+          created_at: string
+        }[]
+      }
       has_organization_access: {
         Args: {
           organization_id_param: string

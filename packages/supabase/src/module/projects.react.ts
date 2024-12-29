@@ -1,5 +1,3 @@
-'use client'
-
 import { SupabaseClient } from '@supabase/supabase-js'
 import {
   type UseQueryOptions,
@@ -14,12 +12,14 @@ import {
   ProjectUpdate,
   ProjectWithOrg,
   ProjectMember,
+  UserProject,
   getProject,
   updateProject,
   getProjectMembers,
   getOrganizationProjects,
   createProject,
   addProjectMember,
+  getUserProjects,
 } from './projects'
 
 // Common Types
@@ -84,6 +84,7 @@ type ListKey = [...BaseKey, 'list', { filters: Record<string, unknown> }]
 type DetailKey = [...BaseKey, 'detail', string]
 type MembersKey = [...DetailKey, 'members']
 type OrgProjectsKey = [...BaseKey, 'list', { organizationId: string }]
+type UserProjectsKey = [...BaseKey, 'user']
 
 export const projectKeys = {
   all: (): BaseKey => ['projects'],
@@ -103,6 +104,7 @@ export const projectKeys = {
   }: {
     organizationId: string
   }): OrgProjectsKey => [...projectKeys.lists(), { organizationId }],
+  userProjects: (): UserProjectsKey => [...projectKeys.all(), 'user'],
 } as const
 
 type ProjectQueryParams = SupabaseProps & {
@@ -190,6 +192,20 @@ export const projectQueries = {
       }
     },
   }),
+
+  userProjects: ({
+    supabase,
+  }: SupabaseProps): UseQueryOptions<UserProject[], ProjectError> => ({
+    queryKey: projectKeys.userProjects(),
+    queryFn: async () => {
+      try {
+        const data = await getUserProjects({ supabase })
+        return data
+      } catch (err) {
+        throw ProjectError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
 }
 
 type GetProjectParams = ProjectQueryParams & QueryEnabledProps
@@ -198,16 +214,13 @@ export const useGetProject = ({
   supabase,
   projectId,
   enabled = true,
-}: GetProjectParams): ProjectResponse<Project | null> => {
-  const { data, error } = useQuery<Project, ProjectError>({
+}: GetProjectParams) => {
+  const response = useQuery<Project, ProjectError>({
     ...projectQueries.detail({ supabase, projectId }),
     enabled: Boolean(projectId) && enabled,
   })
 
-  return {
-    data: data ?? null,
-    error: error ?? null,
-  }
+  return response
 }
 
 export const useGetProjectMembers = ({
@@ -404,4 +417,33 @@ export const useAddProjectMember = ({ supabase }: SupabaseProps) => {
       })
     },
   })
+}
+/**
+ * React hook to fetch all projects a user has access to across organizations
+ *
+ * @example
+ * ```ts
+ * const { data, error } = useGetUserProjects({ supabase })
+ *
+ * // Map through projects
+ * data.map(project => (
+ *   <div key={project.id}>
+ *     {project.name} - {project.organization_name}
+ *   </div>
+ * ))
+ * ```
+ */
+export const useGetUserProjects = ({
+  supabase,
+  enabled = true,
+}: SupabaseProps & QueryEnabledProps): ProjectResponse<UserProject[]> => {
+  const { data, error } = useQuery<UserProject[], ProjectError>({
+    ...projectQueries.userProjects({ supabase }),
+    enabled,
+  })
+
+  return {
+    data: data ?? [],
+    error: error ?? null,
+  }
 }

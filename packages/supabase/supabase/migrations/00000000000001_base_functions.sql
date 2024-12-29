@@ -734,6 +734,102 @@ BEGIN
 END;
 $$;
 
+-- Function to get all organizations a user has access to
+CREATE OR REPLACE FUNCTION get_user_organizations(user_id_param uuid DEFAULT auth.uid())
+RETURNS TABLE (
+    id uuid,
+    name text,
+    is_owner boolean,
+    role text,
+    settings jsonb,
+    created_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Only allow users to query their own organizations unless they're an admin
+    IF user_id_param != auth.uid() THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    RETURN QUERY
+    SELECT DISTINCT ON (o.id)
+        o.id,
+        o.name,
+        o.owner_id = user_id_param as is_owner,
+        COALESCE(m.role, CASE WHEN o.owner_id = user_id_param THEN 'owner' END) as role,
+        o.settings,
+        o.created_at
+    FROM organizations o
+    LEFT JOIN memberships m ON 
+        m.resource_id = o.id 
+        AND m.resource_type = 'organization'
+        AND m.user_id = user_id_param
+    WHERE o.owner_id = user_id_param 
+    OR m.user_id = user_id_param
+    ORDER BY o.id, o.created_at DESC;
+END;
+$$;
+
+-- Function to get all projects a user has access to
+CREATE OR REPLACE FUNCTION get_user_projects(user_id_param uuid DEFAULT auth.uid())
+RETURNS TABLE (
+    id uuid,
+    organization_id uuid,
+    organization_name text,
+    name text,
+    role text,
+    settings jsonb,
+    client_name text,
+    client_email text,
+    is_client_portal boolean,
+    created_at timestamptz
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+    -- Only allow users to query their own projects unless they're an admin
+    IF user_id_param != auth.uid() THEN
+        RAISE EXCEPTION 'Access denied';
+    END IF;
+
+    RETURN QUERY
+    SELECT DISTINCT ON (p.id)
+        p.id,
+        p.organization_id,
+        o.name as organization_name,
+        p.name,
+        COALESCE(
+            pm.role,
+            CASE 
+                WHEN o.owner_id = user_id_param THEN 'owner'
+                WHEN om.role IS NOT NULL THEN om.role
+            END
+        ) as role,
+        p.settings,
+        p.client_name,
+        p.client_email,
+        p.is_client_portal,
+        p.created_at
+    FROM projects p
+    JOIN organizations o ON o.id = p.organization_id
+    LEFT JOIN memberships pm ON 
+        pm.resource_id = p.id 
+        AND pm.resource_type = 'project'
+        AND pm.user_id = user_id_param
+    LEFT JOIN memberships om ON 
+        om.resource_id = o.id 
+        AND om.resource_type = 'organization'
+        AND om.user_id = user_id_param
+    WHERE o.owner_id = user_id_param 
+    OR pm.user_id = user_id_param
+    OR om.user_id = user_id_param
+    ORDER BY p.id, p.created_at DESC;
+END;
+$$;
+
 -- Grant necessary permissions
 GRANT EXECUTE ON FUNCTION has_organization_access TO authenticated;
 GRANT EXECUTE ON FUNCTION has_project_access TO authenticated;
@@ -750,4 +846,7 @@ GRANT EXECUTE ON FUNCTION accept_invitation TO authenticated;
 GRANT EXECUTE ON FUNCTION decline_invitation TO authenticated;
 GRANT EXECUTE ON FUNCTION get_pending_invitations TO authenticated;
 GRANT EXECUTE ON FUNCTION get_sent_invitations TO authenticated;
-GRANT EXECUTE ON FUNCTION create_project TO authenticated; 
+GRANT EXECUTE ON FUNCTION create_project TO authenticated;
+
+GRANT EXECUTE ON FUNCTION get_user_organizations TO authenticated;
+GRANT EXECUTE ON FUNCTION get_user_projects TO authenticated; 
