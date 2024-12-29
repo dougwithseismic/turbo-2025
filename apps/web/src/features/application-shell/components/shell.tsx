@@ -5,7 +5,6 @@ import { Sheet, SheetContent } from '@/components/ui/sheet'
 import { cn } from '@/lib/utils'
 import { Menu } from 'lucide-react'
 import * as React from 'react'
-import { useEffect } from 'react'
 import { useShellStore } from '../store'
 import { ShellNav } from './shell-nav'
 
@@ -19,32 +18,8 @@ export function Shell({ children }: ShellProps) {
     isMobileSidebarOpen,
     setSidebarHovered,
     setMobileSidebarOpen,
-    setTeams,
     config,
   } = useShellStore()
-
-  useEffect(() => {
-    setTeams([
-      {
-        id: '1',
-        name: 'Independent workspace',
-        plan: 'Doug Silkstone',
-        logo: '/team-logos/acme.png',
-      },
-      {
-        id: '2',
-        name: 'Startup Co',
-        plan: 'Pro',
-        logo: '/team-logos/startup.png',
-      },
-      {
-        id: '3',
-        name: 'Personal',
-        plan: 'Free',
-        logo: '/team-logos/personal.png',
-      },
-    ])
-  }, [setTeams])
 
   return (
     <div className="flex h-screen">
@@ -92,7 +67,7 @@ export function Shell({ children }: ShellProps) {
       {/* Main Content */}
       <div
         className={cn(
-          'flex-1 transition-[padding] duration-100 ease-in-out will-change-[padding]',
+          'flex-1 will-change-[padding]',
           config.sidebar.enableLeftPadding && [
             'pl-0 md:pl-[56px]',
             isSidebarExpanded && 'md:pl-[280px]',

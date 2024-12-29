@@ -1,18 +1,11 @@
 'use client'
 
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/features/auth/hooks/use-auth'
-import { cn } from '@/lib/utils'
-import { Settings } from 'lucide-react'
+import { OrganizationSwitcher } from '@/features/organization/components/organization-switcher'
+import { UserSwitcher } from '@/features/auth/components/user-switcher'
+import { GlobeIcon } from 'lucide-react'
 import { usePathname } from 'next/navigation'
+import { useShellStore } from '../store'
 import {
   identityNav,
   leadsNav,
@@ -22,7 +15,6 @@ import {
 } from './navigation'
 import { DesktopHeader } from './shell-nav/desktop-header'
 import { MobileHeader } from './shell-nav/mobile-header'
-import { useShellStore } from '../store'
 
 interface ShellNavProps {
   isForcedExpanded?: boolean
@@ -49,7 +41,19 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
         />
       )}
 
-      <div className="flex-1 flex flex-col items-center overflow-hidden">
+      <div className="flex-1 py-3 flex flex-col items-center overflow-hidden">
+        <div className="w-full flex px-2">
+          <OrganizationSwitcher
+            isCollapsed={!isExpanded}
+            teams={[
+              {
+                name: 'Acme',
+                logo: GlobeIcon,
+                plan: 'Pro',
+              },
+            ]}
+          />
+        </div>
         <NavSection
           items={mainNav}
           isCollapsed={!isExpanded}
@@ -75,48 +79,12 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
         />
       </div>
 
-      <div className="border-b min-h-fit p-2">
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className={cn(
-                'w-full justify-center items-center gap-4 py-2 px-0',
-              )}
-            >
-              <div className="flex items-center justify-center">
-                <Avatar className="size-7">
-                  <AvatarImage src={user?.user_metadata?.avatar_url} />
-                  <AvatarFallback>
-                    {user?.email?.charAt(0).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              {!!isExpanded && (
-                <>
-                  <div className="flex flex-1 flex-col items-start text-sm">
-                    <span className="truncate font-medium">
-                      {user?.email?.split('@')[0] || 'User'}
-                    </span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user?.email}
-                    </span>
-                  </div>
-                  <Settings className="h-4 w-4 opacity-50" />
-                </>
-              )}
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[240px]">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuItem>Billing</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="border-t min-h-fit p-2">
+        <UserSwitcher
+          user={user}
+          isCollapsed={!isExpanded}
+          onSignOut={signOut}
+        />
       </div>
     </div>
   )
