@@ -1,3 +1,5 @@
+'use client'
+
 import {
   useAnimation,
   useMotionValue,
@@ -159,6 +161,7 @@ export const useDragToConfirm = ({
           transition: { type: 'spring', stiffness: 400, damping: 40 },
         })
       } catch (err) {
+        console.error('Error during drag confirmation:', err)
         // On error, just spring back
         void controls.start({
           x: 0,
