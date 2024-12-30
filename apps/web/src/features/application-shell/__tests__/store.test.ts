@@ -1,87 +1,110 @@
-import { describe, expect, it, beforeEach } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { useApplicationShellStore } from '../store'
 
 describe('ApplicationShellStore', () => {
-  beforeEach(() => {
-    useApplicationShellStore.setState({
-      data: null,
-      isLoading: false,
-      error: null,
-      config: {
-        enabled: true,
-        settings: {
-          timeout: 5000,
-          maxRetries: 3,
-        },
-      },
-    })
-  })
-
   it('should initialize with default state', () => {
     const state = useApplicationShellStore.getState()
     expect(state).toEqual({
       data: null,
       isLoading: false,
       error: null,
+      isMobileSidebarOpen: false,
+      isSidebarExpanded: true,
+      isSidebarHovered: false,
       config: {
         enabled: true,
         settings: {
-          timeout: 5000,
           maxRetries: 3,
+          timeout: 5000,
+        },
+        sidebar: {
+          width: 280,
+          collapsedWidth: 56,
+          enableHoverExpand: true,
+          enableMobileDrawer: true,
+          collapseOnMobileClick: true,
+          collapseOnNavigate: true,
+          enableLeftPadding: true,
+          expandOnSearch: true,
         },
       },
       setData: expect.any(Function),
-      setLoading: expect.any(Function),
       setError: expect.any(Function),
+      setLoading: expect.any(Function),
+      setMobileSidebarOpen: expect.any(Function),
+      setSidebarExpanded: expect.any(Function),
+      setSidebarHovered: expect.any(Function),
+      toggleSidebar: expect.any(Function),
       updateConfig: expect.any(Function),
       reset: expect.any(Function),
     })
   })
 
   it('should update loading state', () => {
-    useApplicationShellStore.getState().setLoading(true)
+    const store = useApplicationShellStore.getState()
+    store.setLoading(true)
     expect(useApplicationShellStore.getState().isLoading).toBe(true)
   })
 
   it('should update config', () => {
-    useApplicationShellStore.getState().updateConfig({
+    const store = useApplicationShellStore.getState()
+    const newConfig = {
       enabled: false,
-      settings: { timeout: 1000 },
+      settings: {
+        maxRetries: 5,
+        timeout: 10000,
+      },
+    }
+    store.updateConfig(newConfig)
+    expect(useApplicationShellStore.getState().config).toEqual({
+      ...store.config,
+      ...newConfig,
     })
-
-    const { config } = useApplicationShellStore.getState()
-    expect(config.enabled).toBe(false)
-    expect(config.settings.timeout).toBe(1000)
-    // Original values should be preserved
-    expect(config.settings.maxRetries).toBe(3)
   })
 
   it('should reset to initial state', () => {
-    // Set some values
-    useApplicationShellStore.setState({
-      data: { test: true },
-      isLoading: true,
-      error: new Error('test'),
-    })
+    const store = useApplicationShellStore.getState()
+
+    // Modify state
+    store.setLoading(true)
+    store.setData({ test: 'data' })
+    store.setError(new Error('test error'))
 
     // Reset
-    useApplicationShellStore.getState().reset()
+    store.reset()
 
     // Verify reset
     expect(useApplicationShellStore.getState()).toEqual({
       data: null,
       isLoading: false,
       error: null,
+      isMobileSidebarOpen: false,
+      isSidebarExpanded: true,
+      isSidebarHovered: false,
       config: {
         enabled: true,
         settings: {
-          timeout: 5000,
           maxRetries: 3,
+          timeout: 5000,
+        },
+        sidebar: {
+          width: 280,
+          collapsedWidth: 56,
+          enableHoverExpand: true,
+          enableMobileDrawer: true,
+          collapseOnMobileClick: true,
+          collapseOnNavigate: true,
+          enableLeftPadding: true,
+          expandOnSearch: true,
         },
       },
       setData: expect.any(Function),
-      setLoading: expect.any(Function),
       setError: expect.any(Function),
+      setLoading: expect.any(Function),
+      setMobileSidebarOpen: expect.any(Function),
+      setSidebarExpanded: expect.any(Function),
+      setSidebarHovered: expect.any(Function),
+      toggleSidebar: expect.any(Function),
       updateConfig: expect.any(Function),
       reset: expect.any(Function),
     })

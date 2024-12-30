@@ -64,6 +64,7 @@
     "@repo/config-typescript": "workspace:*",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
+    "@testing-library/user-event": "^14.5.2",
     "@types/node": "^20",
     "@types/react": "^19.0.1",
     "@types/react-dom": "^19.0.1",
@@ -92,7 +93,7 @@
     "lint:fix": "next lint --fix",
     "plop": "plop",
     "start": "next start",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:coverage": "vitest run --coverage",
     "test:ui": "vitest --ui",
     "test:watch": "vitest watch"
