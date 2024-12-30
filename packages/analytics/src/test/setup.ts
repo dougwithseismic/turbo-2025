@@ -1,4 +1,4 @@
-import '@testing-library/jest-dom/vitest'
+import { beforeEach, vi } from 'vitest'
 
 // Add any global test setup here
 beforeEach(() => {

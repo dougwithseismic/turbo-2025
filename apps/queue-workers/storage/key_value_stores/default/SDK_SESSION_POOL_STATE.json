@@ -1,0 +1,93 @@
+{
+  "usableSessionsCount": 1,
+  "retiredSessionsCount": 0,
+  "sessions": [
+    {
+      "id": "session_LHbGLOAvRZ",
+      "cookieJar": {
+        "version": "tough-cookie@5.0.0",
+        "storeType": "MemoryCookieStore",
+        "rejectPublicSuffixes": true,
+        "enableLooseMode": false,
+        "allowSpecialUseDomain": true,
+        "prefixSecurity": "silent",
+        "cookies": [
+          {
+            "key": "byword_live_u2main",
+            "value": "bus|1735560737985x196023802659346800|1735560738026x473222118864999900",
+            "expires": "2025-01-02T12:12:18.220Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.065Z",
+            "lastAccessed": "2024-12-30T12:12:19.065Z"
+          },
+          {
+            "key": "byword_live_u2main.sig",
+            "value": "eHjvvq4b6pq8bGXa1ebwVmrK6BA",
+            "expires": "2025-01-02T12:12:18.221Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "secure": true,
+            "httpOnly": true,
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.066Z",
+            "lastAccessed": "2024-12-30T12:12:19.066Z"
+          },
+          {
+            "key": "byword_u1main",
+            "value": "1735560737985x196023802659346800",
+            "expires": "2024-12-30T13:02:19.064Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.066Z",
+            "lastAccessed": "2024-12-30T12:12:19.066Z"
+          },
+          {
+            "key": "ph_phc_dlthzNTtJetoTLXhRrTXWsParbsJJ1gOTxMx4Qc2Pcx_posthog",
+            "value": "%7B%22distinct_id%22%3A%220194177b-3787-73af-a2f2-e1e025feea58%22%2C%22%24sesid%22%3A%5B1735560738694%2C%220194177b-3786-7d95-bbde-e55ea227bb51%22%2C1735560738694%5D%7D",
+            "expires": "2025-12-30T12:12:18.000Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "secure": true,
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.066Z",
+            "lastAccessed": "2024-12-30T12:12:19.066Z"
+          },
+          {
+            "key": "_ga",
+            "value": "GA1.1.954051729.1735560739",
+            "expires": "2026-02-03T12:12:18.824Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.066Z",
+            "lastAccessed": "2024-12-30T12:12:19.066Z"
+          },
+          {
+            "key": "_ga_GMF0PHBS95",
+            "value": "GS1.1.1735560738.1.0.1735560738.60.0.0",
+            "expires": "2026-02-03T12:12:18.844Z",
+            "domain": "byword.ai",
+            "path": "/",
+            "hostOnly": false,
+            "creation": "2024-12-30T12:12:19.066Z",
+            "lastAccessed": "2024-12-30T12:12:19.066Z"
+          }
+        ]
+      },
+      "userData": {},
+      "maxErrorScore": 3,
+      "errorScoreDecrement": 0.5,
+      "expiresAt": "2024-12-30T13:02:17.465Z",
+      "createdAt": "2024-12-30T12:12:17.465Z",
+      "usageCount": 2,
+      "maxUsageCount": 50,
+      "errorScore": 0
+    }
+  ]
+}

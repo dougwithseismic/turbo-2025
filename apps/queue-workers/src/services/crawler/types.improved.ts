@@ -2,6 +2,8 @@
  * Enhanced types for the crawler service
  */
 
+import type { BrowserContext as PlaywrightBrowserContext } from 'playwright'
+
 export interface CrawlConfig {
   url: string
   maxPages: number
@@ -70,31 +72,34 @@ export interface SchemaOrgMarkup {
   raw: string
 }
 
+export interface ResourceSizes {
+  html: number
+  css: number
+  javascript: number
+  images: number
+  fonts: number
+  other: number
+}
+
 export interface PageAnalysis {
   url: string
   status: number
-  redirectChain: string[] // Track redirect hops
+  redirectChain: string[]
   timing: {
     start: number
     domContentLoaded: number
     loaded: number
   }
-
-  // Basic SEO
-  title?: string
-  description?: string
-  h1?: string
+  title: string
+  description: string
+  h1: string
   canonical?: string
   language?: string
-
-  // Meta information
   metaTags: Array<{
     name: string
     content: string
-    property?: string // For OpenGraph
+    property?: string
   }>
-
-  // Content analysis
   headings: {
     h1: string[]
     h2: string[]
@@ -102,45 +107,27 @@ export interface PageAnalysis {
   }
   wordCount: number
   readingTime: number
-
-  // Media
   images: Array<{
     src: string
     alt?: string
     width?: number
     height?: number
-    size?: number
     lazyLoaded: boolean
   }>
-
-  // Links
   links: Array<{
     href: string
     text: string
     isInternal: boolean
     rel?: string[]
-    onClick?: boolean // Detect JavaScript handlers
+    onClick?: boolean
   }>
-
-  // Performance
   loadTime: number
   contentLength: number
-  resourceSizes: {
-    html: number
-    css: number
-    javascript: number
-    images: number
-    fonts: number
-    other: number
-  }
-
-  // Technical details
+  resourceSizes: ResourceSizes
   security: SecurityInfo
   coreWebVitals: CoreWebVitals
   mobileFriendliness: MobileFriendliness
   schemaOrg: SchemaOrgMarkup[]
-
-  // Errors and warnings
   console: Array<{
     type: 'error' | 'warning' | 'info'
     message: string
@@ -160,7 +147,6 @@ export interface CrawlProgress {
   endTime?: Date
   status: 'queued' | 'running' | 'completed' | 'failed'
   error?: string
-  // New progress information
   currentDepth: number
   uniqueUrls: number
   skippedUrls: number
@@ -174,7 +160,6 @@ export interface CrawlResult {
   progress: CrawlProgress
   pages: PageAnalysis[]
   summary: {
-    // Existing metrics
     totalPages: number
     totalTime: number
     averageLoadTime: number
@@ -185,7 +170,6 @@ export interface CrawlResult {
     imagesWithoutAlt: number
     missingMetaTags: number
     responsivePages: number
-    // New summary metrics
     averagePageSize: number
     totalWordCount: number
     averageWordCount: number
@@ -215,10 +199,62 @@ export interface CrawlJob {
   result?: CrawlResult
   createdAt: Date
   updatedAt: Date
-  // New job metadata
   priority: number
   retries: number
   maxRetries: number
   tags?: string[]
   owner?: string
 }
+
+// Browser context type for mocking
+export interface BrowserContext {
+  setUserAgent(userAgent: string): Promise<void>
+  exposeBinding(name: string, callback: Function): Promise<void>
+  addInitScript<T>(
+    script: { content: string } | ((arg: T) => any),
+    arg?: T,
+  ): Promise<void>
+  removeAllListeners(): void
+  on(event: string, callback: Function): void
+}
+
+export interface CrawlEventMap {
+  jobStart: {
+    jobId: string
+    job: CrawlJob
+  }
+  jobComplete: {
+    jobId: string
+    job: CrawlJob
+  }
+  jobError: {
+    jobId: string
+    error: Error
+    job: CrawlJob
+  }
+  pageStart: {
+    jobId: string
+    url: string
+    job: CrawlJob
+  }
+  pageComplete: {
+    jobId: string
+    url: string
+    pageAnalysis: PageAnalysis
+    job: CrawlJob
+  }
+  pageError: {
+    jobId: string
+    url: string
+    error: Error
+    job: CrawlJob
+  }
+  progress: {
+    jobId: string
+    progress: CrawlProgress
+    pageAnalysis: PageAnalysis
+    job: CrawlJob
+  }
+}
+
+export type CrawlEvent = keyof CrawlEventMap

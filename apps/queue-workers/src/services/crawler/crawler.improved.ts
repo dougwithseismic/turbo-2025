@@ -2,10 +2,9 @@ import {
   PlaywrightCrawler,
   createPlaywrightRouter,
   type PlaywrightCrawlingContext,
+  Sitemap,
 } from 'crawlee'
 import { chromium, type Page } from 'playwright'
-import robotsParser from 'robots-parser'
-import { parseSitemap as parseSitemapXml } from 'sitemap'
 import type {
   CrawlConfig,
   CrawlJob,
@@ -16,13 +15,35 @@ import type {
   SecurityInfo,
   CoreWebVitals,
   MobileFriendliness,
+  CrawlEvent,
+  CrawlEventMap,
 } from './types.improved'
+import { EventEmitter } from 'events'
 
-export class CrawlerService {
+export class CrawlerService extends EventEmitter {
   private jobs: Map<string, CrawlJob> = new Map()
   private crawlers: Map<string, PlaywrightCrawler> = new Map()
   private sitemapUrls: Map<string, string[]> = new Map()
   private robotsTxtCache: Map<string, string> = new Map()
+
+  constructor() {
+    super()
+  }
+
+  // Type-safe event emitter methods
+  on<E extends keyof CrawlEventMap>(
+    event: E,
+    listener: (args: CrawlEventMap[E]) => void,
+  ): this {
+    return super.on(event, listener)
+  }
+
+  emit<E extends keyof CrawlEventMap>(
+    event: E,
+    args: CrawlEventMap[E],
+  ): boolean {
+    return super.emit(event, args)
+  }
 
   private getSpeedConfig = (speed: CrawlConfig['crawlSpeed']): number => {
     switch (speed) {
@@ -37,60 +58,237 @@ export class CrawlerService {
     }
   }
 
-  private async evaluatePageMetrics(page: Page): Promise<{
-    coreWebVitals: CoreWebVitals
-    timing: { start: number; domContentLoaded: number; loaded: number }
-  }> {
-    // Use Performance API instead of page.metrics()
-    const metrics = await page.evaluate(() => {
-      const timing = performance.getEntriesByType('navigation')[0] as any
-      return {
-        Timestamp: Date.now(),
-        DomContentLoaded: timing.domContentLoadedEventEnd,
-        Load: timing.loadEventEnd,
-      }
-    })
-
-    const navigationTiming = await page.evaluate(() => {
-      const timing = performance.getEntriesByType('navigation')[0] as any
-      return {
-        ttfb: timing.responseStart - timing.requestStart,
-        fcp: performance.getEntriesByName('first-contentful-paint')[0]
-          ?.startTime,
-        lcp: performance
-          .getEntriesByType('largest-contentful-paint')
-          .slice(-1)[0]?.startTime,
-        fid: performance
-          .getEntriesByType('first-input')
-          .map((entry: any) => entry.processingStart - entry.startTime)[0],
-        cls: performance
-          .getEntriesByType('layout-shift')
-          .reduce((sum: number, entry: any) => sum + entry.value, 0),
-      }
-    })
-
-    return {
-      coreWebVitals: {
-        ttfb: navigationTiming.ttfb,
-        fcp: navigationTiming.fcp,
-        lcp: navigationTiming.lcp,
-        fid: navigationTiming.fid,
-        cls: navigationTiming.cls,
+  private createEmptyResult = (
+    job: CrawlJob,
+    isError = false,
+  ): CrawlResult => ({
+    config: job.config,
+    progress: job.progress,
+    pages: [],
+    summary: {
+      totalPages: 0,
+      totalTime: 0,
+      averageLoadTime: 0,
+      totalErrors: isError ? 1 : 0,
+      uniqueInternalLinks: 0,
+      uniqueExternalLinks: 0,
+      totalImages: 0,
+      imagesWithoutAlt: 0,
+      missingMetaTags: 0,
+      responsivePages: 0,
+      averagePageSize: 0,
+      totalWordCount: 0,
+      averageWordCount: 0,
+      topKeywords: [],
+      commonIssues: [],
+      performance: {
+        averageLCP: 0,
+        averageFID: 0,
+        averageCLS: 0,
+        averageTTFB: 0,
+        performanceScore: 0,
       },
-      timing: {
-        start: metrics.Timestamp,
-        domContentLoaded: metrics.DomContentLoaded,
-        loaded: metrics.Load,
+      seoScore: 0,
+      accessibilityScore: 0,
+      bestPracticesScore: 0,
+    },
+  })
+
+  private async evaluatePageMetrics(
+    page: Page,
+    loadTime: number,
+  ): Promise<PageAnalysis> {
+    return page.evaluate(
+      ({ loadTime }) => {
+        const getMetaTags = () => {
+          return Array.from(document.querySelectorAll('meta')).map((meta) => ({
+            name: meta.getAttribute('name') || '',
+            content: meta.getAttribute('content') || '',
+            property: meta.getAttribute('property') || undefined,
+          }))
+        }
+
+        const getImages = () => {
+          return Array.from(document.querySelectorAll('img')).map((img) => ({
+            src: img.getAttribute('src') || '',
+            alt: img.getAttribute('alt') || undefined,
+            width: img.width || undefined,
+            height: img.height || undefined,
+            lazyLoaded: img.loading === 'lazy',
+          }))
+        }
+
+        const getLinks = () => {
+          const baseUrl = window.location.origin
+          return Array.from(document.querySelectorAll('a')).map((link) => {
+            const href = link.href
+            return {
+              href,
+              text: link.textContent || '',
+              isInternal: href.startsWith(baseUrl),
+              rel: link.rel ? link.rel.split(' ') : undefined,
+              onClick: !!link.onclick,
+            }
+          })
+        }
+
+        const getHeadings = () => ({
+          h1: Array.from(document.querySelectorAll('h1')).map(
+            (h) => h.textContent || '',
+          ),
+          h2: Array.from(document.querySelectorAll('h2')).map(
+            (h) => h.textContent || '',
+          ),
+          h3: Array.from(document.querySelectorAll('h3')).map(
+            (h) => h.textContent || '',
+          ),
+        })
+
+        const getMobileFriendliness = () => {
+          const viewport = document.querySelector('meta[name="viewport"]')
+          const viewportContent = viewport?.getAttribute('content')
+          return {
+            isResponsive:
+              viewportContent?.includes('width=device-width') || false,
+            viewportMeta: !!viewport,
+            touchTargets: {
+              total: document.querySelectorAll(
+                'a, button, input, select, textarea',
+              ).length,
+              tooSmall: 0,
+            },
+            fontSize: {
+              base:
+                parseInt(window.getComputedStyle(document.body).fontSize) || 16,
+              readable: true,
+            },
+            mediaQueries: [],
+          }
+        }
+
+        const getPerformanceMetrics = () => {
+          const timing = performance.getEntriesByType('navigation')[0] as any
+          return {
+            ttfb: timing?.responseStart - timing?.requestStart || 0,
+            fcp:
+              performance.getEntriesByName('first-contentful-paint')[0]
+                ?.startTime || 0,
+            lcp:
+              performance
+                .getEntriesByType('largest-contentful-paint')
+                .slice(-1)[0]?.startTime || 0,
+            fid:
+              performance
+                .getEntriesByType('first-input')
+                .map(
+                  (entry: any) => entry.processingStart - entry.startTime,
+                )[0] || 0,
+            cls:
+              performance
+                .getEntriesByType('layout-shift')
+                .reduce((sum: number, entry: any) => sum + entry.value, 0) || 0,
+          }
+        }
+
+        const getSchemaOrg = () => {
+          const schemas: SchemaOrgMarkup[] = []
+          // JSON-LD
+          document
+            .querySelectorAll('script[type="application/ld+json"]')
+            .forEach((script) => {
+              try {
+                const data = JSON.parse(script.textContent || '')
+                schemas.push({
+                  type: data['@type'] || 'Unknown',
+                  properties: data,
+                  raw: script.textContent || '',
+                })
+              } catch {
+                // Invalid JSON-LD
+              }
+            })
+          // Microdata
+          document.querySelectorAll('[itemtype]').forEach((element) => {
+            const type = element.getAttribute('itemtype')?.split('/').pop()
+            if (type) {
+              const properties: Record<string, unknown> = {}
+              element.querySelectorAll('[itemprop]').forEach((prop) => {
+                const name = prop.getAttribute('itemprop')
+                if (name) {
+                  properties[name] = prop.textContent
+                }
+              })
+              schemas.push({
+                type,
+                properties,
+                raw: element.outerHTML,
+              })
+            }
+          })
+          return schemas
+        }
+
+        const wordCount =
+          document.body.textContent?.trim().split(/\s+/).length || 0
+
+        return {
+          url: window.location.href,
+          status: 200,
+          redirectChain: [],
+          timing: {
+            start: performance.timing.navigationStart,
+            domContentLoaded: performance.timing.domContentLoadedEventEnd,
+            loaded: performance.timing.loadEventEnd,
+          },
+          title: document.title,
+          description:
+            document
+              .querySelector('meta[name="description"]')
+              ?.getAttribute('content') || '',
+          h1:
+            document.querySelector('h1')?.textContent?.trim() || document.title,
+          canonical:
+            document
+              .querySelector('link[rel="canonical"]')
+              ?.getAttribute('href') || undefined,
+          language: document.documentElement.lang || undefined,
+          metaTags: getMetaTags(),
+          headings: getHeadings(),
+          wordCount,
+          readingTime: Math.ceil(wordCount / 200),
+          images: getImages(),
+          links: getLinks(),
+          loadTime,
+          contentLength: document.documentElement.innerHTML.length,
+          resourceSizes: {
+            html: document.documentElement.innerHTML.length,
+            css: 0,
+            javascript: 0,
+            images: 0,
+            fonts: 0,
+            other: 0,
+          },
+          security: {
+            https: window.location.protocol === 'https:',
+            headers: {},
+          },
+          coreWebVitals: getPerformanceMetrics(),
+          mobileFriendliness: getMobileFriendliness(),
+          schemaOrg: getSchemaOrg(),
+          console: [],
+          brokenResources: [],
+        }
       },
-    }
+      { loadTime },
+    )
   }
 
   private async evaluateSecurityInfo(page: Page): Promise<SecurityInfo> {
     const securityDetails = await page.evaluate(() => {
-      const getHeaderValue = (name: string) =>
-        document
-          .querySelector(`meta[http-equiv="${name}"]`)
-          ?.getAttribute('content')
+      const getHeaderValue = (name: string): string | undefined => {
+        const meta = document.querySelector(`meta[http-equiv="${name}"]`)
+        return meta?.getAttribute('content') || undefined
+      }
 
       return {
         https: window.location.protocol === 'https:',
@@ -196,6 +394,68 @@ export class CrawlerService {
     })
   }
 
+  private updateSummaryStats(job: CrawlJob, pageAnalysis: PageAnalysis): void {
+    if (!job.result) return
+
+    const summary = job.result.summary
+    summary.totalPages++
+    summary.totalTime += pageAnalysis.loadTime
+    summary.averageLoadTime = summary.totalTime / summary.totalPages
+
+    // Update link stats
+    const internalLinks = pageAnalysis.links.filter((link) => link.isInternal)
+    const externalLinks = pageAnalysis.links.filter((link) => !link.isInternal)
+    summary.uniqueInternalLinks += internalLinks.length
+    summary.uniqueExternalLinks += externalLinks.length
+
+    // Update image stats
+    summary.totalImages += pageAnalysis.images.length
+    summary.imagesWithoutAlt += pageAnalysis.images.filter(
+      (img) => !img.alt,
+    ).length
+
+    // Update meta tag stats
+    const requiredMetaTags = ['description', 'viewport', 'robots']
+    const missingMetaTags = requiredMetaTags.filter(
+      (tag) => !pageAnalysis.metaTags.some((meta) => meta.name === tag),
+    ).length
+    summary.missingMetaTags += missingMetaTags
+
+    // Update responsive stats
+    if (pageAnalysis.mobileFriendliness.isResponsive) {
+      summary.responsivePages++
+    }
+
+    // Update performance metrics
+    const perf = summary.performance
+    perf.averageLCP =
+      (perf.averageLCP * (summary.totalPages - 1) +
+        (pageAnalysis.coreWebVitals.lcp ?? 0)) /
+      summary.totalPages
+    perf.averageFID =
+      (perf.averageFID * (summary.totalPages - 1) +
+        (pageAnalysis.coreWebVitals.fid ?? 0)) /
+      summary.totalPages
+    perf.averageCLS =
+      (perf.averageCLS * (summary.totalPages - 1) +
+        (pageAnalysis.coreWebVitals.cls ?? 0)) /
+      summary.totalPages
+    perf.averageTTFB =
+      (perf.averageTTFB * (summary.totalPages - 1) +
+        (pageAnalysis.coreWebVitals.ttfb ?? 0)) /
+      summary.totalPages
+
+    // Update content stats
+    summary.totalWordCount += pageAnalysis.wordCount
+    summary.averageWordCount = summary.totalWordCount / summary.totalPages
+
+    // Update page size stats
+    summary.averagePageSize =
+      (summary.averagePageSize * (summary.totalPages - 1) +
+        pageAnalysis.contentLength) /
+      summary.totalPages
+  }
+
   private handleRequest = async (
     context: PlaywrightCrawlingContext,
     job: CrawlJob,
@@ -203,176 +463,86 @@ export class CrawlerService {
     const { request, enqueueLinks, log, page } = context
 
     try {
+      // Emit page start event
+      this.emit('pageStart', { jobId: job.id, url: request.url, job })
+
       // Set custom headers if provided
       if (job.config.headers) {
         await page.setExtraHTTPHeaders(job.config.headers)
       }
 
       // Set custom user agent if provided
-      if (job.config.userAgent) {
-        await context.session.setUserAgent(job.config.userAgent)
+      if (job.config.userAgent && context.session) {
+        const browserContext = await page.context()
+        await browserContext.addInitScript(() => {
+          Object.defineProperty(navigator, 'userAgent', {
+            get: () => job.config.userAgent,
+          })
+        })
       }
 
       const startTime = Date.now()
+
+      // Wait for network idle before collecting metrics
       await page.goto(request.url, {
         timeout: job.config.timeout?.page || 30000,
         waitUntil: 'networkidle',
       })
+
+      await page.evaluate(() => {
+        ;(window as any).__name = (func: Function) => func
+      })
+
+      // Additional wait to ensure metrics are stable
+      await page.waitForTimeout(1000)
+
       const loadTime = Date.now() - startTime
+      const pageAnalysis = await this.evaluatePageMetrics(page, loadTime)
 
-      // Collect all metrics
-      const [metrics, securityInfo, mobileFriendliness, schemaOrg] =
-        await Promise.all([
-          this.evaluatePageMetrics(page),
-          this.evaluateSecurityInfo(page),
-          this.evaluateMobileFriendliness(page),
-          this.evaluateSchemaOrg(page),
-        ])
-
-      // Extract page data
-      const baseAnalysis = await page.evaluate(
-        ({ loadTime }) => {
-          const getMetaTags = () => {
-            return Array.from(document.querySelectorAll('meta')).map(
-              (meta) => ({
-                name: meta.getAttribute('name') || '',
-                content: meta.getAttribute('content') || '',
-                property: meta.getAttribute('property'),
-              }),
-            )
-          }
-
-          const getImages = () => {
-            return Array.from(document.querySelectorAll('img')).map((img) => ({
-              src: img.getAttribute('src') || '',
-              alt: img.getAttribute('alt'),
-              width: img.width,
-              height: img.height,
-              lazyLoaded: img.loading === 'lazy',
-            }))
-          }
-
-          const getLinks = () => {
-            return Array.from(document.querySelectorAll('a')).map((a) => ({
-              href: a.href || '',
-              text: a.textContent || '',
-              isInternal: a.href.startsWith(window.location.origin),
-              rel: a.rel ? Array.from(a.rel) : undefined,
-              onClick: !!a.onclick,
-            }))
-          }
-
-          const getHeadings = () => ({
-            h1: Array.from(document.querySelectorAll('h1')).map(
-              (h) => h.textContent || '',
-            ),
-            h2: Array.from(document.querySelectorAll('h2')).map(
-              (h) => h.textContent || '',
-            ),
-            h3: Array.from(document.querySelectorAll('h3')).map(
-              (h) => h.textContent || '',
-            ),
-          })
-
-          const text = document.body.textContent || ''
-          const wordCount = text.trim().split(/\s+/).length
-          const readingTime = Math.ceil(wordCount / 200) // Assuming 200 words per minute
-
-          return {
-            url: window.location.href,
-            status: 200,
-            redirectChain: [],
-            timing: {
-              start: performance.timing.navigationStart,
-              domContentLoaded: performance.timing.domContentLoadedEventEnd,
-              loaded: performance.timing.loadEventEnd,
-            },
-            title: document.title || undefined,
-            description: document
-              .querySelector('meta[name="description"]')
-              ?.getAttribute('content'),
-            canonical: document
-              .querySelector('link[rel="canonical"]')
-              ?.getAttribute('href'),
-            language: document.documentElement.lang,
-            metaTags: getMetaTags(),
-            headings: getHeadings(),
-            wordCount,
-            readingTime,
-            images: getImages(),
-            links: getLinks(),
-            loadTime,
-            contentLength: document.documentElement.outerHTML.length,
-            resourceSizes: {
-              html: document.documentElement.outerHTML.length,
-              css: 0,
-              javascript: 0,
-              images: 0,
-              fonts: 0,
-              other: 0,
-            },
-            console: [],
-            brokenResources: [],
-            // Add required properties for PageAnalysis type
-            security: {
-              https: false,
-              headers: {},
-            },
-            coreWebVitals: {
-              ttfb: 0,
-              fcp: 0,
-              lcp: 0,
-              fid: 0,
-              cls: 0,
-            },
-            mobileFriendliness: {
-              isResponsive: false,
-              viewportMeta: false,
-              touchTargets: {
-                total: 0,
-                tooSmall: 0,
-              },
-              fontSize: {
-                base: 0,
-                readable: false,
-              },
-              mediaQueries: [],
-            },
-            schemaOrg: [],
-          }
-        },
-        { loadTime },
-      )
-
-      // Combine all analysis data
-      const analysis: PageAnalysis = {
-        ...baseAnalysis,
-        security: securityInfo,
-        coreWebVitals: metrics.coreWebVitals,
-        mobileFriendliness,
-        schemaOrg,
+      // Initialize result if not exists
+      if (!job.result) {
+        job.result = this.createEmptyResult(job)
       }
 
       // Update progress
-      const currentProgress = job.progress
-      await this.updateProgress(job.id, {
-        ...currentProgress,
-        pagesAnalyzed: currentProgress.pagesAnalyzed + 1,
-        currentUrl: request.url,
-        currentDepth: request.userData.depth || 0,
-      })
+      job.progress.pagesAnalyzed++
+      job.progress.currentUrl = request.url
+      if (job.config.maxDepth !== undefined) {
+        job.progress.currentDepth = request.userData.depth || 0
+      }
+      if (job.result) {
+        job.progress.uniqueUrls =
+          new Set(job.result.pages.map((p) => p.url)).size + 1
 
-      // Store analysis results
-      const results = this.jobs.get(job.id)?.result
-      if (results) {
-        results.pages.push(analysis)
+        // Store the analysis and update summary
+        job.result.pages.push(pageAnalysis)
+        this.updateSummaryStats(job, pageAnalysis)
+
+        // Emit progress event
+        this.emit('progress', {
+          jobId: job.id,
+          progress: job.progress,
+          pageAnalysis,
+          job,
+        })
       }
 
-      // Enqueue more links if we haven't reached maxPages or maxDepth
+      // Update the job
+      job.updatedAt = new Date()
+      this.jobs.set(job.id, job)
+
+      // Emit page complete event
+      this.emit('pageComplete', {
+        jobId: job.id,
+        url: request.url,
+        pageAnalysis,
+        job,
+      })
+
+      // Enqueue links for crawling if within depth limit
       if (
-        currentProgress.pagesAnalyzed < job.config.maxPages &&
-        (!job.config.maxDepth ||
-          (request.userData.depth || 0) < job.config.maxDepth)
+        job.config.maxDepth === undefined ||
+        (request.userData.depth || 0) < job.config.maxDepth
       ) {
         await enqueueLinks({
           userData: {
@@ -380,13 +550,30 @@ export class CrawlerService {
           },
         })
       }
+
+      log.info(`Successfully analyzed ${request.url}`)
     } catch (error) {
-      log.error(
-        `Failed to process ${request.url}: ${
-          error instanceof Error ? error.message : String(error)
-        }`,
-      )
-      throw error
+      log.error(`Failed to analyze ${request.url}: ${error}`)
+
+      // Emit page error event
+      this.emit('pageError', {
+        jobId: job.id,
+        url: request.url,
+        error: error instanceof Error ? error : new Error(String(error)),
+        job,
+      })
+
+      // Update error stats
+      job.progress.failedUrls++
+      if (!job.result) {
+        job.result = this.createEmptyResult(job, true)
+      } else {
+        job.result.summary.totalErrors++
+      }
+
+      // Update the job
+      job.updatedAt = new Date()
+      this.jobs.set(job.id, job)
     }
   }
 
@@ -409,16 +596,12 @@ export class CrawlerService {
   }
 
   private async parseSitemap(url: string): Promise<string[]> {
-    const browser = await chromium.launch()
-    const page = await browser.newPage()
-
     try {
-      await page.goto(url)
-      const content = await page.content()
-      const { sites } = await parseSitemapXml(content)
-      return sites.map((site) => site.url)
-    } finally {
-      await browser.close()
+      const { urls } = await Sitemap.load(url)
+      return urls.map((u) => u.toString())
+    } catch (error) {
+      console.error(`Failed to parse sitemap at ${url}:`, error)
+      return []
     }
   }
 
@@ -456,6 +639,10 @@ export class CrawlerService {
       requestHandlerTimeoutSecs: job.config.timeout?.request
         ? job.config.timeout.request / 1000
         : 30,
+      // Disable storage
+      sessionPoolOptions: {
+        maxPoolSize: 1,
+      },
     })
 
     this.crawlers.set(job.id, crawler)
@@ -497,43 +684,22 @@ export class CrawlerService {
     }
 
     // Initialize result structure
-    job.result = {
-      config: job.config,
-      progress: job.progress,
-      pages: [],
-      summary: {
-        totalPages: 0,
-        totalTime: 0,
-        averageLoadTime: 0,
-        totalErrors: 0,
-        uniqueInternalLinks: 0,
-        uniqueExternalLinks: 0,
-        totalImages: 0,
-        imagesWithoutAlt: 0,
-        missingMetaTags: 0,
-        responsivePages: 0,
-        averagePageSize: 0,
-        totalWordCount: 0,
-        averageWordCount: 0,
-        topKeywords: [],
-        commonIssues: [],
-        performance: {
-          averageLCP: 0,
-          averageFID: 0,
-          averageCLS: 0,
-          averageTTFB: 0,
-          performanceScore: 0,
-        },
-        seoScore: 0,
-        accessibilityScore: 0,
-        bestPracticesScore: 0,
-      },
-    }
+    job.result = this.createEmptyResult(job)
 
     // Update status
-    job.progress.status = 'running'
-    job.progress.startTime = new Date()
+    job.progress = {
+      ...job.progress,
+      status: 'running',
+      startTime: new Date(),
+      pagesAnalyzed: 0,
+      uniqueUrls: 0,
+      skippedUrls: 0,
+      failedUrls: 0,
+    }
     job.updatedAt = new Date()
+
+    // Emit job start event
+    this.emit('jobStart', { jobId: id, job })
 
     try {
       // Parse robots.txt if needed
@@ -552,9 +718,47 @@ export class CrawlerService {
       const crawler = this.getCrawlerForJob(job)
       await crawler.run([job.config.url])
 
+      // Update final progress
+      job.progress = {
+        ...job.progress,
+        status: 'completed',
+        endTime: new Date(),
+        totalPages: job.result?.pages.length || 0,
+      }
+      job.updatedAt = new Date()
+
+      // Update result progress to match
+      if (job.result) {
+        job.result.progress = { ...job.progress }
+      }
+
+      // Emit job complete event
+      this.emit('jobComplete', { jobId: id, job })
+
       this.jobs.set(id, job)
       return job
     } catch (error) {
+      // Update error progress
+      job.progress = {
+        ...job.progress,
+        status: 'failed',
+        endTime: new Date(),
+        error: error instanceof Error ? error.message : String(error),
+      }
+      job.updatedAt = new Date()
+
+      // Update result progress to match if it exists
+      if (job.result) {
+        job.result.progress = { ...job.progress }
+      }
+
+      // Emit job error event
+      this.emit('jobError', {
+        jobId: id,
+        error: error instanceof Error ? error : new Error(String(error)),
+        job,
+      })
+
       await this.failJob(
         id,
         error instanceof Error ? error : new Error(String(error)),
@@ -590,19 +794,38 @@ export class CrawlerService {
   async completeJob(id: string, result: CrawlResult): Promise<CrawlJob> {
     const job = await this.getJob(id)
     job.result = result
-    job.progress.status = 'completed'
-    job.progress.endTime = new Date()
+    job.progress = {
+      ...job.progress,
+      status: 'completed',
+      endTime: new Date(),
+      totalPages: result.pages.length,
+      pagesAnalyzed: result.pages.length,
+      uniqueUrls: new Set(result.pages.map((p) => p.url)).size,
+    }
     job.updatedAt = new Date()
+
+    // Update result progress to match
+    job.result.progress = { ...job.progress }
+
     this.jobs.set(id, job)
     return job
   }
 
   async failJob(id: string, error: Error): Promise<CrawlJob> {
     const job = await this.getJob(id)
-    job.progress.status = 'failed'
-    job.progress.error = error.message
-    job.progress.endTime = new Date()
+    job.progress = {
+      ...job.progress,
+      status: 'failed',
+      endTime: new Date(),
+      error: error.message,
+    }
     job.updatedAt = new Date()
+
+    // Update result progress to match if it exists
+    if (job.result) {
+      job.result.progress = { ...job.progress }
+    }
+
     this.jobs.set(id, job)
     return job
   }
