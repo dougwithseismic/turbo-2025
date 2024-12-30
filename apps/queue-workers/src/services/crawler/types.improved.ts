@@ -12,6 +12,7 @@ import type {
 export interface CrawlConfig {
   url: string
   maxDepth?: number
+  maxPages?: number
   crawlSpeed?: 'slow' | 'medium' | 'fast'
   timeout?: {
     page?: number

@@ -1,10 +1,10 @@
-import { env } from '@repo/env';
+import { env } from '@repo/env'
 
-import { name as packageName } from '../../package.json';
+import { name as packageName } from '../../package.json'
 
-import { logger } from './logger';
+import { logger } from './logger'
 
-const appName = packageName || 'default-app-name';
+const appName = packageName || 'default-app-name'
 
 export const config = {
   APP_NAME: appName,
@@ -35,7 +35,8 @@ export const config = {
     ENABLED: env.SENTRY_ENABLED ?? false,
     DSN: env.SENTRY_DSN ?? '',
   },
-} as const;
+  QUEUE_WORKERS_URL: env.QUEUE_WORKERS_URL ?? 'http://localhost:42069',
+} as const
 
 // Log configuration on startup
-logger.info('🕵️‍♂️ :: Configuration loaded');
+logger.info('🕵️‍♂️ :: Configuration loaded')
