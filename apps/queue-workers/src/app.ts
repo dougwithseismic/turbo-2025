@@ -33,57 +33,73 @@ const PORT = config.PORT
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const app = express()
+
 // Initialize Sentry
 initializeSentry()
 
-// Initialize all plugins
-const plugins = [
-  new LinksPlugin({ enabled: true }),
-  new SeoPlugin({ enabled: true }),
-  new ContentPlugin({ enabled: true }),
-  new PerformancePlugin({ enabled: true }),
-  new SecurityPlugin({ enabled: true }),
-  new MobileFriendlinessPlugin({ enabled: true }),
-]
+// Middleware
+app.use(helmet())
+app.use(cors())
+app.use(express.json())
+app.use(requestLogger)
+
+// Routes
+app.use('/health', healthRouter)
+app.use('/api/webhook', webhookRouter)
+
+// Initialize all crawler plugins
+const plugins = []
 
 // Initialize Crawler Service as singleton
 export const crawlerService = new CrawlerService({
-  plugins,
+  plugins: [
+    new LinksPlugin({ enabled: true }),
+    new SeoPlugin({ enabled: true }),
+    new ContentPlugin({ enabled: true }),
+    new PerformancePlugin({ enabled: true }),
+    new SecurityPlugin({ enabled: true }),
+    new MobileFriendlinessPlugin({ enabled: true }),
+  ],
   config: {
     debug: true,
   },
 })
 
-// Example job for testing
-const job = await crawlerService.createJob({
-  url: 'https://contra.com/',
-  crawlSpeed: 'slow',
-  respectRobotsTxt: false,
-  includeSitemap: true,
-})
-
-// Register event handlers before starting the job
+// Set up crawler event handlers
 crawlerService.on('jobStart', ({ jobId, job }) => {
-  console.log(`Started crawling job ${jobId}`)
+  logger.info(`Started crawling job ${jobId}`, { url: job.config.url })
 })
 
 crawlerService.on('progress', ({ jobId, progress, pageAnalysis }) => {
-  console.log(`Job ${jobId}: Analyzed ${progress.pagesAnalyzed} pages`)
-  console.log(`Current URL: ${progress.currentUrl}`)
+  logger.info(`Job ${jobId}: Analyzed ${progress.pagesAnalyzed} pages`, {
+    currentUrl: progress.currentUrl,
+    totalPages: progress.totalPages,
+  })
 })
 
 crawlerService.on('pageComplete', ({ jobId, url, pageAnalysis }) => {
-  console.log(`Completed analysis of ${url}`)
+  logger.debug(`Completed analysis of ${url}`, {
+    jobId,
+    status: pageAnalysis.status,
+  })
 })
 
 crawlerService.on('pageError', ({ jobId, url, error }) => {
-  console.error(`Failed to analyze ${url}: ${error.message}`)
+  logger.error(`Failed to analyze ${url}`, {
+    jobId,
+    error: error.message,
+    stack: error.stack,
+  })
 })
 
 crawlerService.on('jobComplete', ({ jobId, job }) => {
-  console.log(`Completed job ${jobId}`)
-  console.log('Saving results to file...')
+  logger.info(`Completed job ${jobId}`, {
+    url: job.config.url,
+    pagesAnalyzed: job.progress.pagesAnalyzed,
+  })
 
+  // Save results to file
   const resultsDir = join(__dirname, '../crawl-results')
   if (!fs.existsSync(resultsDir)) {
     fs.mkdirSync(resultsDir, { recursive: true })
@@ -102,31 +118,15 @@ crawlerService.on('jobComplete', ({ jobId, job }) => {
   }
 
   fs.writeFileSync(resultsPath, JSON.stringify(resultsData, null, 2))
-  console.log(`Results saved to ${resultsPath}`)
+  logger.info(`Results saved to ${resultsPath}`)
 })
 
 crawlerService.on('jobError', ({ jobId, error }) => {
-  console.error(`Job ${jobId} failed: ${error.message}`)
+  logger.error(`Job ${jobId} failed`, {
+    error: error.message,
+    stack: error.stack,
+  })
 })
-
-try {
-  const result = await crawlerService.startJob(job.id)
-  console.log('Crawl completed successfully:', result)
-} catch (error) {
-  console.error('Crawl failed:', error)
-}
-
-const app = express()
-
-// Middleware
-app.use(helmet())
-app.use(cors())
-app.use(express.json())
-app.use(requestLogger)
-
-// Routes
-app.use('/health', healthRouter)
-app.use('/api/webhook', webhookRouter)
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, next: any) => {
@@ -176,7 +176,9 @@ setupQueuesAndBullBoard({
 
 const server = app.listen(PORT, () => {
   logger.info(`🚀 :: Server is running on port ${PORT}`)
-  logger.info('Crawler services initialized')
+  logger.info('Crawler services initialized with plugins:', {
+    plugins: plugins.map((p) => p.constructor.name),
+  })
 })
 
 // Cleanup on shutdown

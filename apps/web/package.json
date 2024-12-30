@@ -23,6 +23,7 @@
     "@repo/analytics": "workspace:*",
     "@repo/consts": "workspace:*",
     "@repo/supabase": "workspace:*",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.46.1",
     "@t3-oss/env-nextjs": "^0.11.1",

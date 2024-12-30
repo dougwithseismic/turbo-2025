@@ -1,129 +1,190 @@
-import { describe, expect, it, beforeEach } from 'vitest'
-import { render, screen, fireEvent, act } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { WebsiteAuditing } from '../components/website-auditing'
-import './setup'
+import { startWebsiteAudit } from '../actions/server'
+import { useWebsiteAuditingStore } from '../store'
+import type { CrawlProgress } from '../types'
 
-describe('WebsiteAuditing', () => {
+vi.mock('../actions/server', () => ({
+  startWebsiteAudit: vi.fn(),
+}))
+
+vi.mock('next/navigation', () => ({
+  useRouter: () => ({
+    push: vi.fn(),
+    refresh: vi.fn(),
+  }),
+}))
+
+vi.mock('react-hot-toast', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}))
+
+describe('WebsiteAuditing Feature', () => {
+  const mockProjectId = 'test-project-id'
+  const mockCrawlResponse = {
+    jobId: 'test-job-id',
+    status: 'queued' as CrawlProgress['status'],
+    progress: {
+      pagesAnalyzed: 0,
+      totalPages: 0,
+    },
+  }
+
   beforeEach(() => {
-    // Reset any mocks and clear rendered content
-    document.body.innerHTML = ''
+    vi.clearAllMocks()
+    useWebsiteAuditingStore.setState({
+      formData: null,
+      status: 'queued',
+      results: null,
+      error: null,
+      currentJobId: null,
+    })
   })
 
-  it('should render URL input form', () => {
-    render(<WebsiteAuditing />)
+  describe('Form Submission', () => {
+    it('submits form with valid data', async () => {
+      vi.mocked(startWebsiteAudit).mockResolvedValue(mockCrawlResponse)
 
-    expect(screen.getByRole('textbox', { name: /url/i })).toBeInTheDocument()
-    expect(
-      screen.getByRole('button', { name: /start audit/i }),
-    ).toBeInTheDocument()
-  })
+      render(<WebsiteAuditing projectId={mockProjectId} />)
 
-  it('should show advanced options when toggled', async () => {
-    render(<WebsiteAuditing />)
-
-    const advancedButton = screen.getByRole('button', {
-      name: /advanced options/i,
-    })
-    await act(async () => {
-      fireEvent.click(advancedButton)
-    })
-
-    expect(screen.getByLabelText(/max pages/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/crawl speed/i)).toBeInTheDocument()
-    expect(screen.getByLabelText(/respect robots\.txt/i)).toBeInTheDocument()
-  })
-
-  it('should validate URL input', async () => {
-    render(<WebsiteAuditing />)
-
-    const urlInput = screen.getByRole('textbox', { name: /url/i })
-    await act(async () => {
-      fireEvent.change(urlInput, { target: { value: 'not-a-valid-url' } })
-    })
-
-    const submitButton = screen.getByRole('button', { name: /start audit/i })
-    await act(async () => {
-      fireEvent.click(submitButton)
-    })
-
-    expect(await screen.findByText(/invalid url format/i)).toBeInTheDocument()
-  })
-
-  it('should handle form submission with valid URL', async () => {
-    render(<WebsiteAuditing />)
-
-    const urlInput = screen.getByRole('textbox', { name: /url/i })
-    await act(async () => {
+      // Fill form
+      const urlInput = screen.getByLabelText(/url/i)
       fireEvent.change(urlInput, { target: { value: 'https://example.com' } })
-    })
 
-    const submitButton = screen.getByRole('button', { name: /start audit/i })
-    await act(async () => {
+      const submitButton = screen.getByRole('button', { name: /start audit/i })
       fireEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(startWebsiteAudit).toHaveBeenCalledWith({
+          projectId: mockProjectId,
+          config: expect.objectContaining({
+            url: 'https://example.com',
+            crawlSpeed: 'medium',
+            respectRobotsTxt: true,
+          }),
+        })
+      })
+
+      const store = useWebsiteAuditingStore.getState()
+      expect(store.status).toBe('running')
+      expect(store.currentJobId).toBe(mockCrawlResponse.jobId)
     })
 
-    // Should show loading state
-    expect(await screen.findByText(/analyzing/i)).toBeInTheDocument()
+    it('shows validation errors for invalid URL', async () => {
+      render(<WebsiteAuditing projectId={mockProjectId} />)
+
+      const urlInput = screen.getByLabelText(/url/i)
+      fireEvent.change(urlInput, { target: { value: 'invalid-url' } })
+
+      const submitButton = screen.getByRole('button', { name: /start audit/i })
+      fireEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(screen.getByText(/must be a valid url/i)).toBeInTheDocument()
+      })
+      expect(startWebsiteAudit).not.toHaveBeenCalled()
+    })
+
+    it('handles API errors', async () => {
+      const error = new Error('API Error')
+      vi.mocked(startWebsiteAudit).mockRejectedValue(error)
+
+      render(<WebsiteAuditing projectId={mockProjectId} />)
+
+      const urlInput = screen.getByLabelText(/url/i)
+      fireEvent.change(urlInput, { target: { value: 'https://example.com' } })
+
+      const submitButton = screen.getByRole('button', { name: /start audit/i })
+      fireEvent.click(submitButton)
+
+      await waitFor(() => {
+        const store = useWebsiteAuditingStore.getState()
+        expect(store.status).toBe('failed')
+        expect(store.error).toBe(error)
+      })
+    })
   })
 
-  it('should respect robots.txt setting', async () => {
-    render(<WebsiteAuditing />)
+  describe('Advanced Options', () => {
+    it('toggles sitemap URL input when includeSitemap is checked', async () => {
+      render(<WebsiteAuditing projectId={mockProjectId} />)
 
-    // Open advanced options
-    const advancedButton = screen.getByRole('button', {
-      name: /advanced options/i,
-    })
-    await act(async () => {
+      // Open advanced options
+      const advancedButton = screen.getByRole('button', {
+        name: /advanced options/i,
+      })
       fireEvent.click(advancedButton)
+
+      // Toggle sitemap switch
+      const sitemapSwitch = screen.getByRole('switch', {
+        name: /include sitemap/i,
+      })
+      fireEvent.click(sitemapSwitch)
+
+      await waitFor(() => {
+        expect(screen.getByLabelText(/sitemap url/i)).toBeInTheDocument()
+      })
+
+      // Toggle off
+      fireEvent.click(sitemapSwitch)
+      await waitFor(() => {
+        expect(screen.queryByLabelText(/sitemap url/i)).not.toBeInTheDocument()
+      })
     })
 
-    // Toggle robots.txt checkbox
-    const robotsCheckbox = screen.getByLabelText(/respect robots\.txt/i)
-    await act(async () => {
-      fireEvent.click(robotsCheckbox)
-    })
+    it('submits form with advanced options', async () => {
+      vi.mocked(startWebsiteAudit).mockResolvedValue(mockCrawlResponse)
 
-    expect(robotsCheckbox).not.toBeChecked()
-  })
+      render(<WebsiteAuditing projectId={mockProjectId} />)
 
-  it('should handle crawl speed selection', async () => {
-    render(<WebsiteAuditing />)
-
-    // Open advanced options
-    const advancedButton = screen.getByRole('button', {
-      name: /advanced options/i,
-    })
-    await act(async () => {
+      // Open advanced options
+      const advancedButton = screen.getByRole('button', {
+        name: /advanced options/i,
+      })
       fireEvent.click(advancedButton)
+
+      // Fill form
+      fireEvent.change(screen.getByLabelText(/url/i), {
+        target: { value: 'https://example.com' },
+      })
+      fireEvent.change(screen.getByLabelText(/max pages/i), {
+        target: { value: '50' },
+      })
+      fireEvent.change(screen.getByLabelText(/crawl speed/i), {
+        target: { value: 'slow' },
+      })
+
+      const sitemapSwitch = screen.getByRole('switch', {
+        name: /include sitemap/i,
+      })
+      fireEvent.click(sitemapSwitch)
+
+      await waitFor(() => {
+        const sitemapInput = screen.getByLabelText(/sitemap url/i)
+        fireEvent.change(sitemapInput, {
+          target: { value: 'https://example.com/sitemap.xml' },
+        })
+      })
+
+      const submitButton = screen.getByRole('button', { name: /start audit/i })
+      fireEvent.click(submitButton)
+
+      await waitFor(() => {
+        expect(startWebsiteAudit).toHaveBeenCalledWith({
+          projectId: mockProjectId,
+          config: expect.objectContaining({
+            url: 'https://example.com',
+            maxPages: 50,
+            crawlSpeed: 'slow',
+            includeSitemap: true,
+            sitemapUrl: 'https://example.com/sitemap.xml',
+          }),
+        })
+      })
     })
-
-    // Select crawl speed
-    const speedSelect = screen.getByLabelText(/crawl speed/i)
-    await act(async () => {
-      fireEvent.change(speedSelect, { target: { value: 'fast' } })
-    })
-
-    expect(speedSelect).toHaveValue('fast')
-  })
-
-  it('should show sitemap URL input when include sitemap is checked', async () => {
-    render(<WebsiteAuditing />)
-
-    // Open advanced options
-    const advancedButton = screen.getByRole('button', {
-      name: /advanced options/i,
-    })
-    await act(async () => {
-      fireEvent.click(advancedButton)
-    })
-
-    // Check include sitemap checkbox
-    const sitemapCheckbox = screen.getByLabelText(/include sitemap/i)
-    await act(async () => {
-      fireEvent.click(sitemapCheckbox)
-    })
-
-    // Wait for the sitemap URL input to appear
-    expect(await screen.findByLabelText(/sitemap url/i)).toBeInTheDocument()
   })
 })

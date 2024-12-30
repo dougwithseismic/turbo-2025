@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,11 +20,38 @@ import {
 import { Switch } from '@/components/ui/switch'
 import { useWebsiteAuditingForm } from '../hooks/use-website-auditing-form'
 import { useWebsiteAuditingStore } from '../store'
+import { startWebsiteAudit } from '../actions/server'
+import { toast } from 'react-hot-toast'
 
-export const WebsiteAuditing = () => {
+interface WebsiteAuditingProps {
+  projectId: string
+}
+
+export const WebsiteAuditing = ({ projectId }: WebsiteAuditingProps) => {
   const [showAdvanced, setShowAdvanced] = useState(false)
   const { status } = useWebsiteAuditingStore()
-  const { form, handleSubmit, isSubmitting, errors } = useWebsiteAuditingForm()
+  const { form, handleSubmit, isSubmitting, errors } = useWebsiteAuditingForm({
+    onSubmit: async (data) => {
+      try {
+        const result = await startWebsiteAudit({
+          projectId,
+          config: {
+            url: data.url,
+            maxDepth: data.maxPages,
+            crawlSpeed: data.crawlSpeed,
+            respectRobotsTxt: data.respectRobotsTxt,
+            includeSitemap: data.includeSitemap,
+            sitemapUrl: data.sitemapUrl,
+          },
+        })
+        toast.success(`Audit started! Job ID: ${result.jobId}`)
+      } catch (error) {
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to start audit',
+        )
+      }
+    },
+  })
 
   const isAnalyzing = status === 'running'
   const includeSitemap = form.watch('includeSitemap')

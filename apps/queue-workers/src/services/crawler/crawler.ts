@@ -163,6 +163,36 @@ export class CrawlerService extends EventEmitter {
     const { request, enqueueLinks, log, page } = context
 
     try {
+      // Check if we've reached maxPages limit
+      if (
+        job.config.maxPages !== undefined &&
+        job.progress.pagesAnalyzed >= job.config.maxPages
+      ) {
+        // Teardown the crawler
+        const crawler = this.crawlers.get(job.id)
+        if (crawler) {
+          await crawler.teardown()
+          this.crawlers.delete(job.id)
+        }
+
+        // Only complete if not already completed
+        if (job.progress.status !== 'completed') {
+          // Complete the job if we've reached the limit
+          job.progress.status = 'completed'
+          job.progress.endTime = new Date()
+          job.updatedAt = new Date()
+
+          if (job.result) {
+            job.result.progress = { ...job.progress }
+            await this.summarizeResults(job)
+          }
+
+          this.emit('jobComplete', { jobId: job.id, job })
+          this.jobs.set(job.id, job)
+        }
+        return
+      }
+
       this.emit('pageStart', { jobId: job.id, url: request.url, job })
 
       // Configure page
@@ -235,29 +265,33 @@ export class CrawlerService extends EventEmitter {
         job,
       })
 
-      // Enqueue more links if within depth limit
+      // Only enqueue more links if we haven't reached maxPages and job isn't completed
       if (
-        job.config.maxDepth === undefined ||
-        (request.userData.depth || 0) < job.config.maxDepth
+        job.progress.status !== 'completed' &&
+        (job.config.maxPages === undefined ||
+          job.progress.pagesAnalyzed < job.config.maxPages)
       ) {
-        // Apply URL filter if configured
-        const urlFilter = job.config.urlFilter || (() => true)
-        await enqueueLinks({
-          userData: {
-            depth: (request.userData.depth || 0) + 1,
-          },
-          transformRequestFunction: (req) => {
-            const shouldCrawl = urlFilter(req.url)
-            if (!shouldCrawl) {
-              job.progress.skippedUrls++
-              return false
-            }
-            return req
-          },
-        })
+        // And if within depth limit
+        if (
+          job.config.maxDepth === undefined ||
+          (request.userData.depth || 0) < job.config.maxDepth
+        ) {
+          // Apply URL filter if configured
+          const urlFilter = job.config.urlFilter || (() => true)
+          await enqueueLinks({
+            userData: {
+              depth: (request.userData.depth || 0) + 1,
+            },
+            transformRequestFunction: (req) => {
+              const shouldCrawl = urlFilter(req.url)
+              if (!shouldCrawl) {
+                job.progress.skippedUrls++
+              }
+              return shouldCrawl ? req : false
+            },
+          })
+        }
       }
-
-      log.info(`Successfully analyzed ${request.url}`)
     } catch (error) {
       log.error(`Failed to analyze ${request.url}: ${error}`)
 
@@ -392,6 +426,13 @@ export class CrawlerService extends EventEmitter {
     const job = this.jobs.get(id)
     if (!job) throw new Error(`Job ${id} not found`)
 
+    // Reset any existing crawler
+    const existingCrawler = this.crawlers.get(id)
+    if (existingCrawler) {
+      await existingCrawler.teardown()
+      this.crawlers.delete(id)
+    }
+
     job.result = this.createEmptyResult(job)
     job.progress = {
       ...job.progress,
@@ -422,21 +463,27 @@ export class CrawlerService extends EventEmitter {
       const crawler = this.getCrawlerForJob(job)
       await crawler.run([job.config.url])
 
-      // Update final progress
-      job.progress = {
-        ...job.progress,
-        status: 'completed',
-        endTime: new Date(),
-        totalPages: job.result?.pages.length || 0,
-      }
-      job.updatedAt = new Date()
+      // Only complete if not already completed (in case maxPages was reached)
+      if (job.progress.status !== 'completed') {
+        // Update final progress
+        job.progress = {
+          ...job.progress,
+          status: 'completed',
+          endTime: new Date(),
+          totalPages: job.result?.pages.length || 0,
+        }
+        job.updatedAt = new Date()
 
-      if (job.result) {
-        job.result.progress = { ...job.progress }
-        await this.summarizeResults(job)
+        if (job.result) {
+          job.result.progress = { ...job.progress }
+          await this.summarizeResults(job)
+        }
+
+        this.emit('jobComplete', { jobId: id, job })
       }
 
-      this.emit('jobComplete', { jobId: id, job })
+      // Clean up crawler
+      this.crawlers.delete(id)
       this.jobs.set(id, job)
       return job
     } catch (error) {

@@ -1,28 +1,29 @@
 import { create } from 'zustand'
-import type { WebsiteAuditFormData } from './types'
+import type { WebsiteAuditFormData, PageAnalysis, CrawlProgress } from './types'
 
 interface AuditResults {
-  pages: Array<{
-    url: string
-    status: number
-    title?: string
-    description?: string
-  }>
-  metrics: {
+  pages: PageAnalysis[]
+  progress: CrawlProgress
+  summary: {
     totalPages: number
-    totalTime: number
+    totalErrors: number
+    averageLoadTime: number
+    uniqueUrls: number
+    startTime: Date
+    endTime: Date
   }
 }
 
 interface WebsiteAuditingStore {
   formData: WebsiteAuditFormData | null
-  status: 'idle' | 'running' | 'completed' | 'failed'
+  status: CrawlProgress['status']
   results: AuditResults | null
   error: Error | null
+  currentJobId: string | null
   setFormData: (data: WebsiteAuditFormData) => void
   setResults: (results: AuditResults) => void
   setError: (error: Error | null) => void
-  startAudit: () => void
+  startAudit: (jobId: string) => void
   completeAudit: (results: AuditResults) => void
   failAudit: (error: Error) => void
   reset: () => void
@@ -30,15 +31,21 @@ interface WebsiteAuditingStore {
 
 export const useWebsiteAuditingStore = create<WebsiteAuditingStore>((set) => ({
   formData: null,
-  status: 'idle',
+  status: 'queued',
   results: null,
   error: null,
+  currentJobId: null,
 
   setFormData: (data) => set({ formData: data }),
   setResults: (results) => set({ results }),
   setError: (error) => set({ error }),
 
-  startAudit: () => set({ status: 'running', error: null }),
+  startAudit: (jobId) =>
+    set({
+      status: 'running',
+      error: null,
+      currentJobId: jobId,
+    }),
 
   completeAudit: (results) =>
     set({
@@ -57,8 +64,9 @@ export const useWebsiteAuditingStore = create<WebsiteAuditingStore>((set) => ({
   reset: () =>
     set({
       formData: null,
-      status: 'idle',
+      status: 'queued',
       results: null,
       error: null,
+      currentJobId: null,
     }),
 }))
