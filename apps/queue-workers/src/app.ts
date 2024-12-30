@@ -2,7 +2,8 @@ import cors from 'cors'
 import express, { Request, Response } from 'express'
 import helmet from 'helmet'
 import { fileURLToPath } from 'url'
-import { dirname } from 'path'
+import { dirname, join } from 'path'
+import fs from 'fs'
 
 import { config } from './config/app-config'
 import { logger } from './config/logger'
@@ -18,11 +19,13 @@ import { testQueue } from './services/test-bull'
 import { getTestApiRouter } from './services/test-bull'
 import { crawlQueue, getCrawlApiRouter } from './services/crawl-bull'
 import { Queue } from '@repo/queue-manager'
-import { CrawlerService } from './services/crawler/crawler'
-import { CrawlerService as CrawlerServiceImproved } from './services/crawler/crawler.improved'
-
-import fs from 'fs'
-import path from 'path'
+import { CrawlerService } from './services/crawler'
+import { PerformancePlugin } from './services/crawler/plugins/performance'
+import { SeoPlugin } from './services/crawler/plugins/seo'
+import { ContentPlugin } from './services/crawler/plugins/content'
+import { LinksPlugin } from './services/crawler/plugins/links'
+import { SecurityPlugin } from './services/crawler/plugins/security'
+import { MobileFriendlinessPlugin } from './services/crawler/plugins/mobile-friendliness'
 
 const PORT = config.PORT
 
@@ -33,44 +36,55 @@ const __dirname = dirname(__filename)
 // Initialize Sentry
 initializeSentry()
 
-// Initialize Crawler Services as singletons
-export const crawlerService = new CrawlerServiceImproved()
-export const crawlerServiceImproved = new CrawlerServiceImproved()
+// Initialize all plugins
+const plugins = [
+  new LinksPlugin({ enabled: true }),
+  new SeoPlugin({ enabled: true }),
+  new ContentPlugin({ enabled: true }),
+  new PerformancePlugin({ enabled: true }),
+  new SecurityPlugin({ enabled: true }),
+  new MobileFriendlinessPlugin({ enabled: true }),
+]
 
-const job = await crawlerServiceImproved.createJob({
-  url: 'https://byword.ai/',
+// Initialize Crawler Service as singleton
+export const crawlerService = new CrawlerService({
+  plugins,
+  config: {
+    debug: true,
+  },
+})
+
+// Example job for testing
+const job = await crawlerService.createJob({
+  url: 'https://contra.com/',
   crawlSpeed: 'slow',
-  maxPages: 10,
   respectRobotsTxt: false,
   includeSitemap: true,
 })
 
-console.log(job)
-
 // Register event handlers before starting the job
-crawlerServiceImproved.on('jobStart', ({ jobId, job }) => {
+crawlerService.on('jobStart', ({ jobId, job }) => {
   console.log(`Started crawling job ${jobId}`)
 })
 
-crawlerServiceImproved.on('progress', ({ jobId, progress, pageAnalysis }) => {
+crawlerService.on('progress', ({ jobId, progress, pageAnalysis }) => {
   console.log(`Job ${jobId}: Analyzed ${progress.pagesAnalyzed} pages`)
   console.log(`Current URL: ${progress.currentUrl}`)
 })
 
-crawlerServiceImproved.on('pageComplete', ({ jobId, url, pageAnalysis }) => {
+crawlerService.on('pageComplete', ({ jobId, url, pageAnalysis }) => {
   console.log(`Completed analysis of ${url}`)
 })
 
-crawlerServiceImproved.on('pageError', ({ jobId, url, error }) => {
+crawlerService.on('pageError', ({ jobId, url, error }) => {
   console.error(`Failed to analyze ${url}: ${error.message}`)
 })
 
-crawlerServiceImproved.on('jobComplete', ({ jobId, job }) => {
+crawlerService.on('jobComplete', ({ jobId, job }) => {
   console.log(`Completed job ${jobId}`)
   console.log('Saving results to file...')
-  // Save crawl results to file with timestamp and job URL
 
-  const resultsDir = path.join(__dirname, '../crawl-results')
+  const resultsDir = join(__dirname, '../crawl-results')
   if (!fs.existsSync(resultsDir)) {
     fs.mkdirSync(resultsDir, { recursive: true })
   }
@@ -79,7 +93,7 @@ crawlerServiceImproved.on('jobComplete', ({ jobId, job }) => {
   const sanitizedUrl = job.config.url.replace(/[^a-zA-Z0-9]/g, '-')
   const filename = `${timestamp}__${sanitizedUrl}__${jobId}.json`
 
-  const resultsPath = path.join(resultsDir, filename)
+  const resultsPath = join(resultsDir, filename)
   const resultsData = {
     timestamp,
     url: job.config.url,
@@ -91,12 +105,12 @@ crawlerServiceImproved.on('jobComplete', ({ jobId, job }) => {
   console.log(`Results saved to ${resultsPath}`)
 })
 
-crawlerServiceImproved.on('jobError', ({ jobId, error }) => {
+crawlerService.on('jobError', ({ jobId, error }) => {
   console.error(`Job ${jobId} failed: ${error.message}`)
 })
 
 try {
-  const result = await crawlerServiceImproved.startJob(job.id)
+  const result = await crawlerService.startJob(job.id)
   console.log('Crawl completed successfully:', result)
 } catch (error) {
   console.error('Crawl failed:', error)

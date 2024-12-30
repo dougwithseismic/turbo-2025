@@ -37,8 +37,7 @@ yarn-error.log*
 .DS_Store
 *.pem
 
-# Directus
-apps/directus/data/*
-apps/directus/uploads/*
-apps/directus/extensions/*
-apps/directus/database/*
+
+# Crawl Results
+crawl-results/
+storage/

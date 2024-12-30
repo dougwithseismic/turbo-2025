@@ -1,6 +1,6 @@
 import { queueManager } from '../lib/queue-manager'
-import { crawlerService, crawlerServiceImproved } from '../app'
-import type { CrawlConfig } from './crawler/types'
+import { crawlerService } from '../app'
+import type { CrawlConfig } from './crawler/types.improved'
 import type { CrawlConfig as CrawlConfigImproved } from './crawler/types.improved'
 
 interface CrawlJobData {
@@ -30,7 +30,7 @@ const {
         name: 'initializeCrawl',
         handler: async (job) => {
           const { config, useImproved = false } = job.data
-          const service = useImproved ? crawlerServiceImproved : crawlerService
+          const service = crawlerService
 
           const crawlJob = await service.createJob(config)
           return {
@@ -48,7 +48,7 @@ const {
         name: 'startCrawl',
         handler: async (job, stepInfo) => {
           const { config, useImproved = false } = job.data
-          const service = useImproved ? crawlerServiceImproved : crawlerService
+          const service = crawlerService
           const { jobId } = stepInfo.stepResults.initializeCrawl
 
           const crawlJob = await service.startJob(jobId)
