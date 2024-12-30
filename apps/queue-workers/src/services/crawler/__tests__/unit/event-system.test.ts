@@ -4,6 +4,12 @@ import { PlaywrightCrawler, createPlaywrightRouter } from 'crawlee'
 import { CrawlerService } from '../../crawler'
 import type { CrawlConfig, CrawlEventMap } from '../../types.improved'
 
+// Create mock crawler with spies
+const mockCrawlerRun = vi.fn().mockResolvedValue(undefined)
+const MockPlaywrightCrawler = vi.fn().mockImplementation(() => ({
+  run: mockCrawlerRun,
+}))
+
 // Mock external dependencies
 vi.mock('playwright', () => ({
   chromium: {
@@ -44,17 +50,12 @@ vi.mock('playwright', () => ({
   },
 }))
 
-vi.mock('crawlee', () => {
-  const run = vi.fn().mockResolvedValue(undefined)
-  return {
-    PlaywrightCrawler: vi.fn().mockImplementation(() => ({
-      run,
-    })),
-    createPlaywrightRouter: vi.fn().mockReturnValue({
-      addDefaultHandler: vi.fn(),
-    }),
-  }
-})
+vi.mock('crawlee', () => ({
+  PlaywrightCrawler: MockPlaywrightCrawler,
+  createPlaywrightRouter: vi.fn().mockReturnValue({
+    addDefaultHandler: vi.fn(),
+  }),
+}))
 
 describe('Event System', () => {
   let service: CrawlerService
@@ -137,10 +138,14 @@ describe('Event System', () => {
       const job = await service.createJob(config)
       await service.startJob(job.id)
 
-      // Verify crawler was created and run
-      expect(PlaywrightCrawler).toHaveBeenCalled()
-      const crawler = vi.mocked(PlaywrightCrawler).mock.results[0].value
-      expect(crawler.run).toHaveBeenCalled()
+      // Verify crawler was created
+      expect(MockPlaywrightCrawler).toHaveBeenCalled()
+
+      // Get the mock instance and verify run was called
+      const mockInstance = MockPlaywrightCrawler.mock.results[0]?.value as {
+        run: typeof mockCrawlerRun
+      }
+      expect(mockInstance.run).toHaveBeenCalled()
     })
 
     it('should handle navigation errors', async () => {
