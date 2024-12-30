@@ -48,9 +48,6 @@ app.use(requestLogger)
 app.use('/health', healthRouter)
 app.use('/api/webhook', webhookRouter)
 
-// Initialize all crawler plugins
-const plugins = []
-
 // Initialize Crawler Service as singleton
 export const crawlerService = new CrawlerService({
   plugins: [
@@ -176,9 +173,6 @@ setupQueuesAndBullBoard({
 
 const server = app.listen(PORT, () => {
   logger.info(`🚀 :: Server is running on port ${PORT}`)
-  logger.info('Crawler services initialized with plugins:', {
-    plugins: plugins.map((p) => p.constructor.name),
-  })
 })
 
 // Cleanup on shutdown
