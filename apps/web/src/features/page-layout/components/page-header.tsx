@@ -1,6 +1,5 @@
 'use client'
 
-import { ChevronLeft } from 'lucide-react'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,8 +8,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import Link from 'next/link'
 
 interface BreadcrumbItem {
@@ -27,17 +24,42 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ items, title, actions }: PageHeaderProps) => {
   return (
-    <header className="flex flex-col gap-4">
+    <header className="flex flex-col gap-4 border-b border-border h-14 justify-center px-4">
       {(title || actions) && (
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          {title && (
-            <div className="min-w-0 flex-1">
-              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          <div className="flex gap-4 items-center min-w-0 flex-1">
+            {title && (
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
                 {title}
               </h2>
+            )}
+            <div>
+              {items.length > 0 && (
+                <Breadcrumb>
+                  <BreadcrumbList>
+                    {items.map((item, index) => (
+                      <div className="flex items-center gap-2" key={item.label}>
+                        <BreadcrumbItem>
+                          {item.current ? (
+                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                          ) : (
+                            <BreadcrumbLink asChild>
+                              <Link href={item.href || '#'}>{item.label}</Link>
+                            </BreadcrumbLink>
+                          )}
+                        </BreadcrumbItem>
+                        {index < items.length - 1 && <BreadcrumbSeparator />}
+                      </div>
+                    ))}
+                  </BreadcrumbList>
+                </Breadcrumb>
+              )}
             </div>
+          </div>
+
+          {actions && (
+            <div className="flex items-center shrink-0 gap-3">{actions}</div>
           )}
-          {actions && <div className="flex shrink-0 gap-3">{actions}</div>}
         </div>
       )}
     </header>

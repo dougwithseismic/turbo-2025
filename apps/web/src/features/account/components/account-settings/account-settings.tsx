@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { CardDescription, CardTitle } from '@/components/ui/card'
 import { ContentCard, ContentCardProvider } from '@/components/content-card'
 import { ContentCardSearch } from '@/components/content-card/components/content-card-search'
-import { PencilLine, Plus, Save } from 'lucide-react'
+import { Plus, Save } from 'lucide-react'
 import { EmailField } from './fields/email-field'
 import { PasswordField } from './fields/password-field'
 import { BirthdateField } from './fields/birthdate-field'
@@ -102,17 +102,7 @@ export const AccountSettings = () => {
     }
   }
 
-  const handlePaymentMethodUpdate = async ({
-    cardholderName,
-    cardNumber,
-    expiryDate,
-    cvv,
-  }: {
-    cardholderName: string
-    cardNumber: string
-    expiryDate: string
-    cvv: string
-  }) => {
+  const handlePaymentMethodUpdate = async () => {
     try {
       console.log('Updating payment method...')
       const token = 'PLACEHOLDER'

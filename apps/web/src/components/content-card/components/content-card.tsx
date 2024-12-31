@@ -158,8 +158,7 @@ export const ContentCard = ({
     if (id) {
       registerItem(id, { id, label: id, description, parentId: null })
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []) // Empty dependency array since we only want to register once on mount
+  }, [])
 
   if (!isReady) {
     return null
