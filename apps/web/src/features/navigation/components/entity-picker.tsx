@@ -1,11 +1,9 @@
 'use client'
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
-import { EntityComboPicker } from '@/components/ui/entity-combo-picker'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import type { ComboEntity } from '@/components/ui/entity-combo-picker'
-import { useEntityPicker } from '../hooks/use-entity-picker'
-import { useIsMobile } from '@/hooks/use-is-mobile'
+import { EntityComboPicker } from '@/components/ui/entity-combo-picker'
 import {
   Select,
   SelectContent,
@@ -15,15 +13,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { PlusCircle } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { CollapsibleItem } from '@/features/application-shell/components/navigation/collapsible-item'
+import { useIsMobile } from '@/hooks/use-is-mobile'
+import { Plus, PlusCircle } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
+import { useEntityPicker } from '../hooks/use-entity-picker'
+import { motion } from 'framer-motion'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface EntityPickerProps {
   defaultOrganizationId?: string
   defaultProjectId?: string
   organizationId?: string
   className?: string
+  isCollapsed?: boolean
 }
 
 function MobileEntityPicker({
@@ -147,6 +151,7 @@ function MobileEntityPicker({
 }
 
 export function EntityPicker({
+  isCollapsed = false,
   defaultOrganizationId,
   defaultProjectId,
   organizationId,
@@ -208,6 +213,56 @@ export function EntityPicker({
 
   if (error) {
     return null
+  }
+
+  if (isLoading) {
+    return (
+      <CollapsibleItem isCollapsed={isCollapsed}>
+        <Skeleton className="w-full h-10 rounded-md" />
+      </CollapsibleItem>
+    )
+  }
+
+  // Empty State
+  if (items.length === 0) {
+    return (
+      <CollapsibleItem isCollapsed={isCollapsed}>
+        <motion.div
+          className="relative flex items-center gap-2 w-full bg-gradient-to-br from-primary to-chart-1 rounded-md text-primary-foreground overflow-hidden"
+          transition={{ duration: 0.2 }}
+          onClick={() => router.push('/org/new')}
+          role="button"
+          tabIndex={0}
+        >
+          <motion.div
+            className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-foreground/10 to-transparent mask-overlay"
+            animate={{
+              x: ['100%', '-100%'],
+            }}
+            transition={{
+              duration: 1.5,
+              repeat: Infinity,
+              ease: 'linear',
+            }}
+          />
+          <CollapsibleItem.Trigger>
+            <div className="flex size-6 items-center justify-center rounded-md">
+              <Plus className="size-4" />
+            </div>
+          </CollapsibleItem.Trigger>
+          <CollapsibleItem.Content className="ml-0">
+            <motion.div
+              className="flex flex-col"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
+              <span className="font-medium">Create Organization</span>
+            </motion.div>
+          </CollapsibleItem.Content>
+        </motion.div>
+      </CollapsibleItem>
+    )
   }
 
   if (isMobile) {

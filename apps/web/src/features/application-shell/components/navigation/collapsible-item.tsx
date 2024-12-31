@@ -20,7 +20,7 @@ const CollapsibleItemContext = React.createContext<CollapsibleItemContextValue>(
   },
 )
 
-interface CollapsibleItemProps extends HTMLMotionProps<'div'> {
+interface CollapsibleItemProps extends HTMLMotionProps<'button'> {
   isCollapsed: boolean
   isActive?: boolean
 }
@@ -34,9 +34,9 @@ export function CollapsibleItem({
 }: CollapsibleItemProps) {
   return (
     <CollapsibleItemContext.Provider value={{ isCollapsed, isActive }}>
-      <motion.div
+      <motion.button
         className={cn(
-          'relative flex items-center justify-center rounded-md text-sm font-medium hover:bg-sidebar-accent hover:text-accent-foreground transition-colors',
+          'relative text-left flex items-center justify-center rounded-md text-sm font-medium hover:bg-sidebar-accent hover:text-accent-foreground transition-colors',
           isCollapsed ? 'aspect-square h-10' : 'w-full h-10',
           isActive
             ? 'bg-gradient-to-r from-primary to-accent text-accent-foreground'
@@ -47,7 +47,7 @@ export function CollapsibleItem({
         {...props}
       >
         {children}
-      </motion.div>
+      </motion.button>
     </CollapsibleItemContext.Provider>
   )
 }
@@ -116,7 +116,11 @@ function CollapsibleContent({
 
   return (
     <motion.div
-      className={cn('ml-2 w-full cursor-pointer select-none', className)}
+      layout
+      className={cn(
+        'ml-2 w-full cursor-pointer select-none truncate',
+        className,
+      )}
       {...props}
     >
       {children}
