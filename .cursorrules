@@ -83,13 +83,25 @@ Generate code, corrections, and refactorings that comply with the basic principl
 
 - Follow XML Format
 
-### Test-Driven Development (TDD)
+### Feature Development Workflow
 
 - Follow the Red-Green-Refactor cycle for all new features to ensure code quality and maintainability.
 - Start with a todo.md file in the feature directory to plan development.
   - Break down features into testable units for focused development.
   - Prioritize test cases based on business value and dependencies.
   - Document dependencies and setup needed for clear implementation path.
+  - Define type requirements and interfaces for type safety.
+
+- Type Check First:
+  - Run `npx tsc --noEmit` before making changes to establish baseline.
+  - Document existing type errors for tracking.
+  - Plan type fixes based on error messages and dependencies.
+  - Fix types in dependency order:
+    1. Interfaces and type definitions first
+    2. Implementation code second
+    3. Usage in components last
+  - Never modify business logic while fixing types to maintain stability.
+  - Verify type fixes with another type check before proceeding.
 - Write failing tests first (Red phase) to define expected behavior.
   - One test at a time to maintain focus and simplicity.
   - Verify test failure message clarity for better debugging.

@@ -2,9 +2,9 @@ import { protectedRoute } from '@/lib/auth'
 import { OnboardingFlow } from '@/features/onboarding/components/onboarding-flow'
 
 const OnboardingPage = async (): Promise<React.ReactNode> => {
-  await protectedRoute()
+  const user = await protectedRoute()
 
-  return <OnboardingFlow />
+  return <OnboardingFlow userId={user.id} />
 }
 
 export default OnboardingPage

@@ -1,43 +1,42 @@
 'use client'
 
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import type { ProjectDetails } from '../../types'
+import type { BaseStepProps } from '../../../types'
 import { Globe } from 'lucide-react'
+import { useOnboardingStore } from '../../../store/use-onboarding-store'
 
-type ProjectDetailsStepProps = {
-  onSubmit: (details: ProjectDetails) => void
-  initialData: ProjectDetails | null
-  onBack: () => void
-}
+type ProjectStepProps = BaseStepProps
 
-export const ProjectDetailsStep = ({
-  onSubmit,
-  initialData,
-  onBack,
-}: ProjectDetailsStepProps) => {
-  const [name, setName] = useState(initialData?.name ?? '')
-  const [url, setUrl] = useState(initialData?.url ?? '')
+export const ProjectStep = ({ onBack }: ProjectStepProps) => {
+  const store = useOnboardingStore()
+  const projectDetails = store.projectDetails
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    onSubmit({ name, url })
+    store.nextStep()
   }
 
-  const isValid = name.trim() && url.trim().startsWith('http')
+  const isValid =
+    projectDetails?.name?.trim() &&
+    projectDetails?.url?.trim()?.startsWith('http')
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="space-y-6">
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="name">Project Name</Label>
           <Input
             id="name"
             placeholder="My Awesome Project"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={projectDetails?.name ?? ''}
+            onChange={(e) =>
+              store.setProjectDetails({
+                name: e.target.value,
+                url: projectDetails?.url ?? '',
+              })
+            }
             className="dark:bg-background"
             required
           />
@@ -53,8 +52,13 @@ export const ProjectDetailsStep = ({
               id="url"
               type="url"
               placeholder="https://myproject.com"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
+              value={projectDetails?.url ?? ''}
+              onChange={(e) =>
+                store.setProjectDetails({
+                  name: projectDetails?.name ?? '',
+                  url: e.target.value,
+                })
+              }
               className="pl-9 dark:bg-background"
               required
             />
@@ -67,18 +71,25 @@ export const ProjectDetailsStep = ({
       </div>
 
       <div className="flex justify-between gap-4">
+        {onBack && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onBack}
+            className="dark:bg-background dark:text-foreground dark:hover:bg-background/90"
+          >
+            Back
+          </Button>
+        )}
         <Button
-          type="button"
-          variant="outline"
-          onClick={onBack}
-          className="dark:bg-background dark:text-foreground dark:hover:bg-background/90"
+          type="submit"
+          disabled={!isValid}
+          onClick={handleSubmit}
+          className="flex-1"
         >
-          Back
-        </Button>
-        <Button type="submit" disabled={!isValid} className="flex-1">
           Continue
         </Button>
       </div>
-    </form>
+    </div>
   )
 }

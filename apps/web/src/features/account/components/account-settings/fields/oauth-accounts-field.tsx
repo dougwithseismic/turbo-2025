@@ -40,6 +40,16 @@ import { useEffect, useState } from 'react'
 const SUPPORTED_PROVIDERS = ['google'] as const
 type Provider = (typeof SUPPORTED_PROVIDERS)[number]
 
+type OAuthAccountsFieldProps = {
+  onStatusChange?: ({
+    isConnected,
+    hasRequiredScopes,
+  }: {
+    isConnected: boolean
+    hasRequiredScopes: boolean
+  }) => void
+}
+
 const REQUIRED_SCOPES = [
   GOOGLE_SCOPES.ANALYTICS_READONLY,
   GOOGLE_SCOPES.WEBMASTERS_READONLY,
@@ -50,15 +60,26 @@ const ProviderIcons: Record<Provider, React.ComponentType> = {
   google: Icons.google,
 } as const
 
-export const OAuthAccountsField = () => {
+export const OAuthAccountsField = ({
+  onStatusChange,
+}: OAuthAccountsFieldProps = {}) => {
   const { toast } = useToast()
   const searchParams = useSearchParams()
   const [isLoading, setIsLoading] = useState<Provider | null>(null)
 
-  const { isConnected } = useOAuthScopes({
+  const { isConnected, hasRequiredScopes } = useOAuthScopes({
     provider: 'google',
     requiredScopes: REQUIRED_SCOPES,
   })
+
+  // Add debug logging
+  useEffect(() => {
+    console.log('🔄 OAuthAccountsField: OAuth status changed', {
+      isConnected,
+      hasRequiredScopes,
+    })
+    onStatusChange?.({ isConnected, hasRequiredScopes })
+  }, [isConnected, hasRequiredScopes, onStatusChange])
 
   // For OAuth flow Success and Error handling
   useEffect(() => {
@@ -184,6 +205,7 @@ export const OAuthAccountsField = () => {
                 variant={isConnected ? 'destructive' : 'default'}
                 size="sm"
                 className="h-8 px-3"
+                type="button"
                 onClick={() =>
                   isConnected
                     ? handleDisconnect(provider)

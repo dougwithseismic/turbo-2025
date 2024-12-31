@@ -20,7 +20,8 @@ export type TeamInvite = {
 
 export type StepKey = 'organization' | 'project' | 'google' | 'team' | 'confirm'
 
-export type OnboardingState = {
+export interface OnboardingState {
+  currentStep: StepKey
   orgDetails: OrganizationDetails | null
   projectDetails: ProjectDetails | null
   isGoogleConnected: boolean
@@ -37,19 +38,36 @@ export type StepHandlers = {
   handleSiteSelect: (site: string) => void
 }
 
-export type StepProps = {
-  state: OnboardingState
-  handlers: StepHandlers
+export type BaseStepProps = {
   onBack?: () => void
 }
 
-export type StepConfig = {
+export type StepProps<T = unknown> = BaseStepProps & T
+
+export interface StepFactory<
+  TState = OnboardingState,
+  TProps extends BaseStepProps = BaseStepProps,
+> {
   key: StepKey
   title: string
   description: string
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  Component: any
-  getProps: (props: StepProps) => Record<string, unknown>
-  canNavigateNext: (state: OnboardingState) => boolean
-  nextStep: StepKey | null
+  Component: React.ComponentType<TProps>
+  getProps: (context: StepContext<TState>) => TProps
+  canNavigateNext: (state: TState) => boolean
+  validate?: (state: TState) => boolean
+  onEnter?: (context: StepContext<TState>) => void
+  onExit?: (context: StepContext<TState>) => void
 }
+
+export interface StepContext<TState = OnboardingState> {
+  state: TState
+  handlers: StepHandlers
+  onBack?: () => void
+  dispatch: (action: OnboardingAction) => void
+}
+
+export type OnboardingAction =
+  | { type: 'SET_STATE'; payload: Partial<OnboardingState> }
+  | { type: 'NEXT_STEP' }
+  | { type: 'PREV_STEP' }
+  | { type: 'COMPLETE_STEP'; payload: { success: boolean; error?: string } }

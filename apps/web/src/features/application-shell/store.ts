@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
 interface ShellData {
   id?: string
@@ -45,7 +46,7 @@ const initialState = {
   data: null,
   isLoading: false,
   error: null,
-  isSidebarExpanded: true,
+  isSidebarExpanded: false,
   isSidebarHovered: false,
   isMobileSidebarOpen: false,
   config: {
@@ -68,31 +69,40 @@ const initialState = {
 }
 
 export const useApplicationShellStore = create<ApplicationShellState>()(
-  (set) => ({
-    ...initialState,
-    setData: (data) => set({ data }),
-    setLoading: (loading) => set({ isLoading: loading }),
-    setError: (error) => set({ error }),
-    setSidebarHovered: (hovered) => set({ isSidebarHovered: hovered }),
-    setMobileSidebarOpen: (open) => set({ isMobileSidebarOpen: open }),
-    setSidebarExpanded: (expanded) => set({ isSidebarExpanded: expanded }),
-    toggleSidebar: () =>
-      set((state) => ({ isSidebarExpanded: !state.isSidebarExpanded })),
-    updateConfig: (newConfig) =>
-      set((state) => ({
-        config: {
-          ...state.config,
-          ...newConfig,
-          settings: {
-            ...state.config.settings,
-            ...newConfig.settings,
+  persist(
+    (set) => ({
+      ...initialState,
+      setData: (data) => set({ data }),
+      setLoading: (loading) => set({ isLoading: loading }),
+      setError: (error) => set({ error }),
+      setSidebarHovered: (hovered) => set({ isSidebarHovered: hovered }),
+      setMobileSidebarOpen: (open) => set({ isMobileSidebarOpen: open }),
+      setSidebarExpanded: (expanded) => set({ isSidebarExpanded: expanded }),
+      toggleSidebar: () =>
+        set((state) => ({ isSidebarExpanded: !state.isSidebarExpanded })),
+      updateConfig: (newConfig) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            ...newConfig,
+            settings: {
+              ...state.config.settings,
+              ...newConfig.settings,
+            },
+            sidebar: {
+              ...state.config.sidebar,
+              ...newConfig.sidebar,
+            },
           },
-          sidebar: {
-            ...state.config.sidebar,
-            ...newConfig.sidebar,
-          },
-        },
-      })),
-    reset: () => set(initialState),
-  }),
+        })),
+      reset: () => set(initialState),
+    }),
+    {
+      name: 'shell-storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        isSidebarExpanded: state.isSidebarExpanded,
+      }),
+    },
+  ),
 )

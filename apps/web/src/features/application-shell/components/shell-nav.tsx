@@ -5,6 +5,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth'
 import { EntityPicker } from '@/features/navigation/components/entity-picker'
 import { usePathname } from 'next/navigation'
 
+import { useShellStore } from '..'
 import {
   identityNav,
   leadsNav,
@@ -14,7 +15,6 @@ import {
 } from './navigation'
 import { DesktopHeader } from './shell-nav/desktop-header'
 import { MobileHeader } from './shell-nav/mobile-header'
-import { useShellStore } from '..'
 
 interface ShellNavProps {
   isForcedExpanded?: boolean
@@ -43,9 +43,9 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
 
       <div className="flex-1 py-3 flex flex-col items-center overflow-hidden">
         <div className="w-full flex flex-col px-2 gap-2">
-          {/* <OrganizationSwitcher isCollapsed={!isExpanded} />
-          <ProjectSwitcher isCollapsed={!isExpanded} /> */}
-          <EntityPicker />
+          {/* <OrganizationSwitcher isCollapsed={!isExpanded} /> */}
+          {/* <ProjectSwitcher isCollapsed={!isExpanded} /> */}
+          <EntityPicker isCollapsed={!isExpanded} />
         </div>
         <NavSection
           items={mainNav}
