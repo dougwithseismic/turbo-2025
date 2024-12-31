@@ -74,7 +74,7 @@ export function Shell({ children }: ShellProps) {
           ],
         )}
       >
-        <div className="container mx-auto px-4 md:px-6">{children}</div>
+        <div className="">{children}</div>
       </div>
     </div>
   )

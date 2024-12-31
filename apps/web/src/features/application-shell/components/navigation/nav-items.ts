@@ -3,25 +3,16 @@ import {
   Users,
   Folder,
   Bell,
-  MessageSquare,
+  BookOpen,
+  CookingPot,
 } from 'lucide-react'
 import type { NavItem } from './nav-link'
 
 export const mainNav: NavItem[] = [
   {
-    title: 'Community',
-    href: '/community',
-    icon: Users,
-  },
-  {
     title: 'Dashboard',
     href: '/dashboard',
     icon: LayoutDashboard,
-  },
-  {
-    title: 'Messages',
-    href: '/messages',
-    icon: MessageSquare,
   },
 ]
 
@@ -58,13 +49,13 @@ export const leadsNav: NavItem[] = [
 
 export const projectsNav: NavItem[] = [
   {
-    title: 'Projects & Invoices',
-    href: '/projects',
-    icon: Folder,
+    title: 'Getting Started',
+    href: '/getting-started',
+    icon: BookOpen,
   },
   {
-    title: 'Wallet',
-    href: '/wallet',
-    icon: Folder,
+    title: 'Cookbooks',
+    href: '/cookbooks',
+    icon: CookingPot,
   },
 ]

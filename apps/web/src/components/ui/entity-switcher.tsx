@@ -2,7 +2,6 @@ import * as React from 'react'
 import { ChevronsUpDown, Plus } from 'lucide-react'
 import { CollapsibleItem } from '@/features/application-shell/components/navigation/collapsible-item'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,11 +70,11 @@ function DefaultEmptyState({
             <Plus className="size-4" />
           </div>
         </CollapsibleItem.Trigger>
-        <AnimatePresence initial={false}>
+        {!isCollapsed && (
           <CollapsibleItem.Content className="ml-0">
             {createNewLabel}
           </CollapsibleItem.Content>
-        </AnimatePresence>
+        )}
       </div>
     </CollapsibleItem>
   )
@@ -142,16 +141,14 @@ export function EntitySwitcher<T extends EntityItem>({
                 )}
               </Avatar>
             </CollapsibleItem.Trigger>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <CollapsibleItem.Content className="ml-0">
-                  <motion.div className="flex items-center justify-between gap-2 pr-2">
-                    <span className="font-medium truncate">{displayValue}</span>
-                    <ChevronsUpDown className="size-4 ml-auto shrink-0 opacity-50" />
-                  </motion.div>
-                </CollapsibleItem.Content>
-              )}
-            </AnimatePresence>
+            {!isCollapsed && (
+              <CollapsibleItem.Content className="ml-0">
+                <div className="flex items-center justify-between gap-2 pr-2">
+                  <span className="font-medium truncate">{displayValue}</span>
+                  <ChevronsUpDown className="size-4 ml-auto shrink-0 opacity-50" />
+                </div>
+              </CollapsibleItem.Content>
+            )}
           </div>
         </DropdownMenuTrigger>
         <DropdownMenuContent

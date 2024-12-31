@@ -17,7 +17,6 @@ import {
 } from '@/components/ui/popover'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { motion, AnimatePresence } from 'framer-motion'
 import Image from 'next/image'
 
 export interface ComboEntity {
@@ -168,36 +167,34 @@ export function EntityComboPicker({
                 </Avatar>
               )}
             </CollapsibleItem.Trigger>
-            <AnimatePresence>
-              {!isCollapsed && (
-                <CollapsibleItem.Content className="ml-0">
-                  <motion.div className="flex items-center justify-between gap-2 pr-2">
-                    {isLoading ? (
-                      <Skeleton className="h-4 w-24" />
-                    ) : selectedItem ? (
-                      <div className="flex flex-col min-w-0">
-                        <span className="font-medium truncate">
-                          {selectedItem.type === 'project'
-                            ? selectedItem.name
-                            : getDisplayValue(selectedItem)}
-                        </span>
-                        {selectedItem.type === 'project' &&
-                          selectedItem.meta?.organizationName && (
-                            <span className="text-xs text-muted-foreground truncate">
-                              {selectedItem.meta.organizationName}
-                            </span>
-                          )}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        Select organization or project
+            {!isCollapsed && (
+              <CollapsibleItem.Content className="ml-0">
+                <div className="flex items-center justify-between gap-2 pr-2">
+                  {isLoading ? (
+                    <Skeleton className="h-4 w-24" />
+                  ) : selectedItem ? (
+                    <div className="flex flex-col min-w-0">
+                      <span className="font-medium truncate">
+                        {selectedItem.type === 'project'
+                          ? selectedItem.name
+                          : getDisplayValue(selectedItem)}
                       </span>
-                    )}
-                    <ChevronsUpDown className="size-4 ml-auto shrink-0 opacity-50" />
-                  </motion.div>
-                </CollapsibleItem.Content>
-              )}
-            </AnimatePresence>
+                      {selectedItem.type === 'project' &&
+                        selectedItem.meta?.organizationName && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {selectedItem.meta.organizationName}
+                          </span>
+                        )}
+                    </div>
+                  ) : (
+                    <span className="text-muted-foreground">
+                      Select organization or project
+                    </span>
+                  )}
+                  <ChevronsUpDown className="size-4 ml-auto shrink-0 opacity-50" />
+                </div>
+              </CollapsibleItem.Content>
+            )}
           </div>
         </PopoverTrigger>
         <PopoverContent className="w-[300px] p-0" align="start" sideOffset={4}>

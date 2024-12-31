@@ -59,13 +59,13 @@ export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
           pathname={pathname}
         />
         <NavSection
-          title="Leads"
+          title="Reports"
           items={leadsNav}
           isCollapsed={!isExpanded}
           pathname={pathname}
         />
         <NavSection
-          title="Projects & Payments"
+          title="Guides & Resources"
           items={projectsNav}
           isCollapsed={!isExpanded}
           pathname={pathname}
