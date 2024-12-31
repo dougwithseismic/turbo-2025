@@ -46,9 +46,7 @@ const Page = async () => {
         ]}
       />
 
-      <main className="container mx-auto py-8">
-        Todo: Display Cards for Orgs / Projects
-      </main>
+      <main className="px-4">Todo: Display Cards for Orgs / Projects</main>
     </div>
   )
 }

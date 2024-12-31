@@ -5,7 +5,7 @@ import { useAuth } from '@/features/auth/hooks/use-auth'
 import { EntityPicker } from '@/features/navigation/components/entity-picker'
 import { usePathname } from 'next/navigation'
 
-import { useShellStore } from '..'
+import { useApplicationShellStore } from '..'
 import {
   identityNav,
   leadsNav,
@@ -23,7 +23,8 @@ interface ShellNavProps {
 export function ShellNav({ isForcedExpanded }: ShellNavProps = {}) {
   const pathname = usePathname()
   const { user, signOut } = useAuth()
-  const { isSidebarExpanded, isSidebarHovered, toggleSidebar } = useShellStore()
+  const { isSidebarExpanded, isSidebarHovered, toggleSidebar } =
+    useApplicationShellStore()
 
   // Use forced expanded state for mobile or regular state for desktop
   const isExpanded = isForcedExpanded || isSidebarExpanded
