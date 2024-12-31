@@ -36,8 +36,10 @@ const Page = async () => {
       <PageHeader
         items={breadcrumbItems}
         actions={[
-          <Button variant={'outline'}>New Report</Button>,
-          <Avatar className="size-8">
+          <Button key="new-report" variant={'outline'}>
+            New Report
+          </Button>,
+          <Avatar key="user-avatar" className="size-8">
             <AvatarImage src={user.user_metadata.avatar_url} />
             <AvatarFallback>
               {user.user_metadata.name?.charAt(0)}

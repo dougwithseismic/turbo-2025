@@ -2,11 +2,12 @@
 
 import { usePathname } from 'next/navigation'
 import { useEffect } from 'react'
-import { useShellStore } from '..'
+import { useApplicationShellStore } from '..'
 
 export function useShellBehavior() {
   const pathname = usePathname()
-  const { config, setSidebarExpanded, setMobileSidebarOpen } = useShellStore()
+  const { config, setSidebarExpanded, setMobileSidebarOpen } =
+    useApplicationShellStore()
 
   // Handle navigation-based behaviors
   useEffect(() => {
