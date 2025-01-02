@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import { supabaseAdmin } from '@/lib/supabase/admin'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getOauthToken } from '@repo/supabase'
 import { google } from 'googleapis'
 import { NextResponse } from 'next/server'
@@ -28,14 +28,19 @@ const createGoogleSearchClient = async ({
   readonly userId: string
   readonly email: string
 }) => {
+  const supabase = await createSupabaseServerClient()
+  console.log(userId, email)
   const { data: tokenData, error } = await getOauthToken({
     userId,
     provider: 'google',
     email,
-    supabase: supabaseAdmin,
+    supabase,
   })
 
+  console.log(tokenData)
+
   if (error || !tokenData) {
+    console.error('Google OAuth tokens not found', error)
     throw new GoogleSearchError('Google OAuth tokens not found', 401)
   }
 
@@ -68,7 +73,6 @@ export async function GET() {
     })
 
     const { data } = await searchConsole.sites.list()
-    console.log(data)
 
     return NextResponse.json(data.siteEntry || [])
   } catch (error) {
