@@ -1,166 +1,161 @@
-import type { NextFunction, Response } from 'express'
-import { createClient } from '@supabase/supabase-js'
-import type { AuthenticatedRequest, CreditCost } from '../types'
-import { calculateOperationCost } from '../utils/credit-cost'
-import { reserveCredits } from '../utils/credit-reservation'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { Request, Response, NextFunction } from 'express'
 import { finalizeCredits } from '../utils/credit-finalization'
-import { InsufficientCreditsError } from '../types'
+import { calculateOperationCost } from '../utils/credit-cost'
+import { CreditReservation, AuthenticatedRequest } from '../types'
+import { checkApiQuota, trackApiUsage } from '@repo/supabase'
 
-const SUPABASE_URL = process.env.SUPABASE_URL
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-interface CreateCreditMiddlewareOptions {
+export interface CreditMiddlewareConfig {
+  supabaseClient: SupabaseClient
   serviceId: string
   operationName: string
-  getOperationSize?: () => number
-  supabaseClient?: ReturnType<typeof createClient>
+  operationSize?: number
 }
 
-interface OperationCostConfig {
-  base_cost: number
-  variable_cost_factor: number | null
-  description: string
-}
-
-type ResponseEnd = {
-  (cb?: () => void): Response
-  (chunk: any, cb?: () => void): Response
-  (chunk: any, encoding: BufferEncoding, cb?: () => void): Response
-}
-
-function isOperationCostConfig(obj: unknown): obj is OperationCostConfig {
-  return (
-    typeof obj === 'object' &&
-    obj !== null &&
-    'base_cost' in obj &&
-    typeof (obj as any).base_cost === 'number' &&
-    'variable_cost_factor' in obj &&
-    (typeof (obj as any).variable_cost_factor === 'number' ||
-      (obj as any).variable_cost_factor === null) &&
-    'description' in obj &&
-    typeof (obj as any).description === 'string'
-  )
-}
+type ResponseEndCallback = () => void
 
 export const createCreditMiddleware = ({
+  supabaseClient,
   serviceId,
   operationName,
-  getOperationSize = () => 1,
-  supabaseClient,
-}: CreateCreditMiddlewareOptions) => {
-  // Only create the client if not provided (for testing)
-  const client =
-    supabaseClient ??
-    (() => {
-      if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-        throw new Error('Missing required Supabase environment variables')
-      }
-      return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    })()
-
+  operationSize = 1,
+}: CreditMiddlewareConfig) => {
   return async (
     req: AuthenticatedRequest,
     res: Response,
     next: NextFunction,
   ) => {
-    // Check if user is authenticated
-    if (!req.user) {
+    const userId = req.user?.id
+    if (!userId) {
       res.status(401).json({ error: 'Unauthorized' })
       return
     }
 
+    const requestId = crypto.randomUUID()
+
     try {
-      // Calculate operation cost
-      const operationSize = getOperationSize()
-      const { data: costConfig, error: costError } = await client
-        .from('api_operation_costs')
-        .select('*')
-        .eq('service_id', serviceId)
-        .eq('operation_name', operationName)
-        .single()
-
-      if (costError) {
-        throw new Error(`Failed to get operation cost: ${costError.message}`)
-      }
-
-      if (!isOperationCostConfig(costConfig)) {
-        throw new Error('Invalid operation cost configuration')
-      }
-
-      const cost: CreditCost = {
-        baseAmount: costConfig.base_cost,
-        variableCostFactor: costConfig.variable_cost_factor ?? undefined,
-        metadata: {
-          description: costConfig.description,
-          operation: operationName,
-        },
-      }
-
-      const totalCost = calculateOperationCost({
-        cost,
-        operationSize,
-      })
-
-      // Reserve credits
-      const reservation = await reserveCredits({
-        userId: req.user.id,
-        amount: totalCost,
+      // Check API quota
+      const quota = await checkApiQuota({
+        supabase: supabaseClient,
         serviceId,
-        metadata: {
-          operationName,
-          operationSize,
-          requestId: req.id,
-          startTime: req.startTime,
-        },
+        userId,
       })
 
-      // Store original end function
-      const originalEnd = res.end.bind(res) as ResponseEnd
-
-      // Create new end function
-      res.end = function (
-        this: Response,
-        chunk?: any,
-        encoding?: BufferEncoding,
-        cb?: () => void,
-      ): Response {
-        // Finalize credits after response is sent
-        Promise.resolve().then(async () => {
-          try {
-            await finalizeCredits({
-              reservationId: reservation.id,
-              success: this.statusCode >= 200 && this.statusCode < 300,
-            })
-          } catch (error) {
-            console.error('Error finalizing credits:', error)
-          }
-        })
-
-        // Call original end function with proper types
-        if (typeof chunk === 'function') {
-          return originalEnd(chunk)
-        }
-        if (encoding && cb) {
-          return originalEnd(chunk, encoding, cb)
-        }
-        if (chunk && !encoding) {
-          return originalEnd(chunk)
-        }
-        return originalEnd()
-      } as ResponseEnd
-
-      next()
-    } catch (error) {
-      console.error('Error in credit middleware:', error)
-
-      if (error instanceof InsufficientCreditsError) {
+      if (!quota.can_proceed) {
         res.status(402).json({
-          error: 'Insufficient credits',
-          message: 'Please add more credits to your account',
+          error: 'Quota exceeded',
+          message: `Daily quota exceeded. Available: ${quota.daily_quota - quota.current_usage}, Required: ${operationSize}`,
         })
         return
       }
 
+      // Calculate operation cost
+      const cost = await calculateOperationCost({
+        supabaseClient,
+        operationSize,
+      })
+
+      // Reserve credits
+      const { data: reservation, error: reserveError } = await supabaseClient
+        .from('credit_reservations')
+        .insert({
+          user_id: userId,
+          service_id: serviceId,
+          amount: cost.baseAmount,
+          status: 'reserved',
+          metadata: {
+            operationName,
+            operationSize,
+            requestId,
+            startTime: new Date().toISOString(),
+          },
+        })
+        .select()
+        .single()
+
+      if (reserveError) {
+        if (reserveError.message.includes('insufficient_credits')) {
+          res.status(402).json({ error: 'Insufficient credits' })
+          return
+        }
+        throw reserveError
+      }
+
+      // Store reservation for finalization
+      res.locals.creditReservation = reservation
+
+      // Intercept response to finalize credits
+      const originalEnd = res.end.bind(res)
+
+      // Override end method with proper type handling
+      res.end = function (
+        this: Response,
+        chunk: string | Buffer | ResponseEndCallback | undefined,
+        encoding?: BufferEncoding | ResponseEndCallback,
+        cb?: ResponseEndCallback,
+      ): Response {
+        // Handle callback-only case
+        if (typeof chunk === 'function') {
+          cb = chunk
+          chunk = undefined
+          encoding = undefined
+        }
+        // Handle encoding callback case
+        if (typeof encoding === 'function') {
+          cb = encoding
+          encoding = undefined
+        }
+
+        // Restore original end
+        res.end = originalEnd
+
+        // Track API usage and finalize credits after response is sent
+        Promise.all([
+          trackApiUsage({
+            supabase: supabaseClient,
+            serviceId,
+            userId,
+            requestCount: operationSize,
+            metadata: {
+              operationName,
+              statusCode: res.statusCode,
+              responseSize: Buffer.byteLength(
+                typeof chunk === 'string' || Buffer.isBuffer(chunk)
+                  ? chunk
+                  : '',
+              ),
+              requestId,
+            },
+          }),
+          finalizeCredits({
+            supabaseClient,
+            userId,
+            reservationId: reservation.id,
+            metadata: {
+              statusCode: res.statusCode,
+              responseSize: Buffer.byteLength(
+                typeof chunk === 'string' || Buffer.isBuffer(chunk)
+                  ? chunk
+                  : '',
+              ),
+            },
+          }),
+        ]).catch((error: unknown) => {
+          console.error('Failed to track usage or finalize credits:', error)
+        })
+
+        // Call original end with proper types
+        return originalEnd.call(
+          this,
+          chunk as string | Buffer,
+          encoding as BufferEncoding,
+          cb,
+        )
+      }
+
+      next()
+    } catch (error: unknown) {
+      console.error('Credit middleware error:', error)
       res.status(500).json({ error: 'Internal server error' })
     }
   }

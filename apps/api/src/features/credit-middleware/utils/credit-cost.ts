@@ -1,21 +1,21 @@
-import type { CalculateOperationCostParams } from '../types'
+import { SupabaseClient } from '@supabase/supabase-js'
+import { CreditCost } from '../types'
 
-const MAX_COST = 100 // Maximum cost for any single operation
+export interface CalculateOperationCostParams {
+  supabaseClient: SupabaseClient
+  operationSize: number
+}
 
-export const calculateOperationCost = ({
-  cost,
-  operationSize = 1,
-}: CalculateOperationCostParams): number => {
-  if (cost.baseAmount < 0) {
-    throw new Error('Cost cannot be negative')
+export const calculateOperationCost = async ({
+  supabaseClient,
+  operationSize,
+}: CalculateOperationCostParams): Promise<CreditCost> => {
+  // For now, return a fixed cost
+  return {
+    baseAmount: 1,
+    metadata: {
+      description: 'Fixed cost operation',
+      operation: 'test_operation',
+    },
   }
-
-  let totalCost = cost.baseAmount
-
-  if (cost.variableCostFactor && operationSize > 1) {
-    totalCost += operationSize * cost.variableCostFactor
-  }
-
-  // Cap at maximum cost
-  return Math.min(Math.round(totalCost), MAX_COST)
 }

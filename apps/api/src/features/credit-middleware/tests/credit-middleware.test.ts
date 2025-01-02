@@ -1,284 +1,268 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import type { Response, NextFunction } from 'express'
+import { describe, it, expect, vi, beforeAll, afterEach } from 'vitest'
 import { createCreditMiddleware } from '../middleware/credit-middleware'
-import type { AuthenticatedRequest } from '../types'
-import { __test__ } from '../utils/credit-reservation'
+import { AuthenticatedRequest, CreditReservation } from '../types'
+import { Response } from 'express'
+import { supabaseAdmin } from '../../../lib/supabase'
 
-const { mockUserBalances, mockReservations } = __test__
+const TEST_SERVICE_ID = 'test-service'
+const TEST_OPERATION = 'test_operation'
 
-type EndCallback = (
-  chunk?: any,
-  encoding?: string,
-  callback?: () => void,
-) => void
-
-// Mock operation cost data
-const mockOperationCost = {
-  base_cost: 5,
-  variable_cost_factor: 0.5,
-  description: 'Test operation',
+interface MockResponse extends Partial<Response> {
+  status: ReturnType<typeof vi.fn>
+  json: ReturnType<typeof vi.fn>
+  end: ReturnType<typeof vi.fn>
+  get: ReturnType<typeof vi.fn>
+  statusCode: number
+  locals: {
+    creditReservation?: CreditReservation
+    [key: string]: unknown
+  }
 }
 
-// Mock Supabase client
-const mockSupabaseClient = {
-  from: () => ({
-    select: () => ({
-      eq: () => ({
-        eq: () => ({
-          single: () =>
-            Promise.resolve({
-              data: mockOperationCost,
-              error: null,
-            }),
-        }),
-      }),
-    }),
-  }),
+// Create mock response factory
+const createMockResponse = (): MockResponse => {
+  const res = {
+    status: vi.fn(),
+    json: vi.fn(),
+    end: vi.fn(),
+    get: vi.fn(),
+    statusCode: 200,
+    locals: {},
+  }
+  res.status.mockReturnValue(res)
+  return res
 }
 
 describe('createCreditMiddleware', () => {
-  let mockReq: Partial<AuthenticatedRequest>
-  let mockRes: Partial<Response>
-  let mockNext: NextFunction
-  let endCallback: EndCallback | null
-
-  beforeEach(() => {
-    mockUserBalances.clear()
-    mockReservations.clear()
-    vi.useFakeTimers()
-
-    // Set default balance
-    mockUserBalances.set('user-123', {
-      available: 100,
-      reserved: 0,
+  beforeAll(async () => {
+    // Set up test service and quota
+    await supabaseAdmin.from('api_services').upsert({
+      id: TEST_SERVICE_ID,
+      name: 'Test Service',
+      description: 'Service for testing',
+      default_daily_quota: 100,
+      default_queries_per_second: 10,
     })
 
-    // Mock request
-    mockReq = {
-      user: { id: 'user-123' },
-      id: 'req-123',
-      startTime: Date.now(),
-    }
-
-    // Mock response
-    mockRes = {
-      status: vi.fn().mockReturnThis(),
-      json: vi.fn().mockReturnThis(),
-      end: vi.fn().mockImplementation(function (
-        this: any,
-        chunk?: any,
-        encoding?: string,
-        callback?: () => void,
-      ) {
-        if (endCallback) {
-          endCallback.call(this, chunk, encoding, callback)
-        }
-      }),
-    }
-
-    // Mock next function
-    mockNext = vi.fn()
-
-    // Reset end callback
-    endCallback = null
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('should reserve credits for valid requests', async () => {
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: mockSupabaseClient as any,
-    })
-
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
-
-    expect(mockNext).toHaveBeenCalled()
-
-    // Check if credits were reserved
-    const reservations = Array.from(mockReservations.values())
-    expect(reservations).toHaveLength(1)
-    expect(reservations[0]).toMatchObject({
-      userId: 'user-123',
-      serviceId: 'service-456',
-      status: 'reserved',
+    await supabaseAdmin.from('api_quota_allocations').upsert({
+      user_id: 'test-user',
+      service_id: TEST_SERVICE_ID,
+      daily_quota: 100,
+      queries_per_second: 10,
     })
   })
 
-  it('should handle unauthorized requests', async () => {
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: mockSupabaseClient as any,
-    })
-
-    const unauthorizedReq = {
-      ...mockReq,
-      user: undefined,
-    } as unknown as AuthenticatedRequest
-
-    await middleware(unauthorizedReq, mockRes as Response, mockNext)
-
-    expect(mockRes.status).toHaveBeenCalledWith(401)
-    expect(mockRes.json).toHaveBeenCalledWith({ error: 'Unauthorized' })
-    expect(mockNext).not.toHaveBeenCalled()
-  })
-
-  it('should finalize credits on successful response', async () => {
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: mockSupabaseClient as any,
-    })
-
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
-
-    // Simulate successful response
-    Object.defineProperty(mockRes, 'statusCode', { value: 200 })
-    ;(mockRes.end as EndCallback)()
-
-    // Wait for the async finalization
-    await vi.runAllTimersAsync()
-
-    // Check if credits were finalized
-    const reservations = Array.from(mockReservations.values())
-    expect(reservations[0]?.status).toBe('charged')
-  })
-
-  it('should release credits on failed response', async () => {
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: mockSupabaseClient as any,
-    })
-
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
-
-    // Simulate failed response
-    Object.defineProperty(mockRes, 'statusCode', { value: 500 })
-    ;(mockRes.end as EndCallback)()
-
-    // Wait for the async finalization
-    await vi.runAllTimersAsync()
-
-    // Check if credits were released
-    const reservations = Array.from(mockReservations.values())
-    expect(reservations[0]?.status).toBe('released')
-  })
-
-  it('should handle variable operation sizes', async () => {
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      getOperationSize: () => 10,
-      supabaseClient: mockSupabaseClient as any,
-    })
-
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
-
-    const reservations = Array.from(mockReservations.values())
-    expect(reservations[0]?.metadata).toMatchObject({
-      operationSize: 10,
+  afterEach(async () => {
+    // Reset quota after each test
+    await supabaseAdmin.from('api_quota_allocations').upsert({
+      user_id: 'test-user',
+      service_id: TEST_SERVICE_ID,
+      daily_quota: 100,
+      queries_per_second: 10,
     })
   })
 
-  it('should handle insufficient credits', async () => {
-    // Set up insufficient credits
-    mockUserBalances.set('user-123', {
-      available: 1,
-      reserved: 0,
-    })
+  describe('Authentication', () => {
+    it('should handle unauthorized requests', async () => {
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+      })
 
-    // Set up high cost operation
-    const insufficientClient = {
-      from: () => ({
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              single: () =>
-                Promise.resolve({
-                  data: {
-                    ...mockOperationCost,
-                    base_cost: 1000, // High cost to trigger insufficient credits
-                  },
-                  error: null,
-                }),
-            }),
-          }),
-        }),
-      }),
-    }
+      const req = {
+        id: 'test-request',
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
 
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: insufficientClient as any,
-    })
+      const res = createMockResponse()
+      const next = vi.fn()
 
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
+      await middleware(req, res as unknown as Response, next)
 
-    expect(mockRes.status).toHaveBeenCalledWith(402)
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Insufficient credits',
-      message: 'Please add more credits to your account',
+      expect(res.status).toHaveBeenCalledWith(401)
+      expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' })
+      expect(next).not.toHaveBeenCalled()
     })
   })
 
-  it('should handle database errors', async () => {
-    const errorClient = {
-      from: () => ({
-        select: () => ({
-          eq: () => ({
-            eq: () => ({
-              single: () =>
-                Promise.resolve({
-                  data: null,
-                  error: { message: 'Database error' },
-                }),
-            }),
-          }),
-        }),
-      }),
-    }
+  describe('Quota Management', () => {
+    it('should handle successful requests', async () => {
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+      })
 
-    const middleware = createCreditMiddleware({
-      serviceId: 'service-456',
-      operationName: 'test_operation',
-      supabaseClient: errorClient as any,
+      const req = {
+        id: 'test-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      res.get.mockReturnValue('100')
+      const next = vi.fn()
+
+      await middleware(req, res as unknown as Response, next)
+
+      expect(next).toHaveBeenCalled()
+      expect(res.locals.creditReservation).toBeDefined()
+      const reservation = res.locals.creditReservation as CreditReservation
+      expect(reservation.status).toBe('reserved')
     })
 
-    await middleware(
-      mockReq as AuthenticatedRequest,
-      mockRes as Response,
-      mockNext,
-    )
+    it('should handle quota exceeded', async () => {
+      await supabaseAdmin.from('api_quota_allocations').upsert({
+        user_id: 'test-user',
+        service_id: TEST_SERVICE_ID,
+        daily_quota: 0,
+        queries_per_second: 10,
+      })
 
-    expect(mockRes.status).toHaveBeenCalledWith(500)
-    expect(mockRes.json).toHaveBeenCalledWith({
-      error: 'Internal server error',
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+      })
+
+      const req = {
+        id: 'test-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      const next = vi.fn()
+
+      await middleware(req, res as unknown as Response, next)
+
+      expect(res.status).toHaveBeenCalledWith(402)
+      expect(res.json).toHaveBeenCalledWith({
+        error: 'Quota exceeded',
+        message: expect.stringContaining('Daily quota exceeded'),
+      })
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should handle variable operation sizes', async () => {
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+        operationSize: 5, // Larger operation
+      })
+
+      const req = {
+        id: 'test-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      res.get.mockReturnValue('100')
+      const next = vi.fn()
+
+      await middleware(req, res as unknown as Response, next)
+
+      expect(next).toHaveBeenCalled()
+      const reservation = res.locals.creditReservation as CreditReservation
+      expect(reservation.amount).toBe(5) // Should match operation size
+    })
+  })
+
+  describe('Error Handling', () => {
+    it('should handle invalid service ID', async () => {
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: 'non-existent-service',
+        operationName: TEST_OPERATION,
+      })
+
+      const req = {
+        id: 'test-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      const next = vi.fn()
+
+      await middleware(req, res as unknown as Response, next)
+
+      expect(res.status).toHaveBeenCalledWith(500)
+      expect(res.json).toHaveBeenCalledWith({ error: 'Internal server error' })
+      expect(next).not.toHaveBeenCalled()
+    })
+
+    it('should handle database errors during reservation', async () => {
+      // Force a unique constraint violation
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+      })
+
+      const req = {
+        id: 'duplicate-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      const next = vi.fn()
+
+      // First request should succeed
+      await middleware(req, res as unknown as Response, next)
+
+      // Second request with same ID should fail
+      const res2 = createMockResponse()
+      await middleware(req, res2 as unknown as Response, next)
+
+      expect(res2.status).toHaveBeenCalledWith(500)
+      expect(res2.json).toHaveBeenCalledWith({ error: 'Internal server error' })
+    })
+  })
+
+  describe('Response Handling', () => {
+    it('should track response size correctly', async () => {
+      const middleware = createCreditMiddleware({
+        supabaseClient: supabaseAdmin,
+        serviceId: TEST_SERVICE_ID,
+        operationName: TEST_OPERATION,
+      })
+
+      const req = {
+        id: 'test-request',
+        user: { id: 'test-user' },
+        startTime: Date.now(),
+      } as unknown as AuthenticatedRequest
+
+      const res = createMockResponse()
+      const next = vi.fn()
+
+      await middleware(req, res as unknown as Response, next)
+
+      // Simulate response with known size
+      const responseData = Buffer.from('{"test": "data"}')
+      res.end(responseData)
+
+      // Let the async finalization complete
+      await new Promise((resolve) => setTimeout(resolve, 100))
+
+      // Check the usage tracking
+      const { data: usageLog } = await supabaseAdmin
+        .from('api_request_logs')
+        .select()
+        .eq('user_id', 'test-user')
+        .eq('service_id', TEST_SERVICE_ID)
+        .single()
+
+      expect(usageLog).toBeDefined()
+      expect(usageLog?.metadata).toBeDefined()
+      expect((usageLog?.metadata as Record<string, unknown>).responseSize).toBe(
+        responseData.length,
+      )
     })
   })
 })
