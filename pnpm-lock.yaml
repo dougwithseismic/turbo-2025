@@ -81,6 +81,9 @@ importers:
       '@types/winston':
         specifier: ^2.4.4
         version: 2.4.4
+      bullmq:
+        specifier: ^4.0.0
+        version: 4.18.2
       cors:
         specifier: ^2.8.5
         version: 2.8.5
