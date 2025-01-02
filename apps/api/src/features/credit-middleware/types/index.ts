@@ -1,3 +1,5 @@
+import { Request } from 'express'
+
 export class InsufficientCreditsError extends Error {
   constructor() {
     super('Insufficient credits available')
@@ -25,10 +27,18 @@ export interface CreditCost {
   }
 }
 
-export interface AuthenticatedRequest extends Request {
-  user: {
-    id: string
+export interface CreditCost {
+  readonly baseAmount: number
+  readonly variableCostFactor?: number
+  readonly metadata: {
+    readonly description: string
+    readonly operation: string
   }
-  id: string
-  startTime: number
+}
+
+export interface AuthenticatedRequest extends Request {
+  user?: {
+    id: string
+    [key: string]: unknown
+  }
 }

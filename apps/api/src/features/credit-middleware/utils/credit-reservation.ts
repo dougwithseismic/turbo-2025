@@ -1,5 +1,5 @@
 import { SupabaseClient } from '@supabase/supabase-js'
-import { CreditReservation, InsufficientCreditsError } from '../types'
+import { CreditReservation } from '../types'
 
 export interface ReserveCreditParams {
   supabaseClient: SupabaseClient
@@ -29,7 +29,7 @@ export const reserveCredits = async ({
 
   // Simulate insufficient credits
   if (amount > 10) {
-    throw new InsufficientCreditsError()
+    throw new Error('Insufficient credits')
   }
 
   return {

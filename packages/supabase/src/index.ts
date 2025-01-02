@@ -50,17 +50,6 @@ export * from './module/invitations.react'
 // Payment Providers
 export * from './module/payment-providers/stripe'
 
-// Environment Configuration
-const env = createEnv({
-  server: {
-    SUPABASE_URL: z.string().url(),
-    SUPABASE_ANON_KEY: z.string().min(1).optional(),
-    SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
-  },
-  runtimeEnv: process.env,
-  emptyStringAsUndefined: true,
-})
-
 // Client Instance Management
 let supabaseInstance: SupabaseClient | null = null
 
@@ -80,9 +69,9 @@ let supabaseInstance: SupabaseClient | null = null
  * ```
  */
 const createSupabaseClient = ({
-  supabaseUrl = env.SUPABASE_URL,
-  supabaseAnonKey = env.SUPABASE_ANON_KEY,
-  supabaseServiceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY,
+  supabaseUrl = process.env.SUPABASE_URL,
+  supabaseAnonKey = process.env.SUPABASE_ANON_KEY,
+  supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY,
 }: {
   supabaseUrl?: string
   supabaseAnonKey?: string

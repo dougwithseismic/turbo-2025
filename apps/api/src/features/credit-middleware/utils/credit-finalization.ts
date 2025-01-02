@@ -1,5 +1,4 @@
 import { SupabaseClient } from '@supabase/supabase-js'
-import { CreditReservation } from '../types'
 
 export interface FinalizeCreditParams {
   supabaseClient: SupabaseClient

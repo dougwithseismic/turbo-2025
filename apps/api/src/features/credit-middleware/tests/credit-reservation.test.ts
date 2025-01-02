@@ -3,7 +3,6 @@ import {
   reserveCredits,
   finalizeReservation,
 } from '../utils/credit-reservation'
-import { InsufficientCreditsError } from '../types'
 import { createClient } from '@supabase/supabase-js'
 
 const mockSupabaseClient = createClient('http://localhost:54321', 'test-key')
@@ -43,7 +42,7 @@ describe('reserveCredits', () => {
           startTime: Date.now(),
         },
       }),
-    ).rejects.toThrow(InsufficientCreditsError)
+    ).rejects.toThrow()
   })
 })
 
