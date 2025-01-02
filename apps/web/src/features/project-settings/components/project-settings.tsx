@@ -7,6 +7,7 @@ import { ContentCardSearch } from '@/components/content-card/components/content-
 import { ActionField } from '@/components/action-field'
 import { AlertTriangle, Save } from 'lucide-react'
 import { ProjectNameField } from './fields/project-name-field'
+import { FetchDemo } from './fetch-demo'
 import { useParams, useRouter } from 'next/navigation'
 import { useGetProject } from '@repo/supabase'
 import { supabaseClient } from '@/lib/supabase/client'
@@ -90,6 +91,13 @@ export const ProjectSettings = () => {
             <ContentCard.Body>
               <ContentCard.Item id="name">
                 <ProjectNameField />
+              </ContentCard.Item>
+
+              <ContentCard.Item id="fetch-demo">
+                <div className="space-y-4">
+                  <h3 className="text-sm font-medium">Data Fetching Demo</h3>
+                  <FetchDemo />
+                </div>
               </ContentCard.Item>
             </ContentCard.Body>
 

@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/features/page-layout/components/page-header'
+import { FetchDemo } from '@/features/project-settings/components/fetch-demo'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getProject, projectQueries } from '@repo/supabase'
 import {
@@ -52,6 +53,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
             </Button>,
           ]}
         />
+        <div className="row p-4">
+          <FetchDemo />
+        </div>
       </Suspense>
     </HydrationBoundary>
   )

@@ -416,6 +416,9 @@ importers:
       framer-motion:
         specifier: ^11.13.1
         version: 11.15.0(react-dom@19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215))(react@19.1.0-canary-e06c72fc-20241215)
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
       gray-matter:
         specifier: ^4.0.3
         version: 4.0.3

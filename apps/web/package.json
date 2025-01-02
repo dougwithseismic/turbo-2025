@@ -37,6 +37,7 @@
     "cmdk": "1.0.0",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.13.1",
+    "googleapis": "^144.0.0",
     "gray-matter": "^4.0.3",
     "lucide-react": "^0.462.0",
     "mdx": "^0.2.3",
