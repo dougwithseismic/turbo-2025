@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Plus, X, Mail } from 'lucide-react'
+import { Plus, X, Mail, ArrowRight } from 'lucide-react'
 import type { BaseStepProps } from '../../../types'
 import { useOnboardingStore } from '../../../store/use-onboarding-store'
 
@@ -18,6 +18,10 @@ export const TeamStep = ({ onBack }: TeamStepProps) => {
     store.nextStep()
   }
 
+  const handleSkip = () => {
+    store.nextStep()
+  }
+
   const handleAddInvite = () => {
     if (!email.trim()) return
     store.setTeamInvites([
@@ -25,6 +29,13 @@ export const TeamStep = ({ onBack }: TeamStepProps) => {
       { email: email.trim(), role: 'member' },
     ])
     setEmail('')
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      handleAddInvite()
+    }
   }
 
   const handleRemoveInvite = (email: string) => {
@@ -36,25 +47,33 @@ export const TeamStep = ({ onBack }: TeamStepProps) => {
   return (
     <div className="space-y-6">
       <div className="grid gap-2">
-        <h3 className="text-lg font-medium">Invite Team Members</h3>
+        <div className="flex items-center gap-2">
+          <h3 className="text-lg font-medium">Invite Team Members</h3>
+          <span className="rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            Optional
+          </span>
+        </div>
         <p className="text-sm text-muted-foreground">
-          Invite your team members to collaborate
+          Invite your team members to collaborate, or skip this step and add
+          them later
         </p>
       </div>
 
-      <div className="space-y-4">
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-4">
         <div className="flex gap-2">
           <div className="relative flex-1">
             <Input
               placeholder="team@company.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
               className="pl-9"
+              type="email"
             />
             <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
           </div>
           <Button
-            type="button"
+            type="submit"
             variant="outline"
             onClick={handleAddInvite}
             disabled={!email.trim()}
@@ -84,21 +103,37 @@ export const TeamStep = ({ onBack }: TeamStepProps) => {
             ))}
           </div>
         )}
-      </div>
+      </form>
 
       <div className="flex justify-between gap-4">
-        {onBack && (
+        <div className="flex gap-4">
+          {onBack && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onBack}
+              className="dark:bg-background dark:text-foreground dark:hover:bg-background/90"
+            >
+              Back
+            </Button>
+          )}
           <Button
             type="button"
-            variant="outline"
-            onClick={onBack}
-            className="dark:bg-background dark:text-foreground dark:hover:bg-background/90"
+            variant="ghost"
+            onClick={handleSkip}
+            className="gap-2"
           >
-            Back
+            Skip for now
+            <ArrowRight className="h-4 w-4" />
           </Button>
-        )}
-        <Button type="submit" onClick={handleSubmit} className="flex-1">
-          Continue
+        </div>
+        <Button
+          type="submit"
+          onClick={handleSubmit}
+          disabled={store.teamInvites.length === 0}
+        >
+          Continue with {store.teamInvites.length}{' '}
+          {store.teamInvites.length === 1 ? 'invite' : 'invites'}
         </Button>
       </div>
     </div>
