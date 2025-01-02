@@ -1,7 +1,6 @@
 'use server'
 
 import { validateScopes } from '@/app/(auth)/auth/callback/utility/validate-scopes'
-import { clientConfig } from '@/config/app-config'
 import { auth } from '@/lib/auth'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { ActionResponse } from '@/types/actions'
@@ -98,7 +97,7 @@ export const connectOAuthAccount = async ({
           access_type: 'offline',
           prompt: 'consent', // Force consent screen to get new scopes
         },
-        redirectTo: `${clientConfig.BASE_URL}/auth/callback?incremental=true&next=/utility/close-notification?type=success&message=Connected!&scopes=${allScopes.join(' ')}`,
+        redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback?incremental=true&next=/utility/close-notification?type=success&message=Connected!&scopes=${allScopes.join(' ')}`,
       },
     })
     if (error) throw error

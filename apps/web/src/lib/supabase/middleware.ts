@@ -1,4 +1,4 @@
-import { clientConfig } from '@/config/app-config'
+import { clientConfig } from '@/config/env.client'
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 

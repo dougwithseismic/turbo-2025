@@ -1,18 +1,21 @@
 'use server'
-import { clientConfig } from '@/config/app-config'
+
 import { Database } from '@repo/supabase'
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { cache } from 'react'
+
 /**
  * Creates a Supabase client for Server Components
+ * Note: We use process.env directly here because this is a server component
+ * that also needs to be a server action (use server)
  */
 export const createSupabaseServerClient = cache(async () => {
   const cookieStore = await cookies()
 
   return createServerClient<Database>(
-    clientConfig.SUPABASE.URL,
-    clientConfig.SUPABASE.ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {

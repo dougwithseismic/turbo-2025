@@ -1,4 +1,6 @@
-import { env } from '@/config/app-config'
+'use client'
+
+import { clientConfig } from '@/config/env.client'
 import { cn } from '@/lib/utils'
 import { ArrowRight, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
@@ -122,7 +124,7 @@ export const FooterCTA = () => (
             <ArrowRight className="h-4 w-4" />
           </Link>
           <a
-            href={`${env.NEXT_PUBLIC_BASE_URL}/slack`}
+            href={`${clientConfig.BASE_URL}/slack`}
             target="_blank"
             rel="noopener noreferrer"
             className={cn(

@@ -477,7 +477,7 @@ importers:
         specifier: ^2.1.8
         version: 2.1.8(@types/node@20.17.10)(@vitest/ui@2.1.8)(jsdom@25.0.1)(less@4.2.1)(lightningcss@1.28.2)(sass@1.83.0)
       zod:
-        specifier: ^3.23.8
+        specifier: ^3.24.1
         version: 3.24.1
       zustand:
         specifier: ^5.0.2
