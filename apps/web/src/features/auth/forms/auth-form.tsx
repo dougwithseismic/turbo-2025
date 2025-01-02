@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 import type { AuthFormProps, FormState } from './types'
 import { useSecurityState, MAX_ATTEMPTS, LOCKOUT_TIME } from '../utils/security'
@@ -15,7 +15,7 @@ import {
 } from '../animations/form-animations'
 import { Checkbox } from '@/components/ui/checkbox'
 import { executeGoogleSignIn } from '../actions/auth-actions'
-import { clientConfig } from '@/config/app-config'
+import { clientConfig } from '@/config/env.client'
 
 export function AuthForm({
   type,
