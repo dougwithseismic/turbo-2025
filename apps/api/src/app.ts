@@ -9,7 +9,7 @@ import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
 import { initPrometheus } from './lib/prometheus'
 import { createCreditDemoRouter } from './routes/credit-demo'
-import { supabaseClient } from './lib/supabase'
+import { supabaseAdmin } from './lib/supabase'
 
 const app = express()
 app.use(helmet())
@@ -19,7 +19,10 @@ app.use(requestLogger)
 // app.use(handleErrors);
 
 app.use('/health', healthRouter)
-app.use('/demo/credits', createCreditDemoRouter({ supabaseClient }))
+app.use(
+  '/demo/credits',
+  createCreditDemoRouter({ supabaseClient: supabaseAdmin }),
+)
 
 initSentry()
 initPrometheus(app)
