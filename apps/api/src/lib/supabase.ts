@@ -1,14 +1,13 @@
-import { createSupabaseClient, SupabaseClient } from '@repo/supabase';
-import { config } from '../config/app-config';
+import { createSupabaseClient, SupabaseClient } from '@repo/supabase'
 
 const supabaseClient: SupabaseClient = createSupabaseClient({
-  supabaseUrl: config.SUPABASE.URL,
-  supabaseAnonKey: config.SUPABASE.ANON_KEY,
-});
+  supabaseUrl: process.env.SUPABASE_URL,
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY,
+})
 
 const supabaseAdmin: SupabaseClient = createSupabaseClient({
-  supabaseUrl: config.SUPABASE.URL,
-  supabaseServiceRoleKey: config.SUPABASE.SERVICE_ROLE_KEY,
-});
+  supabaseUrl: process.env.SUPABASE_URL,
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+})
 
-export { supabaseClient, supabaseAdmin };
+export { supabaseClient, supabaseAdmin }
