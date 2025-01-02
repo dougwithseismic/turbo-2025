@@ -30,6 +30,22 @@ interface EntityPickerProps {
   isCollapsed?: boolean
 }
 
+type EntityAvatarProps = {
+  name: string
+  avatarUrl?: string
+  className?: string
+}
+
+const EntityAvatar = ({ name, avatarUrl, className }: EntityAvatarProps) => (
+  <Avatar className={`size-5 shrink-0 ${className ?? ''}`}>
+    {avatarUrl ? (
+      <img src={avatarUrl} alt={`${name}'s avatar`} />
+    ) : (
+      <AvatarFallback>{name.charAt(0)}</AvatarFallback>
+    )}
+  </Avatar>
+)
+
 function MobileEntityPicker({
   items,
   activeItem,
@@ -63,18 +79,13 @@ function MobileEntityPicker({
           <SelectValue>
             {activeItem && (
               <div className="flex items-center gap-2">
-                <Avatar className="size-5 shrink-0">
-                  {activeItem.avatarUrl ? (
-                    <img src={activeItem.avatarUrl} alt={activeItem.name} />
-                  ) : (
-                    <AvatarFallback>{activeItem.name.charAt(0)}</AvatarFallback>
-                  )}
-                </Avatar>
+                <EntityAvatar
+                  name={activeItem.name}
+                  avatarUrl={activeItem.avatarUrl}
+                />
                 <div className="flex flex-col min-w-0">
                   <span className="font-medium truncate">
-                    {activeItem.type === 'project'
-                      ? activeItem.name
-                      : activeItem.name}
+                    {activeItem.name}
                   </span>
                   {activeItem.type === 'project' &&
                     activeItem.meta?.organizationName && (
@@ -94,13 +105,7 @@ function MobileEntityPicker({
               {organizations.map((org) => (
                 <SelectItem key={org.id} value={org.id}>
                   <div className="flex items-center gap-2">
-                    <Avatar className="size-5 shrink-0">
-                      {org.avatarUrl ? (
-                        <img src={org.avatarUrl} alt={org.name} />
-                      ) : (
-                        <AvatarFallback>{org.name.charAt(0)}</AvatarFallback>
-                      )}
-                    </Avatar>
+                    <EntityAvatar name={org.name} avatarUrl={org.avatarUrl} />
                     <div className="flex flex-col">
                       <span>{org.name}</span>
                       {org.role && (
@@ -112,7 +117,12 @@ function MobileEntityPicker({
                   </div>
                 </SelectItem>
               ))}
-              <SelectItem value="create-org">Create Organization</SelectItem>
+              <SelectItem value="create-org">
+                <div className="flex items-center gap-2">
+                  <PlusCircle className="size-4" />
+                  Create Organization
+                </div>
+              </SelectItem>
             </SelectGroup>
           )}
           {projects.length > 0 && (
@@ -121,15 +131,10 @@ function MobileEntityPicker({
               {projects.map((project) => (
                 <SelectItem key={project.id} value={project.id}>
                   <div className="flex items-center gap-2">
-                    <Avatar className="size-5 shrink-0">
-                      {project.avatarUrl ? (
-                        <img src={project.avatarUrl} alt={project.name} />
-                      ) : (
-                        <AvatarFallback>
-                          {project.name.charAt(0)}
-                        </AvatarFallback>
-                      )}
-                    </Avatar>
+                    <EntityAvatar
+                      name={project.name}
+                      avatarUrl={project.avatarUrl}
+                    />
                     <div className="flex flex-col">
                       <span>{project.name}</span>
                       {project.meta?.organizationName && (
@@ -141,7 +146,12 @@ function MobileEntityPicker({
                   </div>
                 </SelectItem>
               ))}
-              <SelectItem value="create-project">Create Project</SelectItem>
+              <SelectItem value="create-project">
+                <div className="flex items-center gap-2">
+                  <PlusCircle className="size-4" />
+                  Create Project
+                </div>
+              </SelectItem>
             </SelectGroup>
           )}
         </SelectContent>

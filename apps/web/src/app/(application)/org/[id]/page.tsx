@@ -11,6 +11,7 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query'
+import { PageHeader } from '@/features/page-layout/components/page-header'
 
 interface OrganizationPageProps {
   params: Promise<{
@@ -35,25 +36,27 @@ export default async function OrganizationPage({
     organizationQueries.detail({ supabase, orgId: id }),
   )
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: 'Organizations', href: '/org' },
+    { label: `${organization.name}`, href: `/org/${id}` },
+  ]
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<div>Loading...</div>}>
-        <div className="container py-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-semibold">{organization.name}</h1>
-            </div>
-            <Button variant="outline" size="sm" asChild>
+        <PageHeader
+          items={breadcrumbItems}
+          actions={[
+            <Button key="new-report" variant={'outline'} asChild>
               <Link href={`/org/${id}/settings`}>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
-            </Button>
-          </div>
-          <div className="grid gap-6">
-            {/* Add organization content here */}
-          </div>
-        </div>
+            </Button>,
+          ]}
+        />
+        <div className="grid gap-6">{/* Add organization content here */}</div>
       </Suspense>
     </HydrationBoundary>
   )

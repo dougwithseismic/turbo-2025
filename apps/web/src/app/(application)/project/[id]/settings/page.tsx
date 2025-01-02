@@ -1,3 +1,4 @@
+import { PageHeader } from '@/features/page-layout/components/page-header'
 import { ProjectSettings } from '@/features/project-settings/components/project-settings'
 import { protectedRoute } from '@/lib/auth'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
@@ -34,8 +35,15 @@ export default async function ProjectSettingsPage({
     projectQueries.detail({ supabase, projectId: id }),
   )
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: `${project.name}`, href: `/project/${id}` },
+    { label: 'Settings', href: `/project/${id}/settings` },
+  ]
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
+      <PageHeader items={breadcrumbItems} actions={[]} />
       <ProjectSettings />
     </HydrationBoundary>
   )

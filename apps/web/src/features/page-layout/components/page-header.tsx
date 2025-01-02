@@ -24,27 +24,37 @@ interface PageHeaderProps {
 
 export const PageHeader = ({ items, title, actions }: PageHeaderProps) => {
   return (
-    <header className="flex flex-col gap-4 border-b border-border h-14 justify-center px-4">
+    <header className="flex flex-col gap-4 border-b border-border min-h-[3.5rem] justify-center px-4 py-2 mt-8 sm:mt-0 sm:h-14">
       {(title || actions) && (
-        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div className="flex gap-4 items-center min-w-0 flex-1">
+        <div className="flex gap-4 sm:flex-row items-end md:items-center sm:justify-between">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 min-w-0 flex-1">
             {title && (
-              <h2 className="text-xl font-bold tracking-tight text-foreground">
+              <h2 className="text-lg sm:text-xl font-bold tracking-tight text-foreground truncate">
                 {title}
               </h2>
             )}
-            <div>
+            <div className="overflow-x-auto">
               {items.length > 0 && (
                 <Breadcrumb>
                   <BreadcrumbList>
                     {items.map((item, index) => (
-                      <div className="flex items-center gap-2" key={item.label}>
+                      <div
+                        className={`flex items-center gap-2 ${index < items.length - 1 ? 'hidden sm:flex' : 'flex'}`}
+                        key={item.label}
+                      >
                         <BreadcrumbItem>
                           {item.current ? (
-                            <BreadcrumbPage>{item.label}</BreadcrumbPage>
+                            <BreadcrumbPage className="truncate max-w-[200px]">
+                              {item.label}
+                            </BreadcrumbPage>
                           ) : (
                             <BreadcrumbLink asChild>
-                              <Link href={item.href || '#'}>{item.label}</Link>
+                              <Link
+                                href={item.href || '#'}
+                                className="truncate max-w-[200px]"
+                              >
+                                {item.label}
+                              </Link>
                             </BreadcrumbLink>
                           )}
                         </BreadcrumbItem>
@@ -58,7 +68,9 @@ export const PageHeader = ({ items, title, actions }: PageHeaderProps) => {
           </div>
 
           {actions && (
-            <div className="flex items-center shrink-0 gap-3">{actions}</div>
+            <div className="flex items-center shrink-0 gap-2 sm:gap-3">
+              {actions}
+            </div>
           )}
         </div>
       )}

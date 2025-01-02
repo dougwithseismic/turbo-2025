@@ -1,16 +1,16 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getProject } from '@repo/supabase'
-import Link from 'next/link'
-import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 import { Button } from '@/components/ui/button'
-import { Settings } from 'lucide-react'
-import { projectQueries } from '@repo/supabase'
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getProject, projectQueries } from '@repo/supabase'
 import {
   dehydrate,
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query'
+import { Settings } from 'lucide-react'
+import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 
 interface ProjectPageProps {
   params: Promise<{
@@ -33,28 +33,25 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     projectQueries.detail({ supabase, projectId: id }),
   )
 
+  const breadcrumbItems = [
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: `${project.name}`, href: `/project/${id}` },
+  ]
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<div>Loading...</div>}>
-        <div className="container py-6">
-          <div className="flex justify-between items-center mb-6">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-2xl font-semibold">{project.name}</h1>
-              {project.organization && (
-                <p className="text-sm text-muted-foreground">
-                  {project.organization.name}
-                </p>
-              )}
-            </div>
-            <Button variant="outline" size="sm" asChild>
+        <PageHeader
+          items={breadcrumbItems}
+          actions={[
+            <Button key="new-report" variant={'outline'} asChild>
               <Link href={`/project/${id}/settings`}>
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
-            </Button>
-          </div>
-          <div className="grid gap-6"></div>
-        </div>
+            </Button>,
+          ]}
+        />
       </Suspense>
     </HydrationBoundary>
   )
