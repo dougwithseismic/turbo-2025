@@ -22,6 +22,8 @@ export const reserveCredits = async ({
   metadata,
 }: ReserveCreditParams): Promise<CreditReservation> => {
   // For now, simulate credit reservation
+
+  void supabaseClient
   const id = `res_${Date.now()}`
   const now = new Date()
 

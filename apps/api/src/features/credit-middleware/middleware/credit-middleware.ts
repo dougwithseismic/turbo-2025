@@ -1,12 +1,10 @@
+import { checkApiQuota, Database, trackApiUsage } from '@repo/supabase'
 import { SupabaseClient } from '@supabase/supabase-js'
-import { Request, Response, NextFunction } from 'express'
-import { finalizeCredits } from '../utils/credit-finalization'
-import { calculateOperationCost } from '../utils/credit-cost'
-import { CreditReservation, AuthenticatedRequest } from '../types'
-import { checkApiQuota, trackApiUsage } from '@repo/supabase'
+import { NextFunction, Response } from 'express'
+import { AuthenticatedRequest } from '../types'
 
 export interface CreditMiddlewareConfig {
-  supabaseClient: SupabaseClient
+  supabaseClient: SupabaseClient<Database>
   serviceId: string
   operationName: string
   operationSize?: number
@@ -49,109 +47,22 @@ export const createCreditMiddleware = ({
         return
       }
 
-      // Calculate operation cost
-      const cost = await calculateOperationCost({
-        supabaseClient,
-        operationSize,
-      })
-
-      // Reserve credits
-      const { data: reservation, error: reserveError } = await supabaseClient
-        .from('credit_reservations')
-        .insert({
-          user_id: userId,
-          service_id: serviceId,
-          amount: cost.baseAmount,
-          status: 'reserved',
+      // Track API usage after response is sent
+      res.on('finish', () => {
+        trackApiUsage({
+          supabase: supabaseClient,
+          serviceId,
+          userId,
+          requestCount: operationSize,
           metadata: {
             operationName,
-            operationSize,
+            statusCode: res.statusCode,
             requestId,
-            startTime: new Date().toISOString(),
           },
+        }).catch((error: unknown) => {
+          console.error('Failed to track usage:', error)
         })
-        .select()
-        .single()
-
-      if (reserveError) {
-        if (reserveError.message.includes('insufficient_credits')) {
-          res.status(402).json({ error: 'Insufficient credits' })
-          return
-        }
-        throw reserveError
-      }
-
-      // Store reservation for finalization
-      res.locals.creditReservation = reservation
-
-      // Intercept response to finalize credits
-      const originalEnd = res.end.bind(res)
-
-      // Override end method with proper type handling
-      res.end = function (
-        this: Response,
-        chunk: string | Buffer | ResponseEndCallback | undefined,
-        encoding?: BufferEncoding | ResponseEndCallback,
-        cb?: ResponseEndCallback,
-      ): Response {
-        // Handle callback-only case
-        if (typeof chunk === 'function') {
-          cb = chunk
-          chunk = undefined
-          encoding = undefined
-        }
-        // Handle encoding callback case
-        if (typeof encoding === 'function') {
-          cb = encoding
-          encoding = undefined
-        }
-
-        // Restore original end
-        res.end = originalEnd
-
-        // Track API usage and finalize credits after response is sent
-        Promise.all([
-          trackApiUsage({
-            supabase: supabaseClient,
-            serviceId,
-            userId,
-            requestCount: operationSize,
-            metadata: {
-              operationName,
-              statusCode: res.statusCode,
-              responseSize: Buffer.byteLength(
-                typeof chunk === 'string' || Buffer.isBuffer(chunk)
-                  ? chunk
-                  : '',
-              ),
-              requestId,
-            },
-          }),
-          finalizeCredits({
-            supabaseClient,
-            userId,
-            reservationId: reservation.id,
-            metadata: {
-              statusCode: res.statusCode,
-              responseSize: Buffer.byteLength(
-                typeof chunk === 'string' || Buffer.isBuffer(chunk)
-                  ? chunk
-                  : '',
-              ),
-            },
-          }),
-        ]).catch((error: unknown) => {
-          console.error('Failed to track usage or finalize credits:', error)
-        })
-
-        // Call original end with proper types
-        return originalEnd.call(
-          this,
-          chunk as string | Buffer,
-          encoding as BufferEncoding,
-          cb,
-        )
-      }
+      })
 
       next()
     } catch (error: unknown) {

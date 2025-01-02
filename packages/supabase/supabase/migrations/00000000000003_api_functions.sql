@@ -339,3 +339,33 @@ BEGIN
     );
 END;
 $$; 
+
+-- Create the stored procedure for finalizing credit reservations
+CREATE OR REPLACE FUNCTION finalize_credit_reservation(
+  p_user_id UUID,
+  p_reservation_id UUID
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  v_amount INTEGER;
+BEGIN
+  -- Get the amount from the reservation
+  SELECT amount INTO v_amount
+  FROM credit_reservations
+  WHERE id = p_reservation_id AND user_id = p_user_id;
+
+  -- Update the user's credit balance
+  UPDATE user_credits
+  SET reserved_credits = reserved_credits - v_amount,
+      charged_credits = charged_credits + v_amount
+  WHERE user_id = p_user_id;
+
+  -- If no rows were updated, the user doesn't have a credit balance record
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'User credit balance not found';
+  END IF;
+END;
+$$; 
