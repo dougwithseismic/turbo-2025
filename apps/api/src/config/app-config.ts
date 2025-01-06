@@ -20,7 +20,6 @@ const envSchema = z.object({
   // Supabase
   SUPABASE_URL: z.string(),
   SUPABASE_SERVICE_ROLE_KEY: z.string(),
-  SUPABASE_JWT_SECRET: z.string(),
 
   // Auth
   AUTH_TOKEN_EXPIRY: z.coerce.number().default(3600),
@@ -57,7 +56,6 @@ export const config = {
   SUPABASE: {
     URL: env.SUPABASE_URL,
     SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
-    JWT_SECRET: env.SUPABASE_JWT_SECRET,
   },
 
   AUTH: {

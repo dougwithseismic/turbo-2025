@@ -83,6 +83,7 @@ export const createMockSupabaseClient = ({
 }
 
 export const createMockResponse = () => {
+  const eventHandlers: Record<string, Array<() => void>> = {}
   const res = {
     status: vi.fn(),
     json: vi.fn(),
@@ -90,7 +91,19 @@ export const createMockResponse = () => {
     get: vi.fn(),
     set: vi.fn(),
     locals: {},
-    on: vi.fn(),
+    statusCode: 200,
+    on: vi.fn((event: string, handler: () => void) => {
+      if (!eventHandlers[event]) {
+        eventHandlers[event] = []
+      }
+      eventHandlers[event].push(handler)
+      return res
+    }),
+    emit: (event: string) => {
+      const handlers = eventHandlers[event] || []
+      handlers.forEach((handler) => handler())
+      return res
+    },
   }
   res.status.mockReturnValue(res)
   res.json.mockReturnValue(res)
