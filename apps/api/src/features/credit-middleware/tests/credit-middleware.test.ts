@@ -29,7 +29,7 @@ describe('createCreditMiddleware', () => {
       const res = createMockResponse()
       const next = vi.fn()
 
-      await middleware(req, res as unknown as Response, next)
+      middleware(req, res as unknown as Response, next)
 
       expect(res.status).toHaveBeenCalledWith(401)
       expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' })
@@ -66,6 +66,18 @@ describe('createCreditMiddleware', () => {
         p_user_id: 'test-user',
       })
       expect(next).toHaveBeenCalled()
+
+      // Simulate response finish
+      res.emit('finish')
+
+      expect(rpc).toHaveBeenCalledWith('track_api_usage', {
+        p_service_id: TEST_SERVICE_ID,
+        p_user_id: 'test-user',
+        p_request_count: 1,
+        p_metadata: expect.objectContaining({
+          operationName: TEST_OPERATION,
+        }),
+      })
     })
 
     it('should handle quota exceeded', async () => {
@@ -127,11 +139,7 @@ describe('createCreditMiddleware', () => {
       })
 
       // Simulate response finish
-      const [event, callback] = res.on.mock.calls[0]
-      expect(event).toBe('finish')
-
-      // Execute the finish callback
-      await (callback as () => Promise<void>)()
+      res.emit('finish')
 
       // Then, track usage with operation size
       expect(rpc).toHaveBeenCalledWith('track_api_usage', {
@@ -190,11 +198,7 @@ describe('createCreditMiddleware', () => {
       await middleware(req, res as unknown as Response, next)
 
       // Simulate response finish
-      const [event, callback] = res.on.mock.calls[0]
-      expect(event).toBe('finish')
-
-      // Execute the finish callback
-      await (callback as () => Promise<void>)()
+      res.emit('finish')
 
       expect(rpc).toHaveBeenCalledWith('track_api_usage', {
         p_service_id: TEST_SERVICE_ID,

@@ -9,7 +9,9 @@ import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
 import { initPrometheus } from './lib/prometheus'
 import { createCreditDemoRouter } from './routes/credit-demo'
+import { createCrawlerRouter } from './routes/crawler'
 import { supabaseAdmin } from './lib/supabase'
+import { crawlQueue } from './lib/queue-manager'
 
 const app = express()
 app.use(helmet())
@@ -22,6 +24,10 @@ app.use('/health', healthRouter)
 app.use(
   '/demo/credits',
   createCreditDemoRouter({ supabaseClient: supabaseAdmin }),
+)
+app.use(
+  '/crawler',
+  createCrawlerRouter({ supabaseClient: supabaseAdmin, crawlQueue }),
 )
 
 initSentry()

@@ -1,47 +1,75 @@
-import { env } from '@repo/env';
+import { z } from 'zod'
 
-import { name as packageName } from '../../package.json';
+const envSchema = z.object({
+  APP_NAME: z.string().default('api'),
+  NODE_ENV: z
+    .enum(['development', 'production', 'test'])
+    .default('development'),
+  PORT: z.string().default('3000'),
+  BASE_URL: z.string().optional(),
 
-import { logger } from './logger';
+  // API
+  API_TIMEOUT: z.coerce.number().default(30000),
 
-const appName = packageName || 'default-app-name';
+  // Redis
+  REDIS_URL: z.string().default('localhost'),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_USER: z.string().optional(),
+  REDIS_PASSWORD: z.string().optional(),
+
+  // Supabase
+  SUPABASE_URL: z.string(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string(),
+
+  // Auth
+  AUTH_TOKEN_EXPIRY: z.coerce.number().default(3600),
+  AUTH_REFRESH_TOKEN_EXPIRY: z.coerce.number().default(86400),
+
+  // Rate Limiting
+  RATE_LIMIT_WINDOW: z.coerce.number().default(60000),
+  RATE_LIMIT_MAX_REQUESTS: z.coerce.number().default(100),
+
+  // Sentry
+  SENTRY_DSN: z.string().optional(),
+  SENTRY_ENVIRONMENT: z.string().optional(),
+})
+
+const env = envSchema.parse(process.env)
 
 export const config = {
-  APP_NAME: appName,
-  NODE_ENV: env.NODE_ENV ?? 'development',
-  PORT: env.PORT ?? 666,
-  BASE_URL: env.API_BASE_URL,
+  APP_NAME: env.APP_NAME,
+  NODE_ENV: env.NODE_ENV,
+  PORT: env.PORT,
+  BASE_URL: env.BASE_URL,
+
   API: {
     TIMEOUT: env.API_TIMEOUT,
   },
+
+  REDIS: {
+    URL: env.REDIS_URL,
+    PORT: env.REDIS_PORT,
+    USER: env.REDIS_USER,
+    PASSWORD: env.REDIS_PASSWORD,
+  },
+
   SUPABASE: {
     URL: env.SUPABASE_URL,
-    ANON_KEY: env.SUPABASE_ANON_KEY,
     SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY,
   },
-  AUTH: {
-    GOOGLE: {
-      CLIENT_ID: env.AUTH_GOOGLE_CLIENT_ID,
-      SECRET: env.AUTH_GOOGLE_SECRET,
-      REDIRECT_URI: env.AUTH_GOOGLE_REDIRECT_URI,
-    },
-  },
-  RATE_LIMIT: {
-    API: {
-      WINDOW_MS: env.RATE_LIMIT_API_WINDOW_MS,
-      MAX_REQUESTS: env.RATE_LIMIT_API_MAX_REQUESTS,
-      FAILURE_THRESHOLD: env.RATE_LIMIT_API_FAILURE_THRESHOLD,
-    },
-    AUTH: {
-      WINDOW_MS: env.RATE_LIMIT_AUTH_WINDOW_MS,
-      MAX_ATTEMPTS: env.RATE_LIMIT_AUTH_MAX_ATTEMPTS,
-    },
-  },
-  SENTRY: {
-    ENABLED: env.SENTRY_ENABLED ?? false,
-    DSN: env.SENTRY_DSN ?? '',
-  },
-} as const;
 
-// Log configuration on startup
-logger.info('🕵️‍♂️ :: Configuration loaded');
+  AUTH: {
+    TOKEN_EXPIRY: env.AUTH_TOKEN_EXPIRY,
+    REFRESH_TOKEN_EXPIRY: env.AUTH_REFRESH_TOKEN_EXPIRY,
+  },
+
+  RATE_LIMIT: {
+    WINDOW: env.RATE_LIMIT_WINDOW,
+    MAX_REQUESTS: env.RATE_LIMIT_MAX_REQUESTS,
+  },
+
+  SENTRY: {
+    DSN: env.SENTRY_DSN,
+    ENVIRONMENT: env.SENTRY_ENVIRONMENT,
+  },
+} as const

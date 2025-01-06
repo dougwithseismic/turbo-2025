@@ -18,11 +18,7 @@ export const createCreditMiddleware = ({
   operationName,
   operationSize = 1,
 }: CreditMiddlewareConfig) => {
-  return async (
-    req: AuthenticatedRequest,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     const userId = req.user?.id
     if (!userId) {
       res.status(401).json({ error: 'Unauthorized' })
@@ -31,44 +27,44 @@ export const createCreditMiddleware = ({
 
     const requestId = crypto.randomUUID()
 
-    try {
-      // Check API quota
-      const quota = await checkApiQuota({
-        supabase: supabaseClient,
-        serviceId,
-        userId,
-      })
+    // Check API quota
+    checkApiQuota({
+      supabase: supabaseClient,
+      serviceId,
+      userId,
+    })
+      .then((quota) => {
+        if (!quota.can_proceed) {
+          res.status(402).json({
+            error: 'Quota exceeded',
+            message: `Daily quota exceeded. Available: ${quota.daily_quota - quota.current_usage}, Required: ${operationSize}`,
+          })
+          return
+        }
 
-      if (!quota.can_proceed) {
-        res.status(402).json({
-          error: 'Quota exceeded',
-          message: `Daily quota exceeded. Available: ${quota.daily_quota - quota.current_usage}, Required: ${operationSize}`,
+        // Track API usage after response is sent
+        res.on('finish', () => {
+          trackApiUsage({
+            supabase: supabaseClient,
+            serviceId,
+            userId,
+            requestCount: operationSize,
+            metadata: {
+              operationName,
+              statusCode: res.statusCode,
+              requestId,
+            },
+          }).catch((error: unknown) => {
+            console.error('Failed to track usage:', error)
+          })
         })
-        return
-      }
 
-      // Track API usage after response is sent
-      res.on('finish', () => {
-        trackApiUsage({
-          supabase: supabaseClient,
-          serviceId,
-          userId,
-          requestCount: operationSize,
-          metadata: {
-            operationName,
-            statusCode: res.statusCode,
-            requestId,
-          },
-        }).catch((error: unknown) => {
-          console.error('Failed to track usage:', error)
-        })
+        next()
       })
-
-      next()
-    } catch (error: unknown) {
-      console.error('Credit middleware error:', error)
-      res.status(500).json({ error: 'Internal server error' })
-    }
+      .catch((error) => {
+        console.error('Credit middleware error:', error)
+        res.status(500).json({ error: 'Internal server error' })
+      })
   }
 }
 
