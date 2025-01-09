@@ -13,6 +13,7 @@ export const envSchema = {
   client: {
     NEXT_PUBLIC_APP_URL: z.string().url(),
     NEXT_PUBLIC_BASE_URL: z.string().url(),
+    NEXT_PUBLIC_API_URL: z.string().url(),
     NEXT_PUBLIC_ENABLE_ANALYTICS: z.coerce.boolean().default(false),
     NEXT_PUBLIC_AUTH_EMAIL_ENABLED: z.coerce.boolean().default(false),
     NEXT_PUBLIC_AUTH_GOOGLE_ENABLED: z.coerce.boolean().default(false),
