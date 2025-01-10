@@ -3,7 +3,6 @@ import { Button } from '@/components/ui/button'
 import { OrganizationProjects } from '@/features/dashboard/components/organization-projects'
 import { PageHeader } from '@/features/page-layout/components/page-header'
 import { protectedRoute } from '@/lib/auth'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { Avatar } from '@radix-ui/react-avatar'
 import { Metadata } from 'next'
 
@@ -50,7 +49,7 @@ const Page = async () => {
         ]}
       />
 
-      <main className="px-4">
+      <main className="px-4 max-w-7xl w-full mx-auto">
         <OrganizationProjects />
       </main>
     </div>

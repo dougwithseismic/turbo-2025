@@ -36,19 +36,15 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { SiteEditForm } from './site-edit-form'
-import { useQuery } from '@tanstack/react-query'
 import { useToast } from '@/components/ui/use-toast'
-import {
-  fetchAnalyticsProperties,
-  fetchSearchConsoleProperties,
-} from '@/lib/google/properties'
-import Link from 'next/link'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { GoogleAnalyticsDialog } from './google-analytics-dialog'
+import { GoogleSearchConsoleDialog } from './google-search-console-dialog'
 
 type SiteListProps = {
   projectId: string
@@ -57,16 +53,6 @@ type SiteListProps = {
 }
 
 type ConnectionType = 'gsc' | 'ga'
-
-type GSCProperty = {
-  siteUrl: string
-  permissionLevel: string
-}
-
-type GAProperty = {
-  name: string
-  displayName: string
-}
 
 const TruncatedCell = ({ content }: { content: string }) => {
   return (
@@ -106,18 +92,6 @@ export function SiteList({
 
   const { mutate: updateSite } = useUpdateSite({
     supabase: supabaseClient,
-  })
-
-  const { data: gscProperties = [], isLoading: isLoadingGSC } = useQuery({
-    queryKey: ['searchConsoleProperties', siteToConnect?.id],
-    queryFn: fetchSearchConsoleProperties,
-    enabled: !!siteToConnect?.id && siteToConnect.type === 'gsc',
-  })
-
-  const { data: gaProperties = [], isLoading: isLoadingGA } = useQuery({
-    queryKey: ['analyticsProperties', siteToConnect?.id],
-    queryFn: fetchAnalyticsProperties,
-    enabled: !!siteToConnect?.id && siteToConnect.type === 'ga',
   })
 
   const handleDelete = () => {
@@ -390,97 +364,31 @@ export function SiteList({
       )}
 
       {siteToConnect && (
-        <Dialog
-          open={!!siteToConnect}
-          onOpenChange={() => setSiteToConnect(undefined)}
-        >
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                Connect{' '}
-                {siteToConnect.type === 'gsc'
-                  ? 'Google Search Console'
-                  : 'Google Analytics'}
-              </DialogTitle>
-              <DialogDescription>
-                Select a property to connect to this site
-              </DialogDescription>
-            </DialogHeader>
-
-            {(siteToConnect.type === 'gsc' ? isLoadingGSC : isLoadingGA) ? (
-              <div className="space-y-4">
-                <Skeleton className="h-8 w-[200px]" />
-                <Skeleton className="h-4 w-[300px]" />
-              </div>
-            ) : !(siteToConnect.type === 'gsc' ? gscProperties : gaProperties)
-                ?.length ? (
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  No properties found. You need to connect your{' '}
-                  {siteToConnect.type === 'gsc'
-                    ? 'Google Search Console'
-                    : 'Google Analytics'}{' '}
-                  account first.
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" asChild>
-                    <Link href="/account">Visit Account Settings</Link>
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    to connect your Google accounts
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {(siteToConnect.type === 'gsc'
-                  ? gscProperties
-                  : gaProperties
-                ).map((property) => {
-                  const propertyId =
-                    siteToConnect.type === 'gsc'
-                      ? (property as GSCProperty).siteUrl
-                      : (property as GAProperty).name
-                  const propertyDisplay =
-                    siteToConnect.type === 'gsc'
-                      ? (property as GSCProperty).siteUrl
-                      : (property as GAProperty).displayName
-
-                  return (
-                    <div
-                      key={propertyId}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div>
-                        <p className="font-medium break-all">
-                          {propertyDisplay}
-                        </p>
-                        {siteToConnect.type === 'gsc' && (
-                          <p className="text-sm text-muted-foreground">
-                            Permission:{' '}
-                            {(property as GSCProperty).permissionLevel}
-                          </p>
-                        )}
-                      </div>
-                      <Button
-                        onClick={() => {
-                          const site = sites.find(
-                            (s) => s.id === siteToConnect.id,
-                          )
-                          if (site) {
-                            handleConnect(site, propertyId, siteToConnect.type)
-                          }
-                        }}
-                      >
-                        Connect
-                      </Button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
+        <>
+          {siteToConnect.type === 'ga' ? (
+            <GoogleAnalyticsDialog
+              open={!!siteToConnect}
+              onOpenChange={() => setSiteToConnect(undefined)}
+              onConnect={(propertyId) => {
+                const site = sites?.find((s) => s.id === siteToConnect.id)
+                if (site) {
+                  handleConnect(site, propertyId, 'ga')
+                }
+              }}
+            />
+          ) : (
+            <GoogleSearchConsoleDialog
+              open={!!siteToConnect}
+              onOpenChange={() => setSiteToConnect(undefined)}
+              onConnect={(propertyId) => {
+                const site = sites?.find((s) => s.id === siteToConnect.id)
+                if (site) {
+                  handleConnect(site, propertyId, 'gsc')
+                }
+              }}
+            />
+          )}
+        </>
       )}
     </>
   )

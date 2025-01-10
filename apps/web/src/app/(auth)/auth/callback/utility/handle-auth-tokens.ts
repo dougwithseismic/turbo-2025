@@ -36,6 +36,9 @@ export const handleOAuthTokens = async ({
     throw new Error(`Invalid scopes detected: ${invalidScopes.join(', ')}`)
   }
 
+  console.log('🚨 storing oauth token')
+  console.log('🚨 session', session)
+
   await storeOauthToken({
     supabase,
     userId: user.id,
@@ -44,7 +47,7 @@ export const handleOAuthTokens = async ({
     tokens: {
       accessToken: providerToken,
       refreshToken: refreshToken,
-      expiresAt: new Date(session?.expires_at ?? 0),
+      expiresAt: new Date(Date.now() + 3600 * 1000),
       scopes,
     },
   })

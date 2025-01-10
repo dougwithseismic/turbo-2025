@@ -1,14 +1,14 @@
-import { PostgrestError, SupabaseClient } from '@supabase/supabase-js';
-import type { Database } from '../database.types';
+import { PostgrestError, SupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '../database.types'
 
-type OAuthState = Database['public']['Tables']['oauth_states']['Row'];
-type OAuthToken = Database['public']['Tables']['user_oauth_tokens']['Row'];
+type OAuthState = Database['public']['Tables']['oauth_states']['Row']
+type OAuthToken = Database['public']['Tables']['user_oauth_tokens']['Row']
 
 interface TokenData {
-  accessToken: string;
-  refreshToken: string;
-  expiresAt: Date;
-  scopes: string[];
+  accessToken: string
+  refreshToken: string
+  expiresAt: Date
+  scopes: string[]
 }
 
 /**
@@ -22,12 +22,13 @@ const storeOauthToken = async ({
   provider,
   tokens,
 }: {
-  supabase: SupabaseClient<Database>;
-  userId: string;
-  email: string;
-  provider: string;
-  tokens: TokenData;
+  supabase: SupabaseClient<Database>
+  userId: string
+  email: string
+  provider: string
+  tokens: TokenData
 }): Promise<{ data: OAuthToken | null; error: PostgrestError | null }> => {
+  console.log('🚨 tokens', tokens)
   const { data, error } = await supabase
     .from('user_oauth_tokens')
     .upsert(
@@ -45,11 +46,11 @@ const storeOauthToken = async ({
       },
     )
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return { data, error };
-};
+  if (error) throw error
+  return { data, error }
+}
 
 /**
  * Retrieves OAuth tokens for server-side operations.
@@ -60,10 +61,10 @@ const getOauthToken = async ({
   provider,
   email,
 }: {
-  supabase: SupabaseClient<Database>;
-  userId: string;
-  provider: string;
-  email: string;
+  supabase: SupabaseClient<Database>
+  userId: string
+  provider: string
+  email: string
 }): Promise<{ data: OAuthToken | null; error: PostgrestError | null }> => {
   const { data, error } = await supabase
     .from('user_oauth_tokens')
@@ -71,15 +72,15 @@ const getOauthToken = async ({
     .eq('user_id', userId)
     .eq('provider', provider)
     .eq('email', email)
-    .select();
+    .select()
 
-  if (error) throw error;
+  if (error) throw error
 
-  console.log('🚨 data', data);
-  console.log('🚨 error', error);
+  console.log('🚨 data', data)
+  console.log('🚨 error', error)
 
-  return { data: data[0] || null, error };
-};
+  return { data: data[0] || null, error }
+}
 
 /**
  * Updates tokens after a refresh operation.
@@ -89,23 +90,23 @@ const updateOauthToken = async ({
   tokenId,
   tokens,
 }: {
-  supabase: SupabaseClient<Database>;
-  tokenId: string;
-  tokens: Partial<TokenData>;
+  supabase: SupabaseClient<Database>
+  tokenId: string
+  tokens: Partial<TokenData>
 }): Promise<OAuthToken> => {
-  const updates: Record<string, any> = {};
+  const updates: Record<string, any> = {}
 
   if (tokens.accessToken) {
-    updates.access_token = tokens.accessToken;
+    updates.access_token = tokens.accessToken
   }
   if (tokens.refreshToken) {
-    updates.refresh_token = tokens.refreshToken;
+    updates.refresh_token = tokens.refreshToken
   }
   if (tokens.expiresAt) {
-    updates.token_expires_at = tokens.expiresAt.toISOString();
+    updates.token_expires_at = tokens.expiresAt
   }
   if (tokens.scopes) {
-    updates.scopes = tokens.scopes;
+    updates.scopes = tokens.scopes
   }
 
   const { data, error } = await supabase
@@ -113,11 +114,11 @@ const updateOauthToken = async ({
     .update(updates)
     .eq('id', tokenId)
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Deletes OAuth tokens and cascades the deletion to related records.
@@ -130,10 +131,10 @@ const deleteOauthToken = async ({
   provider,
   email,
 }: {
-  supabase: SupabaseClient<Database>;
-  userId: string;
-  provider: string;
-  email: string;
+  supabase: SupabaseClient<Database>
+  userId: string
+  provider: string
+  email: string
 }): Promise<void> => {
   try {
     const { error } = await supabase
@@ -141,20 +142,20 @@ const deleteOauthToken = async ({
       .delete()
       .eq('user_id', userId)
       .eq('provider', provider)
-      .eq('email', email);
+      .eq('email', email)
 
     if (error) {
-      throw new Error(`Failed to delete OAuth token: ${error.message}`);
+      throw new Error(`Failed to delete OAuth token: ${error.message}`)
     }
   } catch (err) {
     const errorMessage =
       err instanceof Error
         ? err.message
-        : 'Unknown error occurred while deleting OAuth token';
-    console.error('Error deleting OAuth token:', errorMessage);
-    throw new Error(errorMessage);
+        : 'Unknown error occurred while deleting OAuth token'
+    console.error('Error deleting OAuth token:', errorMessage)
+    throw new Error(errorMessage)
   }
-};
+}
 
 /**
  * Creates a new OAuth state for secure authentication flow.
@@ -176,13 +177,13 @@ const createOAuthState = async ({
   redirectTo,
   expiresIn = 3600, // 1 hour
 }: {
-  supabase: SupabaseClient<Database>;
-  userId: string;
-  redirectTo?: string;
-  expiresIn?: number;
+  supabase: SupabaseClient<Database>
+  userId: string
+  redirectTo?: string
+  expiresIn?: number
 }): Promise<OAuthState> => {
-  const state = crypto.randomUUID();
-  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString();
+  const state = crypto.randomUUID()
+  const expiresAt = new Date(Date.now() + expiresIn * 1000).toISOString()
 
   const { data, error } = await supabase
     .from('oauth_states')
@@ -193,11 +194,11 @@ const createOAuthState = async ({
       expires_at: expiresAt,
     })
     .select()
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Verifies an OAuth state token and ensures it hasn't expired.
@@ -221,19 +222,19 @@ const verifyOAuthState = async ({
   supabase,
   state,
 }: {
-  supabase: SupabaseClient<Database>;
-  state: string;
+  supabase: SupabaseClient<Database>
+  state: string
 }): Promise<OAuthState> => {
   const { data, error } = await supabase
     .from('oauth_states')
     .select()
     .eq('state', state)
     .gt('expires_at', new Date().toISOString())
-    .single();
+    .single()
 
-  if (error) throw error;
-  return data;
-};
+  if (error) throw error
+  return data
+}
 
 /**
  * Removes expired OAuth states from the database.
@@ -247,15 +248,15 @@ const verifyOAuthState = async ({
 const cleanupExpiredStates = async ({
   supabase,
 }: {
-  supabase: SupabaseClient<Database>;
+  supabase: SupabaseClient<Database>
 }): Promise<void> => {
   const { error } = await supabase
     .from('oauth_states')
     .delete()
-    .lt('expires_at', new Date().toISOString());
+    .lt('expires_at', new Date().toISOString())
 
-  if (error) throw error;
-};
+  if (error) throw error
+}
 
 /**
  * Deletes a specific OAuth state after successful verification.
@@ -273,16 +274,16 @@ const deleteOAuthState = async ({
   supabase,
   state,
 }: {
-  supabase: SupabaseClient<Database>;
-  state: string;
+  supabase: SupabaseClient<Database>
+  state: string
 }): Promise<void> => {
   const { error } = await supabase
     .from('oauth_states')
     .delete()
-    .eq('state', state);
+    .eq('state', state)
 
-  if (error) throw error;
-};
+  if (error) throw error
+}
 
 export {
   createOAuthState,
@@ -293,6 +294,6 @@ export {
   getOauthToken,
   updateOauthToken,
   deleteOauthToken,
-};
+}
 
-export type { OAuthState, OAuthToken, TokenData };
+export type { OAuthState, OAuthToken, TokenData }

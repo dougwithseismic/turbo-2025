@@ -1,59 +1,10 @@
 import { auth } from '@/lib/auth'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getOauthToken } from '@repo/supabase'
+import {
+  createGoogleClient,
+  GoogleOAuthError,
+} from '@/lib/google/oauth-helpers'
 import { google } from 'googleapis'
 import { NextResponse } from 'next/server'
-
-/** Custom error class for Google Search Console related errors */
-class GoogleSearchError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number = 500,
-  ) {
-    super(message)
-    this.name = 'GoogleSearchError'
-  }
-}
-
-/**
- * Creates an authenticated Google Search Console client
- * @param params - Parameters containing user ID and email
- * @throws {GoogleSearchError} When OAuth tokens are not found
- * @returns Authenticated Google Search Console client
- */
-const createGoogleSearchClient = async ({
-  userId,
-  email,
-}: {
-  readonly userId: string
-  readonly email: string
-}) => {
-  const supabase = await createSupabaseServerClient()
-  console.log(userId, email)
-  const { data: tokenData, error } = await getOauthToken({
-    userId,
-    provider: 'google',
-    email,
-    supabase,
-  })
-
-  console.log(tokenData)
-
-  if (error || !tokenData) {
-    console.error('Google OAuth tokens not found', error)
-    throw new GoogleSearchError('Google OAuth tokens not found', 401)
-  }
-
-  const { access_token, refresh_token } = tokenData
-
-  const oauth2Client = new google.auth.OAuth2({
-    clientId: process.env.AUTH_GOOGLE_CLIENT_ID,
-    clientSecret: process.env.AUTH_GOOGLE_SECRET,
-  })
-
-  oauth2Client.setCredentials({ access_token, refresh_token })
-  return google.searchconsole({ version: 'v1', auth: oauth2Client })
-}
 
 /**
  * GET /api/google-search-console/properties
@@ -67,16 +18,17 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const searchConsole = await createGoogleSearchClient({
+    const searchConsole = await createGoogleClient({
       userId: user.id,
       email: user.email,
+      getClient: (auth) => google.searchconsole({ version: 'v1', auth }),
     })
 
     const { data } = await searchConsole.sites.list()
 
     return NextResponse.json(data.siteEntry || [])
   } catch (error) {
-    if (error instanceof GoogleSearchError) {
+    if (error instanceof GoogleOAuthError) {
       return NextResponse.json(
         { error: error.message },
         { status: error.statusCode },

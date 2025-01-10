@@ -1,58 +1,30 @@
 import { auth } from '@/lib/auth'
-import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { getOauthToken } from '@repo/supabase'
+import {
+  createGoogleClient,
+  GoogleOAuthError,
+} from '@/lib/google/oauth-helpers'
+import { analytics_v3 } from 'googleapis'
 import { google } from 'googleapis'
 import { NextResponse } from 'next/server'
 
-/** Custom error class for Google Analytics related errors */
-class GoogleAnalyticsError extends Error {
-  constructor(
-    message: string,
-    public readonly statusCode: number = 500,
-  ) {
-    super(message)
-    this.name = 'GoogleAnalyticsError'
-  }
-}
+const REQUIRED_SCOPE = 'https://www.googleapis.com/auth/analytics.readonly'
 
 /**
- * Creates an authenticated Google Analytics client
+ * Verifies that the token has the required Analytics scope
  */
-const createGoogleAnalyticsClient = async ({
-  userId,
-  email,
-}: {
-  readonly userId: string
-  readonly email: string
-}) => {
-  const supabase = await createSupabaseServerClient()
-  const { data: tokenData, error } = await getOauthToken({
-    userId,
-    provider: 'google',
-    email,
-    supabase,
-  })
-
-  if (error || !tokenData) {
-    console.error('Google OAuth tokens not found', error)
-    throw new GoogleAnalyticsError('Google OAuth tokens not found', 401)
+const verifyAnalyticsScope = (scopes: string[]) => {
+  if (!scopes.includes(REQUIRED_SCOPE)) {
+    throw new GoogleOAuthError(
+      `Missing required scope: ${REQUIRED_SCOPE}. Please reconnect your Google account with Analytics permissions.`,
+      403,
+    )
   }
-
-  const { access_token, refresh_token } = tokenData
-
-  const oauth2Client = new google.auth.OAuth2({
-    clientId: process.env.AUTH_GOOGLE_CLIENT_ID,
-    clientSecret: process.env.AUTH_GOOGLE_SECRET,
-  })
-
-  oauth2Client.setCredentials({ access_token, refresh_token })
-  return google.analyticsadmin({ version: 'v1beta', auth: oauth2Client })
 }
 
 /**
  * GET /api/google-analytics/properties
  *
- * Returns all Google Analytics 4 properties for the authenticated user
+ * Returns all Google Analytics properties for the authenticated user
  */
 export async function GET() {
   try {
@@ -61,15 +33,18 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const analytics = await createGoogleAnalyticsClient({
+    const analytics = await createGoogleClient<analytics_v3.Analytics>({
       userId: user.id,
       email: user.email,
+      getClient: (auth) => google.analytics({ version: 'v3', auth }),
+      verifyScopes: verifyAnalyticsScope,
     })
 
-    const { data } = await analytics.properties.list()
-    return NextResponse.json(data.properties || [])
+    // Get account summaries which includes properties
+    const { data } = await analytics.management.accountSummaries.list()
+    return NextResponse.json(data.items || [])
   } catch (error) {
-    if (error instanceof GoogleAnalyticsError) {
+    if (error instanceof GoogleOAuthError) {
       return NextResponse.json(
         { error: error.message },
         { status: error.statusCode },
