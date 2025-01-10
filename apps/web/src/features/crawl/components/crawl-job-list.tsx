@@ -7,6 +7,7 @@ import { useGetSiteCrawlJobs } from '@repo/supabase'
 import { formatDistanceToNow } from 'date-fns'
 import Link from 'next/link'
 import { useEffect } from 'react'
+import { useParams } from 'next/navigation'
 
 type CrawlJobListProps = {
   siteId: string
@@ -14,6 +15,9 @@ type CrawlJobListProps = {
 }
 
 export function CrawlJobList({ siteId, onStartCrawl }: CrawlJobListProps) {
+  const params = useParams()
+  const projectId = params.id as string
+
   const {
     data: jobs = [],
     isLoading,
@@ -74,7 +78,7 @@ export function CrawlJobList({ siteId, onStartCrawl }: CrawlJobListProps) {
           {jobs?.map((job) => (
             <Link
               key={job.id}
-              href={`/sites/${siteId}/crawls/${job.id}`}
+              href={`/project/${projectId}/crawls/${job.id}`}
               className="block"
             >
               <Card className="p-4 hover:bg-muted/50 transition-colors">
