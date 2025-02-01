@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js'
 import type { Database } from '../database.types'
+import type { Json } from '../types'
 
 // Types
 export type CrawlJob = Database['public']['Tables']['crawl_jobs']['Row']
@@ -7,9 +8,55 @@ export type CrawlJobInsert =
   Database['public']['Tables']['crawl_jobs']['Insert']
 export type CrawlJobUpdate =
   Database['public']['Tables']['crawl_jobs']['Update']
-export type UrlMetric = Database['public']['Tables']['url_metrics']['Row']
-export type UrlMetricInsert =
-  Database['public']['Tables']['url_metrics']['Insert']
+
+export type UrlMetrics = {
+  statusCode: number
+  redirectUrl?: string
+  title?: string
+  metaDescription?: string
+  h1: string[]
+  canonicalUrl?: string
+  robotsDirectives: string[]
+  loadTimeMs: number
+  wordCount: number
+  internalLinks: number
+  externalLinks: number
+  imagesCount: number
+  imagesWithoutAlt: number
+  schemaTypes: string[]
+  metaRobots?: string
+  viewport?: string
+  lang?: string
+  mobileFriendly: boolean
+}
+
+export type CrawlIssue = {
+  severity: 'error' | 'warning' | 'info'
+  message: string
+  details?: Record<string, unknown>
+}
+
+export type CrawlResults = {
+  urls: {
+    [url: string]: {
+      metrics: UrlMetrics
+      issues: {
+        [issueType: string]: CrawlIssue[]
+      }
+      htmlSnapshot?: string
+    }
+  }
+  summary: {
+    totalUrls: number
+    processedUrls: number
+    errorCount: number
+    startedAt: string
+    completedAt?: string
+    commonIssues: {
+      [issueType: string]: number
+    }
+  }
+}
 
 // Helpers
 function throwIfError<T>(
@@ -36,18 +83,31 @@ export async function createCrawlJob(
     settings?: CrawlJobInsert['settings']
   },
 ): Promise<CrawlJob> {
-  const job: CrawlJobInsert = {
+  // First verify the site exists
+  const { data: site, error: siteError } = await supabase
+    .from('sites')
+    .select('id')
+    .eq('id', siteId)
+    .single()
+
+  if (siteError || !site) {
+    throw new Error(`Site with ID ${siteId} not found`)
+  }
+
+  // Note: user_id will be set by the trigger
+  const job = {
     site_id: siteId,
     settings,
     status: 'pending',
     processed_urls: 0,
     total_urls: 0,
     error_count: 0,
-  }
+    results: {} as Json,
+  } as const
 
   const result = await supabase
     .from('crawl_jobs')
-    .insert(job)
+    .insert(job as CrawlJobInsert)
     .select('*')
     .single()
 
@@ -58,32 +118,17 @@ export async function getCrawlJob(
   supabase: SupabaseClient<Database>,
   {
     jobId,
-    includeMetrics = false,
   }: {
     jobId: string
-    includeMetrics?: boolean
   },
-): Promise<CrawlJob & { metrics?: UrlMetric[] }> {
-  const query = supabase.from('crawl_jobs').select('*').eq('id', jobId).single()
+): Promise<CrawlJob> {
+  const result = await supabase
+    .from('crawl_jobs')
+    .select('*')
+    .eq('id', jobId)
+    .single()
 
-  const result = await query
-
-  const job = throwIfError(result, 'get crawl job')
-
-  if (includeMetrics) {
-    const metricsResult = await supabase
-      .from('url_metrics')
-      .select('*')
-      .eq('crawl_job_id', jobId)
-      .order('time', { ascending: true })
-
-    return {
-      ...job,
-      metrics: metricsResult.data || [],
-    }
-  }
-
-  return job
+  return throwIfError(result, 'get crawl job')
 }
 
 export async function getSiteCrawlJobs(
@@ -118,12 +163,14 @@ export async function updateCrawlJobProgress(
     processedUrls,
     totalUrls,
     errorCount,
+    results,
   }: {
     jobId: string
     status: CrawlJob['status']
     processedUrls?: number
     totalUrls?: number
     errorCount?: number
+    results?: CrawlResults
   },
 ): Promise<CrawlJob> {
   const updates: CrawlJobUpdate = {
@@ -131,6 +178,7 @@ export async function updateCrawlJobProgress(
     ...(processedUrls !== undefined && { processed_urls: processedUrls }),
     ...(totalUrls !== undefined && { total_urls: totalUrls }),
     ...(errorCount !== undefined && { error_count: errorCount }),
+    ...(results !== undefined && { results: results as unknown as Json }),
     ...(status === 'completed' && { completed_at: new Date().toISOString() }),
     ...(status === 'processing' && { started_at: new Date().toISOString() }),
   }
@@ -145,29 +193,21 @@ export async function updateCrawlJobProgress(
   return throwIfError(result, 'update crawl job progress')
 }
 
-export async function addUrlMetric(
-  supabase: SupabaseClient<Database>,
-  metric: Omit<UrlMetricInsert, 'time'>,
-): Promise<UrlMetric> {
-  const result = await supabase
-    .from('url_metrics')
-    .insert({ ...metric, time: new Date().toISOString() })
-    .select('*')
-    .single()
-
-  return throwIfError(result, 'add url metric')
-}
-
 export async function getUrlMetricsHistory(
   supabase: SupabaseClient<Database>,
   { siteId, url }: { siteId: string; url: string },
-): Promise<UrlMetric[]> {
+): Promise<UrlMetrics[]> {
   const result = await supabase
-    .from('url_metrics')
-    .select('*')
+    .from('crawl_jobs')
+    .select('results')
     .eq('site_id', siteId)
-    .eq('url', url)
-    .order('time', { ascending: true })
+    .order('created_at', { ascending: true })
 
-  return throwIfError(result, 'get url metrics history')
+  const jobs = throwIfError(result, 'get url metrics history')
+  return jobs
+    .map((job) => {
+      const results = job.results as unknown as CrawlResults
+      return results.urls[url]?.metrics
+    })
+    .filter((metrics): metrics is UrlMetrics => !!metrics)
 }

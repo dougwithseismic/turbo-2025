@@ -378,7 +378,6 @@ supabaseAdmin.realtime
             : `https://${site?.domain}`,
           scPropertyName: payload.new.gsc_property_id,
           user: { id: user?.id, email: user?.email },
-          maxPages: 3,
         },
       })
 

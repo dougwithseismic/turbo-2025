@@ -18,6 +18,7 @@ import { SeoPlugin } from './crawler/plugins/seo'
 import { logger } from '../config/logger'
 import * as fs from 'fs'
 import { supabaseAdmin } from '../lib/supabase'
+import { Json } from '@repo/supabase'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -180,6 +181,7 @@ const {
               .update({
                 status: 'completed',
                 completed_at: new Date().toISOString(),
+                results: crawlJob.result as unknown as Json,
               })
               .eq('id', job.data.crawlId)
 

@@ -9,14 +9,14 @@ import type { Database } from '../database.types'
 import {
   type CrawlJob,
   type CrawlJobInsert,
-  type UrlMetric,
-  type UrlMetricInsert,
+  type UrlMetrics,
+  type CrawlResults,
+  type CrawlIssue,
   createCrawlJob,
   getCrawlJob,
   getSiteCrawlJobs,
   getUserCrawlJobs,
   updateCrawlJobProgress,
-  addUrlMetric,
   getUrlMetricsHistory,
 } from './crawl'
 
@@ -49,7 +49,6 @@ type BaseKey = ['crawl']
 type ListKey = [...BaseKey, 'list', { siteId: string }]
 type UserListKey = [...BaseKey, 'user-list']
 type DetailKey = [...BaseKey, 'detail', string]
-type MetricsKey = [...DetailKey, 'metrics']
 type UrlMetricsKey = [
   ...BaseKey,
   'url-metrics',
@@ -63,10 +62,6 @@ export const crawlKeys = {
   userList: (): UserListKey => [...crawlKeys.all(), 'user-list'],
   details: () => [...crawlKeys.all(), 'detail'] as const,
   detail: (jobId: string): DetailKey => [...crawlKeys.details(), jobId],
-  metrics: (jobId: string): MetricsKey => [
-    ...crawlKeys.detail(jobId),
-    'metrics',
-  ],
   urlMetrics: (siteId: string, url: string): UrlMetricsKey => [
     ...crawlKeys.all(),
     'url-metrics',
@@ -91,16 +86,11 @@ export const crawlQueries = {
   detail: ({
     supabase,
     jobId,
-    includeMetrics = false,
-  }: CrawlQueryParams & {
-    includeMetrics?: boolean
-  }): UseQueryOptions<CrawlJob & { metrics?: UrlMetric[] }, CrawlError> => ({
-    queryKey: includeMetrics
-      ? crawlKeys.metrics(jobId)
-      : crawlKeys.detail(jobId),
+  }: CrawlQueryParams): UseQueryOptions<CrawlJob, CrawlError> => ({
+    queryKey: crawlKeys.detail(jobId),
     queryFn: async () => {
       try {
-        const data = await getCrawlJob(supabase, { jobId, includeMetrics })
+        const data = await getCrawlJob(supabase, { jobId })
         if (!data) {
           throw new CrawlError('Crawl job not found', 'NOT_FOUND', 404)
         }
@@ -144,7 +134,7 @@ export const crawlQueries = {
     supabase,
     siteId,
     url,
-  }: UrlMetricsQueryParams): UseQueryOptions<UrlMetric[], CrawlError> => ({
+  }: UrlMetricsQueryParams): UseQueryOptions<UrlMetrics[], CrawlError> => ({
     queryKey: crawlKeys.urlMetrics(siteId, url),
     queryFn: async () => {
       try {
@@ -161,11 +151,10 @@ export const crawlQueries = {
 export const useGetCrawlJob = ({
   supabase,
   jobId,
-  includeMetrics = false,
   enabled = true,
-}: CrawlQueryParams & { includeMetrics?: boolean } & QueryEnabledProps) => {
-  return useQuery<CrawlJob & { metrics?: UrlMetric[] }, CrawlError>({
-    ...crawlQueries.detail({ supabase, jobId, includeMetrics }),
+}: CrawlQueryParams & QueryEnabledProps) => {
+  return useQuery<CrawlJob, CrawlError>({
+    ...crawlQueries.detail({ supabase, jobId }),
     enabled: Boolean(jobId) && enabled,
   })
 }
@@ -197,7 +186,7 @@ export const useGetUrlMetricsHistory = ({
   url,
   enabled = true,
 }: UrlMetricsQueryParams & QueryEnabledProps) => {
-  return useQuery<UrlMetric[], CrawlError>({
+  return useQuery<UrlMetrics[], CrawlError>({
     ...crawlQueries.urlMetrics({ supabase, siteId, url }),
     enabled: Boolean(siteId) && Boolean(url) && enabled,
   })
@@ -215,9 +204,8 @@ type UpdateCrawlProgressRequest = {
   processedUrls?: number
   totalUrls?: number
   errorCount?: number
+  results?: CrawlResults
 }
-
-type AddUrlMetricRequest = Omit<UrlMetricInsert, 'time'>
 
 // Mutation Hooks
 export const useCreateCrawlJob = ({ supabase }: SupabaseProps) => {
@@ -253,6 +241,7 @@ export const useUpdateCrawlProgress = ({ supabase }: SupabaseProps) => {
       processedUrls,
       totalUrls,
       errorCount,
+      results,
     }: UpdateCrawlProgressRequest) => {
       try {
         const data = await updateCrawlJobProgress(supabase, {
@@ -261,6 +250,7 @@ export const useUpdateCrawlProgress = ({ supabase }: SupabaseProps) => {
           processedUrls,
           totalUrls,
           errorCount,
+          results,
         })
         return data
       } catch (err) {
@@ -279,33 +269,6 @@ export const useUpdateCrawlProgress = ({ supabase }: SupabaseProps) => {
       void queryClient.invalidateQueries({
         queryKey: crawlKeys.userList(),
       })
-    },
-  })
-}
-
-export const useAddUrlMetric = ({ supabase }: SupabaseProps) => {
-  const queryClient = useQueryClient()
-
-  return useMutation({
-    mutationFn: async (metric: AddUrlMetricRequest) => {
-      try {
-        const data = await addUrlMetric(supabase, metric)
-        return data
-      } catch (err) {
-        throw CrawlError.fromError(err, 'ADD_METRIC_ERROR')
-      }
-    },
-    onSuccess: (data) => {
-      if (data.site_id && data.url) {
-        void queryClient.invalidateQueries({
-          queryKey: crawlKeys.urlMetrics(data.site_id, data.url),
-        })
-      }
-      if (data.crawl_job_id) {
-        void queryClient.invalidateQueries({
-          queryKey: crawlKeys.metrics(data.crawl_job_id),
-        })
-      }
     },
   })
 }

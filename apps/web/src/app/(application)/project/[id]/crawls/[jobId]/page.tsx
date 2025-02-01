@@ -1,11 +1,12 @@
-'use client'
-
-import { use } from 'react'
 import { PageHeader } from '@/features/page-layout/components/page-header'
-import { UrlMetricsTable } from '@/features/crawl/components/url-metrics-table'
-import { useGetCrawlJob } from '@repo/supabase'
-import { supabaseClient } from '@/lib/supabase/client'
-import { generateUrlMetrics } from '@/features/crawl/utils/mock-data'
+import { CrawlResults } from '@/features/crawl/components/crawl-results'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { crawlQueries } from '@repo/supabase'
+import {
+  dehydrate,
+  HydrationBoundary,
+  QueryClient,
+} from '@tanstack/react-query'
 
 interface CrawlPageProps {
   params: Promise<{
@@ -14,15 +15,13 @@ interface CrawlPageProps {
   }>
 }
 
-// Generate 1000 mock metrics
-const mockMetrics = generateUrlMetrics({ count: 1000 })
+export default async function CrawlPage({ params }: CrawlPageProps) {
+  const { id: projectId, jobId } = await params
+  const queryClient = new QueryClient()
+  const supabase = await createSupabaseServerClient()
 
-export default function CrawlPage({ params }: CrawlPageProps) {
-  const { id: projectId, jobId } = use(params)
-  const { data: job, isLoading } = useGetCrawlJob({
-    supabase: supabaseClient,
-    jobId,
-  })
+  // Prefetch the crawl job data
+  await queryClient.prefetchQuery(crawlQueries.detail({ supabase, jobId }))
 
   const breadcrumbItems = [
     { label: 'Projects', href: '/projects' },
@@ -32,26 +31,15 @@ export default function CrawlPage({ params }: CrawlPageProps) {
   ]
 
   return (
-    <div>
-      <PageHeader items={breadcrumbItems} title="Crawl Results" />
-      <div className="space-y-6 p-4">
-        <div className="relative w-full overflow-auto">
-          <UrlMetricsTable
-            data={mockMetrics}
-            jobDetails={
-              isLoading
-                ? undefined
-                : job
-                  ? {
-                      id: jobId,
-                      created_at: job.created_at,
-                      status: job.status,
-                    }
-                  : undefined
-            }
-          />
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <div>
+        <PageHeader items={breadcrumbItems} title="Crawl Results" />
+        <div className="space-y-6 p-4">
+          <div className="relative w-full">
+            <CrawlResults jobId={jobId} />
+          </div>
         </div>
       </div>
-    </div>
+    </HydrationBoundary>
   )
 }
