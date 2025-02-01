@@ -99,6 +99,17 @@ export async function getSiteCrawlJobs(
   return throwIfError(result, 'get site crawl jobs')
 }
 
+export async function getUserCrawlJobs(
+  supabase: SupabaseClient<Database>,
+): Promise<CrawlJob[]> {
+  const result = await supabase
+    .from('crawl_jobs')
+    .select('*')
+    .order('created_at', { ascending: false })
+
+  return throwIfError(result, 'get user crawl jobs')
+}
+
 export async function updateCrawlJobProgress(
   supabase: SupabaseClient<Database>,
   {

@@ -44,6 +44,43 @@ export class CrawlerService extends EventEmitter {
     this.initializePlugins()
   }
 
+  /**
+   * Adds a new plugin to the crawler service and initializes it
+   * @param plugin The plugin to add
+   * @returns Promise that resolves when the plugin is initialized
+   */
+  public async addPlugin(
+    plugin: CrawlerPlugin<string, BasePluginMetric, BasePluginSummary>,
+  ): Promise<void> {
+    try {
+      await plugin.initialize()
+      this.plugins.push(plugin)
+      if (this.debug) {
+        console.log(`Successfully added and initialized plugin: ${plugin.name}`)
+      }
+    } catch (error) {
+      console.error(`Failed to add plugin ${plugin.name}:`, error)
+      throw error
+    }
+  }
+
+  /**
+   * Removes a plugin from the crawler service by name
+   * @param pluginName The name of the plugin to remove
+   * @returns boolean indicating whether a plugin was removed
+   */
+  public removePlugin(pluginName: string): boolean {
+    const initialLength = this.plugins.length
+    this.plugins = this.plugins.filter((plugin) => plugin.name !== pluginName)
+    const wasRemoved = initialLength > this.plugins.length
+
+    if (this.debug && wasRemoved) {
+      console.log(`Successfully removed plugin: ${pluginName}`)
+    }
+
+    return wasRemoved
+  }
+
   private async initializePlugins(): Promise<void> {
     for (const plugin of this.plugins) {
       try {

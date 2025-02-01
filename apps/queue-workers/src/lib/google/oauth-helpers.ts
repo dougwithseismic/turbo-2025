@@ -1,4 +1,4 @@
-import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { supabaseClient } from '../././supabase'
 import { getOauthToken, updateOauthToken } from '@repo/supabase'
 import { google } from 'googleapis'
 
@@ -33,11 +33,6 @@ const createRefreshClient = (refreshToken: string) => {
     process.env.AUTH_GOOGLE_CLIENT_ID,
     process.env.AUTH_GOOGLE_SECRET,
   )
-  console.log(
-    '=>>> oauth2Client',
-    process.env.AUTH_GOOGLE_CLIENT_ID,
-    process.env.AUTH_GOOGLE_SECRET,
-  )
   oauth2Client.setCredentials({ refresh_token: refreshToken })
   return oauth2Client
 }
@@ -53,7 +48,7 @@ const refreshGoogleToken = async ({
 }: {
   readonly refreshToken: string
   readonly tokenId: string
-  readonly supabase: Awaited<ReturnType<typeof createSupabaseServerClient>>
+  readonly supabase: typeof supabaseClient
 }) => {
   try {
     const oauth2Client = createRefreshClient(refreshToken)
@@ -98,7 +93,7 @@ export const createGoogleClient = async <T>({
   readonly getClient: (auth: InstanceType<typeof google.auth.OAuth2>) => T
   readonly verifyScopes?: (scopes: string[]) => void
 }) => {
-  const supabase = await createSupabaseServerClient()
+  const supabase = supabaseClient
   const { data: tokenData, error } = await getOauthToken({
     userId,
     provider: 'google',
@@ -123,7 +118,7 @@ export const createGoogleClient = async <T>({
     verifyScopes(scopes)
   }
 
-  // // Debug token expiration
+  // Debug token expiration
   // console.log('Token expiration debug:', {
   //   token_expires_at,
   //   parsed: new Date(token_expires_at),

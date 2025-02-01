@@ -76,8 +76,8 @@ const getOauthToken = async ({
 
   if (error) throw error
 
-  console.log('🚨 data', data)
-  console.log('🚨 error', error)
+  // console.log('🚨 data', data)
+  // console.log('🚨 error', error)
 
   return { data: data[0] || null, error }
 }

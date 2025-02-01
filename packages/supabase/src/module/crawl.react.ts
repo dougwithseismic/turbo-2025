@@ -14,6 +14,7 @@ import {
   createCrawlJob,
   getCrawlJob,
   getSiteCrawlJobs,
+  getUserCrawlJobs,
   updateCrawlJobProgress,
   addUrlMetric,
   getUrlMetricsHistory,
@@ -46,6 +47,7 @@ export class CrawlError extends Error {
 // Query Key Types
 type BaseKey = ['crawl']
 type ListKey = [...BaseKey, 'list', { siteId: string }]
+type UserListKey = [...BaseKey, 'user-list']
 type DetailKey = [...BaseKey, 'detail', string]
 type MetricsKey = [...DetailKey, 'metrics']
 type UrlMetricsKey = [
@@ -58,6 +60,7 @@ export const crawlKeys = {
   all: (): BaseKey => ['crawl'],
   lists: () => [...crawlKeys.all(), 'list'] as const,
   list: (siteId: string): ListKey => [...crawlKeys.lists(), { siteId }],
+  userList: (): UserListKey => [...crawlKeys.all(), 'user-list'],
   details: () => [...crawlKeys.all(), 'detail'] as const,
   detail: (jobId: string): DetailKey => [...crawlKeys.details(), jobId],
   metrics: (jobId: string): MetricsKey => [
@@ -123,6 +126,20 @@ export const crawlQueries = {
     },
   }),
 
+  userList: ({
+    supabase,
+  }: SupabaseProps): UseQueryOptions<CrawlJob[], CrawlError> => ({
+    queryKey: crawlKeys.userList(),
+    queryFn: async () => {
+      try {
+        const data = await getUserCrawlJobs(supabase)
+        return data
+      } catch (err) {
+        throw CrawlError.fromError(err, 'FETCH_ERROR')
+      }
+    },
+  }),
+
   urlMetrics: ({
     supabase,
     siteId,
@@ -161,6 +178,16 @@ export const useGetSiteCrawlJobs = ({
   return useQuery<CrawlJob[], CrawlError>({
     ...crawlQueries.list({ supabase, siteId }),
     enabled: Boolean(siteId) && enabled,
+  })
+}
+
+export const useGetUserCrawlJobs = ({
+  supabase,
+  enabled = true,
+}: SupabaseProps & QueryEnabledProps) => {
+  return useQuery<CrawlJob[], CrawlError>({
+    ...crawlQueries.userList({ supabase }),
+    enabled,
   })
 }
 
@@ -209,6 +236,9 @@ export const useCreateCrawlJob = ({ supabase }: SupabaseProps) => {
       void queryClient.invalidateQueries({
         queryKey: crawlKeys.list(siteId),
       })
+      void queryClient.invalidateQueries({
+        queryKey: crawlKeys.userList(),
+      })
     },
   })
 }
@@ -246,6 +276,9 @@ export const useUpdateCrawlProgress = ({ supabase }: SupabaseProps) => {
           queryKey: crawlKeys.list(data.site_id),
         })
       }
+      void queryClient.invalidateQueries({
+        queryKey: crawlKeys.userList(),
+      })
     },
   })
 }

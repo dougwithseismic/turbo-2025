@@ -81,9 +81,9 @@ export function SiteForm({ projectId, open, onOpenChange }: SiteFormProps) {
         projectId,
         domain: values.domain,
         sitemapUrl: values.sitemap_url || undefined,
+        gscPropertyId: values.gsc_property_id || undefined,
+        gaPropertyId: values.ga_property_id || undefined,
         settings: {
-          gsc_property_id: values.gsc_property_id || undefined,
-          ga_property_id: values.ga_property_id || undefined,
           crawl_frequency: values.crawl_frequency || '7 days',
         },
       },

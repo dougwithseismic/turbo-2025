@@ -13,6 +13,7 @@ import {
   getProjectSites,
   getSite,
   updateSite,
+  updateSitePropertyIds,
 } from './sites'
 
 /**
@@ -126,6 +127,8 @@ type CreateSiteRequest = {
   projectId: string
   domain: string
   sitemapUrl?: string
+  gscPropertyId?: string
+  gaPropertyId?: string
   settings?: Record<string, unknown>
 }
 
@@ -134,17 +137,32 @@ type UpdateSiteRequest = {
   updates: SiteUpdate
 }
 
+type UpdateSitePropertyIdsRequest = {
+  siteId: string
+  gscPropertyId?: string
+  gaPropertyId?: string
+}
+
 // Mutation Hooks
 export const useCreateSite = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
   return useMutation<Site, SiteError, CreateSiteRequest>({
-    mutationFn: async ({ projectId, domain, sitemapUrl, settings }) => {
+    mutationFn: async ({
+      projectId,
+      domain,
+      sitemapUrl,
+      gscPropertyId,
+      gaPropertyId,
+      settings,
+    }) => {
       try {
         const data = await createSite(supabase, {
           projectId,
           domain,
           sitemapUrl,
+          gscPropertyId,
+          gaPropertyId,
           settings,
         })
         return data
@@ -185,13 +203,47 @@ export const useUpdateSite = ({ supabase }: SupabaseProps) => {
   })
 }
 
+export const useUpdateSitePropertyIds = ({ supabase }: SupabaseProps) => {
+  const queryClient = useQueryClient()
+
+  return useMutation<Site, SiteError, UpdateSitePropertyIdsRequest>({
+    mutationFn: async ({ siteId, gscPropertyId, gaPropertyId }) => {
+      try {
+        const data = await updateSitePropertyIds(supabase, {
+          siteId,
+          gscPropertyId,
+          gaPropertyId,
+        })
+        return data
+      } catch (err) {
+        throw SiteError.fromError(err, 'UPDATE_PROPERTY_IDS_ERROR')
+      }
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: siteKeys.detail(data.id),
+      })
+      if (data.project_id) {
+        queryClient.invalidateQueries({
+          queryKey: siteKeys.list(data.project_id),
+        })
+      }
+    },
+  })
+}
+
 export const useDeleteSite = ({ supabase }: SupabaseProps) => {
   const queryClient = useQueryClient()
 
-  return useMutation<void, SiteError, { siteId: string; projectId: string }>({
+  return useMutation<
+    undefined,
+    SiteError,
+    { siteId: string; projectId: string }
+  >({
     mutationFn: async ({ siteId }) => {
       try {
         await deleteSite(supabase, { siteId })
+        return undefined
       } catch (err) {
         throw SiteError.fromError(err, 'DELETE_ERROR')
       }

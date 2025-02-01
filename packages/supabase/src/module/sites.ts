@@ -50,11 +50,15 @@ export async function createSite(
     projectId,
     domain,
     sitemapUrl,
+    gscPropertyId,
+    gaPropertyId,
     settings = {},
   }: {
     projectId: string
     domain: string
     sitemapUrl?: string
+    gscPropertyId?: string
+    gaPropertyId?: string
     settings?: Record<string, unknown>
   },
 ): Promise<Site> {
@@ -62,6 +66,8 @@ export async function createSite(
     project_id: projectId,
     domain,
     sitemap_url: sitemapUrl,
+    gsc_property_id: gscPropertyId,
+    ga_property_id: gaPropertyId,
     settings: settings as Json,
   }
 
@@ -88,6 +94,37 @@ export async function updateSite(
     updates: SiteUpdate
   },
 ): Promise<Site> {
+  const { data, error } = await supabase
+    .from('sites')
+    .update(updates)
+    .eq('id', siteId)
+    .select('*')
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+/**
+ * Update site property IDs
+ */
+export async function updateSitePropertyIds(
+  supabase: SupabaseClient<Database>,
+  {
+    siteId,
+    gscPropertyId,
+    gaPropertyId,
+  }: {
+    siteId: string
+    gscPropertyId?: string
+    gaPropertyId?: string
+  },
+): Promise<Site> {
+  const updates: SiteUpdate = {
+    ...(gscPropertyId !== undefined && { gsc_property_id: gscPropertyId }),
+    ...(gaPropertyId !== undefined && { ga_property_id: gaPropertyId }),
+  }
+
   const { data, error } = await supabase
     .from('sites')
     .update(updates)
