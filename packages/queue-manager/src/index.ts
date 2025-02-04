@@ -321,4 +321,5 @@ export class QueueManager {
   }
 }
 
+export type { RedisConfig, JobHandler, StepInfo, JobHelpers, QueueHandlers }
 export type { Queue, Worker }

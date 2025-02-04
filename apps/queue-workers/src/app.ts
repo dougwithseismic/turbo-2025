@@ -16,15 +16,14 @@ import { Job, Queue } from 'bullmq'
 import { z } from 'zod'
 import { generateRoomToken } from './lib/generate-room-token'
 import { getUserOAuthToken } from './lib/get-user-oauth-token'
+import { supabaseAdmin } from './lib/supabase'
 import { validateRequest } from './middleware/validate-request'
 import {
   bulkJobIdsSchema,
   createBulkJobsSchema,
-  createJobSchema,
   queryParamsSchema,
 } from './schemas/queue-schemas'
 import { crawlQueue } from './services/crawl-bull'
-import { supabaseAdmin } from './lib/supabase'
 
 /**
  * Example curl command to start a crawl:

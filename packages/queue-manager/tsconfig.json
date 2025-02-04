@@ -1,11 +1,11 @@
 {
-  "extends": "@repo/config-typescript/base.json",
-
   "compilerOptions": {
-    "noEmit": false,
+    "module": "ESNext",
+    "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./src"
   },
   "exclude": ["node_modules", "dist", "*.mjs"],
-  "include": ["src/**/*"]
+  "extends": "@repo/config-typescript/base.json",
+  "include": ["src"]
 }

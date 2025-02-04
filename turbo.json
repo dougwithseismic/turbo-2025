@@ -83,6 +83,37 @@
       "dependsOn": ["^setup"],
       "outputs": []
     },
+    "start": {
+      "cache": false,
+      "dependsOn": ["build"],
+      "env": [
+        "NODE_ENV",
+        "NEXT_PUBLIC_APP_URL",
+        "NEXT_PUBLIC_BASE_URL",
+        "PORT",
+        "BASE_URL",
+        "API_URL",
+        "API_TIMEOUT",
+        "AUTH_SECRET",
+        "AUTH_GOOGLE_CLIENT_ID",
+        "AUTH_GOOGLE_SECRET",
+        "DATABASE_URL",
+        "SUPABASE_URL",
+        "NEXT_PUBLIC_SUPABASE_URL",
+        "SUPABASE_SERVICE_ROLE_KEY",
+        "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+        "NEXT_PUBLIC_ENABLE_ANALYTICS",
+        "NEXT_PUBLIC_AUTH_EMAIL_ENABLED",
+        "NEXT_PUBLIC_AUTH_GOOGLE_ENABLED",
+        "NEXT_PUBLIC_AUTH_DISCORD_ENABLED",
+        "RATE_LIMIT_API_WINDOW_MS",
+        "RATE_LIMIT_API_MAX_REQUESTS",
+        "RATE_LIMIT_API_FAILURE_THRESHOLD",
+        "RATE_LIMIT_AUTH_WINDOW_MS",
+        "RATE_LIMIT_AUTH_MAX_ATTEMPTS"
+      ],
+      "persistent": true
+    },
     "test": {
       "dependsOn": ["^build"],
       "env": [
