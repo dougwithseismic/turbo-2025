@@ -14,11 +14,8 @@ services:
 
   queue-workers:
     container_name: queue-workers
-    build:
-      context: .
-      dockerfile: apps/queue-workers/Dockerfile
     ports:
-      - "3000:3000"
+      - "42069:42069"
     env_file:
       - .env
     environment:
