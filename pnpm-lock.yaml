@@ -191,7 +191,7 @@ importers:
         version: 8.15.0(eslint@9.16.0)(typescript@5.7.2)
       vitest:
         specifier: ^2.1.4
-        version: 2.1.8(@types/node@20.17.10)(@vitest/ui@2.1.8)(jsdom@25.0.1)
+        version: 2.1.8(@types/node@20.17.10)(@vitest/ui@1.2.2)(jsdom@24.0.0)
 
   apps/web:
     dependencies:
@@ -313,8 +313,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       framer-motion:
-        specifier: ^11.13.1
-        version: 11.13.1(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215)
+        specifier: ^12.0.11
+        version: 12.0.11(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215)
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
@@ -3519,10 +3519,10 @@ packages:
   /@radix-ui/react-portal@1.1.3(@types/react-dom@19.0.1)(@types/react@19.0.1)(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):
     resolution: {integrity: sha512-NciRqhXnGojhT93RPyDaMPfLH3ZSl4jjIFbZQ1b/vxvZEdHsBZ49wP9w8L3HzUQwep01LcWtkUvm0OVB5JAHTw==}
     peerDependencies:
-      '@types/react': 19.0.3
-      '@types/react-dom': 19.0.2
-      react: 19.0.0
-      react-dom: 19.0.0
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -8125,27 +8125,6 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
-  /framer-motion@11.13.1(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):
-    resolution: {integrity: sha512-F40tpGTHByhn9h3zdBQPcEro+pSLtzARcocbNqAyfBI+u9S+KZuHH/7O9+z+GEkoF3eqFxfvVw0eBDytohwqmQ==}
-    peerDependencies:
-      '@emotion/is-prop-valid': '*'
-      react: ^18.0.0
-      react-dom: ^18.0.0
-    peerDependenciesMeta:
-      '@emotion/is-prop-valid':
-        optional: true
-      react:
-        optional: true
-      react-dom:
-        optional: true
-    dependencies:
-      motion-dom: 11.18.1
-      motion-utils: 11.18.1
-      react: 19.1.0-canary-e06c72fc-20241215
-      react-dom: 19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215)
-      tslib: 2.8.1
-    dev: false
-
   /framer-motion@11.18.2(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):
     resolution: {integrity: sha512-5F5Och7wrvtLVElIpclDT0CBzMVg3dL22B64aZwHtsIY8RB4mXICLrkajK4G9R+ieSAGcgrLeae2SeUTg2pr6w==}
     peerDependencies:
@@ -8162,6 +8141,27 @@ packages:
     dependencies:
       motion-dom: 11.18.1
       motion-utils: 11.18.1
+      react: 19.1.0-canary-e06c72fc-20241215
+      react-dom: 19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215)
+      tslib: 2.8.1
+    dev: false
+
+  /framer-motion@12.0.11(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):
+    resolution: {integrity: sha512-1F+YNXr3bSHxt5sCzeCVL56sc4MngbOhdU5ptv02vaepdFYcQd0fZtuAHvFJgMbn5V7SOsaX/3hVqr21ZaCKhA==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      motion-dom: 12.0.0
+      motion-utils: 12.0.0
       react: 19.1.0-canary-e06c72fc-20241215
       react-dom: 19.1.0-canary-e06c72fc-20241215(react@19.1.0-canary-e06c72fc-20241215)
       tslib: 2.8.1
@@ -10466,8 +10466,18 @@ packages:
       motion-utils: 11.18.1
     dev: false
 
+  /motion-dom@12.0.0:
+    resolution: {integrity: sha512-CvYd15OeIR6kHgMdonCc1ihsaUG4MYh/wrkz8gZ3hBX/uamyZCXN9S9qJoYF03GqfTt7thTV/dxnHYX4+55vDg==}
+    dependencies:
+      motion-utils: 12.0.0
+    dev: false
+
   /motion-utils@11.18.1:
     resolution: {integrity: sha512-49Kt+HKjtbJKLtgO/LKj9Ld+6vw9BjH5d9sc40R/kVyH8GLAXgT42M2NnuPcJNuA3s9ZfZBUcwIgpmZWGEE+hA==}
+    dev: false
+
+  /motion-utils@12.0.0:
+    resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
     dev: false
 
   /motion@11.14.4(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):

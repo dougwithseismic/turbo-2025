@@ -161,25 +161,6 @@ export function CrawlJobDetails({
               variant={(job.error_count ?? 0) > 0 ? 'error' : 'default'}
             />
           </div>
-
-          {job.metrics && job.metrics.length > 0 && (
-            <div className="space-y-2">
-              <h3 className="font-medium">Recent URLs</h3>
-              <div className="space-y-2">
-                {job.metrics.slice(-5).map((metric) => (
-                  <div
-                    key={metric.id}
-                    className="flex items-center justify-between text-sm"
-                  >
-                    <span className="truncate flex-1">{metric.url}</span>
-                    <span className="text-muted-foreground ml-4">
-                      {metric.status_code}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </Card>
     </div>

@@ -45,9 +45,6 @@ export * from './module/onboarding.react'
 export * from './module/profiles'
 export * from './module/profiles.react'
 
-// Payment Providers
-export * from './module/payment-providers/stripe'
-
 // Client Instance Management
 let supabaseInstance: SupabaseClient | null = null
 

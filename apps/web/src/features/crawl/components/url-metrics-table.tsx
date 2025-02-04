@@ -28,6 +28,7 @@ import {
   SortingState,
   useReactTable,
   VisibilityState,
+  Row,
 } from '@tanstack/react-table'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ArrowUpDown, Check, ChevronDown, Copy } from 'lucide-react'
@@ -148,7 +149,7 @@ const columns: ColumnDef<UrlMetric>[] = [
       )
     },
     cell: ({ row }) => {
-      const status = row.getValue('status_code') as number
+      const status: number = row.getValue('status_code')
       return (
         <div className="w-[80px]">
           <Badge
@@ -221,7 +222,7 @@ const columns: ColumnDef<UrlMetric>[] = [
       )
     },
     cell: ({ row }) => {
-      const h1s = row.getValue('h1') as string[] | null
+      const h1s: string[] | null = row.getValue('h1')
       return (
         <div className="w-[200px] truncate">{h1s?.length ? h1s[0] : '-'}</div>
       )
@@ -253,10 +254,10 @@ const columns: ColumnDef<UrlMetric>[] = [
       )
     },
     cell: ({ row }) => {
-      const time = row.getValue('load_time_ms') as number | null
+      const loadTime: number | null = row.getValue('load_time_ms')
       return (
         <div className="w-[100px] text-right">
-          {time ? `${(time / 1000).toFixed(2)}s` : '-'}
+          {loadTime ? `${(loadTime / 1000).toFixed(2)}s` : '-'}
         </div>
       )
     },
@@ -380,57 +381,12 @@ const columns: ColumnDef<UrlMetric>[] = [
       )
     },
     cell: ({ row }) => {
-      const total = row.getValue('images_count') as number | null
+      const totalImages: number | null = row.getValue('images_count')
       const missing = row.original.images_without_alt
-      if (!total) return '-'
+      if (!totalImages) return '-'
       return (
         <div className="w-[100px] text-right">
-          {`${total} (${missing ?? 0} no alt)`}
-        </div>
-      )
-    },
-  },
-  {
-    id: 'actions',
-    header: 'Actions',
-    cell: ({ row }) => {
-      const url = row.original
-      const { state } = useActionPoints()
-      const urlAction = state.urlActions.find((a) => a.url === url.url)
-
-      if (!urlAction?.actions.length) return null
-
-      return (
-        <div className="flex flex-wrap gap-2">
-          {urlAction.actions.map((action) => {
-            const [category, actionName] = action.type.split(': ')
-            const actionInfo = ALL_ACTION_CHECKS.find(
-              (check) =>
-                check.category === category && check.type === actionName,
-            )
-            return (
-              <div key={action.type} className="flex items-center gap-1">
-                <Badge
-                  variant="outline"
-                  className={`flex items-center gap-1 ${action.color}`}
-                >
-                  {action.type}
-                </Badge>
-                {actionInfo && (
-                  <InfoTooltip
-                    content={
-                      <div className="space-y-2">
-                        <p>{actionInfo.description}</p>
-                        <p className="text-muted-foreground">
-                          {actionInfo.reasoning}
-                        </p>
-                      </div>
-                    }
-                  />
-                )}
-              </div>
-            )
-          })}
+          {`${totalImages} (${missing ?? 0} no alt)`}
         </div>
       )
     },
@@ -462,65 +418,70 @@ export function UrlMetricsTable({ data, jobDetails }: UrlMetricsTableProps) {
   const [copied, setCopied] = useState(false)
   const { state } = useActionPoints()
 
+  const handleCopy = async () => {
+    if (jobDetails) {
+      const url = `${window.location.origin}/project/${jobDetails.id}/crawls/${jobDetails.id}`
+      try {
+        await navigator.clipboard.writeText(url)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
+      } catch (error) {
+        console.error('Failed to copy URL:', error)
+      }
+    }
+  }
+
+  const ActionCell = ({ row }: { row: Row<UrlMetric> }) => {
+    const url = row.original
+    const urlAction = state.urlActions.find((a) => a.url === url.url)
+
+    if (!urlAction?.actions.length) return null
+
+    return (
+      <div className="flex flex-wrap gap-2">
+        {urlAction.actions.map((action) => {
+          const [category, actionName] = action.type.split(': ')
+          const actionInfo = ALL_ACTION_CHECKS.find(
+            (check) => check.category === category && check.type === actionName,
+          )
+          return (
+            <div key={action.type} className="flex items-center gap-1">
+              <Badge
+                variant="outline"
+                className={`flex items-center gap-1 ${action.color}`}
+              >
+                {action.type}
+              </Badge>
+              {actionInfo && (
+                <InfoTooltip
+                  content={
+                    <div className="space-y-2">
+                      <p>{actionInfo.description}</p>
+                      <p className="text-muted-foreground">
+                        {actionInfo.reasoning}
+                      </p>
+                    </div>
+                  }
+                />
+              )}
+            </div>
+          )
+        })}
+      </div>
+    )
+  }
+
   const tableColumns = useMemo(
     () => [
-      ...columns.filter((col) => col.id !== 'actions'),
+      ...columns,
       {
         id: 'actions',
         header: 'Actions',
-        cell: ({ row }) => {
-          const url = row.original
-          const urlAction = state.urlActions.find((a) => a.url === url.url)
-
-          if (!urlAction?.actions.length) return null
-
-          return (
-            <div className="flex flex-wrap gap-2">
-              {urlAction.actions.map((action) => {
-                const [category, actionName] = action.type.split(': ')
-                const actionInfo = ALL_ACTION_CHECKS.find(
-                  (check) =>
-                    check.category === category && check.type === actionName,
-                )
-                return (
-                  <div key={action.type} className="flex items-center gap-1">
-                    <Badge
-                      variant="outline"
-                      className={`flex items-center gap-1 ${action.color}`}
-                    >
-                      {action.type}
-                    </Badge>
-                    {actionInfo && (
-                      <InfoTooltip
-                        content={
-                          <div className="space-y-2">
-                            <p>{actionInfo.description}</p>
-                            <p className="text-muted-foreground">
-                              {actionInfo.reasoning}
-                            </p>
-                          </div>
-                        }
-                      />
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          )
-        },
+        cell: ({ row }) => <ActionCell row={row} />,
       },
     ],
     [state.urlActions],
   )
-
-  const handleCopy = () => {
-    if (jobDetails) {
-      const url = `${window.location.origin}/project/${jobDetails.id}/crawls/${jobDetails.id}`
-      navigator.clipboard.writeText(url)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    }
-  }
 
   const table = useReactTable({
     data,
