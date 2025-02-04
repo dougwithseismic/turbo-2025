@@ -3,10 +3,10 @@ command = "pnpm install"
 
 [build]
 builder = "nixpacks"
-buildCommand = "cd apps/queue-workers && pnpm run build"
+buildCommand = "pnpm run build:queue"
 
 [deploy]
-startCommand = "cd apps/queue-workers && pnpm run start:prod --silent"
+startCommand = "pnpm run start:queue"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"

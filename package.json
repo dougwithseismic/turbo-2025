@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
+    "build:queue": "turbo run build --filter=queue-workers",
     "services:start": "tsx packages/scripts/manage-services.ts start",
     "services:stop": "tsx packages/scripts/manage-services.ts stop",
     "dev": "turbo dev",
@@ -10,6 +11,7 @@
     "dev:web": "turbo dev --filter=web",
     "dev:queue": "turbo dev --filter=queue-workers",
     "dev:main": "turbo dev --filter=api --filter=web --filter=queue-workers",
+    "start:queue": "turbo run start --filter=queue-workers",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
     "format:check": "prettier --check \"**/*.{js,ts,tsx,md,json,yml,yaml}\"",
