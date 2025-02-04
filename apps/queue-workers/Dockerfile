@@ -1,29 +1,40 @@
 FROM apify/actor-node-playwright-chrome:20
 
-# Copy package files and lockfile
-COPY package*.json pnpm-lock.yaml ./
+# Install PNPM
+RUN corepack enable && corepack prepare pnpm@8.15.6 --activate
+
+# Set up work directory
+WORKDIR /app
+
+# Copy root workspace files
+COPY pnpm-lock.yaml package.json pnpm-workspace.yaml turbo.json ./
+
+# Copy all workspace packages and apps
+COPY packages/ packages/
+COPY apps/ apps/
+COPY .env* ./
 
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
-# Copy source files
-COPY . .
+# Build all dependencies
+RUN pnpm build
 
-# Install browsers
+# Install browsers for Crawlee
 RUN pnpm dlx playwright install \
     && pnpm dlx crawlee install-playwright-browsers
 
 # Create storage directory for Crawlee
-RUN mkdir -p storage
+RUN mkdir -p /app/apps/queue-workers/storage
 
 # Set environment variable for storage
-ENV CRAWLEE_STORAGE_DIR=/storage
+ENV CRAWLEE_STORAGE_DIR=/app/apps/queue-workers/storage
 
-# Change to queue-workers directory
-WORKDIR /apps/queue-workers
+# Set working directory to queue-workers
+WORKDIR /app/apps/queue-workers
 
-# Expose the port
+# Expose the port (adjust if needed)
 EXPOSE 3000
 
-# Start the service
-CMD ["pnpm", "run", "start"]
+# Start the queue workers service
+CMD ["pnpm", "start"]
