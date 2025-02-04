@@ -77,12 +77,6 @@ importers:
       '@repo/supabase':
         specifier: workspace:*
         version: link:../../packages/supabase
-      '@sentry/node':
-        specifier: ^7.101.1
-        version: 7.101.1
-      '@sentry/profiling-node':
-        specifier: ^1.3.5
-        version: 1.3.5(@sentry/node@7.101.1)
       '@types/winston':
         specifier: ^2.4.4
         version: 2.4.4
@@ -3544,10 +3538,10 @@ packages:
   /@radix-ui/react-portal@1.1.3(@types/react-dom@19.0.1)(@types/react@19.0.1)(react-dom@19.1.0-canary-e06c72fc-20241215)(react@19.1.0-canary-e06c72fc-20241215):
     resolution: {integrity: sha512-NciRqhXnGojhT93RPyDaMPfLH3ZSl4jjIFbZQ1b/vxvZEdHsBZ49wP9w8L3HzUQwep01LcWtkUvm0OVB5JAHTw==}
     peerDependencies:
-      '@types/react': 19.0.3
-      '@types/react-dom': 19.0.2
-      react: 19.0.0
-      react-dom: 19.0.0
+      '@types/react': '*'
+      '@types/react-dom': '*'
+      react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
+      react-dom: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
     peerDependenciesMeta:
       '@types/react':
         optional: true
@@ -4313,58 +4307,6 @@ packages:
 
   /@sec-ant/readable-stream@0.4.1:
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
-    dev: false
-
-  /@sentry-internal/tracing@7.101.1:
-    resolution: {integrity: sha512-ihjWG8x4x0ozx6t+EHoXLKbsPrgzYLCpeBLWyS+M6n3hn6cmHM76c8nZw3ldhUQi5UYL3LFC/JZ50b4oSxtlrg==}
-    engines: {node: '>=8'}
-    dependencies:
-      '@sentry/core': 7.101.1
-      '@sentry/types': 7.101.1
-      '@sentry/utils': 7.101.1
-    dev: false
-
-  /@sentry/core@7.101.1:
-    resolution: {integrity: sha512-XSmXXeYT1d4O14eDF3OXPJFUgaN2qYEeIGUztqPX9nBs9/ij8y/kZOayFqlIMnfGvjOUM+63sy/2xDBOpFn6ug==}
-    engines: {node: '>=8'}
-    dependencies:
-      '@sentry/types': 7.101.1
-      '@sentry/utils': 7.101.1
-    dev: false
-
-  /@sentry/node@7.101.1:
-    resolution: {integrity: sha512-iXSxUT6Zbt/KUY0+fRcW5II6Tgp2zdTfhBW+fQuDt/UUZt7Ypvb+6n4U2oom3LJfttmD7mdjQuT4+vsNImDjTQ==}
-    engines: {node: '>=8'}
-    dependencies:
-      '@sentry-internal/tracing': 7.101.1
-      '@sentry/core': 7.101.1
-      '@sentry/types': 7.101.1
-      '@sentry/utils': 7.101.1
-    dev: false
-
-  /@sentry/profiling-node@1.3.5(@sentry/node@7.101.1):
-    resolution: {integrity: sha512-n2bfEbtLW3WuIMQGyxKJKzBNZOb1JYfMeJQ2WQn/42F++69m+u7T0S3EDGRN0Y//fbt5+r0any+4r3kChRXZkQ==}
-    engines: {node: '>=8.0.0'}
-    hasBin: true
-    requiresBuild: true
-    peerDependencies:
-      '@sentry/node': ^7.44.1
-    dependencies:
-      '@sentry/node': 7.101.1
-      detect-libc: 2.0.3
-      node-abi: 3.74.0
-    dev: false
-
-  /@sentry/types@7.101.1:
-    resolution: {integrity: sha512-bwtkQvrCZ6JGc7vqX7TEAKBgkbQFORt84FFS3JQQb8G3efTt9fZd2ReY4buteKQdlALl8h1QWVngTLmI+kyUuw==}
-    engines: {node: '>=8'}
-    dev: false
-
-  /@sentry/utils@7.101.1:
-    resolution: {integrity: sha512-Nrg0nrEI3nrOCd9SLJ/WGzxS5KMQE4cryLOvrDcHJRWpsSyGBF1hLLerk84Nsw/0myMsn7zTYU+xoq7idNsX5A==}
-    engines: {node: '>=8'}
-    dependencies:
-      '@sentry/types': 7.101.1
     dev: false
 
   /@sinclair/typebox@0.27.8:
@@ -6918,6 +6860,7 @@ packages:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
     dev: false
+    optional: true
 
   /detect-node-es@1.1.0:
     resolution: {integrity: sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ==}
@@ -10737,13 +10680,6 @@ packages:
       lower-case: 2.0.2
       tslib: 2.8.1
     dev: true
-
-  /node-abi@3.74.0:
-    resolution: {integrity: sha512-c5XK0MjkGBrQPGYG24GBADZud0NCbznxNx0ZkS+ebUTrmV1qTDxPxSL8zEAPURXSbLRWVexxmP4986BziahL5w==}
-    engines: {node: '>=10'}
-    dependencies:
-      semver: 7.7.1
-    dev: false
 
   /node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
