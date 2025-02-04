@@ -1,3 +1,4 @@
+import './setup-env' // added to conditionally load dotenv in development
 import cors from 'cors'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import helmet from 'helmet'
