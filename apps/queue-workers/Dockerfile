@@ -39,4 +39,4 @@ ENV CRAWLEE_STORAGE_DIR=/home/myuser/storage
 EXPOSE 3000
 
 # Start the service
-CMD ./start_xvfb_and_run_cmd.sh && pnpm run start:prod --silent 
+CMD ./start_xvfb_and_run_cmd.sh && pnpm run start
