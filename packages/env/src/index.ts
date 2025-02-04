@@ -24,7 +24,6 @@ export const env = createEnv({
     SENTRY_DB_PASSWORD: z.string().min(1).optional(),
     SENTRY_ENABLED: z.boolean().default(false),
     SENTRY_DSN: z.string().url().optional(),
-    STRIPE_SECRET_KEY: z.string().min(1),
     STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
     STRIPE_PRICE_ID: z.string().min(1).optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
