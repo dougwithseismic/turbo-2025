@@ -1,7 +1,7 @@
 FROM apify/actor-node-playwright-chrome:20
 
-# Install PNPM
-RUN corepack enable && corepack prepare pnpm@8.15.6 --activate
+# Install PNPM globally
+RUN npm install -g pnpm@8.15.6
 
 # Set up work directory
 WORKDIR /app
