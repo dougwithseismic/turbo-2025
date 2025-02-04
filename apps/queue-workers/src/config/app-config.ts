@@ -9,7 +9,7 @@ const appName = packageName || 'default-app-name'
 export const config = {
   APP_NAME: appName,
   NODE_ENV: env.NODE_ENV ?? 'development',
-  PORT: env.PORT ?? 666,
+  PORT: env.PORT ?? 3000,
   BASE_URL: env.API_BASE_URL,
   REDIS: {
     URL: env.REDIS_URL,
@@ -31,11 +31,11 @@ export const config = {
       MAX_ATTEMPTS: env.RATE_LIMIT_AUTH_MAX_ATTEMPTS,
     },
   },
-  SENTRY: {
-    ENABLED: env.SENTRY_ENABLED ?? false,
-    DSN: env.SENTRY_DSN ?? '',
-  },
   QUEUE_WORKERS_URL: env.QUEUE_WORKERS_URL ?? 'http://localhost:42069',
+  SUPABASE: {
+    URL: env.SUPABASE_URL ?? '',
+    SERVICE_ROLE_KEY: env.SUPABASE_SERVICE_ROLE_KEY ?? '',
+  },
 } as const
 
 // Log configuration on startup

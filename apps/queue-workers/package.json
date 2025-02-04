@@ -5,8 +5,6 @@
     "@repo/env": "workspace:*",
     "@repo/queue-manager": "workspace:*",
     "@repo/supabase": "workspace:*",
-    "@sentry/node": "^7.101.1",
-    "@sentry/profiling-node": "^1.3.5",
     "@types/winston": "^2.4.4",
     "axios": "^1.6.5",
     "bullmq": "^4.0.0",

@@ -3,8 +3,6 @@ import express, { NextFunction, Request, Response, Router } from 'express'
 import helmet from 'helmet'
 
 import { config } from './config/app-config'
-import { logger } from './config/logger'
-import { initializeSentry } from './config/sentry'
 import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
 import { webhookRouter } from './routes/webhook'
@@ -24,6 +22,7 @@ import {
   queryParamsSchema,
 } from './schemas/queue-schemas'
 import { crawlQueue } from './services/crawl-bull'
+import { logger } from './config/logger'
 
 /**
  * Example curl command to start a crawl:
@@ -74,9 +73,6 @@ import { crawlQueue } from './services/crawl-bull'
 const PORT = config.PORT
 
 const app = express()
-
-// Initialize Sentry
-initializeSentry()
 
 // Middleware
 app.use(helmet())
