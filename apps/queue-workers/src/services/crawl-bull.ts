@@ -7,8 +7,7 @@ import type {
 
 import { Json } from '@repo/supabase'
 import * as fs from 'fs'
-import { dirname, join } from 'path'
-import { fileURLToPath } from 'url'
+import { join } from 'path'
 import { logger } from '../config/logger'
 import { supabaseAdmin } from '../lib/supabase'
 import { CrawlerService } from './crawler'
@@ -19,9 +18,6 @@ import { MobileFriendlinessPlugin } from './crawler/plugins/mobile-friendliness'
 import { PerformancePlugin } from './crawler/plugins/performance'
 import { SecurityPlugin } from './crawler/plugins/security'
 import { SeoPlugin } from './crawler/plugins/seo'
-
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
 
 interface CrawlJobData {
   crawlId: string

@@ -7,9 +7,6 @@ import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
 import { webhookRouter } from './routes/webhook'
 
-import { createBullBoard } from '@bull-board/api'
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
-import { ExpressAdapter } from '@bull-board/express'
 import { Job, Queue } from 'bullmq'
 import { z } from 'zod'
 import { generateRoomToken } from './lib/generate-room-token'
@@ -103,15 +100,6 @@ const setupQueuesAndBullBoard = ({
 }: {
   queues: Array<{ queue: Queue }>
 }) => {
-  // Setup Bull Board
-  const serverAdapter = new ExpressAdapter()
-  serverAdapter.setBasePath('/admin/queues')
-
-  const board = createBullBoard({
-    queues: [],
-    serverAdapter,
-  })
-
   // Setup API routes for each queue
   queues.forEach(({ queue }) => {
     const queueName = queue.name
@@ -322,10 +310,8 @@ const setupQueuesAndBullBoard = ({
 
     // Mount the inline queue router on the /api/queues endpoint
     app.use('/api/queues/crawl', queueRouter)
-    board.addQueue(new BullMQAdapter(queue))
   })
 
-  app.use('/admin/queues', serverAdapter.getRouter())
   logger.info(`BullBoard is running on http://localhost:${PORT}/admin/queues`)
 }
 
