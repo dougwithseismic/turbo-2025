@@ -27,47 +27,14 @@ CREATE TABLE sites (
     UNIQUE(project_id, domain)
 );
 
--- Google OAuth and GSC management
-CREATE TABLE user_google_accounts (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id uuid REFERENCES auth.users ON DELETE CASCADE,
-    google_email text NOT NULL,
-    access_token text NOT NULL,
-    refresh_token text NOT NULL,
-    token_expires_at timestamptz NOT NULL,
-    scopes text[] NOT NULL,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    UNIQUE(user_id, google_email)
-);
-
-CREATE TABLE gsc_properties (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    google_account_id uuid REFERENCES user_google_accounts(id) ON DELETE CASCADE,
-    property_type text NOT NULL, -- 'SITE', 'DOMAIN'
-    property_url text NOT NULL,
-    permission_level text NOT NULL, -- 'FULL', 'RESTRICTED', 'OWNER'
-    verified boolean NOT NULL DEFAULT false,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    UNIQUE(google_account_id, property_url)
-);
-
-CREATE TABLE gsc_verification_methods (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    property_id uuid REFERENCES gsc_properties(id) ON DELETE CASCADE,
-    verification_method text NOT NULL, -- 'HTML_FILE', 'META_TAG', 'DNS'
-    verification_token text NOT NULL,
-    verified boolean NOT NULL DEFAULT false,
-    verified_at timestamptz,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Crawl and metrics tables
+-- Crawl jobs with consolidated results
 CREATE TABLE crawl_jobs (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
+    user_id uuid REFERENCES auth.users(id) NOT NULL,
+    user_email text,
+    gsc_property_id text,
+    ga_property_id text,
     status text NOT NULL DEFAULT 'pending',
     started_at timestamptz,
     completed_at timestamptz,
@@ -75,134 +42,55 @@ CREATE TABLE crawl_jobs (
     processed_urls integer DEFAULT 0,
     error_count integer DEFAULT 0,
     settings jsonb DEFAULT '{}',
+    results jsonb DEFAULT '{}',
     created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
     updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
 );
-
-CREATE TABLE url_metrics (
-    id uuid DEFAULT gen_random_uuid(),
-    time timestamptz NOT NULL,
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    crawl_job_id uuid REFERENCES crawl_jobs(id) ON DELETE CASCADE,
-    url text NOT NULL,
-    status_code integer,
-    redirect_url text,
-    title text,
-    meta_description text,
-    h1 text[],
-    canonical_url text,
-    robots_directives text[],
-    load_time_ms integer,
-    word_count integer,
-    internal_links integer,
-    external_links integer,
-    images_count integer,
-    images_without_alt integer,
-    schema_types text[],
-    meta_robots text,
-    viewport text,
-    lang text,
-    mobile_friendly boolean,
-    issues jsonb DEFAULT '{}',
-    PRIMARY KEY (id),
-    UNIQUE (site_id, url, time)
-);
-
-CREATE TABLE gsc_metrics (
-    id uuid DEFAULT gen_random_uuid(),
-    time timestamptz NOT NULL,
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    url text NOT NULL,
-    query text NOT NULL,
-    country text,
-    device text,
-    clicks integer,
-    impressions integer,
-    position numeric(5,2),
-    ctr numeric(5,2),
-    PRIMARY KEY (id),
-    UNIQUE (site_id, url, query, time)
-);
-
--- Content and keyword tables
-CREATE TABLE keyword_clusters (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    name text NOT NULL,
-    queries text[] NOT NULL,
-    total_impressions integer,
-    avg_position numeric(5,2),
-    opportunity_score integer,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
-CREATE TABLE content_suggestions (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    url text NOT NULL,
-    cluster_id uuid REFERENCES keyword_clusters(id) ON DELETE CASCADE,
-    type text NOT NULL,
-    suggestion text NOT NULL,
-    implemented boolean DEFAULT false,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Storage and sync tables
-CREATE TABLE url_html_snapshots (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    url text NOT NULL,
-    crawl_job_id uuid REFERENCES crawl_jobs(id) ON DELETE CASCADE,
-    html_storage_key text NOT NULL, -- Reference to Supabase Storage
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
-CREATE TABLE gsc_sync_jobs (
-    id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-    site_id uuid REFERENCES sites(id) ON DELETE CASCADE,
-    status text NOT NULL DEFAULT 'pending',
-    date_range tstzrange NOT NULL,
-    error_message text,
-    metrics_synced integer DEFAULT 0,
-    started_at timestamptz,
-    completed_at timestamptz,
-    created_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL,
-    updated_at timestamptz DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
--- Add unique constraint to prevent overlapping date ranges for the same site
-CREATE UNIQUE INDEX idx_gsc_sync_jobs_no_overlap 
-ON gsc_sync_jobs (site_id, date_range)
-WHERE status != 'completed';
 
 -- Performance Indexes
-CREATE INDEX idx_url_metrics_lookup ON url_metrics(site_id, url);
-CREATE INDEX idx_url_metrics_time ON url_metrics(time DESC);
-CREATE INDEX idx_url_metrics_site_time ON url_metrics(site_id, time DESC);
-CREATE INDEX idx_url_metrics_crawl ON url_metrics(crawl_job_id);
+CREATE INDEX idx_crawl_jobs_site ON crawl_jobs(site_id);
+CREATE INDEX idx_crawl_jobs_status ON crawl_jobs(status);
+CREATE INDEX idx_crawl_jobs_results ON crawl_jobs USING GIN (results);
+CREATE INDEX idx_crawl_jobs_user ON crawl_jobs(user_id);
 
-CREATE INDEX idx_gsc_metrics_lookup ON gsc_metrics(site_id, url);
-CREATE INDEX idx_gsc_metrics_time ON gsc_metrics(time DESC);
-CREATE INDEX idx_gsc_metrics_site_time ON gsc_metrics(site_id, time DESC);
-CREATE INDEX idx_gsc_metrics_query ON gsc_metrics(site_id, query);
+-- Create function to automatically set user information
+CREATE OR REPLACE FUNCTION set_crawl_job_user_info()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Set user_id if not provided
+    IF NEW.user_id IS NULL THEN
+        NEW.user_id := auth.uid();
+    END IF;
+    
+    -- Set user_email from profiles table
+    SELECT email INTO NEW.user_email
+    FROM profiles
+    WHERE id = NEW.user_id;
+    
+    -- Set property IDs directly from the site
+    SELECT 
+        gsc_property_id,
+        ga_property_id 
+    INTO 
+        NEW.gsc_property_id,
+        NEW.ga_property_id
+    FROM sites
+    WHERE id = NEW.site_id;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
 
-CREATE INDEX idx_url_metrics_issues ON url_metrics USING GIN (issues);
-CREATE INDEX idx_url_html_snapshots_lookup ON url_html_snapshots(site_id, url);
-CREATE INDEX idx_gsc_sync_jobs_status ON gsc_sync_jobs(site_id, status);
-CREATE INDEX idx_gsc_sync_jobs_date ON gsc_sync_jobs USING GIST (date_range);
+-- Create trigger to automatically set user information
+CREATE TRIGGER set_crawl_job_user_info_trigger
+    BEFORE INSERT OR UPDATE ON crawl_jobs
+    FOR EACH ROW
+    EXECUTE FUNCTION set_crawl_job_user_info();
 
 -- Enable RLS
 ALTER TABLE sites ENABLE ROW LEVEL SECURITY;
-ALTER TABLE user_google_accounts ENABLE ROW LEVEL SECURITY;
-ALTER TABLE gsc_properties ENABLE ROW LEVEL SECURITY;
-ALTER TABLE gsc_verification_methods ENABLE ROW LEVEL SECURITY;
 ALTER TABLE crawl_jobs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE url_metrics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE gsc_metrics ENABLE ROW LEVEL SECURITY;
-ALTER TABLE keyword_clusters ENABLE ROW LEVEL SECURITY;
-ALTER TABLE content_suggestions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE url_html_snapshots ENABLE ROW LEVEL SECURITY;
-ALTER TABLE gsc_sync_jobs ENABLE ROW LEVEL SECURITY; 
+
+-- Enable realtime for sites and crawl_jobs
+ALTER PUBLICATION supabase_realtime ADD TABLE sites;
+ALTER PUBLICATION supabase_realtime ADD TABLE crawl_jobs; 

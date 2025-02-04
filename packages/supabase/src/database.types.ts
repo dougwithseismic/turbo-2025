@@ -181,96 +181,60 @@ export type Database = {
           },
         ]
       }
-      content_suggestions: {
-        Row: {
-          cluster_id: string | null
-          created_at: string
-          id: string
-          implemented: boolean | null
-          site_id: string | null
-          suggestion: string
-          type: string
-          updated_at: string
-          url: string
-        }
-        Insert: {
-          cluster_id?: string | null
-          created_at?: string
-          id?: string
-          implemented?: boolean | null
-          site_id?: string | null
-          suggestion: string
-          type: string
-          updated_at?: string
-          url: string
-        }
-        Update: {
-          cluster_id?: string | null
-          created_at?: string
-          id?: string
-          implemented?: boolean | null
-          site_id?: string | null
-          suggestion?: string
-          type?: string
-          updated_at?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'content_suggestions_cluster_id_fkey'
-            columns: ['cluster_id']
-            isOneToOne: false
-            referencedRelation: 'keyword_clusters'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'content_suggestions_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       crawl_jobs: {
         Row: {
           completed_at: string | null
           created_at: string
           error_count: number | null
+          ga_property_id: string | null
+          gsc_property_id: string | null
           id: string
           processed_urls: number | null
+          results: Json | null
           settings: Json | null
           site_id: string | null
           started_at: string | null
           status: string
           total_urls: number | null
           updated_at: string
+          user_email: string | null
+          user_id: string
         }
         Insert: {
           completed_at?: string | null
           created_at?: string
           error_count?: number | null
+          ga_property_id?: string | null
+          gsc_property_id?: string | null
           id?: string
           processed_urls?: number | null
+          results?: Json | null
           settings?: Json | null
           site_id?: string | null
           started_at?: string | null
           status?: string
           total_urls?: number | null
           updated_at?: string
+          user_email?: string | null
+          user_id: string
         }
         Update: {
           completed_at?: string | null
           created_at?: string
           error_count?: number | null
+          ga_property_id?: string | null
+          gsc_property_id?: string | null
           id?: string
           processed_urls?: number | null
+          results?: Json | null
           settings?: Json | null
           site_id?: string | null
           started_at?: string | null
           status?: string
           total_urls?: number | null
           updated_at?: string
+          user_email?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -417,185 +381,6 @@ export type Database = {
           },
         ]
       }
-      gsc_metrics: {
-        Row: {
-          clicks: number | null
-          country: string | null
-          ctr: number | null
-          device: string | null
-          id: string
-          impressions: number | null
-          position: number | null
-          query: string
-          site_id: string | null
-          time: string
-          url: string
-        }
-        Insert: {
-          clicks?: number | null
-          country?: string | null
-          ctr?: number | null
-          device?: string | null
-          id?: string
-          impressions?: number | null
-          position?: number | null
-          query: string
-          site_id?: string | null
-          time: string
-          url: string
-        }
-        Update: {
-          clicks?: number | null
-          country?: string | null
-          ctr?: number | null
-          device?: string | null
-          id?: string
-          impressions?: number | null
-          position?: number | null
-          query?: string
-          site_id?: string | null
-          time?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'gsc_metrics_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      gsc_properties: {
-        Row: {
-          created_at: string
-          google_account_id: string | null
-          id: string
-          permission_level: string
-          property_type: string
-          property_url: string
-          updated_at: string
-          verified: boolean
-        }
-        Insert: {
-          created_at?: string
-          google_account_id?: string | null
-          id?: string
-          permission_level: string
-          property_type: string
-          property_url: string
-          updated_at?: string
-          verified?: boolean
-        }
-        Update: {
-          created_at?: string
-          google_account_id?: string | null
-          id?: string
-          permission_level?: string
-          property_type?: string
-          property_url?: string
-          updated_at?: string
-          verified?: boolean
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'gsc_properties_google_account_id_fkey'
-            columns: ['google_account_id']
-            isOneToOne: false
-            referencedRelation: 'user_google_accounts'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      gsc_sync_jobs: {
-        Row: {
-          completed_at: string | null
-          created_at: string
-          date_range: unknown
-          error_message: string | null
-          id: string
-          metrics_synced: number | null
-          site_id: string | null
-          started_at: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string
-          date_range: unknown
-          error_message?: string | null
-          id?: string
-          metrics_synced?: number | null
-          site_id?: string | null
-          started_at?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string
-          date_range?: unknown
-          error_message?: string | null
-          id?: string
-          metrics_synced?: number | null
-          site_id?: string | null
-          started_at?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'gsc_sync_jobs_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      gsc_verification_methods: {
-        Row: {
-          created_at: string
-          id: string
-          property_id: string | null
-          updated_at: string
-          verification_method: string
-          verification_token: string
-          verified: boolean
-          verified_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          property_id?: string | null
-          updated_at?: string
-          verification_method: string
-          verification_token: string
-          verified?: boolean
-          verified_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          property_id?: string | null
-          updated_at?: string
-          verification_method?: string
-          verification_token?: string
-          verified?: boolean
-          verified_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'gsc_verification_methods_property_id_fkey'
-            columns: ['property_id']
-            isOneToOne: false
-            referencedRelation: 'gsc_properties'
-            referencedColumns: ['id']
-          },
-        ]
-      }
       invitations: {
         Row: {
           created_at: string
@@ -634,50 +419,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      keyword_clusters: {
-        Row: {
-          avg_position: number | null
-          created_at: string
-          id: string
-          name: string
-          opportunity_score: number | null
-          queries: string[]
-          site_id: string | null
-          total_impressions: number | null
-          updated_at: string
-        }
-        Insert: {
-          avg_position?: number | null
-          created_at?: string
-          id?: string
-          name: string
-          opportunity_score?: number | null
-          queries: string[]
-          site_id?: string | null
-          total_impressions?: number | null
-          updated_at?: string
-        }
-        Update: {
-          avg_position?: number | null
-          created_at?: string
-          id?: string
-          name?: string
-          opportunity_score?: number | null
-          queries?: string[]
-          site_id?: string | null
-          total_impressions?: number | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'keyword_clusters_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
       }
       memberships: {
         Row: {
@@ -1113,183 +854,6 @@ export type Database = {
           },
         ]
       }
-      url_html_snapshots: {
-        Row: {
-          crawl_job_id: string | null
-          created_at: string
-          html_storage_key: string
-          id: string
-          site_id: string | null
-          updated_at: string
-          url: string
-        }
-        Insert: {
-          crawl_job_id?: string | null
-          created_at?: string
-          html_storage_key: string
-          id?: string
-          site_id?: string | null
-          updated_at?: string
-          url: string
-        }
-        Update: {
-          crawl_job_id?: string | null
-          created_at?: string
-          html_storage_key?: string
-          id?: string
-          site_id?: string | null
-          updated_at?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'url_html_snapshots_crawl_job_id_fkey'
-            columns: ['crawl_job_id']
-            isOneToOne: false
-            referencedRelation: 'crawl_jobs'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'url_html_snapshots_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      url_metrics: {
-        Row: {
-          canonical_url: string | null
-          crawl_job_id: string | null
-          external_links: number | null
-          h1: string[] | null
-          id: string
-          images_count: number | null
-          images_without_alt: number | null
-          internal_links: number | null
-          issues: Json | null
-          lang: string | null
-          load_time_ms: number | null
-          meta_description: string | null
-          meta_robots: string | null
-          mobile_friendly: boolean | null
-          redirect_url: string | null
-          robots_directives: string[] | null
-          schema_types: string[] | null
-          site_id: string | null
-          status_code: number | null
-          time: string
-          title: string | null
-          url: string
-          viewport: string | null
-          word_count: number | null
-        }
-        Insert: {
-          canonical_url?: string | null
-          crawl_job_id?: string | null
-          external_links?: number | null
-          h1?: string[] | null
-          id?: string
-          images_count?: number | null
-          images_without_alt?: number | null
-          internal_links?: number | null
-          issues?: Json | null
-          lang?: string | null
-          load_time_ms?: number | null
-          meta_description?: string | null
-          meta_robots?: string | null
-          mobile_friendly?: boolean | null
-          redirect_url?: string | null
-          robots_directives?: string[] | null
-          schema_types?: string[] | null
-          site_id?: string | null
-          status_code?: number | null
-          time: string
-          title?: string | null
-          url: string
-          viewport?: string | null
-          word_count?: number | null
-        }
-        Update: {
-          canonical_url?: string | null
-          crawl_job_id?: string | null
-          external_links?: number | null
-          h1?: string[] | null
-          id?: string
-          images_count?: number | null
-          images_without_alt?: number | null
-          internal_links?: number | null
-          issues?: Json | null
-          lang?: string | null
-          load_time_ms?: number | null
-          meta_description?: string | null
-          meta_robots?: string | null
-          mobile_friendly?: boolean | null
-          redirect_url?: string | null
-          robots_directives?: string[] | null
-          schema_types?: string[] | null
-          site_id?: string | null
-          status_code?: number | null
-          time?: string
-          title?: string | null
-          url?: string
-          viewport?: string | null
-          word_count?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: 'url_metrics_crawl_job_id_fkey'
-            columns: ['crawl_job_id']
-            isOneToOne: false
-            referencedRelation: 'crawl_jobs'
-            referencedColumns: ['id']
-          },
-          {
-            foreignKeyName: 'url_metrics_site_id_fkey'
-            columns: ['site_id']
-            isOneToOne: false
-            referencedRelation: 'sites'
-            referencedColumns: ['id']
-          },
-        ]
-      }
-      user_google_accounts: {
-        Row: {
-          access_token: string
-          created_at: string
-          google_email: string
-          id: string
-          refresh_token: string
-          scopes: string[]
-          token_expires_at: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          access_token: string
-          created_at?: string
-          google_email: string
-          id?: string
-          refresh_token: string
-          scopes: string[]
-          token_expires_at: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          access_token?: string
-          created_at?: string
-          google_email?: string
-          id?: string
-          refresh_token?: string
-          scopes?: string[]
-          token_expires_at?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       user_oauth_tokens: {
         Row: {
           access_token: string
@@ -1452,6 +1016,13 @@ export type Database = {
           invitation_id_param: string
         }
         Returns: boolean
+      }
+      finalize_credit_reservation: {
+        Args: {
+          p_user_id: string
+          p_reservation_id: string
+        }
+        Returns: undefined
       }
       get_api_usage_stats: {
         Args: {

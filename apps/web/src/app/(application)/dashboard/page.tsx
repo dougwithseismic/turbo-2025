@@ -1,5 +1,6 @@
 import { AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
+import { OrganizationProjects } from '@/features/dashboard/components/organization-projects'
 import { PageHeader } from '@/features/page-layout/components/page-header'
 import { protectedRoute } from '@/lib/auth'
 import { Avatar } from '@radix-ui/react-avatar'
@@ -36,8 +37,8 @@ const Page = async () => {
       <PageHeader
         items={breadcrumbItems}
         actions={[
-          <Button key="new-report" variant={'outline'}>
-            New Report
+          <Button key="new-org" variant={'outline'} asChild>
+            <a href="/org/new">New Organization</a>
           </Button>,
           <Avatar key="user-avatar" className="size-8">
             <AvatarImage src={user.user_metadata.avatar_url} />
@@ -48,9 +49,10 @@ const Page = async () => {
         ]}
       />
 
-      <main className="px-4">Todo: Display Cards for Orgs / Projects</main>
+      <main className="px-4 max-w-7xl w-full mx-auto">
+        <OrganizationProjects />
+      </main>
     </div>
   )
 }
-
 export default Page

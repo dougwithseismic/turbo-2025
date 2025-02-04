@@ -25,16 +25,36 @@ app.use(
   '/demo/credits',
   createCreditDemoRouter({ supabaseClient: supabaseAdmin }),
 )
+
 app.use(
   '/crawler',
   createCrawlerRouter({ supabaseClient: supabaseAdmin, crawlQueue }),
 )
 
-initSentry()
-initPrometheus(app)
+app.use('/jake-crawler', (req, res) => {
+  res.send('Hello World')
+})
+
+// initSentry()
+// initPrometheus(app)
 
 const server = app.listen(config.PORT, () => {
   logger.info(`🚀 :: Server is running on port ${config.PORT}`)
+
+  const subscription = supabaseAdmin
+    .channel('crawl_jobs')
+    .on(
+      'postgres_changes',
+      { event: '*', schema: 'public', table: 'crawl_jobs' },
+      (payload) => {
+        console.log(payload.eventType)
+        if (payload.eventType === 'INSERT') {
+          // start the crawl
+        }
+        logger.info('Crawl job update', { payload })
+      },
+    )
+    .subscribe()
 })
 
 const cleanup = async () => {

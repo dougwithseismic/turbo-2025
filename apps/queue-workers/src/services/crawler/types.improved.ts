@@ -2,7 +2,7 @@
  * Enhanced types for the crawler service
  */
 
-import type { BrowserContext as PlaywrightBrowserContext } from 'playwright'
+import { Job } from 'bullmq'
 import type {
   ExtractPluginMetrics,
   ExtractPluginSummaries,
@@ -10,6 +10,11 @@ import type {
 
 // Core types for the crawler
 export interface CrawlConfig {
+  user?: {
+    id: string
+    email: string
+  }
+  scPropertyName: string
   url: string
   maxDepth?: number
   maxPages?: number
@@ -96,6 +101,7 @@ export type CrawlEvent =
   | 'pageComplete'
   | 'pageError'
   | 'progress'
+  | 'pluginAdded'
 
 export interface CrawlEventMap {
   jobStart: { jobId: string; job: CrawlJob }
