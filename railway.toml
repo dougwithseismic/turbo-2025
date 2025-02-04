@@ -1,12 +1,12 @@
 [install]
-
 command = "pnpm install"
+
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm run build:backend-api"
+buildCommand = "cd apps/queue-workers && pnpm run build"
 
 [deploy]
-startCommand = "cd apps/api && pnpm run start"
+startCommand = "cd apps/queue-workers && pnpm run start:prod --silent"
 healthcheckPath = "/health"
 healthcheckTimeout = 100
 restartPolicyType = "on_failure"

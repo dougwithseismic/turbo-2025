@@ -1,7 +1,7 @@
 FROM apify/actor-node-playwright-chrome:20 AS builder
 
-# Copy package files
-COPY --chown=myuser package*.json ./
+# Copy package files and lockfile
+COPY --chown=myuser package*.json pnpm-lock.yaml ./
 
 # Install all dependencies
 RUN pnpm install --frozen-lockfile

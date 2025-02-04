@@ -28,7 +28,6 @@ export function CrawlJobDetails({
   } = useGetCrawlJob({
     supabase: supabaseClient,
     jobId,
-    includeMetrics: true,
   })
 
   // Subscribe to realtime updates
