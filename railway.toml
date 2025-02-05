@@ -4,7 +4,7 @@
 
 [build]
 builder = "nixpacks"
-buildCommand = "pnpm install && pnpm run build:queue"
+buildCommand = "pnpm run build:queue"
 
 [deploy]
 startCommand = "pnpm start:queue"
