@@ -1,30 +1,26 @@
+import './setup-env' // added to conditionally load dotenv in development
 import cors from 'cors'
 import express, { NextFunction, Request, Response, Router } from 'express'
 import helmet from 'helmet'
 
 import { config } from './config/app-config'
-import { logger } from './config/logger'
-import { initializeSentry } from './config/sentry'
 import { requestLogger } from './middleware/request-logger'
 import { healthRouter } from './routes/health'
 import { webhookRouter } from './routes/webhook'
 
-import { createBullBoard } from '@bull-board/api'
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
-import { ExpressAdapter } from '@bull-board/express'
 import { Job, Queue } from 'bullmq'
 import { z } from 'zod'
 import { generateRoomToken } from './lib/generate-room-token'
 import { getUserOAuthToken } from './lib/get-user-oauth-token'
+import { supabaseAdmin } from './lib/supabase'
 import { validateRequest } from './middleware/validate-request'
 import {
   bulkJobIdsSchema,
   createBulkJobsSchema,
-  createJobSchema,
   queryParamsSchema,
 } from './schemas/queue-schemas'
 import { crawlQueue } from './services/crawl-bull'
-import { supabaseAdmin } from './lib/supabase'
+import { logger } from './config/logger'
 
 /**
  * Example curl command to start a crawl:
@@ -76,9 +72,6 @@ const PORT = config.PORT
 
 const app = express()
 
-// Initialize Sentry
-initializeSentry()
-
 // Middleware
 app.use(helmet())
 app.use(cors())
@@ -108,15 +101,6 @@ const setupQueuesAndBullBoard = ({
 }: {
   queues: Array<{ queue: Queue }>
 }) => {
-  // Setup Bull Board
-  const serverAdapter = new ExpressAdapter()
-  serverAdapter.setBasePath('/admin/queues')
-
-  const board = createBullBoard({
-    queues: [],
-    serverAdapter,
-  })
-
   // Setup API routes for each queue
   queues.forEach(({ queue }) => {
     const queueName = queue.name
@@ -327,10 +311,8 @@ const setupQueuesAndBullBoard = ({
 
     // Mount the inline queue router on the /api/queues endpoint
     app.use('/api/queues/crawl', queueRouter)
-    board.addQueue(new BullMQAdapter(queue))
   })
 
-  app.use('/admin/queues', serverAdapter.getRouter())
   logger.info(`BullBoard is running on http://localhost:${PORT}/admin/queues`)
 }
 

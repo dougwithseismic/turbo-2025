@@ -1,7 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
 import { Database } from './database.types'
-import { z } from 'zod'
-import { createEnv } from '@t3-oss/env-core'
 
 // Client Type Definition
 export type SupabaseClient = ReturnType<typeof createClient<Database>>
@@ -9,15 +7,15 @@ export type SupabaseClient = ReturnType<typeof createClient<Database>>
 // Base Types
 export type {
   Json,
+  OwnerType,
   ResourceType,
   Role,
   SubscriberType,
-  OwnerType,
 } from './types'
 
 // Database Types
-export type { Database } from './database.types'
 export type { DbFunctions } from './database.functions'
+export type { Database } from './database.types'
 
 // API & Services
 export * from './module/api-services'
@@ -38,17 +36,14 @@ export * from './module/projects'
 export * from './module/projects.react'
 
 // User Management
-export * from './module/memberships'
-export * from './module/memberships.react'
-export * from './module/profiles'
-export * from './module/profiles.react'
-export * from './module/onboarding'
-export * from './module/onboarding.react'
 export * from './module/invitations'
 export * from './module/invitations.react'
-
-// Payment Providers
-export * from './module/payment-providers/stripe'
+export * from './module/memberships'
+export * from './module/memberships.react'
+export * from './module/onboarding'
+export * from './module/onboarding.react'
+export * from './module/profiles'
+export * from './module/profiles.react'
 
 // Client Instance Management
 let supabaseInstance: SupabaseClient | null = null
