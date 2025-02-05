@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+buildCommand = "pnpm install && pnpm run build:queue"
+
+[deploy]
+startCommand = "pnpm start:queue"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+
+[build.env]
+NIXPACKS_PNPM_VERSION = "8.5.1"
+NODE_ENV = "production"
