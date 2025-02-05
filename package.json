@@ -2,6 +2,7 @@
   "name": "turbo-25",
   "private": true,
   "scripts": {
+    "prepare:pnpm": "corepack prepare pnpm@8.5.1 --activate",
     "build": "turbo build --env-mode=loose",
     "services:start": "tsx packages/scripts/manage-services.ts start",
     "services:stop": "tsx packages/scripts/manage-services.ts stop",
