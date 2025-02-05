@@ -59,7 +59,7 @@
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "load-env": "dotenv -e ../../.env --",
-    "postinstall": "npx crawlee install-playwright-browsers",
+    "postinstall": "npx crawlee install-playwright-browsers && npx playwright install",
     "start": "pnpm start:dev",
     "start:dev": "tsx watch src/app.ts",
     "start:prod": "node dist/app.js",

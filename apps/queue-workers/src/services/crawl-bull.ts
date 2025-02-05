@@ -18,6 +18,7 @@ import { MobileFriendlinessPlugin } from './crawler/plugins/mobile-friendliness'
 import { PerformancePlugin } from './crawler/plugins/performance'
 import { SecurityPlugin } from './crawler/plugins/security'
 import { SeoPlugin } from './crawler/plugins/seo'
+import { fileURLToPath } from 'url'
 
 interface CrawlJobData {
   crawlId: string
@@ -35,6 +36,8 @@ interface CrawlJobResult {
     currentUrl?: string
   }
 }
+
+const __dirname = fileURLToPath(import.meta.url)
 
 const {
   queue: crawlQueue,

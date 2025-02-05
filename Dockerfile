@@ -10,8 +10,10 @@ WORKDIR /app
 # Copy entire project for Turborepo
 COPY . .
 
+RUN pnpm dlx playwright install --with-deps
 # Install dependencies
 RUN pnpm install
+
 
 # Build queue workers package
 RUN pnpm build:queue
