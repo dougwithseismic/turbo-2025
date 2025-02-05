@@ -55,7 +55,7 @@
   "scripts": {
     "build": "node esbuild-config.js",
     "check:deps": "depcheck --ignores=\"@types/*,tsx\" --ignore-patterns=\"dist/**,*.config.*\"",
-    "dev": "dotenv -e ../../.env -- tsx watch src/app.ts",
+    "dev": "dotenv -e .env -- tsx watch src/app.ts",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "load-env": "dotenv -e ../../.env --",
