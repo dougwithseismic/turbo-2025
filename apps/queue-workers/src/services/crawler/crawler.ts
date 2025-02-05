@@ -5,6 +5,7 @@ import {
   createPlaywrightRouter,
   type PlaywrightCrawlingContext,
   Sitemap,
+  RequestQueue,
 } from 'crawlee'
 import { chromium, type Page } from 'playwright'
 import type {
@@ -395,7 +396,9 @@ export class CrawlerService extends EventEmitter {
     }
   }
 
-  private getCrawlerForJob = (job: CrawlJob): PlaywrightCrawler => {
+  public getCrawlerForJob = async (
+    job: CrawlJob,
+  ): Promise<PlaywrightCrawler> => {
     const existingCrawler = this.crawlers.get(job.id)
     if (existingCrawler) return existingCrawler
 
@@ -405,7 +408,11 @@ export class CrawlerService extends EventEmitter {
       this.handleRequest(context, job),
     )
 
+    const uuid = crypto.randomUUID()
+    const requestQueue = await RequestQueue.open(uuid)
+
     const crawler = new PlaywrightCrawler({
+      requestQueue,
       maxRequestsPerMinute,
       maxRequestRetries: job.maxRetries || 3,
       requestHandler: router,
@@ -498,7 +505,7 @@ export class CrawlerService extends EventEmitter {
       }
 
       // Run crawler
-      const crawler = this.getCrawlerForJob(job)
+      const crawler = await this.getCrawlerForJob(job)
       await crawler.run([job.config.url])
 
       // Only complete if not already completed (in case maxPages was reached)
@@ -588,6 +595,9 @@ export class CrawlerService extends EventEmitter {
     job.result.progress = { ...job.progress }
     await this.summarizeResults(job)
     this.jobs.set(id, job)
+
+    this.crawlers.delete(id)
+
     return job
   }
 
