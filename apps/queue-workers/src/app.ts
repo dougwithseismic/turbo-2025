@@ -34,6 +34,56 @@ app.use((err: Error, _req: Request, res: Response, next: any) => {
 const server = app.listen(PORT, async () => {
   logger.info(`🚀 :: Server is running on port ${PORT}`)
 
+  const fetchCrawlJobs = async () => {
+    const { data, error } = await supabaseAdmin
+      .from('crawl_jobs')
+      .select('*')
+      .eq('status', 'pending')
+
+    if (error) {
+      logger.error('Error fetching crawl jobs', { error })
+      return []
+    }
+
+    return data
+  }
+
+  const pendingJobs = await fetchCrawlJobs()
+  for (const supabaseJob of pendingJobs) {
+    const { data: user, error: userError } = await supabaseAdmin
+      .from('profiles')
+      .select('*')
+      .eq('id', supabaseJob.user_id)
+      .single()
+
+    const { data: site, error: siteError } = await supabaseAdmin
+      .from('sites')
+      .select('*')
+      .eq('id', supabaseJob.site_id || '')
+      .single()
+
+    if (userError || siteError) {
+      console.error('Error fetching user or site', {
+        userError,
+        siteError,
+      })
+      return
+    }
+
+    const job = await crawlQueue.add(supabaseJob.id, {
+      crawlId: supabaseJob.id,
+      config: {
+        url: site?.domain?.startsWith('http')
+          ? site.domain
+          : `https://${site?.domain}`,
+        scPropertyName: supabaseJob.gsc_property_id || '',
+        user: { id: user?.id, email: user?.email },
+      },
+    })
+
+    console.log('Job added to queue', job.id)
+  }
+
   supabaseAdmin.realtime
     .channel('crawl-jobs-channel')
     .on(
