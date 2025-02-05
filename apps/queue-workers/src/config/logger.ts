@@ -1,6 +1,4 @@
-import winston from 'winston';
-
-import { config } from './app-config';
+import winston from 'winston'
 
 export const logger = winston.createLogger({
   level: 'info',
@@ -10,7 +8,7 @@ export const logger = winston.createLogger({
     }),
     winston.format.colorize(),
     winston.format.printf(({ level, message, timestamp }) => {
-      return `[${config.APP_NAME}][${timestamp}] ${level}: ${message}`;
+      return `[${'QUEUE_WORKER'}][${timestamp}] ${level}: ${message}`
     }),
   ),
   transports: [
@@ -31,4 +29,4 @@ export const logger = winston.createLogger({
       ),
     }),
   ],
-});
+})
