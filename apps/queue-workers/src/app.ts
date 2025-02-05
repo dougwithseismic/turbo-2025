@@ -81,6 +81,12 @@ const server = app.listen(PORT, async () => {
       },
     })
 
+    supabaseJob.status = 'waiting'
+    await supabaseAdmin
+      .from('crawl_jobs')
+      .update(supabaseJob)
+      .eq('id', supabaseJob.id)
+
     console.log('Job added to queue', job.id)
   }
 
