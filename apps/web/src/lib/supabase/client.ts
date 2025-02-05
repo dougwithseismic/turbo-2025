@@ -1,10 +1,9 @@
 'use client'
 
-import { createBrowserClient } from '@supabase/ssr'
 import type { Database } from '@repo/supabase'
-import { clientConfig } from '@/config/env.client'
+import { createBrowserClient } from '@supabase/ssr'
 
 export const supabaseClient = createBrowserClient<Database>(
-  clientConfig.SUPABASE.URL,
-  clientConfig.SUPABASE.ANON_KEY,
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
 )

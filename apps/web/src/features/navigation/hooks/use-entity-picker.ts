@@ -3,11 +3,17 @@
 import * as React from 'react'
 import { usePathname } from 'next/navigation'
 import { useGetUserOrganizations, useGetUserProjects } from '@repo/supabase'
-import { supabaseClient } from '@/lib/supabase/client'
 import type { ComboEntity } from '@/components/ui/entity-combo-picker'
 import type { RealtimeChannel } from '@supabase/supabase-js'
 import { useQueryClient } from '@tanstack/react-query'
 import { organizationKeys } from '@repo/supabase'
+import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@repo/supabase'
+
+export const supabaseClient = createBrowserClient<Database>(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+)
 
 interface UseEntityPickerOptions {
   defaultOrganizationId?: string
