@@ -4,53 +4,20 @@ services:
   redis:
     container_name: turbo-25-redis
     image: redis:7-alpine
+    command: redis-server --requirepass secret123
     ports:
       - '6379:6379'
     volumes:
       - redis-data:/data
     networks:
       - turbo-25-network
-      - monitoring
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     environment:
       - REDIS_USER=${REDIS_USER:-default}
       - REDIS_PASSWORD=${REDIS_PASSWORD:-secret123}
 
-  prometheus:
-    image: prom/prometheus:latest
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    networks:
-      - monitoring
-
-  grafana:
-    image: grafana/grafana:latest
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-    volumes:
-      - grafana-storage:/var/lib/grafana
-      - ./grafana-dashboards:/var/lib/grafana/dashboards
-      - ./grafana-provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana-provisioning/dashboards:/etc/grafana/provisioning/dashboards
-    depends_on:
-      - prometheus
-    networks:
-      - monitoring
-
 volumes:
   redis-data:
-  grafana-storage:
 
 networks:
   turbo-25-network:
     driver: bridge
-  monitoring:
-    name: monitoring

@@ -6,7 +6,7 @@ import './setup-env' // added to conditionally load dotenv in development
 
 import { logger } from './config/logger'
 import { supabaseAdmin } from './lib/supabase'
-import { crawlQueue } from './services/crawl-bull'
+import { crawlQueue, crawlWorker } from './services/crawl-bull'
 
 const PORT = process.env.PORT || 42069
 
@@ -31,7 +31,7 @@ app.use((err: Error, _req: Request, res: Response, next: any) => {
   next(err)
 })
 
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   logger.info(`🚀 :: Server is running on port ${PORT}`)
 
   supabaseAdmin.realtime
@@ -74,7 +74,7 @@ const server = app.listen(PORT, () => {
           },
         })
 
-        console.log('Job added to queue', job)
+        console.log('Job added to queue', job.id)
       },
     )
     .on(

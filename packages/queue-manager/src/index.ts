@@ -7,7 +7,7 @@ import {
   QueueOptions,
   JobsOptions,
 } from 'bullmq'
-import IORedis from 'ioredis'
+import IORedis, { Redis } from 'ioredis'
 import {
   JobHandler,
   StepInfo,
@@ -60,16 +60,7 @@ export class QueueManager {
    * @param redisConfig - Redis connection configuration
    */
   constructor(redisConfig: RedisConfig) {
-    this.connection = new IORedis({
-      enableOfflineQueue: true,
-      connectTimeout: 10000,
-      host: redisConfig.host,
-      port: redisConfig.port,
-      password: redisConfig.password,
-      username: redisConfig.username,
-      tls: redisConfig.tls ? {} : undefined,
-      maxRetriesPerRequest: null,
-    })
+    this.connection = new Redis(redisConfig.url + '?family=0')
   }
 
   /**

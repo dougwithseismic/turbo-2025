@@ -11,6 +11,9 @@ esbuild
     tsconfig: './tsconfig.json',
     format: 'esm',
     external: [...builtinModules],
+    define: {
+      'globalThis.crypto': 'crypto',
+    },
   })
   .then(() => console.log('Build succeeded'))
   .catch((error) => {
