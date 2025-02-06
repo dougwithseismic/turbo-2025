@@ -35,6 +35,8 @@ import { ArrowUpDown, Check, ChevronDown, Copy } from 'lucide-react'
 import { useRef, useState, useMemo } from 'react'
 import { ALL_ACTION_CHECKS } from '../config/action-checks'
 import { useActionPoints } from '../context/action-points-context'
+import { useUrlIssues } from '../context/url-issues-context'
+import { UrlIssuesSelect } from './url-issues-select'
 
 export type UrlMetric = {
   url: string
@@ -417,6 +419,7 @@ export function UrlMetricsTable({ data, jobDetails }: UrlMetricsTableProps) {
   const [open, setOpen] = useState(false)
   const [copied, setCopied] = useState(false)
   const { state } = useActionPoints()
+  const urlIssuesContext = useUrlIssues()
 
   const handleCopy = async () => {
     if (jobDetails) {
@@ -473,14 +476,37 @@ export function UrlMetricsTable({ data, jobDetails }: UrlMetricsTableProps) {
 
   const tableColumns = useMemo(
     () => [
-      ...columns,
+      ...columns.filter((col) => col.id !== 'issues'),
+      {
+        id: 'issues',
+        header: 'Issues',
+        cell: ({ row }) => {
+          const url = row.original.url
+          const urlIssues =
+            urlIssuesContext.state.urlIssues.find((ui) => ui.url === url)
+              ?.issues ?? []
+
+          return (
+            <div className="w-[300px]">
+              <UrlIssuesSelect
+                issues={urlIssuesContext.state.predefinedIssues ?? []}
+                selectedIssues={urlIssues}
+                onSelect={({ issues }) =>
+                  urlIssuesContext.addIssue({ url, issues })
+                }
+                onCreateIssue={urlIssuesContext.createPredefinedIssue}
+              />
+            </div>
+          )
+        },
+      },
       {
         id: 'actions',
         header: 'Actions',
         cell: ({ row }) => <ActionCell row={row} />,
       },
     ],
-    [state.urlActions],
+    [urlIssuesContext, state.urlActions],
   )
 
   const table = useReactTable({

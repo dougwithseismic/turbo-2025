@@ -1,6 +1,5 @@
-import { Button } from '@/components/ui/button'
-import { PageHeader } from '@/features/page-layout/components/page-header'
-import { FetchDemo } from '@/features/project-settings/components/fetch-demo'
+import { Suspense } from 'react'
+import { ProjectContent } from './project-content'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getProject, projectQueries } from '@repo/supabase'
 import {
@@ -8,19 +7,23 @@ import {
   HydrationBoundary,
   QueryClient,
 } from '@tanstack/react-query'
-import { Settings } from 'lucide-react'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Suspense } from 'react'
 
 interface ProjectPageProps {
   params: Promise<{
     id: string
   }>
+  searchParams: Promise<{
+    jobId?: string
+  }>
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectPage({
+  params,
+  searchParams,
+}: ProjectPageProps) {
   const { id } = await params
+  const { jobId } = await searchParams
   const queryClient = new QueryClient()
   const supabase = await createSupabaseServerClient()
 
@@ -34,28 +37,14 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     projectQueries.detail({ supabase, projectId: id }),
   )
 
-  const breadcrumbItems = [
-    { label: 'Dashboard', href: '/dashboard' },
-    { label: `${project.name}`, href: `/project/${id}` },
-  ]
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<div>Loading...</div>}>
-        <PageHeader
-          items={breadcrumbItems}
-          actions={[
-            <Button key="new-report" variant={'outline'} asChild>
-              <Link href={`/project/${id}/settings`}>
-                <Settings className="mr-2 h-4 w-4" />
-                Settings
-              </Link>
-            </Button>,
-          ]}
+        <ProjectContent
+          projectId={id}
+          jobId={jobId}
+          projectName={project.name}
         />
-        <div className="row p-4">
-          <FetchDemo />
-        </div>
       </Suspense>
     </HydrationBoundary>
   )

@@ -1,30 +1,30 @@
 'use client'
 
-import { useState, use } from 'react'
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { PageHeader } from '@/features/page-layout/components/page-header'
+import { Card } from '@/components/ui/card'
+import { supabaseClient } from '@/lib/supabase/client'
+import { useGetProjectSites } from '@repo/supabase'
+import { Plus, Settings } from 'lucide-react'
+import Link from 'next/link'
 import { CrawlForm } from '@/features/crawl/components/crawl-form'
 import { CrawlJobList } from '@/features/crawl/components/crawl-job-list'
 import { CrawlJobDetails } from '@/features/crawl/components/crawl-job-details'
 import { SiteList } from '@/features/crawl/components/site-list'
 import { SiteForm } from '@/features/crawl/components/site-form'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { supabaseClient } from '@/lib/supabase/client'
-import { useGetProjectSites } from '@repo/supabase'
-import { PageHeader } from '@/features/page-layout/components/page-header'
-import { Plus } from 'lucide-react'
 
-interface CrawlPageProps {
-  params: Promise<{
-    id: string
-  }>
-  searchParams: Promise<{
-    jobId?: string
-  }>
+interface ProjectContentProps {
+  projectId: string
+  jobId?: string
+  projectName: string
 }
 
-export default function CrawlPage({ params, searchParams }: CrawlPageProps) {
-  const { id: projectId } = use(params)
-  const { jobId } = use(searchParams)
+export function ProjectContent({
+  projectId,
+  jobId,
+  projectName,
+}: ProjectContentProps) {
   const [selectedSiteId, setSelectedSiteId] = useState<string>()
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isSiteFormOpen, setIsSiteFormOpen] = useState(false)
@@ -35,9 +35,8 @@ export default function CrawlPage({ params, searchParams }: CrawlPageProps) {
   })
 
   const breadcrumbItems = [
-    { label: 'Projects', href: '/projects' },
-    { label: 'Project', href: `/project/${projectId}` },
-    { label: 'Crawl', href: `/project/${projectId}/crawl` },
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: projectName, href: `/project/${projectId}` },
   ]
 
   const pageActions = [
@@ -45,10 +44,16 @@ export default function CrawlPage({ params, searchParams }: CrawlPageProps) {
       <Plus className="mr-2 h-4 w-4" />
       Add Site
     </Button>,
+    <Button key="settings" variant="outline" asChild>
+      <Link href={`/project/${projectId}/settings`}>
+        <Settings className="mr-2 h-4 w-4" />
+        Settings
+      </Link>
+    </Button>,
   ]
 
   return (
-    <div>
+    <>
       <PageHeader items={breadcrumbItems} actions={pageActions} />
       <div className="space-y-6 p-4">
         {isLoadingSites ? (
@@ -111,6 +116,6 @@ export default function CrawlPage({ params, searchParams }: CrawlPageProps) {
           onOpenChange={setIsSiteFormOpen}
         />
       </div>
-    </div>
+    </>
   )
 }

@@ -240,7 +240,7 @@ export function EntityPicker({
         <motion.div
           className="relative flex items-center gap-2 w-full bg-gradient-to-br from-primary to-chart-1 rounded-md text-primary-foreground overflow-hidden"
           transition={{ duration: 0.2 }}
-          onClick={() => router.push('/org/new')}
+          onClick={() => router.push('/onboarding')}
           role="button"
           tabIndex={0}
         >
@@ -267,7 +267,7 @@ export function EntityPicker({
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
             >
-              <span className="font-medium">Create Organization</span>
+              <span className="font-medium">Start Onboarding</span>
             </motion.div>
           </CollapsibleItem.Content>
         </motion.div>

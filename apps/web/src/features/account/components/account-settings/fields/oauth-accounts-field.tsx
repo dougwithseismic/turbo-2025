@@ -3,7 +3,7 @@
 const TEXT = {
   TITLE: 'Connected Accounts',
   DESCRIPTION:
-    'Manage your connected OAuth accounts for easier sign-in and additional features.',
+    'Manage your connected OAuth accounts for access to Google Search Console and Analytics.',
   CONNECTED: 'Connected',
   NOT_CONNECTED: 'Not connected',
   CONNECT: 'Connect',

@@ -1,7 +1,7 @@
 import { PageHeader } from '@/features/page-layout/components/page-header'
 import { CrawlResults } from '@/features/crawl/components/crawl-results'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { crawlQueries } from '@repo/supabase'
+import { crawlQueries, projectQueries, getProject } from '@repo/supabase'
 import {
   dehydrate,
   HydrationBoundary,
@@ -20,14 +20,23 @@ export default async function CrawlPage({ params }: CrawlPageProps) {
   const queryClient = new QueryClient()
   const supabase = await createSupabaseServerClient()
 
+  // Fetch project data for the name
+  const project = await getProject({ supabase, projectId })
+
+  if (!project) {
+    throw new Error('Project not found')
+  }
+
   // Prefetch the crawl job data
   await queryClient.prefetchQuery(crawlQueries.detail({ supabase, jobId }))
+  await queryClient.prefetchQuery(
+    projectQueries.detail({ supabase, projectId }),
+  )
 
   const breadcrumbItems = [
-    { label: 'Projects', href: '/projects' },
-    { label: 'Project', href: `/project/${projectId}` },
-    { label: 'Crawl', href: `/project/${projectId}/crawl` },
-    { label: 'Results', href: `/project/${projectId}/crawls/${jobId}` },
+    { label: 'Dashboard', href: '/dashboard' },
+    { label: project.name, href: `/project/${projectId}` },
+    { label: 'Crawl Results', href: `/project/${projectId}/crawls/${jobId}` },
   ]
 
   return (

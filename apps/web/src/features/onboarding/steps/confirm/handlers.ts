@@ -9,9 +9,10 @@ import { useOnboardingStore } from '../../store/use-onboarding-store'
 
 export const useConfirmHandlers = () => {
   const orgDetails = useOnboardingStore((state) => state.orgDetails)
+  const domain = useOnboardingStore((state) => state.projectDetails?.url)
   const projectDetails = useOnboardingStore((state) => state.projectDetails)
+  const gscPropertyId = useOnboardingStore((state) => state.selectedSite)
   const completeStep = useOnboardingStore((state) => state.completeStep)
-  const selectedSite = useOnboardingStore((state) => state.selectedSite)
   const { mutate: createSite } = useCreateSite({ supabase: supabaseClient })
   const router = useRouter()
 
@@ -34,7 +35,8 @@ export const useConfirmHandlers = () => {
 
       createSite({
         projectId: project.id,
-        domain: selectedSite,
+        domain: domain!,
+        gscPropertyId: gscPropertyId,
       })
 
       completeStep(true)
@@ -49,7 +51,7 @@ export const useConfirmHandlers = () => {
       completeStep(false, errorMessage)
       return false
     }
-  }, [orgDetails, projectDetails, completeStep, selectedSite])
+  }, [orgDetails, projectDetails, completeStep, gscPropertyId, domain])
 
   return {
     handleConfirm,

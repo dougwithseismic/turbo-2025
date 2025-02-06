@@ -4,6 +4,7 @@ import { useGetCrawlJob } from '@repo/supabase'
 import { supabaseClient } from '@/lib/supabase/client'
 import { SiteMetricsDashboard } from './site-metrics-dashboard'
 import { ActionPointsProvider } from '../context/action-points-context'
+import { UrlIssuesProvider } from '../context/url-issues-context'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { UrlMetricsTable } from './url-metrics-table'
 import {
@@ -33,18 +34,20 @@ export function CrawlResults({ jobId }: CrawlResultsProps) {
 
   return (
     <ActionPointsProvider>
-      <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="overview">Site Overview</TabsTrigger>
-          <TabsTrigger value="pages">Page Details</TabsTrigger>
-        </TabsList>
-        <TabsContent value="overview">
-          <SiteMetricsDashboard jobId={jobId} />
-        </TabsContent>
-        <TabsContent value="pages">
-          <UrlMetricsTable data={urlMetrics} jobDetails={jobDetails} />
-        </TabsContent>
-      </Tabs>
+      <UrlIssuesProvider>
+        <Tabs defaultValue="overview" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="overview">Site Overview</TabsTrigger>
+            <TabsTrigger value="pages">Page Details</TabsTrigger>
+          </TabsList>
+          <TabsContent value="overview">
+            <SiteMetricsDashboard jobId={jobId} />
+          </TabsContent>
+          <TabsContent value="pages">
+            <UrlMetricsTable data={urlMetrics} jobDetails={jobDetails} />
+          </TabsContent>
+        </Tabs>
+      </UrlIssuesProvider>
     </ActionPointsProvider>
   )
 }
