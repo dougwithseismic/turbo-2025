@@ -15,6 +15,7 @@ export interface CrawlConfig {
     email: string
   }
   scPropertyName: string
+  gaProfileId: string
   url: string
   maxDepth?: number
   maxPages?: number

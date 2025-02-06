@@ -19,6 +19,7 @@ import { PerformancePlugin } from './crawler/plugins/performance'
 import { SecurityPlugin } from './crawler/plugins/security'
 import { SeoPlugin } from './crawler/plugins/seo'
 import { fileURLToPath } from 'url'
+import { GoogleAnalyticsPlugin } from './crawler/plugins/google/analytics'
 
 interface CrawlJobData {
   crawlId: string
@@ -61,21 +62,32 @@ const {
               new PerformancePlugin({ enabled: true }),
               new SecurityPlugin({ enabled: true }),
               new MobileFriendlinessPlugin({ enabled: true }),
+            ],
+            config: {
+              debug: true,
+            },
+          })
+
+          if (config.scPropertyName) {
+            crawlerService.addPlugin(
               new GoogleSearchConsolePlugin({
                 userId: config.user?.id!,
                 email: config.user?.email!,
                 siteUrl: config.url,
                 scPropertyName: config.scPropertyName!,
               }),
-              // new GoogleAnalyticsPlugin({
-              //   userId: job.data.config.user?.id!,
-              //   email: job.data.config.user?.email!,
-              // }),
-            ],
-            config: {
-              debug: true,
-            },
-          })
+            )
+          }
+
+          if (config.gaProfileId) {
+            crawlerService.addPlugin(
+              new GoogleAnalyticsPlugin({
+                profileId: job.data.config.gaProfileId!,
+                userId: job.data.config.user?.id!,
+                email: job.data.config.user?.email!,
+              }),
+            )
+          }
 
           // Set up crawler event handlers
           crawlerService.on('jobStart', async ({ jobId, job: crawlJob }) => {

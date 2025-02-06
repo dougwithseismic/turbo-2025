@@ -78,6 +78,7 @@ const server = app.listen(PORT, async () => {
           : `https://${site?.domain}`,
         scPropertyName: supabaseJob.gsc_property_id || '',
         user: { id: user?.id, email: user?.email },
+        gaProfileId: supabaseJob.ga_property_id || '',
       },
     })
 
@@ -127,6 +128,7 @@ const server = app.listen(PORT, async () => {
               : `https://${site?.domain}`,
             scPropertyName: payload.new.gsc_property_id,
             user: { id: user?.id, email: user?.email },
+            gaProfileId: payload.new.ga_property_id,
           },
         })
 
